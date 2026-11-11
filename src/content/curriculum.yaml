@@ -1,0 +1,204 @@
+# The learning layers (layer n is the n-th entry) and the learning paths that order them.
+curriculum:
+  layers:
+    - n: 1
+      name:
+        en: Core languages
+        vi: Ngôn ngữ nền tảng
+      color: "#2563EB"
+      short: SQL, Python, Jinja, YAML, Bash
+    - n: 2
+      name:
+        en: Ingestion and ELT
+        vi: Nạp dữ liệu và ELT
+      color: "#0891B2"
+      short:
+        en: Batch, CDC, streaming, backfills
+        vi: Batch, CDC, streaming, backfill
+    - n: 3
+      name:
+        en: Warehouse and lakehouse
+        vi: Warehouse và lakehouse
+      color: "#7C3AED"
+      short:
+        en: Engines, table formats, cost
+        vi: Engine, table format, chi phí
+    - n: 4
+      name:
+        en: Transformation
+        vi: Biến đổi dữ liệu
+      color: "#EA580C"
+      short: dbt, SQLMesh, Dataform, Spark
+    - n: 5
+      name:
+        en: Orchestration
+        vi: Điều phối
+      color: "#16A34A"
+      short:
+        en: DAGs, assets, retries, SLAs
+        vi: DAG, asset, retry, SLA
+    - n: 6
+      name:
+        en: Semantic and metrics layer
+        vi: Semantic và metrics layer
+      color: "#DB2777"
+      short:
+        en: One definition per metric
+        vi: Một định nghĩa cho mỗi metric
+    - n: 7
+      name:
+        en: BI and visualization
+        vi: BI và trực quan hóa
+      color: "#B45309"
+      short:
+        en: Dashboards, self-service, apps
+        vi: Dashboard, self-service, data app
+    - n: 8
+      name:
+        en: Data quality and observability
+        vi: Chất lượng dữ liệu và observability
+      color: "#DC2626"
+      short:
+        en: Tests, monitors, data diff
+        vi: Test, monitor, data diff
+    - n: 9
+      name:
+        en: Governance and catalog
+        vi: Quản trị dữ liệu và catalog
+      color: "#0F766E"
+      short:
+        en: Contracts, lineage, PII, RBAC
+        vi: Contract, lineage, PII, RBAC
+    - n: 10
+      name:
+        en: Reverse ETL and activation
+        vi: Reverse ETL và activation
+      color: "#4F46E5"
+      short:
+        en: Warehouse back to operational tools
+        vi: Đẩy dữ liệu từ warehouse về công cụ vận hành
+    - n: 11
+      name:
+        en: DevOps and engineering practices
+        vi: DevOps và thực hành kỹ thuật
+      color: "#475569"
+      short:
+        en: Git, CI/CD, IaC, cloud basics
+        vi: Git, CI/CD, IaC, cloud cơ bản
+    - n: 12
+      name:
+        en: Modeling and design
+        vi: Mô hình hóa và thiết kế
+      color: "#4D7C0F"
+      short:
+        en: Kimball, Data Vault, medallion, SCDs
+        vi: Kimball, Data Vault, medallion, SCD
+    - n: 13
+      name:
+        en: Advanced analytics and AI
+        vi: Phân tích nâng cao và AI
+      color: "#C026D3"
+      short:
+        en: Experiments, causal, LLMs, guardrails
+        vi: Thử nghiệm, nhân quả, LLM, guardrail
+    - n: 14
+      name:
+        en: Senior-level soft skills
+        vi: Kỹ năng mềm cấp senior
+      color: "#0369A1"
+      short:
+        en: Stakeholders, ADRs, build vs buy
+        vi: Stakeholder, ADR, build vs buy
+    - n: 15
+      name:
+        en: "AI engineering: MCP, RAG, agents"
+        vi: "Kỹ thuật AI: MCP, RAG, agent"
+      color: "#9333EA"
+      short: Tool calling, MCP, RAG, graph, loop, harness
+    - n: 16
+      name:
+        en: ML and deep learning models
+        vi: Mô hình ML và deep learning
+      color: "#A16207"
+      short:
+        en: How each famous model works, formats, variables
+        vi: "Từng model nổi tiếng: cách hoạt động, định dạng, biến"
+    - n: 17
+      name:
+        en: Security and networking
+        vi: Bảo mật và mạng
+      color: "#B91C1C"
+      short:
+        en: IAM, VPC, encryption, secrets, zero trust, GDPR
+        vi: IAM, VPC, mã hóa, secret, zero trust, GDPR
+    - n: 18
+      name:
+        en: Distributed systems and reliability
+        vi: Hệ thống phân tán và độ tin cậy
+      color: "#0E7490"
+      short: CAP, replication, idempotency, HA, DR, RPO, RTO
+    - n: 19
+      name:
+        en: FinOps and performance engineering
+        vi: FinOps và kỹ thuật hiệu năng
+      color: "#15803D"
+      short:
+        en: Cost model, query tuning, shuffle, lag, capacity
+        vi: Mô hình chi phí, tối ưu query, shuffle, lag, năng lực
+    - n: 20
+      name:
+        en: "Engineering foundations: networking, Linux, Git, transactions"
+        vi: "Nền tảng kỹ thuật: mạng, Linux, Git, transaction"
+      color: "#334155"
+      short:
+        en: DNS, TCP, TLS, OS resources, CI/CD, isolation levels
+        vi: DNS, TCP, TLS, tài nguyên OS, CI/CD, isolation level
+    - n: 21
+      name:
+        en: Data engineering concepts and modeling theory
+        vi: Khái niệm data engineering và lý thuyết mô hình hóa
+      color: "#7C2D12"
+      short:
+        en: Lifecycle, normalization, Inmon vs Kimball, ECM, MDM
+        vi: Lifecycle, chuẩn hóa, Inmon vs Kimball, ECM, MDM
+    - n: 22
+      name:
+        en: Data formats, columnar engines and query engines
+        vi: Định dạng dữ liệu, engine cột và query engine
+      color: "#1D4ED8"
+      short:
+        en: Parquet, Arrow, DataFusion, push-downs, OLAP
+        vi: Parquet, Arrow, DataFusion, push-down, OLAP
+    - n: 23
+      name:
+        en: Processing paradigms and analytics serving
+        vi: Mô hình xử lý và phục vụ analytics
+      color: "#0F766E"
+      short:
+        en: ETL vs ELT, functional, declarative, APIs, toolkit
+        vi: ETL vs ELT, functional, declarative, API, toolkit
+  paths:
+    - name:
+        en: 1. Foundations and problem framing
+        vi: 1. Nền tảng và xác định bài toán
+      layers: [20, 1, 21]
+    - name:
+        en: 2. Data platform and ingestion
+        vi: 2. Nền tảng dữ liệu và ingestion
+      layers: [3, 22, 2]
+    - name:
+        en: 3. Transform, model and orchestrate
+        vi: 3. Biến đổi, mô hình hóa và điều phối
+      layers: [4, 12, 5, 23]
+    - name:
+        en: 4. Govern, serve and activate
+        vi: 4. Quản trị, phục vụ và kích hoạt dữ liệu
+      layers: [9, 6, 7, 8, 10]
+    - name:
+        en: 5. Production engineering and reliability
+        vi: 5. Kỹ thuật production và độ tin cậy
+      layers: [11, 17, 18, 19]
+    - name:
+        en: 6. Advanced analytics and senior practice
+        vi: 6. Analytics nâng cao và thực hành senior
+      layers: [13, 15, 16, 14]

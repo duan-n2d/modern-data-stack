@@ -1,0 +1,83 @@
+tech:
+  id: hadoop
+  name: Hadoop
+  color: "#B45309"
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "Hadoop: architecture"
+      vi: "Hadoop: kiến trúc"
+    lead:
+      en: Hadoop couples storage (HDFS), resources (YARN) and batch engines on the same machines. Its ideas live on even where the stack has been replaced.
+      vi: Hadoop gắn chặt storage (HDFS), tài nguyên (YARN) và các engine batch trên cùng các máy. Các ý tưởng của nó vẫn sống ngay cả khi stack đã được thay thế.
+    svg: hadoopSVG
+    cap:
+      en: Today most new platforms use object storage plus Kubernetes or managed engines. HDFS and YARN remain common on-premises.
+      vi: Ngày nay hầu hết nền tảng mới dùng object storage cộng Kubernetes hoặc các engine managed. HDFS và YARN vẫn phổ biến on-premises.
+    n:
+      en: "The architectural lesson is coupling: storage and compute in the same box. Cloud platforms separate them, which is what changed cost and elasticity."
+      vi: "Bài học kiến trúc là coupling: storage và compute nằm trong cùng một máy. Các nền tảng cloud tách chúng ra, và đã là điều đó thay đổi chi phí và tính co giãn."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "Hadoop: components and workflow"
+      vi: "Hadoop: thành phần và quy trình"
+    comps:
+      - - NameNode
+        - en: Holds the file system namespace and block locations. Runs active and standby for high availability
+          vi: Giữ namespace của hệ thống file và vị trí block. Chạy active và standby để có high availability
+      - - JournalNodes
+        - en: Quorum that stores the shared edit log for NameNode failover
+          vi: Quorum lưu edit log dùng chung cho failover của NameNode
+      - - DataNode
+        - en: Stores blocks (128 MB default) and serves reads and writes
+          vi: Lưu các block (mặc định 128 MB) và phục vụ đọc ghi
+      - - Replication / erasure coding
+        - en: Three copies by default; erasure coding lowers storage cost for cold data
+          vi: Mặc định ba bản sao; erasure coding giảm chi phí lưu trữ cho dữ liệu lạnh
+      - - ResourceManager
+        - en: Cluster-wide scheduler for YARN applications
+          vi: Scheduler toàn cluster cho các ứng dụng YARN
+      - - NodeManager
+        - en: Per-node agent that launches and monitors containers
+          vi: Agent trên mỗi node khởi chạy và giám sát container
+      - - ApplicationMaster
+        - en: Per-application coordinator that requests containers
+          vi: Bộ điều phối theo từng ứng dụng, yêu cầu container
+      - - MapReduce
+        - en: "Batch model: map, shuffle and sort, reduce"
+          vi: "Mô hình batch: map, shuffle và sort, reduce"
+      - - Hive Metastore
+        - en: Table metadata still used by Spark, Trino and Iceberg catalogs
+          vi: Metadata bảng vẫn được Spark, Trino và các catalog Iceberg sử dụng
+      - - HBase
+        - en: Wide-column store on top of HDFS
+          vi: Wide-column store trên nền HDFS
+    flow:
+      - en: "Write: client asks the NameNode to create a file and receives DataNodes for each block."
+        vi: "Ghi: client yêu cầu NameNode tạo file và nhận các DataNode cho từng block."
+      - en: The client streams a block through a pipeline of DataNodes, which replicate it and acknowledge.
+        vi: Client stream một block qua pipeline các DataNode, chúng replicate và acknowledge.
+      - en: "Read: NameNode returns block locations and the client reads from a nearby DataNode."
+        vi: "Đọc: NameNode trả về vị trí block và client đọc từ một DataNode gần."
+      - en: "Job: client submits to the ResourceManager, which starts an ApplicationMaster."
+        vi: "Job: client submit tới ResourceManager, nơi khởi động một ApplicationMaster."
+      - en: Map tasks run close to their data blocks (data locality), then shuffle and sort.
+        vi: Map task chạy gần các block dữ liệu của chúng (data locality), rồi shuffle và sort.
+      - en: Reduce tasks write results back to HDFS.
+        vi: Reduce task ghi kết quả trở lại HDFS.
+    ops:
+      - en: Many small files exhaust NameNode memory. Compact them.
+        vi: Nhiều file nhỏ làm cạn bộ nhớ NameNode. Hãy compact chúng.
+      - en: Data locality mattered when compute and disks shared nodes. Object storage removed that coupling.
+        vi: Data locality quan trọng khi compute và đĩa dùng chung node. Object storage đã gỡ bỏ sự gắn kết đã.
+      - en: "Migration path: keep Parquet or ORC and the Hive Metastore, decouple storage, replace YARN with Kubernetes or managed engines."
+        vi: "Lộ trình migration: giữ Parquet hoặc ORC và Hive Metastore, tách storage, thay YARN bằng Kubernetes hoặc engine managed."
+      - en: Know it for legacy estates and to understand why cloud lakehouses look the way they do.
+        vi: Cần biết cho các hệ thống legacy và để hiểu vì sao cloud lakehouse có hình dạng như ngày nay.
+    n:
+      en: "Use the workflow to explain data locality. Then connect it to today: formats and the metastore survived, the coupling did not."
+      vi: "Dùng workflow để giải thích data locality. Sau đó nối với hiện tại: format và metastore còn tồn tại, còn coupling thì không."

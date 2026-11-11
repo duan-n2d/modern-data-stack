@@ -1,0 +1,473 @@
+layer: 8
+slides:
+  - id: data-quality-and-observability-earn-and-keep-trust
+    k: cards
+    t:
+      en: "Data quality and observability: earn and keep trust"
+      vi: "Chất lượng dữ liệu và observability: giành và giữ niềm tin"
+    lead:
+      en: Quality is testing what you expect. Observability is noticing what you did not expect.
+      vi: Chất lượng là kiểm tra điều bạn mong đợi. Observability là nhận ra điều bạn không ngờ tới.
+    cols: 3
+    cards:
+      - h:
+          en: Freshness
+          vi: Độ mới (freshness)
+        tag: must
+        p:
+          en: Did the data arrive on time?
+          vi: Dữ liệu có đến đúng giờ không?
+      - h:
+          en: Volume
+          vi: Khối lượng (volume)
+        tag: must
+        p:
+          en: Did the usual number of rows arrive? Zero rows and doubled rows are both incidents.
+          vi: Số dòng đến có đúng như thường lệ không? Không có dòng nào và gấp ??i số dòng đều là sự cố.
+      - h: Schema
+        tag: must
+        p:
+          en: Did columns appear, vanish or change type?
+          vi: Có cột nào xuất hiện, biến mất hoặc đổi kiểu không?
+      - h:
+          en: Distribution
+          vi: Phân phối
+        tag: must
+        p:
+          en: Did null rates, ranges or category mixes shift?
+          vi: Tỷ lệ null, khoảng giá trị hoặc cơ cấu category có thay đổi không?
+      - h:
+          en: Lineage and impact
+          vi: Lineage và tác động
+        tag: senior
+        p:
+          en: Who consumes this table? Observability tools use lineage to scope an incident.
+          vi: Ai dùng bảng này? Công cụ observability dùng lineage để khoanh vùng sự cố.
+      - h:
+          en: Incident discipline
+          vi: Kỷ luật xử lý sự cố
+        tag: senior
+        p:
+          en: Detect, triage, communicate, fix, and learn. Good alerting is as important as good checks.
+          vi: Phát hiện, phân loại, thông báo, sửa và rút kinh nghiệm. Alerting tốt quan trọng ngang check tốt.
+    n:
+      en: Introduce the four classic check categories, then make the point that a test only catches what someone thought to write. Monitors catch the unknown unknowns, at the cost of noise.
+      vi: Giới thiệu bốn nhóm check kinh điển, rồi nhấn mạnh rằng test chỉ bắt được những gì có người nghĩ ra để viết. Monitor bắt được các unknown unknown, đổi lại là nhiễu.
+  - id: tool-landscape-quality-and-observability
+    k: table
+    t:
+      en: "Tool landscape: quality and observability"
+      vi: "Bức tranh công cụ: chất lượng và observability"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - en: dbt tests
+          vi: dbt test
+        - en: Built-in testing
+          vi: Testing tích hợp sẵn
+        - en: Assertions on models in dbt projects
+          vi: Assertion trên model trong dự án dbt
+        - en: No extra tool; runs in your pipeline; version-controlled
+          vi: Không cần thêm công cụ; chạy trong pipeline; được quản lý phiên bản
+        - en: Rule-based only; no anomaly detection by itself
+          vi: Chỉ dựa trên quy tắc; tự nó không phát hiện anomaly
+        - en: Included with dbt
+          vi: Đi kèm dbt
+      - - Great Expectations
+        - en: Validation framework (Python)
+          vi: Framework validation (Python)
+        - en: Programmable validations across data sources
+          vi: Validation lập trình được trên nhiều nguồn dữ liệu
+        - en: Rich expectation library; works with many backends
+          vi: Thư viện expectation phong phú; hoạt động với nhiều backend
+        - en: More setup and configuration than dbt tests
+          vi: Setup và cấu hình nhiều hơn dbt test
+        - en: Open source core plus a managed offering
+          vi: Lõi mã nguồn mở kèm dịch vụ managed
+      - - Soda
+        - en: Checks language and platform
+          vi: Ngôn ngữ check và nền tảng
+        - en: Declarative checks with a simple YAML-like language
+          vi: Check khai báo (declarative) bằng ngôn ngữ đơn giản giống YAML
+        - en: Readable checks; open-source scanning engine
+          vi: Check dễ đọc; engine scan mã nguồn mở
+        - en: Advanced features need the paid platform
+          vi: Tính năng nâng cao cần nền tảng trả phí
+        - en: Open source plus platform plans
+          vi: Mã nguồn mở kèm gói nền tảng
+      - - Elementary
+        - en: dbt-native observability (open source)
+          vi: Observability native với dbt (mã nguồn mở)
+        - en: dbt teams wanting anomaly tests and reports in dbt
+          vi: Nhóm dbt muốn anomaly test và báo cáo ngay trong dbt
+        - en: Runs inside dbt; reports from dbt artifacts
+          vi: Chạy bên trong dbt; báo cáo từ dbt artifact
+        - en: Tied to dbt workflows
+          vi: Gắn chặt với workflow dbt
+        - en: Open source plus cloud option
+          vi: Mã nguồn mở kèm tùy chọn cloud
+      - - Monte Carlo
+        - en: Data observability platform
+          vi: Nền tảng data observability
+        - en: Enterprises wanting broad automated monitoring
+          vi: Doanh nghiệp muốn monitoring tự động diện rộng
+        - en: Automated monitors; lineage; incident workflow
+          vi: Monitor tự động; lineage; workflow xử lý sự cố
+        - en: Cost; tuning needed to limit noisy alerts
+          vi: Chi phí; cần tinh chỉnh để giảm alert nhiễu
+        - Subscription
+      - - Datafold
+        - en: Data diff and CI
+          vi: Data diff và CI
+        - en: Seeing the data impact of a code change before merge
+          vi: Thấy tác động lên dữ liệu của một thay đổi code trước khi merge
+        - en: Compares PR build to production
+          vi: So sánh bản build của PR với production
+        - en: Primarily a change-validation tool, not a monitor
+          vi: Chủ yếu là công cụ kiểm tra thay đổi, không phải monitor
+        - Subscription
+      - - Bigeye / Metaplane
+        - en: Observability platforms
+          vi: Nền tảng observability
+        - en: Monitoring tables without writing every test
+          vi: Giám sát bảng mà không cần viết từng test
+        - en: Metric monitors with anomaly detection
+          vi: Metric monitor với phát hiện anomaly
+        - en: Cost; may overlap with in-pipeline tests
+          vi: Chi phí; có thể trùng với test trong pipeline
+        - Subscription
+    cap:
+      en: "Common combination: dbt tests for rules, an anomaly monitor for the unknown, and data diff in CI for change safety."
+      vi: "Kết hợp phổ biến: dbt test cho các quy tắc, anomaly monitor cho điều chưa biết, và data diff trong CI để an toàn khi thay đổi."
+    n:
+      en: "Three jobs: assert rules (dbt tests, Great Expectations, Soda), detect anomalies (Elementary, Monte Carlo, Bigeye, Metaplane), and validate changes (Datafold). Most teams need all three eventually, not all on day one."
+      vi: "Ba việc: kiểm tra quy tắc (dbt test, Great Expectations, Soda), phát hiện anomaly (Elementary, Monte Carlo, Bigeye, Metaplane) và validate thay đổi (Datafold). Hầu hết các nhóm rồi sẽ cần cả ba, nhưng không phải ngay từ ngày đầu."
+  - id: deep-dive-layered-checks-in-dbt-and-soda
+    k: code
+    t:
+      en: "Deep dive: layered checks in dbt and Soda"
+      vi: "Đào sâu: kiểm tra nhiều tầng trong dbt và Soda"
+    lead:
+      en: Rule-based tests, anomaly monitors and a business rule, each at the level where it is cheapest to run.
+      vi: Test dựa trên quy tắc, anomaly monitor và một business rule, mỗi cái ở tầng mà chi phí chạy rẻ nhất.
+    blocks:
+      - lang: yaml
+        title: models/marts/_marts__models.yml (dbt + Elementary)
+        code: |-
+          models:
+            - name: fct_orders
+              data_tests:
+                - elementary.volume_anomalies:
+                    timestamp_column: ordered_at
+                - elementary.freshness_anomalies:
+                    timestamp_column: updated_at
+                - elementary.schema_changes
+              columns:
+                - name: order_id
+                  data_tests: [unique, not_null]
+                - name: order_amount
+                  data_tests:
+                    - not_null
+                    - dbt_utils.accepted_range:
+                        min_value: 0
+                        inclusive: true
+      - lang: sql
+        title: tests/assert_revenue_matches_finance.sql (singular test)
+        code: |-
+          -- Fails (returns rows) when monthly revenue differs from the
+          -- finance-approved figures by more than 0.5 percent.
+          with ours as (
+              select date_trunc('month', ordered_at) as month, sum(order_amount) as revenue
+              from {{ ref('fct_orders') }}
+              group by 1
+          ),
+          finance as (
+              select month, revenue from {{ ref('finance_monthly_revenue') }}
+          )
+          select o.month, o.revenue, f.revenue as finance_revenue
+          from ours o
+          join finance f using (month)
+          where abs(o.revenue - f.revenue) > 0.005 * f.revenue
+      - lang: yaml
+        title: checks/orders.yml (SodaCL)
+        code: |-
+          checks for orders:
+            - row_count > 0
+            - freshness(updated_at) < 6h
+            - missing_count(customer_id) = 0
+            - duplicate_count(order_id) = 0
+            - schema:
+                name: Required columns exist
+                fail:
+                  when required column missing: [order_id, customer_id, order_amount]
+    n:
+      en: "Three tools, one idea: put each check where it is cheapest and most precise. The singular test is the business reconciliation; Elementary covers volume, freshness and schema monitoring; Soda shows the same rules in a different, declarative syntax. Package versions and exact test names should be checked against current docs."
+      vi: "Ba công cụ, một ý tưởng: đặt mỗi check ở nơi rẻ nhất và chính xác nhất. Singular test là đối soát nghiệp vụ; Elementary lo monitoring volume, freshness và schema; Soda thể hiện cùng các quy tắc đã bằng một cú pháp declarative khác. Phiên bản package và tên test chính xác nên được kiểm tra lại với tài liệu hiện hành."
+  - id: design-pattern-the-data-test-pyramid
+    k: svg
+    t:
+      en: "Design pattern: the data test pyramid"
+      vi: "Mẫu thiết kế: kim tự tháp test dữ liệu"
+    lead:
+      en: Most checks should be cheap and generic. Reserve expensive, targeted checks for the places where errors are costly.
+      vi: Hầu hết check nên rẻ và tổng quát. Dành các check đắt, nhắm mục tiêu cho những nơi mà lỗi gây tốn kém.
+    svg: pyramidSVG
+    cap:
+      en: Add a test after an incident, never just to hit a coverage number. Each test should be tied to a failure you care about.
+      vi: Thêm test sau một sự cố, đừng chỉ để đạt con số coverage. Mỗi test nên gắn với một lỗi mà bạn quan tâm.
+    n:
+      en: "Compare with software testing: lots of unit tests at the bottom, few end-to-end tests at the top. In data, the base is generic tests on every model, and the top is reconciliation against an independent source such as finance."
+      vi: "So sánh với software testing: nhiều unit test ở đây, ít end-to-end test ở đỉnh. Với dữ liệu, đây là các test tổng quát trên mọi model, và đỉnh là đối soát với nguồn độc lập như bộ phận tài chính."
+  - id: incident-response-and-alert-fatigue
+    k: cards
+    t:
+      en: Incident response and alert fatigue
+      vi: Xử lý sự cố và mệt mỏi vì cảnh báo
+    lead:
+      en: Detection is half the job. The other half is making sure the right person acts calmly and quickly.
+      vi: Phát hiện chỉ là một nửa công việc. Nửa còn lại là đảm bảo đúng người hành động một cách bình tĩnh và nhanh chóng.
+    cols: 3
+    cards:
+      - h:
+          en: Severity and ownership
+          vi: Mức độ nghiêm trọng và quyền sở hữu
+        p:
+          en: Every important table has an owner and a severity level. Page for broken executive reports, not for experimental tables.
+          vi: Mỗi bảng quan trọng có owner và mức severity. Page khi báo cáo cho lãnh đạo hỏng, không page cho bảng thử nghiệm.
+        tag: senior
+      - h:
+          en: Route and group alerts
+          vi: Định tuyến và gom alert
+        p:
+          en: Alert the owning team, group related failures and suppress downstream noise from a single upstream break.
+          vi: Alert tới đúng nhóm sở hữu, gom các lỗi liên quan và chặn nhiễu downstream từ một điểm hỏng upstream duy nhất.
+        tag: senior
+      - h:
+          en: Tune or delete noisy checks
+          vi: Tinh chỉnh hoặc xóa check gây nhiễu
+        p:
+          en: An alert that is ignored is worse than none. Review alert volume monthly.
+          vi: Alert bị phớt lờ còn tệ hơn không có alert. Review khối lượng alert hằng tháng.
+        tag: must
+      - h:
+          en: Communicate early
+          vi: Thông báo sớm
+        p:
+          en: Tell consumers what is wrong, what is affected and when the next update is, before they ask.
+          vi: Báo cho bên dùng dữ liệu biết cái gì đang sai, cái gì bị ảnh hưởng và khi nào có cập nhật tiếp theo, trước khi họ hỏi.
+        tag: must
+      - h:
+          en: Blameless postmortems
+          vi: Postmortem không đổ lỗi
+        p:
+          en: Capture the cause, detection gap and one improvement. Turn each into a test or monitor.
+          vi: Ghi lại nguyên nhân, khoảng trống trong phát hiện và một cải tiến. Biến mỗi thứ thành một test hoặc monitor.
+        tag: senior
+      - h:
+          en: Data diff in CI
+          vi: Data diff trong CI
+        p:
+          en: Compare the PR build to production for changed models. It catches unintended impact before merge.
+          vi: So sánh bản build của PR với production cho các model thay đổi. Nó bắt được tác động ngoài ý muốn trước khi merge.
+        tag: senior
+    n:
+      en: Alert fatigue kills observability programs. Fewer, better alerts with clear owners beat comprehensive coverage nobody reads.
+      vi: Alert fatigue giết chết các chương trình observability. Ít alert hơn nhưng tốt hơn, có owner rõ ràng, thắng độ phủ toàn diện mà không ai đọc.
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Testing only primary keys.
+          vi: Chỉ test primary key.
+        why:
+          en: Misses freshness, volume and business-rule failures.
+          vi: Bỏ sót lỗi freshness, volume và business rule.
+        fix:
+          en: Layer checks according to the pyramid.
+          vi: Phân tầng check theo hình kim tự tháp.
+      - bad:
+          en: Alerting on everything.
+          vi: Alert cho mọi thứ.
+        why:
+          en: People mute the channel.
+          vi: Mọi người mute kênh.
+        fix:
+          en: Tiered severity, owners and weekly review.
+          vi: Severity phân tầng, có owner và review hằng tuần.
+      - bad:
+          en: Anomaly monitors on volatile tables with default thresholds.
+          vi: Anomaly monitor trên bảng biến động mạnh với ngưỡng mặc định.
+        why:
+          en: Constant false positives.
+          vi: False positive liên tục.
+        fix:
+          en: Tune seasonality and thresholds, or skip the table.
+          vi: Tinh chỉnh seasonality và ngưỡng, hoặc bỏ qua bảng đã.
+      - bad:
+          en: Tests that fail but do not block.
+          vi: Test fail nhưng không chặn.
+        why:
+          en: Bad data ships anyway.
+          vi: Dữ liệu xấu vẫn được ship.
+        fix:
+          en: Decide which tests block deploys and which warn.
+          vi: Quyết định test nào chặn deploy và test nào chỉ cảnh báo.
+      - bad:
+          en: No owner or runbook.
+          vi: Không có owner hoặc runbook.
+        why:
+          en: Alerts arrive and nobody acts.
+          vi: Alert đến nhưng không ai xử lý.
+        fix:
+          en: Assign owners; link a runbook in each alert.
+          vi: Gán owner; gắn link runbook trong mỗi alert.
+      - bad:
+          en: Buying a platform instead of defining quality.
+          vi: Mua nền tảng thay vì định nghĩa chất lượng.
+        why:
+          en: Tools cannot decide what “good” means.
+          vi: Công cụ không thể quyết định “tốt” nghĩa là gì.
+        fix:
+          en: Define SLAs and critical tables first.
+          vi: Định nghĩa SLA và các bảng quan trọng trước.
+    n:
+      en: The last pitfall is organizational. Tools help only after the team agrees what to protect.
+      vi: Cái bẫy cuối cùng mang tính tổ chức. Công cụ chỉ hữu ích sau khi nhóm thống nhất cần bảo vệ cái gì.
+  - id: what-senior-looks-like-quality-and-observability
+    k: cards
+    t:
+      en: "What senior looks like: quality and observability"
+      vi: "Senior trông như thế nào: chất lượng và observability"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: Which tables are critical
+            vi: Bảng nào là quan trọng
+          - en: What blocks a deploy and what warns
+            vi: Cái gì chặn deploy và cái gì chỉ cảnh báo
+          - en: Build monitors or buy a platform
+            vi: Tự xây monitor hay mua nền tảng
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Coverage versus alert noise
+            vi: Độ phủ và nhiễu alert
+          - en: Speed of delivery versus depth of testing
+            vi: Tốc độ giao hàng và độ sâu của testing
+          - en: Tool cost versus engineering time
+            vi: Chi phí công cụ và thời gian của engineer
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Define data SLAs with stakeholders
+            vi: Định nghĩa data SLA cùng các stakeholder
+          - en: Run incident response and postmortems
+            vi: Vận hành incident response và postmortem
+          - en: Track quality metrics over time
+            vi: Theo dõi metric chất lượng theo thời gian
+          - en: Make quality part of the definition of done
+            vi: Đưa chất lượng vào định nghĩa của “done”
+    n:
+      en: "Seniors treat data quality as a product with measurable outcomes: incident counts, time to detect and time to resolve."
+      vi: "Senior coi chất lượng dữ liệu là một sản phẩm với kết quả đo được: số sự cố, thời gian phát hiện và thời gian xử lý."
+  - id: data-quality-lab-contracts-and-anomaly-detection
+    k: lab
+    t:
+      en: "Data quality lab: contracts and anomaly detection"
+      vi: "Lab chất lượng dữ liệu: contract và phát hiện bất thường"
+    lead:
+      en: Plant defects, then catch them with the cheapest control that works.
+      vi: Gài lỗi, rồi bắt chúng bằng kiểm soát rẻ nhất mà hiệu quả.
+    scenario:
+      en: An upstream team changes a column and a feed silently loses half its rows.
+      vi: Một đội phía trên đổi một cột và một nguồn âm thầm mất nửa số dòng.
+    input:
+      en: A dbt project over a small warehouse, a generator that plants duplicates, a null spike, late data, a schema change and a volume drop.
+      vi: Một dự án dbt trên warehouse nhỏ, bộ sinh gài trùng lặp, đột biến NULL, dữ liệu trễ, đổi schema và giảm khối lượng.
+    tasks:
+      - en: Add a model contract and generic tests.
+        vi: Thêm contract cho model và các test generic.
+      - en: Add freshness and volume anomaly monitors.
+        vi: Thêm monitor bất thường về freshness và khối lượng.
+      - en: Run the generator and record which control caught each defect.
+        vi: Chạy bộ sinh và ghi lại kiểm soát nào bắt từng lỗi.
+      - en: Route alerts to an owner and write one incident note in the eight-step format.
+        vi: Chuyển cảnh báo tới chủ sở hữu và viết một ghi chú sự cố theo định dạng tám bước.
+    expected:
+      en: A matrix of defect versus control, with false positives counted.
+      vi: Ma trận lỗi so với kiểm soát, có đếm số báo động giả.
+    rubric:
+      - en: Every planted defect is detected
+        vi: Mọi lỗi đã gài đều được phát hiện
+      - en: False positives are measured and reduced
+        vi: Báo động giả được đo và giảm
+      - en: Alerts have owners and runbooks
+        vi: Cảnh báo có chủ sở hữu và runbook
+    design:
+      en: Decide which tests block a deployment and which only warn, and defend the line.
+      vi: Quyết định test nào chặn deploy và test nào chỉ cảnh báo, rồi bảo vệ ranh giới đã.
+    n:
+      en: Reward learners who notice a defect no control caught and propose one.
+      vi: Đánh giá cao người học nhận ra lỗi không kiểm soát nào bắt được và đề xuất kiểm soát mới.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: Critical tables are identified and owned
+          vi: Các bảng quan trọng được xác định và có owner
+        - en: Primary keys and relationships are tested everywhere
+          vi: Primary key và quan hệ được test ở mọi nơi
+        - en: Freshness and volume are monitored for key tables
+          vi: Freshness và volume được giám sát cho các bảng chính
+        - en: Tests run in CI and failures block bad merges
+          vi: Test chạy trong CI và lỗi chặn các merge xấu
+        - en: Alerts have owners and runbooks
+          vi: Alert có owner và runbook
+        - en: Postmortems produce new checks
+          vi: Postmortem sinh ra các check mới
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: A dashboard shows zero revenue for yesterday. How do you investigate?
+          vi: Một dashboard hiển thị doanh thu hôm qua bằng 0. Bạn điều tra thế nào?
+        - en: How do you prevent alert fatigue?
+          vi: Bạn ngăn alert fatigue như thế nào?
+        - en: "dbt tests versus an observability platform: when do you need each?"
+          vi: "dbt test và nền tảng observability: khi nào cần mỗi loại?"
+        - en: How would you add data diff to a CI process?
+          vi: Bạn sẽ thêm data diff vào quy trình CI thế nào?
+        - en: What would you test first in a pipeline with no tests?
+          vi: Bạn sẽ test gì đầu tiên trong một pipeline chưa có test nào?
+    n:
+      en: A good answer to the first question starts with scoping using lineage, then checks freshness and volume, and only then looks at logic.
+      vi: Một câu trả lời tốt cho câu hỏi đầu tiên bắt đầu bằng việc khoanh vùng bằng lineage, sau đó kiểm tra freshness và volume, và chỉ rồi mới xem đến logic.

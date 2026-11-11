@@ -1,0 +1,116 @@
+tech: {id: microsoft-fabric, name: Microsoft Fabric, color: "#0078D4"}
+slides:
+  - id: overview-onelake-workspaces-and-capacities
+    k: components
+    mod: [overview]
+    t: {en: "Microsoft Fabric overview: OneLake, workspaces and capacity", vi: "Fabric tong quan: OneLake, workspace va capacity"}
+    lead: {en: "Fabric unifies data experiences around workspaces, OneLake storage and shared capacity with workload-specific experiences.", vi: "Fabric thong nhat data experience quanh workspace, storage OneLake va shared capacity voi experience theo workload."}
+    comps:
+      - - OneLake
+        - {en: "Tenant-wide logical lake with item-oriented access.", vi: "Lake logic toan tenant voi access theo item."}
+      - - Workspace
+        - {en: "Collaboration, ownership and permission boundary for items.", vi: "Ranh gioi collaboration, ownership va permission cho item."}
+      - - Capacity
+        - {en: "Compute pool shared by Fabric workloads.", vi: "Compute pool dung chung boi workload Fabric."}
+      - - Experiences
+        - {en: "Power BI, Data Engineering, Warehouse and Data Factory workflows.", vi: "Workflow Power BI, Data Engineering, Warehouse va Data Factory."}
+    flow: [{en: "Land or create an item", vi: "Nap hoac tao item"}, {en: "Store in OneLake", vi: "Luu trong OneLake"}, {en: "Serve through workload experience", vi: "Phuc vu qua workload experience"}]
+    ops: [{en: "Plan capacity and workspace boundaries before broad self-service adoption.", vi: "Lap ke hoach capacity va ranh gioi workspace truoc khi mo self-service rong."}]
+    n: {en: "Fabric integrates experiences but does not remove the need to understand item permissions, capacity contention and data ownership.", vi: "Fabric tich hop experience nhung van can hieu quyen item, tranh chap capacity va ownership data."}
+  - id: internals-shortcuts-and-item-permissions
+    k: table
+    mod: [internals]
+    t: {en: "Fabric internals: OneLake shortcuts and item permissions", vi: "Noi bo Fabric: OneLake shortcut va quyen item"}
+    lead: {en: "Shortcuts expose data locations without copying bytes; access still depends on source and item authorization behavior.", vi: "Shortcut expose data location khong copy byte; access van phu thuoc source va authorization item."}
+    head: [{en: Mechanism, vi: Co che}, {en: Benefit, vi: Loi ich}, {en: Operational question, vi: Cau hoi van hanh}]
+    rows:
+      - - {en: OneLake item, vi: OneLake item}
+        - {en: "Consistent logical access across experiences.", vi: "Access logic nhat quan giua cac experience."}
+        - {en: "Which item and workspace own the data contract?", vi: "Item va workspace nao so huu data contract?"}
+      - - {en: Shortcut, vi: Shortcut}
+        - {en: "References external or internal data in place.", vi: "Tham chieu data external hoac internal tai cho."}
+        - {en: "Which identity resolves and reads the source?", vi: "Identity nao resolve va doc source?"}
+      - - {en: Capacity workload, vi: Workload capacity}
+        - {en: "Shared compute across experiences.", vi: "Compute dung chung giua experience."}
+        - {en: "Which workload consumes capacity during contention?", vi: "Workload nao dung capacity khi tranh chap?"}
+    n: {en: "Test shortcut access from the consuming workload and preserve lineage and source ownership when delegating access.", vi: "Test shortcut access tu workload su dung va giu lineage, owner source khi uy quyen access."}
+  - id: configuration-workspace-roles-and-capacity
+    k: table
+    mod: [config]
+    t: {en: "Fabric configuration: workspace roles and capacity", vi: "Cau hinh Fabric: role workspace va capacity"}
+    lead: {en: "Assign workspace roles to responsibilities and monitor capacity utilization against interactive and background workloads.", vi: "Gan role workspace theo trach nhiem va monitor utilization capacity theo workload interactive va background."}
+    head: [{en: Decision, vi: Quyet dinh}, {en: Guideline, vi: Huong dan}, {en: Check, vi: Kiem tra}]
+    rows:
+      - - {en: Workspace ownership, vi: Ownership workspace}
+        - {en: "Separate producer, shared platform and consumer workspaces where lifecycle differs.", vi: "Tach workspace producer, platform chung va consumer neu lifecycle khac nhau."}
+        - {en: "Review item permissions and workspace role inheritance.", vi: "Review quyen item va inheritance role workspace."}
+      - - {en: Capacity assignment, vi: Gan capacity}
+        - {en: "Align capacity with concurrency, refresh windows and criticality.", vi: "Can chinh capacity theo concurrency, refresh window va criticality."}
+        - {en: "Observe throttling and workload utilization before resizing.", vi: "Quan sat throttling va utilization workload truoc khi resize."}
+    n: {en: "Product controls evolve; document the current tenant settings and verify capacity behavior against the deployed SKU and region.", vi: "Control san pham thay doi; ghi tenant setting hien tai va verify behavior theo SKU, region da deploy."}
+  - id: implementation-medallion-lakehouse-flow
+    k: list
+    mod: [implementation]
+    t: {en: "Fabric implementation: a governed medallion flow", vi: "Trien khai Fabric: medallion flow co governance"}
+    lead: {en: "Keep raw, validated and serving contracts explicit even when all data is visible through one lake abstraction.", vi: "Lam ro contract raw, validated va serving ke ca khi data hien qua mot lake abstraction."}
+    items:
+      - {en: "Land source data into a raw Lakehouse path with run metadata.", vi: "Nap source vao path Lakehouse raw kem run metadata."}
+      - {en: "Validate schema, keys and late-arrival policy before promotion.", vi: "Validate schema, key va policy den muon truoc khi promote."}
+      - {en: "Transform into curated Delta tables with an owned semantic contract.", vi: "Transform thanh Delta table curated voi semantic contract co owner."}
+      - {en: "Expose only approved items or views to consumer workspaces.", vi: "Chi expose item hoac view da duyet cho workspace consumer."}
+      - {en: "Record lineage, refresh outcome and capacity consumption.", vi: "Ghi lineage, ket qua refresh va capacity consumption."}
+    n: {en: "Treat workspace promotion and permissions as deployment steps; a shared storage namespace does not imply shared authorization.", vi: "Xem promotion workspace va permission la buoc deploy; namespace storage chung khong co nghia authorization chung."}
+  - id: operations-capacity-refresh-and-governance
+    k: table
+    mod: [operations]
+    t: {en: "Fabric operations: capacity, refresh and governance", vi: "Van hanh Fabric: capacity, refresh va governance"}
+    lead: {en: "Coordinate refresh schedules and interactive usage so shared capacity remains predictable.", vi: "Dieu phoi lich refresh va interactive usage de shared capacity on dinh."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Inspect, vi: Kiem tra}, {en: Response, vi: Phan hoi}]
+    rows:
+      - - {en: Capacity throttling, vi: Capacity throttling}
+        - {en: "Workload utilization, concurrency and refresh overlap.", vi: "Utilization workload, concurrency va refresh overlap."}
+        - {en: "Stagger refresh, tune workload and resize using measured demand.", vi: "Gian refresh, tune workload va resize dua tren nhu cau do duoc."}
+      - - {en: Refresh failure, vi: Refresh failure}
+        - {en: "Source credentials, gateway or shortcut access and dependency state.", vi: "Credential source, gateway hoac shortcut access va dependency state."}
+        - {en: "Assign an owner and retry only after fixing the failed dependency.", vi: "Gan owner va retry sau khi sua dependency bi loi."}
+    n: {en: "Track freshness SLOs and capacity consumption per product team; shared capacity needs explicit workload ownership.", vi: "Theo doi freshness SLO va capacity consumption theo product team; shared capacity can owner workload ro rang."}
+  - id: troubleshooting-shortcuts-and-refresh-failures
+    k: table
+    mod: [troubleshooting]
+    t: {en: "Fabric troubleshooting: shortcuts and refresh failures", vi: "Xu ly Fabric: shortcut va refresh failure"}
+    lead: {en: "A visible item can still fail at source authorization, gateway connectivity or capacity execution.", vi: "Item hien thi van co the fail o authorization source, ket noi gateway hoac capacity execution."}
+    head: [{en: Symptom, vi: Trieu chung}, {en: Check, vi: Kiem tra}, {en: Next action, vi: Hanh dong}]
+    rows:
+      - - {en: Shortcut cannot read source, vi: Shortcut khong doc duoc source}
+        - {en: "Source identity, network route and source permission.", vi: "Identity source, network route va permission source."}
+        - {en: "Test source access from the configured connection context.", vi: "Test access source tu context connection da cau hinh."}
+      - - {en: Refresh queued or throttled, vi: Refresh queued hoac throttled}
+        - {en: "Capacity metrics, overlapping refreshes and workload priority.", vi: "Metric capacity, refresh chong lan va uu tien workload."}
+        - {en: "Separate capacity saturation from source slowness.", vi: "Tach capacity bao hoa khoi source cham."}
+    n: {en: "Keep item ID, workspace, refresh history and capacity time window together when escalating a service incident.", vi: "Giu item ID, workspace, refresh history va time window capacity cung nhau khi escalate service incident."}
+  - id: performance-capacity-and-semantic-model
+    k: table
+    mod: [performance]
+    t: {en: "Fabric performance: capacity and semantic model", vi: "Hieu nang Fabric: capacity va semantic model"}
+    lead: {en: "Query response depends on model design, refresh workload and shared capacity contention.", vi: "Query response phu thuoc model design, refresh workload va tranh chap shared capacity."}
+    head: [{en: Lever, vi: Don bay}, {en: Measure, vi: Do luong}, {en: Trade-off, vi: Danh doi}]
+    rows:
+      - - {en: Semantic model size, vi: Kich thuoc semantic model}
+        - {en: "Memory footprint, refresh duration and query latency.", vi: "Memory footprint, refresh duration va query latency."}
+        - {en: "Pre-aggregation speeds queries but increases refresh and storage work.", vi: "Pre-aggregation tang toc query nhung tang refresh va storage work."}
+      - - {en: Refresh concurrency, vi: Refresh concurrency}
+        - {en: "Capacity utilization and interactive response time.", vi: "Capacity utilization va interactive response time."}
+        - {en: "More parallel refresh can starve interactive consumers.", vi: "Refresh song song nhieu co the lam consumer interactive doi."}
+    n: {en: "Benchmark under realistic concurrent refresh and report interactive latency alongside batch completion.", vi: "Benchmark voi refresh dong thoi thuc te va bao cao interactive latency cung batch completion."}
+  - id: lab-debug-a-throttled-fabric-workspace
+    k: lab
+    mod: [lab]
+    t: {en: "Fabric lab: debug a throttled workspace", vi: "Lab Fabric: debug workspace bi throttled"}
+    lead: {en: "Restore a missed data freshness target while protecting interactive workloads on shared capacity.", vi: "Khoi phuc freshness target bi miss trong khi bao ve workload interactive tren shared capacity."}
+    scenario: {en: "A scheduled lakehouse refresh overlaps with a reporting peak and is repeatedly throttled.", vi: "Lakehouse refresh theo lich trung voi reporting peak va bi throttle lien tuc."}
+    input: {en: "Capacity metrics, refresh history, workspace ownership and dependency graph.", vi: "Metric capacity, refresh history, owner workspace va dependency graph."}
+    tasks: [{en: "Identify the capacity and dependency bottleneck.", vi: "Tim nut that capacity va dependency."}, {en: "Propose schedule, model or capacity changes with trade-offs.", vi: "De xuat doi schedule, model hoac capacity kem trade-off."}, {en: "Define freshness and interactive latency verification.", vi: "Dinh nghia verify freshness va interactive latency."}]
+    expected: {en: "A measured recovery plan that identifies owners and protects high-priority reporting.", vi: "Ke hoach recovery co do luong, owner va bao ve reporting uu tien cao."}
+    rubric: [{en: "Uses capacity evidence rather than guessing at SKU size.", vi: "Dung bang chung capacity thay vi doan SKU size."}, {en: "Includes a freshness acceptance check.", vi: "Co freshness acceptance check."}]
+    design: {en: "State workload priorities, refresh windows and rollback criteria.", vi: "Neu uu tien workload, refresh window va tieu chi rollback."}
+    n: {en: "A capacity increase is only one option; score the evidence and operational ownership in the proposed fix.", vi: "Tang capacity chi la mot lua chon; cham bang chung va owner van hanh trong cach sua."}

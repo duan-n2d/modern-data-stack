@@ -1,0 +1,16 @@
+{
+  "name": "modern-data-stack",
+  "private": true,
+  "type": "module",
+  "description": "Modern Data Engineering: a bilingual, interactive learning deck built from YAML content.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "validate": "node scripts/validate.mjs",
+    "check-links": "node scripts/check-links.mjs",
+    "dev": "node scripts/build.mjs --watch"
+  },
+  "devDependencies": {
+    "yaml": "^2.5.0"
+  }
+}

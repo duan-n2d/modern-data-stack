@@ -1,0 +1,185 @@
+practice:
+  id: competency
+  name:
+    en: Competency levels L1 to L5
+    vi: Thang năng lực L1 đến L5
+  color: "#0369A1"
+slides:
+  - id: five-competency-levels-proven-by-evidence
+    k: table
+    t:
+      en: Five competency levels, proven by evidence
+      vi: Năm mức năng lực, chứng minh bằng bằng chứng
+    lead:
+      en: A technology is not “completed” because someone read its slides. Each level requires demonstrated evidence.
+      vi: Một công nghệ không “xong” chỉ vì ai đã đã đọc slide. Mỗi mức yêu cầu bằng chứng đã chứng minh.
+    head:
+      - en: Level
+        vi: Mức
+      - en: Capability
+        vi: Năng lực
+      - en: Evidence required
+        vi: Bằng chứng yêu cầu
+    rows:
+      - - en: L1 Understand
+          vi: L1 Hiểu
+        - en: Explain concepts, architecture and use cases
+          vi: Giải thích khái niệm, kiến trúc và trường hợp dùng
+        - en: Written or spoken explanation, and an architecture sketch
+          vi: Giải thích bằng văn bản hoặc lời nói, và một bản phác kiến trúc
+      - - en: L2 Implement
+          vi: L2 Triển khai
+        - en: Build and integrate a working solution
+          vi: Xây và tích hợp một giải pháp chạy được
+        - en: A working repository with tests and a README
+          vi: Một repository chạy được có test và README
+      - - en: L3 Operate
+          vi: L3 Vận hành
+        - en: Monitor, troubleshoot and recover
+          vi: Giám sát, xử lý sự cố và khôi phục
+        - en: Completed failure drills with logs, metrics and a runbook
+          vi: Các bài diễn tập sự cố đã hoàn thành kèm log, metric và runbook
+      - - en: L4 Optimize
+          vi: L4 Tối ưu
+        - en: Improve performance, reliability and cost
+          vi: Cải thiện hiệu năng, độ tin cậy và chi phí
+        - en: Before-and-after measurements for a real bottleneck
+          vi: Số đo trước và sau cho một nút thắt thật
+      - - en: L5 Architect
+          vi: L5 Kiến trúc
+        - en: Make design decisions and justify trade-offs
+          vi: Ra quyết định thiết kế và biện minh đánh đổi
+        - en: A design review and ADR defended against questions
+          vi: Một buổi review thiết kế và ADR được bảo vệ trước các câu hỏi
+    cap:
+      en: Multiple-choice quizzes can support L1. They cannot demonstrate L3 or above.
+      vi: Trắc nghiệm có thể hỗ trợ L1. Chúng không chứng minh được L3 trở lên.
+    n:
+      en: Each level builds on the previous one. Assess L3 with a live failure drill, not a questionnaire.
+      vi: Mỗi mức xây trên mức trước. Đánh giá L3 bằng diễn tập sự cố trực tiếp, không bằng bảng câu hỏi.
+  - id: evidence-required-per-technology
+    k: table
+    t:
+      en: Evidence required per technology
+      vi: Bằng chứng yêu cầu theo từng công nghệ
+    head:
+      - en: Technology
+        vi: Công nghệ
+      - en: L3 Operate evidence
+        vi: Bằng chứng L3 Vận hành
+      - en: L4 Optimize evidence
+        vi: Bằng chứng L4 Tối ưu
+      - en: L5 Architect evidence
+        vi: Bằng chứng L5 Kiến trúc
+    rows:
+      - - Kafka
+        - en: Diagnose consumer lag, handle a failed broker, explain recovery behaviour
+          vi: Chẩn đoán consumer lag, xử lý broker hỏng, giải thích hành vi khôi phục
+        - en: Tune throughput and latency with benchmarks; fix a hot partition
+          vi: Tinh chỉnh throughput và độ trễ bằng benchmark; sửa partition nóng
+        - en: Design partitioning, replication and delivery semantics for a stated workload
+          vi: Thiết kế partition, replication và ngữ nghĩa giao nhận cho một workload cụ thể
+      - - Spark
+        - en: Read the Spark UI; recover a failed stage; fix an OOM
+          vi: Đọc Spark UI; khôi phục stage lỗi; sửa OOM
+        - en: Remove a shuffle or skew with measured speedup
+          vi: Bỏ shuffle hoặc lệch với mức tăng tốc đã đo
+        - en: Choose batch design, cluster model and cost envelope
+          vi: Chọn thiết kế batch, mô hình cluster và khung chi phí
+      - - Flink
+        - en: Recover from checkpoint; handle backpressure and late data
+          vi: Khôi phục từ checkpoint; xử lý backpressure và dữ liệu trễ
+        - en: Reduce checkpoint time and state size
+          vi: Giảm thời gian checkpoint và kích thước state
+        - en: Design event-time, state and exactly-once strategy
+          vi: Thiết kế chiến lược event-time, state và exactly-once
+      - - Iceberg
+        - en: Restore a snapshot; fix commit conflicts
+          vi: Khôi phục snapshot; sửa xung đột commit
+        - en: Compaction and layout improvements with scan metrics
+          vi: Cải thiện compaction và bố cục với số đo quét
+        - en: Choose catalog, format and maintenance policy
+          vi: Chọn catalog, format và chính sách bảo trì
+      - - Airflow
+        - en: Diagnose stuck tasks; backfill safely; recover a scheduler
+          vi: Chẩn đoán task kẹt; backfill an toàn; khôi phục scheduler
+        - en: Reduce scheduler latency and warehouse contention
+          vi: Giảm độ trễ scheduler và tranh chấp warehouse
+        - en: Choose executor, isolation and multi-team model
+          vi: Chọn executor, cô lập và mô hình nhiều đội
+      - - dbt
+        - en: Debug failures with artifacts; reconcile incremental models
+          vi: Debug lỗi bằng artifact; đối soát model incremental
+        - en: Cut build time and cost with measurements
+          vi: Giảm thời gian build và chi phí có số đo
+        - en: Define project structure, contracts and ownership
+          vi: Định nghĩa cấu trúc dự án, contract và quyền sở hữu
+      - - SQL
+        - en: Find and fix fan-out and NULL bugs
+          vi: Tìm và sửa lỗi nở dòng và NULL
+        - en: Turn a slow query fast with plan evidence
+          vi: Biến query chậm thành nhanh bằng bằng chứng từ plan
+        - en: Model data for correctness and evolution
+          vi: Mô hình hóa dữ liệu để đúng và tiến hóa được
+      - - Python
+        - en: Profile and fix memory and concurrency problems
+          vi: Profile và sửa vấn đề bộ nhớ và đồng thời
+        - en: Replace a slow loop or process with measured gain
+          vi: Thay vòng lặp hoặc process chậm với mức cải thiện đã đo
+        - en: Structure packages, tests and deployment
+          vi: Cấu trúc package, test và triển khai
+    cap:
+      en: Each cell is an observable task, not a topic to have read.
+      vi: Mỗi ô là một nhiệm vụ quan sát được, không phải chủ đề đã đọc.
+    n:
+      en: Hand these cells to learners as a checklist. For each, they provide a link to their evidence.
+      vi: Đưa các ô này cho người học như một checklist. Với mỗi ô, họ cung cấp liên kết tới bằng chứng của mình.
+  - id: kafka-progression-with-measurable-acceptance-criteria
+    k: table
+    t:
+      en: Kafka progression with measurable acceptance criteria
+      vi: Lộ trình Kafka với tiêu chí nghiệm thu đo được
+    head:
+      - en: Level
+        vi: Mức
+      - en: Outcome
+        vi: Kết quả
+      - en: Acceptance criteria
+        vi: Tiêu chí nghiệm thu
+    rows:
+      - - en: L1 Understand
+          vi: L1 Hiểu
+        - en: Explain partitions, replication, consumer groups and offsets
+          vi: Giải thích partition, replication, consumer group và offset
+        - en: Draws the producer-to-consumer path correctly and explains what `acks=all` and offsets guarantee, unaided
+          vi: Vẽ đúng đường đi từ producer đến consumer và giải thích `acks=all` cùng offset bảo đảm gì, không cần tài liệu
+      - - en: L2 Implement
+          vi: L2 Triển khai
+        - en: Build a producer and consumer with schema validation
+          vi: Xây producer và consumer có kiểm tra schema
+        - en: Runs 1 million records with no loss, rejects a record that violates the schema, and ships with tests
+          vi: Chạy 1 triệu record không mất, từ chối record vi phạm schema và có kèm test
+      - - en: L3 Troubleshoot
+          vi: L3 Xử lý sự cố
+        - en: Investigate lag, rebalances and failed processing
+          vi: Điều tra lag, rebalance và xử lý lỗi
+        - en: Given an injected lag problem, names the cause from metrics and logs alone; kills a broker and shows no acknowledged data was lost
+          vi: Với sự cố lag được chèn sẵn, nêu đúng nguyên nhân chỉ từ metric và log; tắt một broker và chứng minh không mất dữ liệu đã xác nhận
+      - - en: L4 Optimize
+          vi: L4 Tối ưu
+        - en: Benchmark throughput, latency and resources
+          vi: Benchmark throughput, độ trễ và tài nguyên
+        - en: Documents a baseline, changes one setting at a time, and shows a reproducible improvement with the method and hardware stated
+          vi: Ghi lại baseline, mỗi lần đổi một cấu hình, và cho thấy cải thiện tái lập được kèm phương pháp và phần cứng
+      - - en: L5 Architect
+          vi: L5 Kiến trúc
+        - en: Design a fault-tolerant streaming platform
+          vi: Thiết kế nền tảng streaming chịu lỗi
+        - en: Presents a design with partitioning, replication, security and capacity decisions, and defends the trade-offs in review
+          vi: Trình bày thiết kế gồm quyết định partition, replication, bảo mật và năng lực, và bảo vệ các đánh đổi trong buổi review
+    cap:
+      en: Replace “knows Kafka” with a list of demonstrated outcomes like these.
+      vi: Thay “biết Kafka” bằng danh sách kết quả đã chứng minh như thế này.
+    n:
+      en: "Use the same pattern for every technology: one measurable acceptance criterion per level."
+      vi: "Dùng cùng mẫu cho mọi công nghệ: mỗi mức một tiêu chí nghiệm thu đo được."

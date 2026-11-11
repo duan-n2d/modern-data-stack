@@ -1,0 +1,463 @@
+layer: 23
+slides:
+  - id: processing-paradigms-and-analytics-serving
+    k: cards
+    t:
+      en: Processing paradigms and analytics serving
+      vi: Mô hình xử lý và phục vụ analytics
+    lead:
+      en: How you structure processing (ETL or ELT, functional, declarative, batch or streaming) and how you serve results (SQL, metrics, APIs) determine how maintainable the platform is.
+      vi: Cách bạn cấu trúc xử lý (ETL hay ELT, functional, declarative, batch hay streaming) và cách bạn phục vụ kết quả (SQL, metric, API) quyết định nền tảng bảo trì dễ đến đâu.
+    cols: 3
+    cards:
+      - h:
+          en: ETL versus ELT
+          vi: ETL so với ELT
+        tag: must
+        p:
+          en: Where transformation happens, and why ELT became the default.
+          vi: Nơi phép biến đổi diễn ra, và vì sao ELT trở thành mặc định.
+      - h: Functional data engineering
+        tag: must
+        p:
+          en: Pure, idempotent tasks on immutable partitions.
+          vi: Task thuần, idempotent trên partition bất biến.
+      - h:
+          en: Declarative versus imperative
+          vi: Declarative so với imperative
+        tag: senior
+        p:
+          en: Describe what you want or script how to get it.
+          vi: Mô tả thứ bạn muốn hoặc viết kịch bản cách đạt được.
+      - h:
+          en: Extending SQL
+          vi: Mở rộng SQL
+        tag: senior
+        p:
+          en: Pivot, QUALIFY, macros, UDFs and semantic SQL for metrics.
+          vi: Pivot, QUALIFY, macro, UDF và semantic SQL cho metric.
+      - h:
+          en: Lambda and Kappa
+          vi: Lambda và Kappa
+        tag: senior
+        p:
+          en: Combining batch and streaming without duplicating logic.
+          vi: Kết hợp batch và streaming mà không nhân ??i logic.
+      - h:
+          en: Serving and tooling
+          vi: Phục vụ và công cụ
+        tag: nice
+        p:
+          en: Analytics APIs, personalized APIs and the engineer’s CLI toolkit.
+          vi: API analytics, API cá nhân hóa và bộ công cụ CLI của engineer.
+    n:
+      en: Most of these are design principles that outlive any particular tool.
+      vi: Phần lớn là nguyên lý thiết kế sống lâu hơn bất kỳ công cụ cụ thể nào.
+  - id: etl-versus-elt-in-depth
+    k: table
+    t:
+      en: ETL versus ELT in depth
+      vi: ETL so với ELT một cách sâu hơn
+    head:
+      - en: Question
+        vi: Câu hỏi
+      - en: ETL (transform before loading)
+        vi: ETL (biến đổi trước khi nạp)
+      - en: ELT (load, then transform in the warehouse)
+        vi: ELT (nạp, rồi biến đổi trong warehouse)
+    rows:
+      - - en: Where compute runs
+          vi: Compute chạy ở đâu
+        - en: In an external engine or server
+          vi: Trong engine hoặc máy chủ bên ngoài
+        - en: Inside the warehouse or lakehouse
+          vi: Bên trong warehouse hoặc lakehouse
+      - - en: Raw data kept
+          vi: Có giữ dữ liệu thô không
+        - en: Often not, only transformed output
+          vi: Thường không, chỉ giữ kết quả đã biến đổi
+        - en: "Yes: reprocess without re-extracting"
+          vi: "Có: xử lý lại mà không cần extract lại"
+      - - en: Flexibility
+          vi: Linh hoạt
+        - en: Changes need pipeline redeployment
+          vi: Thay đổi cần deploy lại pipeline
+        - en: Change SQL models and rebuild
+          vi: Đổi model SQL và dựng lại
+      - - en: Sensitive data
+          vi: Dữ liệu nhạy cảm
+        - en: Can mask or drop PII before it lands
+          vi: Có thể che hoặc bỏ PII trước khi hạ cánh
+        - en: Needs controls on the raw zone
+          vi: Cần kiểm soát trên vùng raw
+      - - en: Cost profile
+          vi: Hồ sơ chi phí
+        - en: Fixed servers, scaling by hand
+          vi: Máy chủ cố định, mở rộng thủ công
+        - en: Elastic warehouse compute, watch scan costs
+          vi: Compute warehouse co giãn, chú ý chi phí quét
+      - - en: Still the better choice when
+          vi: Vẫn là lựa chọn tốt hơn khi
+        - en: Regulation forbids landing raw data, or tiny data must be reshaped in flight
+          vi: Quy định cấm hạ cánh dữ liệu thô, hoặc dữ liệu nhỏ cần định hình lại khi đang chuyển
+        - en: Most analytics workloads on modern warehouses
+          vi: Phần lớn workload analytics trên warehouse hiện đại
+    cap:
+      en: "A hybrid is common: light, lawful cleanup on the way in (ETLT), then heavy modeling in the warehouse."
+      vi: "Kết hợp là phổ biến: làm sạch nhẹ và hợp lệ khi vào (ETLT), rồi mô hình hóa nặng trong warehouse."
+    n:
+      en: Avoid the slogan. State the constraint (privacy, latency, cost) that decides the answer.
+      vi: Tránh khẩu hiệu. Nêu ràng buộc (quyền riêng tư, độ trễ, chi phí) quyết định câu trả lời.
+  - id: functional-data-engineering-and-idempotency
+    k: code
+    t:
+      en: Functional data engineering and idempotency
+      vi: Functional data engineering và idempotency
+    lead:
+      en: "Treat pipelines like pure functions: same inputs, same outputs, no hidden side effects. Rerunning must be safe."
+      vi: "Coi pipeline như hàm thuần: cùng đầu vào, cùng đầu ra, không tác dụng phụ ẩn. Chạy lại phải an toàn."
+    blocks:
+      - lang: python
+        title: pure_task.py
+        code: |-
+          import duckdb
+
+
+          def build_daily_revenue(con: duckdb.DuckDBPyConnection, ds: str) -> None:
+              """Pure with respect to its inputs: the result depends only on the source
+              partition for ds, and the target partition is fully replaced."""
+              con.execute("delete from marts.daily_revenue where ds = ?", [ds])
+              con.execute(
+                  """
+                  insert into marts.daily_revenue
+                  select ?::date as ds, country, sum(amount) as revenue
+                  from raw.orders
+                  where order_date = ?::date
+                  group by country
+                  """,
+                  [ds, ds],
+              )
+      - lang: sql
+        title: overwrite_partition.sql
+        code: |-
+          -- Replace exactly one partition; rerunning produces the same result
+          INSERT OVERWRITE TABLE marts.daily_revenue PARTITION (ds = '2026-11-09')
+          SELECT country, SUM(amount) AS revenue
+          FROM raw.orders
+          WHERE order_date = DATE '2026-11-09'
+          GROUP BY country;
+    points:
+      - h:
+          en: Principles
+          vi: Nguyên tắc
+        p:
+          en: Immutable inputs, partitioned outputs, deterministic transformations, no dependence on the current time or hidden state.
+          vi: Đầu vào bất biến, đầu ra chia partition, biến đổi tất định, không phụ thuộc thời gian hiện tại hay trạng thái ẩn.
+      - h:
+          en: Idempotent writes
+          vi: Ghi idempotent
+        tag: senior
+        p:
+          en: Overwrite a partition or merge by key. Never append blindly on retry.
+          vi: Ghi đã một partition hoặc merge theo khóa. Không bao giờ append mù quáng khi retry.
+      - h:
+          en: Parameterize by logical date
+          vi: Tham số hóa theo logical date
+        p:
+          en: Use the data’s date, not `now()`, so backfills reproduce history.
+          vi: Dùng ngày của dữ liệu, không dùng `now()`, để backfill tái hiện lịch sử.
+      - h:
+          en: Source of the idea
+          vi: Nguồn gốc ý tưởng
+        tag: senior
+        p:
+          en: Popularized by Maxime Beauchemin’s article on functional data engineering. The overwrite syntax differs by engine.
+          vi: Được phổ biến qua bài của Maxime Beauchemin về functional data engineering. Cú pháp ghi đè khác nhau theo engine.
+    n:
+      en: "Tie to section 18: idempotency is what turns at-least-once delivery into correct results."
+      vi: "Nối với phần 18: idempotency là thứ biến giao nhận at-least-once thành kết quả đúng."
+  - id: declarative-versus-imperative
+    k: table
+    t:
+      en: Declarative versus imperative
+      vi: Declarative so với imperative
+    head:
+      - en: Aspect
+        vi: Khía cạnh
+      - en: "Declarative: describe the result"
+        vi: "Declarative: mô tả kết quả"
+      - en: "Imperative: script the steps"
+        vi: "Imperative: viết kịch bản các bước"
+    rows:
+      - - en: You write
+          vi: Bạn viết
+        - en: A SELECT model, a YAML flow, an asset or a Terraform resource
+          vi: Model SELECT, flow YAML, asset hoặc resource Terraform
+        - en: A Python or shell script with loops and calls
+          vi: Script Python hoặc shell có vòng lặp và lời gọi
+      - - en: The tool decides
+          vi: Công cụ quyết định
+        - en: Order, parallelism, how to create or update the object
+          vi: Thứ tự, song song, cách tạo hoặc cập nhật đối tượng
+        - en: "Nothing: every step is yours"
+          vi: "Không gì cả: mọi bước đều của bạn"
+      - - en: Examples
+          vi: Ví dụ
+        - dbt, SQLMesh, Kestra, Dagster assets, Terraform, Kubernetes manifests
+        - en: Custom Python ETL, Airflow PythonOperator tasks, cron scripts
+          vi: ETL Python tự viết, task Airflow PythonOperator, script cron
+      - - en: Strengths
+          vi: Điểm mạnh
+        - en: Reviewable, repeatable, state-aware, easier to reason about
+          vi: Review được, lặp lại được, nhận biết trạng thái, dễ suy luận
+        - en: Full control, handles unusual logic and APIs
+          vi: Kiểm soát đầy đủ, xử lý logic và API bất thường
+      - - en: Weaknesses
+          vi: Điểm yếu
+        - en: Less control; debugging needs the generated plan
+          vi: Ít kiểm soát; debug cần xem plan được sinh ra
+        - en: Easy to create hidden state and non-idempotent steps
+          vi: Dễ tạo trạng thái ẩn và bước không idempotent
+      - - en: Rule of thumb
+          vi: Quy tắc ngón tay cái
+        - en: Default for transformations and infrastructure
+          vi: Mặc định cho biến đổi và hạ tầng
+        - en: "Use at the edges: extraction, APIs and special cases, wrapped in idempotent functions"
+          vi: "Dùng ở rìa: extract, API và ca đặc biệt, bọc trong hàm idempotent"
+    cap:
+      en: Most mature platforms are declarative in the middle and imperative at the edges.
+      vi: Hầu hết nền tảng trưởng thành là declarative ở giữa và imperative ở rìa.
+    n:
+      en: Show the same transformation as a dbt model and as a Python loop to make the contrast concrete.
+      vi: Cho xem cùng một phép biến đổi dưới dạng model dbt và vòng lặp Python để làm sự tương phản cụ thể.
+  - id: extending-sql-for-analytics-pivot-qualify-macros-and
+    k: code
+    t:
+      en: "Extending SQL for analytics: pivot, QUALIFY, macros and semantic SQL"
+      vi: "Mở rộng SQL cho analytics: pivot, QUALIFY, macro và semantic SQL"
+    lead:
+      en: Standard SQL is only the start. Engines add syntax for common analytics tasks, and semantic layers add a metric-aware SQL.
+      vi: SQL chuẩn chỉ là khởi đầu. Engine thêm cú pháp cho các tác vụ analytics phổ biến, và semantic layer thêm SQL hiểu metric.
+    blocks:
+      - lang: sql
+        title: pivot_and_qualify.sql (DuckDB and Snowflake-style)
+        code: |-
+          -- Portable pivot using conditional aggregation
+          select country,
+                 sum(case when status = 'shipped'   then amount end) as shipped,
+                 sum(case when status = 'cancelled' then amount end) as cancelled
+          from orders
+          group by country;
+
+          -- DuckDB PIVOT statement
+          PIVOT orders ON status USING sum(amount) GROUP BY country;
+
+          -- Filter on a window result without a wrapper query
+          select * from orders
+          qualify row_number() over (partition by customer_id order by ordered_at desc) = 1;
+      - lang: sql
+        title: semantic_sql.sql (Cube SQL API style)
+        code: |-
+          -- Query a governed metric with SQL; the semantic layer supplies the formula and joins
+          SELECT country, MEASURE(revenue) AS revenue
+          FROM orders
+          GROUP BY country
+          ORDER BY revenue DESC;
+    points:
+      - h: Pivot
+        p:
+          en: Turn row values into columns. Conditional aggregation works everywhere; PIVOT syntax is shorter where available.
+          vi: Biến giá trị của dòng thành cột. Aggregation có điều kiện chạy ở mọi nơi; cú pháp PIVOT ngắn hơn khi có.
+      - h: QUALIFY
+        p:
+          en: Filters on window functions directly. Available in several engines, not all.
+          vi: Lọc trực tiếp trên window function. Có ở vài engine, không phải tất cả.
+      - h:
+          en: Macros and UDFs
+          vi: Macro và UDF
+        tag: senior
+        p:
+          en: Macros reuse SQL at compile time (dbt, DuckDB). UDFs run custom logic but can block push-downs and optimizations.
+          vi: Macro tái sử dụng SQL lúc compile (dbt, DuckDB). UDF chạy logic tùy biến nhưng có thể chặn push-down và tối ưu.
+      - h: Semantic SQL
+        tag: senior
+        p:
+          en: Query metrics by name so every tool computes them the same way. Syntax differs by product.
+          vi: Truy vấn metric theo tên để mọi công cụ tính giống nhau. Cú pháp khác nhau theo sản phẩm.
+    n:
+      en: "Portability trade-off: engine-specific syntax is productive but ties the code to one platform. Isolate it in macros or a thin layer."
+      vi: "Đánh đổi về tính di động: cú pháp riêng của engine tiện nhưng gắn code với một nền tảng. Hãy cô lập nó trong macro hoặc một lớp mỏng."
+  - id: lambda-kappa-and-unifying-batch-and-streaming
+    k: table
+    t:
+      en: Lambda, Kappa and unifying batch and streaming
+      vi: Lambda, Kappa và hợp nhất batch với streaming
+    head:
+      - en: Architecture
+        vi: Kiến trúc
+      - en: Idea
+        vi: Ý tưởng
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Weaknesses
+        vi: Điểm yếu
+    rows:
+      - - Lambda
+        - en: A batch layer for accurate results plus a speed layer for fresh results, merged at serving time
+          vi: Một lớp batch cho kết quả chính xác cộng một lớp speed cho kết quả mới, gộp khi phục vụ
+        - en: Accuracy of batch, freshness of streaming
+          vi: Độ chính xác của batch, độ mới của streaming
+        - en: Two code paths to keep consistent
+          vi: Hai đường code phải giữ nhất quán
+      - - Kappa
+        - en: Everything is a stream; reprocess history by replaying the log
+          vi: Mọi thứ là stream; xử lý lại lịch sử bằng cách phát lại log
+        - en: One code path
+          vi: Một đường code
+        - en: Needs long retention and a capable streaming engine
+          vi: Cần lưu trữ dài và engine streaming đủ mạnh
+      - - Micro-batch
+        - en: Small, frequent batches on a batch engine (for example Structured Streaming)
+          vi: Các batch nhỏ, thường xuyên trên engine batch (ví dụ Structured Streaming)
+        - en: Familiar model, good throughput
+          vi: Mô hình quen thuộc, throughput tốt
+        - en: Latency bounded by the batch interval
+          vi: Độ trễ bị chặn bởi chu kỳ batch
+      - - en: Lakehouse unification
+          vi: Hợp nhất lakehouse
+        - en: Streaming and batch write and read the same table format
+          vi: Streaming và batch ghi và đọc cùng một table format
+        - en: One storage layer, ACID commits, time travel
+          vi: Một lớp lưu trữ, commit ACID, time travel
+        - en: Small-file and compaction operations
+          vi: Vận hành file nhỏ và compaction
+    cap:
+      en: Choose by the latency the business pays for, then minimize the number of code paths.
+      vi: Chọn theo độ trễ mà nghiệp vụ trả tiền, rồi giảm thiểu số đường code.
+    n:
+      en: "Tie to Scenarios A and C: both use the lakehouse unification approach."
+      vi: "Nối với Kịch bản A và C: cả hai dùng cách hợp nhất lakehouse."
+  - id: analytics-apis-and-personalized-apis
+    k: code
+    t:
+      en: Analytics APIs and personalized APIs
+      vi: API analytics và API cá nhân hóa
+    lead:
+      en: Serve governed data to applications and customers through an API, with parameter binding and per-tenant access.
+      vi: Phục vụ dữ liệu có quản trị cho ứng dụng và khách hàng qua API, với bind tham số và quyền theo từng tenant.
+    blocks:
+      - lang: python
+        title: analytics_api.py (FastAPI + DuckDB sketch)
+        code: |-
+          import duckdb
+          from fastapi import Depends, FastAPI, Header, HTTPException
+
+          app = FastAPI()
+          con = duckdb.connect("warehouse.duckdb", read_only=True)
+
+
+          def current_tenant(authorization: str = Header(...)) -> str:
+              tenant = verify_token_and_get_tenant(authorization)   # your auth logic
+              if tenant is None:
+                  raise HTTPException(status_code=401)
+              return tenant
+
+
+          @app.get("/v1/revenue")
+          def revenue(country: str, tenant_id: str = Depends(current_tenant)):
+              rows = con.execute(
+                  """
+                  select date_trunc('month', ordered_at) as month, sum(amount) as revenue
+                  from marts.fct_orders
+                  where tenant_id = ? and country = ?
+                  group by 1 order by 1
+                  """,
+                  [tenant_id, country],
+              ).fetchall()
+              return [{"month": str(m), "revenue": float(r)} for m, r in rows]
+    points:
+      - h:
+          en: Governed source
+          vi: Nguồn có quản trị
+        p:
+          en: Serve from marts or a semantic layer, not raw tables, so numbers match dashboards.
+          vi: Phục vụ từ mart hoặc semantic layer, không phải bảng thô, để số liệu khớp dashboard.
+      - h:
+          en: Tenant isolation
+          vi: Cô lập tenant
+        tag: senior
+        p:
+          en: The tenant filter comes from the authenticated identity, never from a request parameter.
+          vi: Bộ lọc tenant lấy từ danh tính đã xác thực, không bao giờ từ tham số của request.
+      - h:
+          en: Performance
+          vi: Hiệu năng
+        p:
+          en: Cache hot results, pre-aggregate, or use a real-time OLAP store for high concurrency.
+          vi: Cache kết quả nóng, tổng hợp trước, hoặc dùng kho OLAP thời gian thực cho đồng thời cao.
+      - h:
+          en: Personalized APIs
+          vi: API cá nhân hóa
+        tag: senior
+        p:
+          en: Features and recommendations per user are served from an online store fed by the warehouse, with freshness and fallback rules.
+          vi: Feature và gợi ý cho từng người dùng được phục vụ từ kho online được warehouse nuôi, kèm quy tắc độ mới và dự phòng.
+    n:
+      en: "Sketch only: add rate limits, pagination, input validation, observability and an error contract before production."
+      vi: "Chỉ là bản phác: thêm rate limit, phân trang, kiểm tra đầu vào, observability và hợp đồng lỗi trước khi lên production."
+  - id: the-data-engineers-toolkit-cli-and-integration-tools
+    k: code
+    t:
+      en: "The data engineer’s toolkit: CLI and integration tools"
+      vi: "Bộ công cụ của data engineer: CLI và công cụ tích hợp"
+    lead:
+      en: Small command-line tools solve a surprising share of daily problems. Integration CLIs move data between systems.
+      vi: Các công cụ dòng lệnh nhỏ giải quyết một phần đúng ngạc nhiên các vấn đề hằng ngày. CLI tích hợp chuyển dữ liệu giữa các hệ thống.
+    blocks:
+      - lang: bash
+        title: toolkit_examples.sh
+        code: |-
+          # Query files directly with DuckDB
+          duckdb -c "select country, count(*) from 'events/*.parquet' group by 1 order by 2 desc"
+
+          # Inspect and reshape JSON
+          curl -s https://api.example.com/orders | jq '.data[] | {id, amount, status}'
+
+          # Sync files between object stores or to local disk
+          rclone sync s3:example-lake/raw/orders ./local/orders --progress
+
+          # Talk to PostgreSQL and export
+          psql "$DATABASE_URL" -c "\\copy (select * from orders limit 1000) to 'orders.csv' csv header"
+
+          # Work with CSV quickly
+          csvstat orders.csv
+    points:
+      - h:
+          en: Integration tools
+          vi: Công cụ tích hợp
+        p:
+          en: dlt and Meltano (code-first), Airbyte, Singer taps and targets, Sling and Embulk (bulk movers).
+          vi: dlt và Meltano (code-first), Airbyte, tap và target của Singer, Sling và Embulk (công cụ chuyển khối lượng lớn).
+      - h:
+          en: Everyday utilities
+          vi: Tiện ích hằng ngày
+        tag: must
+        p:
+          en: duckdb, jq, curl, psql, rclone, csvkit, git, make and a good shell. Learn them well.
+          vi: duckdb, jq, curl, psql, rclone, csvkit, git, make và một shell tốt. Hãy học kỹ chúng.
+      - h:
+          en: Automate
+          vi: Tự động hóa
+        tag: senior
+        p:
+          en: Turn repeated commands into scripts or make targets with `set -euo pipefail` and clear exit codes.
+          vi: Biến các lệnh lặp lại thành script hoặc make target với `set -euo pipefail` và mã thoát rõ ràng.
+      - h:
+          en: Safety
+          vi: An toàn
+        p:
+          en: Never paste credentials into commands. Use environment variables, profiles or a secrets manager.
+          vi: Không bao giờ dán credential vào lệnh. Dùng biến môi trường, profile hoặc secrets manager.
+    n:
+      en: Commands are examples; check flags for your installed versions. The `\copy` meta-command is psql-specific.
+      vi: Các lệnh chỉ là ví dụ; hãy kiểm tra cờ cho phiên bản bạn cài. Meta-command `\copy` là của riêng psql.

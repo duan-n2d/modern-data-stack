@@ -1,0 +1,514 @@
+# Knowledge graph: layer overview nodes plus concept nodes with prerequisite relationships.
+graph:
+  nodes:
+    - id: languages
+      layer: 1
+      label:
+        en: SQL and Python
+        vi: SQL và Python
+      description:
+        en: Query, transform and automate data with the languages used across the stack.
+        vi: Truy vấn, biến đổi và tự động hóa dữ liệu bằng các ngôn ngữ dùng xuyên stack.
+    - id: ingestion
+      layer: 2
+      label:
+        en: Ingestion and CDC
+        vi: Ingestion và CDC
+      description:
+        en: Move batch and change events from operational sources into analytical storage.
+        vi: Đưa batch và change event từ nguồn vận hành vào kho phân tích.
+    - id: warehouse
+      layer: 3
+      label:
+        en: Warehouse and lakehouse
+        vi: Warehouse và lakehouse
+      description:
+        en: Choose where data is stored and which compute engines operate on it.
+        vi: Chọn nơi lưu dữ liệu và engine compute xử lý dữ liệu.
+    - id: transformation
+      layer: 4
+      label:
+        en: Transformations
+        vi: Biến đổi dữ liệu
+      description:
+        en: Turn raw inputs into tested, documented, reusable models.
+        vi: Biến đầu vào thô thành các model đã kiểm thử, có tài liệu và tái sử dụng được.
+    - id: orchestration
+      layer: 5
+      label:
+        en: Orchestration and assets
+        vi: Điều phối và asset
+      description:
+        en: Coordinate dependencies, execution, retries, freshness and recovery.
+        vi: Điều phối phụ thuộc, thực thi, retry, freshness và khôi phục.
+    - id: semantic
+      layer: 6
+      label:
+        en: Metrics and semantic layer
+        vi: Metric và semantic layer
+      description:
+        en: Give business metrics shared definitions across consumers.
+        vi: Cung cấp định nghĩa metric thống nhất giữa các bên sử dụng.
+    - id: bi
+      layer: 7
+      label:
+        en: BI and dashboards
+        vi: BI và dashboard
+      description:
+        en: Present governed data for human analysis and decisions.
+        vi: Trình bày dữ liệu được quản trị để con người phân tích và ra quyết định.
+    - id: quality
+      layer: 8
+      label:
+        en: Quality and observability
+        vi: Chất lượng và observability
+      description:
+        en: Detect correctness, freshness, volume and schema problems.
+        vi: Phát hiện vấn đề về tính đúng, độ mới, khối lượng và schema.
+    - id: governance
+      layer: 9
+      label:
+        en: Governance and lineage
+        vi: Quản trị và lineage
+      description:
+        en: Track ownership, meaning, access, contracts and data flow.
+        vi: Theo dõi chủ sở hữu, ý nghĩa, quyền truy cập, contract và luồng dữ liệu.
+    - id: activation
+      layer: 10
+      label:
+        en: Reverse ETL and activation
+        vi: Reverse ETL và activation
+      description:
+        en: Deliver trusted warehouse data back to operational tools and products.
+        vi: Đưa dữ liệu warehouse đáng tin cậy trở lại công cụ và sản phẩm vận hành.
+    - id: devops
+      layer: 11
+      label:
+        en: DevOps and delivery
+        vi: DevOps và phát hành
+      description:
+        en: Make data changes reviewable, reproducible, deployable and reversible.
+        vi: Giúp thay đổi dữ liệu được review, tái lập, triển khai và hoàn tác an toàn.
+    - id: modeling
+      layer: 12
+      label:
+        en: Modeling and architecture
+        vi: Mô hình hóa và kiến trúc
+      description:
+        en: Choose grains, schemas and ownership patterns that fit the domain.
+        vi: Chọn grain, schema và cách phân quyền sở hữu phù hợp domain.
+    - id: analytics
+      layer: 13
+      label:
+        en: Advanced analytics
+        vi: Analytics nâng cao
+      description:
+        en: Use experiments, causal reasoning and AI with explicit evaluation.
+        vi: Dùng thử nghiệm, suy luận nhân quả và AI với đánh giá rõ ràng.
+    - id: leadership
+      layer: 14
+      label:
+        en: Senior engineering practice
+        vi: Thực hành kỹ thuật senior
+      description:
+        en: Turn technical judgment into alignment, written decisions and team leverage.
+        vi: Chuyển phán đoán kỹ thuật thành đồng thuận, quyết định thành văn bản và năng lực đội ngũ.
+    - id: ai
+      layer: 15
+      label:
+        en: RAG, MCP and agents
+        vi: RAG, MCP và agent
+      description:
+        en: Connect models to governed knowledge and tools with evaluation and limits.
+        vi: Kết nối model với tri thức và công cụ có quản trị, kèm đánh giá và giới hạn.
+    - id: ml
+      layer: 16
+      label:
+        en: ML and deep learning
+        vi: ML và deep learning
+      description:
+        en: Understand model families, their data needs, deployment and failure modes.
+        vi: Hiểu nhóm mô hình, nhu cầu dữ liệu, triển khai và các kiểu lỗi.
+    - id: security
+      layer: 17
+      label:
+        en: Security and networking
+        vi: Bảo mật và mạng
+      description:
+        en: Protect identities, data paths, secrets and sensitive information.
+        vi: Bảo vệ danh tính, đường đi dữ liệu, secret và thông tin nhạy cảm.
+    - id: reliability
+      layer: 18
+      label:
+        en: Distributed reliability
+        vi: Độ tin cậy hệ thống phân tán
+      description:
+        en: Design for retries, replication, idempotency, high availability and recovery.
+        vi: Thiết kế cho retry, replication, idempotency, tính sẵn sàng cao và khôi phục.
+    - id: finops
+      layer: 19
+      label:
+        en: FinOps and performance
+        vi: FinOps và hiệu năng
+      description:
+        en: Relate query and platform behavior to latency, capacity and unit cost.
+        vi: Liên hệ hành vi query và platform với độ trễ, năng lực và đơn giá.
+    - id: foundations
+      layer: 20
+      label:
+        en: Systems foundations
+        vi: Nền tảng hệ thống
+      description:
+        en: Use networking, Linux, Git and transaction fundamentals to diagnose failures.
+        vi: Dùng kiến thức mạng, Linux, Git và transaction để chẩn đoán sự cố.
+    - id: lifecycle
+      layer: 21
+      label:
+        en: Data lifecycle and concepts
+        vi: Vòng đời và khái niệm dữ liệu
+      description:
+        en: Frame data work from generation through storage, transformation and serving.
+        vi: Định hình công việc dữ liệu từ lúc phát sinh đến lưu trữ, biến đổi và phục vụ.
+    - id: formats
+      layer: 22
+      label:
+        en: Formats and query engines
+        vi: Định dạng và query engine
+      description:
+        en: Understand files, columnar memory and the engines that scan and optimize them.
+        vi: Hiểu file, bộ nhớ dạng cột và engine quét, tối ưu dữ liệu.
+    - id: serving
+      layer: 23
+      label:
+        en: Processing and serving
+        vi: Xử lý và phục vụ dữ liệu
+      description:
+        en: Choose processing semantics and expose governed results to applications.
+        vi: Chọn ngữ nghĩa xử lý và cung cấp kết quả có quản trị cho ứng dụng.
+  concepts:
+    - id: cdc-log-position
+      layer: 2
+      slide: tech/kafka/architecture
+      label: {en: CDC log position, vi: Vi tri log CDC}
+      description: {en: "A source offset or log sequence number that identifies committed change progress.", vi: "Offset source hoac log sequence number xac dinh tien do change da commit."}
+      requires: [ingestion]
+    - id: idempotent-replay
+      layer: 2
+      slide: l02/deep-dive-incremental-idempotent-loading
+      label: {en: Idempotent replay, vi: Replay idempotent}
+      description: {en: "Reprocessing the same bounded input produces the same logical result without duplicate effects.", vi: "Xu ly lai cung input gioi han tao ket qua logic nhu nhau ma khong lap side effect."}
+      requires: [cdc-log-position]
+    - id: iceberg-snapshot-commit
+      layer: 3
+      slide: tech/iceberg/iceberg-internals-snapshots-maintenance-and-concurrency
+      label: {en: Iceberg snapshot commit, vi: Commit snapshot Iceberg}
+      description: {en: "A table commit publishes a new immutable snapshot through catalog metadata coordination.", vi: "Commit table publish snapshot bat bien moi qua dieu phoi metadata catalog."}
+      requires: [warehouse]
+    - id: partition-pruning
+      layer: 3
+      slide: tech/iceberg/table-formats-compared-iceberg-delta-lake-hudi
+      label: {en: Partition pruning, vi: Partition pruning}
+      description: {en: "Metadata and predicates skip irrelevant data partitions before scanning files.", vi: "Metadata va predicate bo qua partition khong lien quan truoc khi scan file."}
+      requires: [warehouse]
+    - id: dbt-incremental-merge
+      layer: 4
+      slide: tech/dbt/dbt-implementation-incremental-model-and-tests
+      label: {en: Incremental model merge, vi: Merge model incremental}
+      description: {en: "A bounded transformation updates only changed keys or partitions with a stable replay contract.", vi: "Transformation gioi han chi cap nhat key hoac partition thay doi voi replay contract on dinh."}
+      requires: [idempotent-replay, partition-pruning]
+    - id: airflow-data-interval
+      layer: 5
+      slide: tech/airflow/airflow-implementation-backfill-and-data-intervals
+      label: {en: Data interval, vi: Data interval}
+      description: {en: "A scheduled run processes an explicit time range independent of its actual start time.", vi: "Run theo lich xu ly khoang thoi gian ro rang, doc lap thoi diem bat dau thuc te."}
+      requires: [orchestration, idempotent-replay]
+    - id: event-time-watermark
+      layer: 23
+      slide: tech/flink/flink-overview-streaming-time-and-state
+      label: {en: Event time and watermark, vi: Event time va watermark}
+      description: {en: "A watermark estimates event-time progress so stateful operators can finalize windows despite late events.", vi: "Watermark uoc tinh tien do event-time de operator stateful ket thuc window du event den muon."}
+      requires: [serving]
+    - id: shuffle-data-exchange
+      layer: 22
+      slide: tech/spark/spark-overview-driver-executors-and-shuffle
+      label: {en: Shuffle data exchange, vi: Trao doi du lieu shuffle}
+      description: {en: "A distributed repartition boundary that moves records between workers and often dominates execution cost.", vi: "Ranh gioi repartition phan tan chuyen record giua worker va thuong chiem phan lon chi phi execution."}
+      requires: [formats]
+    - id: least-privilege-data-access
+      layer: 17
+      slide: tech/aws-data-stack/troubleshooting-iam-and-query-failures
+      label: {en: Least-privilege data access, vi: Data access least-privilege}
+      description: {en: "Grant the narrow identity, object and key permissions needed by one workload.", vi: "Cap quyen identity, object va key hep ma mot workload can."}
+      requires: [security, governance]
+    - id: infrastructure-plan-review
+      layer: 11
+      slide: tech/terraform/lab-review-a-risky-infrastructure-plan
+      label: {en: Infrastructure plan review, vi: Review infrastructure plan}
+      description: {en: "Review resource identity, replacement and data impact before applying infrastructure changes.", vi: "Review identity resource, replacement va tac dong data truoc khi apply thay doi infrastructure."}
+      requires: [devops, reliability]
+    - id: data-quality-contract
+      layer: 8
+      slide: l08/design-pattern-the-data-test-pyramid
+      label: {en: Data quality contract, vi: Data quality contract}
+      description: {en: "Explicit expectations for schema, freshness, uniqueness and acceptable values at a dataset boundary.", vi: "Ky vong ro rang ve schema, freshness, uniqueness va gia tri chap nhan tai ranh gioi dataset."}
+      requires: [quality, governance]
+    - id: semantic-metric-definition
+      layer: 6
+      slide: l06/semantic-and-metrics-layer-one-definition-per-metric
+      label: {en: Governed metric definition, vi: Dinh nghia metric co governance}
+      description: {en: "A shared metric definition with grain, filters, owner and access policy.", vi: "Dinh nghia metric chung gom grain, filter, owner va access policy."}
+      requires: [semantic, modeling]
+    - id: window-function-frame
+      layer: 1
+      slide: l01/deep-dive-window-functions-ctes-and-recursion
+      label: {en: Window function frame, vi: Khung window function}
+      description: {en: "A frame defines which neighboring rows contribute to a window calculation for each ordered row.", vi: "Frame xác định các dòng lân cận nào tham gia phép tính window cho mỗi dòng đã sắp xếp."}
+      requires: [languages]
+    - id: dashboard-query-contract
+      layer: 7
+      slide: l07/design-patterns-dashboards-and-self-service
+      label: {en: Dashboard query contract, vi: Hợp đồng truy vấn dashboard}
+      description: {en: "A dashboard contract sets the metric grain, filters, freshness and expected response time for consumers.", vi: "Hợp đồng dashboard quy định grain metric, bộ lọc, độ mới và thời gian phản hồi kỳ vọng cho người dùng."}
+      requires: [semantic-metric-definition, bi]
+    - id: row-level-security-policy
+      layer: 9
+      slide: l09/deep-dive-contracts-rbac-masking-and-row-level-security
+      label: {en: Row-level security, vi: Bảo mật cấp dòng}
+      description: {en: "A row policy filters records using the authenticated principal and governed attributes.", vi: "Chính sách dòng lọc bản ghi dựa trên danh tính đã xác thực và thuộc tính được quản trị."}
+      requires: [governance, security]
+    - id: activation-delivery-idempotency
+      layer: 10
+      slide: l10/reverse-etl-lab-an-idempotent-activation-pipeline
+      label: {en: Activation delivery idempotency, vi: Tính idempotent khi đồng bộ activation}
+      description: {en: "A stable destination key and replay-safe write prevent duplicate effects when activation jobs retry.", vi: "Khóa đích ổn định và thao tác ghi an toàn khi chạy lại ngăn tác động trùng lặp lúc job retry."}
+      requires: [activation, idempotent-replay]
+    - id: star-schema-grain
+      layer: 12
+      slide: l12/star-schema-facts-in-the-middle-dimensions-around
+      label: {en: Star schema grain, vi: Grain của star schema}
+      description: {en: "The fact table grain states exactly what one row represents before dimensions and measures are chosen.", vi: "Grain của fact table xác định chính xác một dòng đại diện cho điều gì trước khi chọn dimension và measure."}
+      requires: [modeling, warehouse]
+    - id: experiment-randomization
+      layer: 13
+      slide: l13/deep-dive-planning-and-analysing-an-a-b-test
+      label: {en: Experiment randomization, vi: Phân nhóm ngẫu nhiên trong thử nghiệm}
+      description: {en: "Random assignment makes treatment groups comparable and supports causal interpretation when assumptions hold.", vi: "Phân nhóm ngẫu nhiên giúp các nhóm so sánh được và hỗ trợ diễn giải nhân quả khi các giả định phù hợp."}
+      requires: [analytics]
+    - id: architecture-decision-record
+      layer: 14
+      slide: l14/deep-dive-an-architecture-decision-record-template
+      label: {en: Architecture decision record, vi: Hồ sơ quyết định kiến trúc}
+      description: {en: "An ADR records context, options, trade-offs and consequences so later teams can revisit a decision.", vi: "ADR ghi lại bối cảnh, lựa chọn, đánh đổi và hệ quả để đội sau có thể xem xét lại quyết định."}
+      requires: [leadership, devops]
+    - id: bounded-agent-loop
+      layer: 15
+      slide: l15/the-agent-loop-observe-decide-act
+      label: {en: Bounded agent loop, vi: Vòng lặp agent có giới hạn}
+      description: {en: "An agent alternates between observing, choosing an action and checking results under explicit step and tool limits.", vi: "Agent luân phiên quan sát, chọn hành động và kiểm tra kết quả với giới hạn bước và công cụ rõ ràng."}
+      requires: [ai]
+    - id: model-generalization
+      layer: 16
+      slide: l16/training-anatomy-the-variables-every-model-shares
+      label: {en: Model generalization, vi: Khả năng khái quát hóa của mô hình}
+      description: {en: "Generalization measures performance on unseen data from the target distribution rather than memorized training examples.", vi: "Khả năng khái quát hóa đo hiệu năng trên dữ liệu chưa thấy thuộc phân phối mục tiêu, thay vì ghi nhớ dữ liệu huấn luyện."}
+      requires: [ml]
+    - id: network-failure-domain
+      layer: 18
+      slide: l18/replication-quorum-and-leader-election
+      label: {en: Network failure domain, vi: Miền lỗi mạng}
+      description: {en: "Topology and correlated network failures determine whether replicas and quorum members fail independently.", vi: "Topology và lỗi mạng tương quan quyết định replica cùng thành viên quorum có lỗi độc lập hay không."}
+      requires: [reliability, foundations]
+    - id: workload-cost-attribution
+      layer: 19
+      slide: l19/where-the-money-goes-cost-drivers-and-levers
+      label: {en: Workload cost attribution, vi: Phân bổ chi phí theo workload}
+      description: {en: "Attribution connects compute and storage usage to owners, workloads and unit-cost measures.", vi: "Phân bổ chi phí gắn mức dùng compute và storage với owner, workload và chỉ số chi phí đơn vị."}
+      requires: [finops]
+    - id: network-path-diagnosis
+      layer: 20
+      slide: l20/networking-you-must-be-able-to-diagnose
+      label: {en: Network path diagnosis, vi: Chẩn đoán đường truyền mạng}
+      description: {en: "DNS, routing, firewall rules and TLS negotiation form a sequence of checks for service connectivity.", vi: "DNS, định tuyến, luật firewall và bắt tay TLS tạo thành chuỗi bước kiểm tra kết nối dịch vụ."}
+      requires: [foundations, security]
+    - id: normalization-anomaly
+      layer: 21
+      slide: l21/normalization-and-denormalization
+      label: {en: Normalization anomaly, vi: Bất thường do chuẩn hóa dữ liệu}
+      description: {en: "Update, insert and delete anomalies reveal when duplicated facts make a relational model inconsistent.", vi: "Bất thường khi cập nhật, thêm và xóa cho thấy dữ kiện lặp khiến mô hình quan hệ thiếu nhất quán."}
+      requires: [modeling]
+  edges:
+    - from: languages
+      to: ingestion
+      relation:
+        en: implements connectors and transforms
+        vi: triển khai connector và phép biến đổi
+    - from: languages
+      to: transformation
+      relation:
+        en: expresses models and data logic
+        vi: biểu đạt model và logic dữ liệu
+    - from: languages
+      to: orchestration
+      relation:
+        en: defines tasks and workflows
+        vi: định nghĩa task và workflow
+    - from: ingestion
+      to: warehouse
+      relation:
+        en: lands source data
+        vi: đưa dữ liệu nguồn vào
+    - from: ingestion
+      to: quality
+      relation:
+        en: introduces schema and freshness signals
+        vi: tạo tín hiệu schema và freshness
+    - from: ingestion
+      to: governance
+      relation:
+        en: carries source ownership and contracts
+        vi: mang theo chủ sở hữu nguồn và contract
+    - from: warehouse
+      to: formats
+      relation:
+        en: stores tables using file and table formats
+        vi: lưu bảng bằng định dạng file và table format
+    - from: warehouse
+      to: transformation
+      relation:
+        en: provides execution compute
+        vi: cung cấp compute để thực thi
+    - from: warehouse
+      to: finops
+      relation:
+        en: creates measurable compute and storage cost
+        vi: tạo chi phí compute và lưu trữ có thể đo
+    - from: formats
+      to: finops
+      relation:
+        en: layout affects scan cost and latency
+        vi: bố cục ảnh hưởng chi phí quét và độ trễ
+    - from: transformation
+      to: orchestration
+      relation:
+        en: models become scheduled work
+        vi: model trở thành công việc được lập lịch
+    - from: transformation
+      to: modeling
+      relation:
+        en: implements analytical schemas
+        vi: triển khai schema phân tích
+    - from: transformation
+      to: quality
+      relation:
+        en: is checked by tests and monitors
+        vi: được kiểm tra bằng test và monitor
+    - from: transformation
+      to: semantic
+      relation:
+        en: produces governed metric inputs
+        vi: tạo đầu vào metric có quản trị
+    - from: orchestration
+      to: reliability
+      relation:
+        en: owns retries, ordering and recovery
+        vi: chịu trách nhiệm retry, thứ tự và khôi phục
+    - from: orchestration
+      to: quality
+      relation:
+        en: runs checks and reacts to failures
+        vi: chạy kiểm tra và phản ứng với lỗi
+    - from: modeling
+      to: semantic
+      relation:
+        en: defines grains and dimensions for metrics
+        vi: định nghĩa grain và dimension cho metric
+    - from: semantic
+      to: bi
+      relation:
+        en: supplies consistent measures
+        vi: cung cấp phép đo nhất quán
+    - from: semantic
+      to: serving
+      relation:
+        en: provides governed query interfaces
+        vi: cung cấp giao diện truy vấn có quản trị
+    - from: bi
+      to: analytics
+      relation:
+        en: exposes trends and business outcomes
+        vi: phơi bày xu hướng và kết quả nghiệp vụ
+    - from: governance
+      to: quality
+      relation:
+        en: sets contracts, owners and expectations
+        vi: đặt contract, chủ sở hữu và kỳ vọng
+    - from: governance
+      to: security
+      relation:
+        en: defines access and data handling rules
+        vi: định nghĩa quyền truy cập và quy tắc xử lý dữ liệu
+    - from: governance
+      to: ai
+      relation:
+        en: grounds retrieval in owned, permissioned knowledge
+        vi: neo retrieval vào tri thức có chủ sở hữu và phân quyền
+    - from: activation
+      to: ml
+      relation:
+        en: delivers model scores to operational systems
+        vi: đưa điểm số mô hình tới hệ thống vận hành
+    - from: activation
+      to: security
+      relation:
+        en: must honor consent and least privilege
+        vi: phải tuân thủ consent và least privilege
+    - from: ml
+      to: ai
+      relation:
+        en: supplies models used by AI applications
+        vi: cung cấp model cho ứng dụng AI
+    - from: ai
+      to: serving
+      relation:
+        en: retrieves and serves grounded context
+        vi: truy xuất và phục vụ ngữ cảnh có căn cứ
+    - from: foundations
+      to: reliability
+      relation:
+        en: explains failure behavior below the platform
+        vi: giải thích hành vi lỗi bên dưới platform
+    - from: foundations
+      to: security
+      relation:
+        en: supports identity and network boundaries
+        vi: làm nền cho danh tính và ranh giới mạng
+    - from: reliability
+      to: finops
+      relation:
+        en: balances resilience against operating cost
+        vi: cân bằng khả năng phục hồi với chi phí vận hành
+    - from: lifecycle
+      to: governance
+      relation:
+        en: governance spans the full lifecycle
+        vi: quản trị xuyên suốt vòng đời
+    - from: devops
+      to: reliability
+      relation:
+        en: makes releases and rollback repeatable
+        vi: giúp phát hành và rollback có thể lặp lại
+    - from: devops
+      to: governance
+      relation:
+        en: encodes policy and audit in delivery
+        vi: mã hóa policy và audit trong quy trình phát hành
+    - from: leadership
+      to: devops
+      relation:
+        en: aligns teams around safe delivery
+        vi: giúp các đội thống nhất cách phát hành an toàn
+    - from: leadership
+      to: modeling
+      relation:
+        en: resolves ownership and definition trade-offs
+        vi: giải quyết đánh đổi về quyền sở hữu và định nghĩa

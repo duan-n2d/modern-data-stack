@@ -1,0 +1,635 @@
+layer: 3
+slides:
+  - id: warehouse-and-lakehouse-where-the-data-lives
+    k: cards
+    t:
+      en: "Warehouse and lakehouse: where the data lives"
+      vi: "Warehouse và lakehouse: nơi dữ liệu cư trú"
+    lead:
+      en: The storage and compute choice sets your cost curve, your performance ceiling and how hard it is to leave later.
+      vi: Lựa chọn storage và compute quyết định đường cong chi phí, trần hiệu năng và độ khó khi rời đi sau này.
+    cols: 3
+    cards:
+      - h: Cloud warehouse
+        tag: must
+        p:
+          en: "Managed SQL engine with its own storage: Snowflake, BigQuery, Redshift. Easiest path to production."
+          vi: "SQL engine được quản lý với storage riêng: Snowflake, BigQuery, Redshift. Con đường dễ nhất để lên production."
+      - h: Lakehouse
+        tag: must
+        p:
+          en: "Open table formats on object storage, queried by one or more engines: Delta, Iceberg, Hudi."
+          vi: "Open table format trên object storage, được truy vấn bởi một hoặc nhiều engine: Delta, Iceberg, Hudi."
+      - h:
+          en: Storage formats
+          vi: Định dạng lưu trữ
+        tag: must
+        p:
+          en: Parquet and ORC are columnar and good for analytics. Avro is row-based and suits streaming and schemas.
+          vi: Parquet và ORC lưu theo cột, phù hợp cho analytics. Avro lưu theo dòng, phù hợp cho streaming và schema.
+      - h: Real-time OLAP
+        tag: nice
+        p:
+          en: ClickHouse, Druid, Pinot and StarRocks serve low-latency, high-concurrency queries.
+          vi: ClickHouse, Druid, Pinot và StarRocks phục vụ query độ trễ thấp, đồng thời cao.
+      - h:
+          en: Local and embedded
+          vi: Local và embedded
+        tag: nice
+        p:
+          en: DuckDB and MotherDuck for small and medium data, prototyping and cheap workloads.
+          vi: DuckDB và MotherDuck cho dữ liệu nhỏ và vừa, prototype và workload chi phí thấp.
+      - h:
+          en: Why it matters
+          vi: Vì sao quan trọng
+        tag: senior
+        p:
+          en: Separating storage from compute lets you scale each independently, and open formats reduce lock-in.
+          vi: Tách storage khỏi compute cho phép scale từng phần độc lập, và các định dạng mở giúp giảm lock-in.
+    n:
+      en: Introduce the two big architectural camps and the third category of specialized engines. The unifying idea is separation of storage and compute, and the rise of open table formats that let several engines share one copy of data.
+      vi: Giới thiệu hai trường phái kiến trúc lớn và nhóm thứ ba là các engine chuyên biệt. Ý tưởng xuyên suốt là tách storage và compute, cùng sự trỗi dậy của open table format cho phép nhiều engine dùng chung một bản sao dữ liệu.
+  - id: tool-landscape-warehouses-and-lakehouse-platforms
+    k: table
+    t:
+      en: "Tool landscape: warehouses and lakehouse platforms"
+      vi: "Bức tranh công cụ: warehouse và nền tảng lakehouse"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - Snowflake
+        - en: Cloud data warehouse / platform
+          vi: Cloud data warehouse / nền tảng
+        - en: Governed SQL analytics with minimal tuning
+          vi: SQL analytics có quản trị, ít cần tinh chỉnh
+        - en: Separate storage and compute; easy scaling; broad ecosystem
+          vi: Tách storage và compute; scale dễ; hệ sinh thái rộng
+        - en: Credit costs can surprise; closed engine unless using open tables
+          vi: Chi phí credit có thể gây bất ngờ; engine đóng trừ khi dùng open table
+        - en: Consumption (credits) plus storage
+          vi: Theo mức dùng (credit) cộng storage
+      - - BigQuery
+        - Serverless warehouse
+        - en: Spiky workloads; GCP-centric stacks
+          vi: Workload đột biến; stack xoay quanh GCP
+        - en: No cluster management; strong for large scans
+          vi: Không cần quản lý cluster; mạnh với scan lớn
+        - en: Cost model needs care (bytes scanned or reserved capacity)
+          vi: Mô hình chi phí cần cẩn trọng (bytes scanned hoặc capacity đặt trước)
+        - en: On-demand per bytes processed, or capacity-based
+          vi: On-demand theo bytes xử lý, hoặc theo capacity
+      - - Amazon Redshift
+        - en: Warehouse (provisioned and serverless)
+          vi: Warehouse (provisioned và serverless)
+        - en: AWS-centric stacks with tight AWS integration
+          vi: Stack xoay quanh AWS, tích hợp chặt với AWS
+        - en: Deep AWS integration; mature
+          vi: Tích hợp sâu với AWS; trưởng thành
+        - en: More tuning than serverless peers on provisioned clusters
+          vi: Cần tinh chỉnh nhiều hơn các đối thủ serverless trên cluster provisioned
+        - en: Instance-hours or serverless compute units
+          vi: Theo giờ instance hoặc serverless compute unit
+      - - Databricks
+        - en: Lakehouse platform
+          vi: Nền tảng lakehouse
+        - en: Mixed SQL, ML and streaming on one platform
+          vi: SQL, ML và streaming trên cùng một nền tảng
+        - en: Delta Lake, Unity Catalog, Spark and SQL warehouses
+          vi: Delta Lake, Unity Catalog, Spark và SQL warehouse
+        - en: Learning curve; costs need governance
+          vi: Đường cong học tập; chi phí cần quản trị
+        - en: Consumption (DBUs) plus cloud infrastructure
+          vi: Theo mức dùng (DBU) cộng hạ tầng cloud
+      - - Synapse / Fabric
+        - en: Microsoft analytics platform
+          vi: Nền tảng analytics của Microsoft
+        - en: Microsoft-centric organizations (Power BI, Azure)
+          vi: Tổ chức dùng nhiều Microsoft (Power BI, Azure)
+        - en: Tight Power BI and OneLake integration
+          vi: Tích hợp chặt với Power BI và OneLake
+        - en: Product direction has been shifting toward Fabric; check roadmap
+          vi: Định hướng sản phẩm đang dịch chuyển sang Fabric; cần xem roadmap
+        - en: Capacity-based
+          vi: Theo capacity
+      - - MotherDuck / DuckDB
+        - en: Embedded and serverless DuckDB
+          vi: DuckDB embedded và serverless
+        - en: Small to medium data; cheap analytics; local dev
+          vi: Dữ liệu nhỏ đến vừa; analytics chi phí thấp; dev local
+        - en: Very fast on a single node; simple
+          vi: Rất nhanh trên một node; đơn giản
+        - en: Not built for very large scale or heavy concurrent writes
+          vi: Không dành cho quy mô rất lớn hoặc nhiều ghi đồng thời nặng
+        - en: DuckDB is open source; MotherDuck is usage/plan-based
+          vi: DuckDB là mã nguồn mở; MotherDuck tính theo mức dùng/gói
+    cap:
+      en: "Pricing models differ in kind, not just in level: compare cost per realistic workload, not list prices."
+      vi: "Mô hình giá khác nhau về bản chất, không chỉ về mức giá: hãy so sánh chi phí theo workload thực tế, không phải bảng giá niêm yết."
+    n:
+      en: "Resist ranking these. Each fits a context: BigQuery for serverless GCP, Snowflake for governed multi-cloud SQL, Databricks for mixed ML and SQL, Fabric for Microsoft shops, DuckDB for small and local."
+      vi: "Đừng xếp hạng các nền tảng này. Mỗi nền tảng hợp một ngữ cảnh: BigQuery cho GCP serverless, Snowflake cho SQL multi-cloud có quản trị, Databricks cho ML và SQL kết hợp, Fabric cho hệ Microsoft, DuckDB cho quy mô nhỏ và local."
+  - id: tool-landscape-table-formats-and-real-time-olap
+    k: table
+    t:
+      en: "Tool landscape: table formats and real-time OLAP"
+      vi: "Bức tranh công cụ: table format và OLAP thời gian thực"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - Delta Lake
+        - Open table format
+        - en: Lakehouse on Spark and Databricks
+          vi: Lakehouse trên Spark và Databricks
+        - en: ACID transactions, time travel, mature tooling
+          vi: ACID transaction, time travel, tooling trưởng thành
+        - en: Best experience in the Databricks ecosystem
+          vi: Trải nghiệm tốt nhất trong hệ sinh thái Databricks
+        - en: Open source
+          vi: Mã nguồn mở
+      - - Apache Iceberg
+        - Open table format
+        - en: Multi-engine lakehouse and avoiding lock-in
+          vi: Lakehouse đa engine và tránh lock-in
+        - en: Broad engine support; hidden partitioning; schema evolution
+          vi: Hỗ trợ nhiều engine; hidden partitioning; schema evolution
+        - en: Catalog and maintenance choices add complexity
+          vi: Lựa chọn catalog và bảo trì làm tăng độ phức tạp
+        - en: Open source
+          vi: Mã nguồn mở
+      - - Apache Hudi
+        - Open table format
+        - en: Upserts and incremental pulls on a lake
+          vi: Upsert và incremental pull trên lake
+        - en: Strong record-level updates and streaming ingestion
+          vi: Cập nhật mức record và streaming ingestion mạnh
+        - en: Smaller community than Delta and Iceberg
+          vi: Cộng đồng nhỏ hơn Delta và Iceberg
+        - en: Open source
+          vi: Mã nguồn mở
+      - - ClickHouse
+        - en: Columnar OLAP database
+          vi: Cơ sở dữ liệu OLAP dạng cột
+        - en: Fast aggregations on event and log data
+          vi: Aggregation nhanh trên dữ liệu event và log
+        - en: Very fast scans; high compression
+          vi: Scan rất nhanh; nén cao
+        - en: Joins and updates need design care; different mental model
+          vi: Join và update cần thiết kế cẩn thận; tư duy khác
+        - en: Open source plus managed cloud
+          vi: Mã nguồn mở cộng managed cloud
+      - - Druid / Pinot
+        - Real-time OLAP
+        - en: User-facing analytics with low latency and high concurrency
+          vi: Analytics hướng người dùng với độ trễ thấp và concurrency cao
+        - en: Sub-second queries on streaming data
+          vi: Query dưới một giây trên dữ liệu streaming
+        - en: Operationally heavier; narrower SQL support
+          vi: Vận hành nặng hơn; hỗ trợ SQL hẹp hơn
+        - en: Open source plus managed offerings
+          vi: Mã nguồn mở cộng các gói managed
+      - - StarRocks
+        - en: MPP OLAP database
+          vi: Cơ sở dữ liệu MPP OLAP
+        - en: Fast SQL on lakehouse data and real-time workloads
+          vi: SQL nhanh trên dữ liệu lakehouse và workload real-time
+        - en: Vectorized engine; can query Iceberg and Delta tables
+          vi: Engine vectorized; có thể query bảng Iceberg và Delta
+        - en: Younger ecosystem
+          vi: Hệ sinh thái còn non trẻ
+        - en: Open source plus managed offerings
+          vi: Mã nguồn mở cộng các gói managed
+    cap:
+      en: "Storage formats: Parquet and ORC (columnar, analytics), Avro (row-based, streaming). Object stores: S3, GCS, ADLS."
+      vi: "Định dạng lưu trữ: Parquet và ORC (theo cột, analytics), Avro (theo dòng, streaming). Object store: S3, GCS, ADLS."
+    n:
+      en: "Table formats are metadata layers on top of Parquet files. They add transactions, schema evolution and time travel. The real-time OLAP engines solve a different problem: serving many fast queries to applications and customers."
+      vi: "Table format là các lớp metadata nằm trên file Parquet. Chúng bổ sung transaction, schema evolution và time travel. Các engine real-time OLAP giải quyết bài toán khác: phục vụ nhiều query nhanh cho ứng dụng và khách hàng."
+  - id: comparison-matrix-choosing-a-platform
+    k: table
+    t:
+      en: "Comparison matrix: choosing a platform"
+      vi: "Ma trận so sánh: chọn nền tảng"
+    head:
+      - en: Need
+        vi: Nhu cầu
+      - Snowflake
+      - BigQuery
+      - Databricks
+      - Redshift
+      - Fabric
+      - DuckDB
+    rows:
+      - - en: Minimal operations
+          vi: Vận hành tối thiểu
+        - en: High
+          vi: Cao
+        - en: Highest
+          vi: Cao nhất
+        - en: Medium to high
+          vi: Trung bình đến cao
+        - en: Medium
+          vi: Trung bình
+        - en: Medium to high
+          vi: Trung bình đến cao
+        - en: Highest (single node)
+          vi: Cao nhất (single node)
+      - - en: Open table formats
+          vi: Open table format
+        - en: Growing support
+          vi: Hỗ trợ đang tăng
+        - en: Supported (Iceberg, BigLake)
+          vi: Có hỗ trợ (Iceberg, BigLake)
+        - en: Delta native; Iceberg supported
+          vi: Delta native; hỗ trợ Iceberg
+        - en: Supported via Spectrum and lake formats
+          vi: Hỗ trợ qua Spectrum và các lake format
+        - en: OneLake uses Delta
+          vi: OneLake dùng Delta
+        - en: Reads Parquet; extensions for Iceberg and Delta
+          vi: Đọc Parquet; có extension cho Iceberg và Delta
+      - - en: ML and data science
+          vi: ML và data science
+        - en: Growing
+          vi: Đang phát triển
+        - en: Growing
+          vi: Đang phát triển
+        - en: Strongest
+          vi: Mạnh nhất
+        - en: Via AWS services
+          vi: Qua các dịch vụ AWS
+        - en: Via Fabric services
+          vi: Qua các dịch vụ Fabric
+        - en: Local experimentation
+          vi: Thử nghiệm local
+      - - en: Spiky, unpredictable load
+          vi: Tải đột biến, khó dự đoán
+        - en: Good (auto-suspend)
+          vi: Tốt (auto-suspend)
+        - en: Strong (serverless)
+          vi: Mạnh (serverless)
+        - en: Good (serverless SQL)
+          vi: Tốt (serverless SQL)
+        - en: Serverless option
+          vi: Có tùy chọn serverless
+        - en: Capacity based
+          vi: Dựa trên capacity
+        - en: Not applicable
+          vi: Không áp dụng
+      - - en: Microsoft / Power BI shop
+          vi: Tổ chức dùng Microsoft / Power BI
+        - en: Good
+          vi: Tốt
+        - en: Good
+          vi: Tốt
+        - en: Good
+          vi: Tốt
+        - en: Good
+          vi: Tốt
+        - en: Best fit
+          vi: Phù hợp nhất
+        - en: Not applicable
+          vi: Không áp dụng
+      - - en: Lock-in risk
+          vi: Rủi ro lock-in
+        - en: Medium
+          vi: Trung bình
+        - en: Medium
+          vi: Trung bình
+        - en: Lower with open formats
+          vi: Thấp hơn khi dùng định dạng mở
+        - en: Medium
+          vi: Trung bình
+        - en: Medium
+          vi: Trung bình
+        - en: Low
+          vi: Thấp
+    cap:
+      en: "These are qualitative generalizations. Features change quickly: verify against current documentation and benchmark your own workloads."
+      vi: "Đây là những khái quát mang tính định tính. Tính năng thay đổi nhanh: hãy kiểm chứng với tài liệu hiện hành và benchmark workload của bạn."
+    n:
+      en: Stress the caption. This matrix is a starting point for a conversation, not a verdict. Vendors converge on features constantly, so rely on a proof of concept with your own queries.
+      vi: Nhấn mạnh chú thích. Ma trận này là điểm khởi đầu cho cuộc thảo luận, không phải phán quyết. Các vendor liên tục tiệm cận nhau về tính năng, nên hãy dựa vào proof of concept với query của chính bạn.
+  - id: cost-and-performance-the-trade-offs
+    k: cards
+    t:
+      en: "Cost and performance: the trade-offs"
+      vi: "Chi phí và hiệu năng: các đánh đổi"
+    lead:
+      en: No platform is cheap by default. Cost follows design decisions.
+      vi: Không nền tảng nào rẻ theo mặc định. Chi phí đi theo các quyết định thiết kế.
+    cols: 3
+    cards:
+      - h:
+          en: Compute model
+          vi: Mô hình compute
+        p:
+          en: Per-second warehouses, per-bytes-scanned queries or reserved capacity reward different habits. Match the model to your load shape.
+          vi: Warehouse tính theo giây, query tính theo bytes scanned hay capacity đặt trước thưởng cho những thói quen khác nhau. Hãy chọn mô hình khớp với hình dạng tải của bạn.
+        tag: must
+      - h:
+          en: Storage layout
+          vi: Bố cục storage
+        p:
+          en: Partitioning and clustering reduce data scanned. Over-partitioning creates small files and slow metadata operations.
+          vi: Partitioning và clustering giảm lượng dữ liệu phải scan. Partition quá mức tạo ra nhiều file nhỏ và thao tác metadata chậm.
+        tag: must
+      - h:
+          en: Materialize wisely
+          vi: Materialize có chọn lọc
+        p:
+          en: Precompute expensive, widely used models; leave rarely used ones as views.
+          vi: Tính trước các model tốn kém, được dùng rộng rãi; để các model ít dùng ở dạng view.
+        tag: must
+      - h: Concurrency
+        p:
+          en: Separate warehouses or queues for ELT, BI and ad hoc work prevent noisy neighbours.
+          vi: Tách warehouse hoặc queue cho ELT, BI và ad hoc để tránh noisy neighbour.
+        tag: senior
+      - h:
+          en: Guardrails
+          vi: Guardrail
+        p:
+          en: Resource monitors, query timeouts, budgets and per-team cost attribution stop runaway spend.
+          vi: Resource monitor, query timeout, ngân sách và phân bổ chi phí theo team giúp chặn chi tiêu vượt kiểm soát.
+        tag: senior
+      - h:
+          en: Benchmark honestly
+          vi: Benchmark trung thực
+        p:
+          en: Use your own data and queries, include warm and cold runs, and compare cost per outcome, not only speed.
+          vi: Dùng dữ liệu và query của chính bạn, gồm cả lần chạy warm và cold, và so sánh chi phí trên mỗi kết quả, không chỉ tốc độ.
+        tag: senior
+    n:
+      en: The senior move is to talk about cost per business outcome. Fast and expensive can be fine; slow and cheap can be fine; unexamined is never fine.
+      vi: Điểm của người senior là nói về chi phí trên mỗi kết quả kinh doanh. Nhanh mà đắt có thể ổn; chậm mà rẻ có thể ổn; không được xem xét thì không bao giờ ổn.
+  - id: deep-dive-layout-that-saves-money
+    k: code
+    t:
+      en: "Deep dive: layout that saves money"
+      vi: "Đào sâu: cách bố trí dữ liệu giúp tiết kiệm tiền"
+    lead:
+      en: Partitioning and clustering decide how much data a filter has to touch. Syntax differs by platform; the idea does not.
+      vi: Partitioning và clustering quyết định một filter phải chạm vào bao nhiêu dữ liệu. Cú pháp khác nhau theo nền tảng; ý tưởng thì không.
+    blocks:
+      - lang: sql
+        title: "BigQuery: partitioned and clustered table"
+        code: |-
+          create table analytics.fct_events
+          partition by date(event_ts)
+          cluster by customer_id, event_name
+          options (
+              partition_expiration_days = 730,
+              require_partition_filter = true
+          ) as
+          select * from staging.stg_events;
+      - lang: sql
+        title: "Snowflake: clustering key and cost guardrail"
+        code: |-
+          create or replace table analytics.fct_events
+              cluster by (to_date(event_ts), customer_id)
+          as select * from staging.stg_events;
+
+          create resource monitor elt_monitor with
+              credit_quota = 100
+              triggers on 90 percent do notify
+                       on 100 percent do suspend;
+
+          alter warehouse elt_wh set resource_monitor = elt_monitor;
+    points:
+      - h:
+          en: Force partition filters
+          vi: Bắt buộc partition filter
+        p:
+          en: "`require_partition_filter` makes accidental full scans an error, not an invoice."
+          vi: "`require_partition_filter` biến việc full scan vô tình thành lỗi, thay vì thành hóa đơn."
+      - h:
+          en: Cluster on common filters
+          vi: Cluster theo filter thường dùng
+        p:
+          en: Pick columns used in `where` and `join`, with lower cardinality first as a starting heuristic.
+          vi: Chọn cột dùng trong `where` và `join`, ưu tiên cardinality thấp trước như một heuristic khởi đầu.
+      - h:
+          en: Cap spend
+          vi: Giới hạn chi tiêu
+        tag: senior
+        p:
+          en: Resource monitors suspend or notify before a bad query or loop burns the budget.
+          vi: Resource monitor tạm dừng hoặc thông báo trước khi một query hay vòng lặp xấu đốt hết ngân sách.
+      - h:
+          en: Re-clustering has a cost
+          vi: Re-clustering có chi phí
+        p:
+          en: On Snowflake, automatic clustering consumes credits. Cluster only large, frequently filtered tables.
+          vi: Trên Snowflake, automatic clustering tiêu tốn credit. Chỉ cluster các bảng lớn, thường xuyên được filter.
+    n:
+      en: "Both examples encode a cost decision in the table definition. The BigQuery option makes unfiltered scans fail; the Snowflake monitor makes runaway spend stop. Numbers in the examples are placeholders: size them from your own budget."
+      vi: "Cả hai ví dụ đều mã hóa một quyết định chi phí vào định nghĩa bảng. Tùy chọn của BigQuery khiến scan không filter bị lỗi; monitor của Snowflake khiến chi tiêu vượt kiểm soát dừng lại. Các con số trong ví dụ chỉ là placeholder: hãy tính theo ngân sách của bạn."
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Choosing a platform from a benchmark blog.
+          vi: Chọn nền tảng dựa trên một blog benchmark.
+        why:
+          en: Vendor benchmarks rarely match your data or concurrency.
+          vi: Benchmark của vendor hiếm khi khớp với dữ liệu hay concurrency của bạn.
+        fix:
+          en: Run a proof of concept with your own queries and measure cost per outcome.
+          vi: Chạy proof of concept với query của bạn và đo chi phí trên mỗi kết quả.
+      - bad:
+          en: One giant warehouse for everything.
+          vi: Một warehouse khổng lồ cho mọi thứ.
+        why:
+          en: ELT, BI and ad hoc users fight over capacity.
+          vi: Người dùng ELT, BI và ad hoc tranh giành capacity.
+        fix:
+          en: Isolate workloads and attribute cost per team.
+          vi: Cô lập workload và phân bổ chi phí theo team.
+      - bad:
+          en: Partitioning by a high-cardinality column.
+          vi: Partition theo cột có cardinality cao.
+        why:
+          en: Creates many tiny partitions and slow metadata.
+          vi: Tạo ra nhiều partition rất nhỏ và metadata chậm.
+        fix:
+          en: Partition by date; cluster on the high-cardinality columns.
+          vi: Partition theo ngày; cluster theo các cột có cardinality cao.
+      - bad:
+          en: Materializing everything as tables.
+          vi: Materialize mọi thứ thành bảng.
+        why:
+          en: Storage and refresh cost for models nobody queries.
+          vi: Tốn chi phí storage và refresh cho các model không ai query.
+        fix:
+          en: Views by default; materialize on measured demand.
+          vi: Mặc định dùng view; chỉ materialize khi có nhu cầu đã đo được.
+      - bad:
+          en: Ignoring small files in a lakehouse.
+          vi: Bỏ qua các file nhỏ trong lakehouse.
+        why:
+          en: Slow reads and heavy metadata overhead.
+          vi: Đọc chậm và overhead metadata nặng.
+        fix:
+          en: Schedule compaction and file-size tuning.
+          vi: Lên lịch compaction và tinh chỉnh kích thước file.
+      - bad:
+          en: Moving to open formats “for freedom” with no plan.
+          vi: Chuyển sang định dạng mở “vì sự tự do” mà không có kế hoạch.
+        why:
+          en: Catalogs, maintenance and permissions still need an owner.
+          vi: Catalog, bảo trì và phân quyền vẫn cần một người chịu trách nhiệm.
+        fix:
+          en: Decide who runs compaction, catalogs and access control first.
+          vi: Quyết định trước ai chạy compaction, catalog và kiểm soát truy cập.
+    n:
+      en: The common thread is deciding by hype or by default instead of by measured workload. Ask for numbers every time.
+      vi: Điểm chung là quyết định theo hype hoặc theo mặc định thay vì theo workload đã đo. Hãy luôn yêu cầu con số.
+  - id: what-senior-looks-like-platform-choices
+    k: cards
+    t:
+      en: "What senior looks like: platform choices"
+      vi: "Senior trông như thế nào: lựa chọn nền tảng"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: Warehouse, lakehouse or both
+            vi: Warehouse, lakehouse hay cả hai
+          - en: Which open table format, if any
+            vi: Open table format nào, nếu có
+          - en: How workloads are isolated and priced
+            vi: Cách cô lập và tính giá workload
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Managed simplicity versus control
+            vi: Sự đơn giản của managed so với khả năng kiểm soát
+          - en: Lock-in versus operational burden
+            vi: Lock-in so với gánh nặng vận hành
+          - en: Performance tuning effort versus raw compute spend
+            vi: Công sức tinh chỉnh hiệu năng so với chi phí compute thô
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Own the cost model and forecasts
+            vi: Làm chủ mô hình chi phí và dự báo
+          - en: Set guardrails and budgets
+            vi: Đặt guardrail và ngân sách
+          - en: Run platform migrations deliberately
+            vi: Thực hiện migration nền tảng có chủ đích
+          - en: Keep documented exit options
+            vi: Duy trì các phương án rút lui được ghi thành tài liệu
+    n:
+      en: A senior engineer can explain the bill. They can also say what it would take to move off the platform, even if they never do.
+      vi: Một kỹ sư senior có thể giải thích hóa đơn. Họ cũng có thể nói cần gì để chuyển khỏi nền tảng, dù không bao giờ làm.
+  - id: warehouse-lab-query-optimization-and-workload-isolation
+    k: lab
+    t:
+      en: "Warehouse lab: query optimization and workload isolation"
+      vi: "Lab warehouse: tối ưu query và cô lập workload"
+    lead:
+      en: Find the expensive queries, fix them, and stop ELT from slowing dashboards.
+      vi: Tìm các query đắt, sửa chúng và ngăn ELT làm chậm dashboard.
+    scenario:
+      en: Dashboards slow down every morning while ELT jobs run on the same compute.
+      vi: Dashboard chậm đi mỗi sáng khi các job ELT chạy trên cùng compute.
+    input:
+      en: A warehouse (cloud trial or DuckDB for the query part) with a 100-million-row fact table, a BI query set and an ELT job set.
+      vi: Một warehouse (bản dùng thử trên cloud hoặc DuckDB cho phần query) với bảng fact 100 triệu dòng, một bộ query BI và một bộ job ELT.
+    tasks:
+      - en: Rank the top ten queries by time and data scanned from query history.
+        vi: Xếp hạng mười query hàng đầu theo thời gian và dữ liệu quét từ lịch sử query.
+      - en: Fix three of them using partitioning or clustering, column pruning and pre-aggregation.
+        vi: Sửa ba query bằng partition hoặc clustering, cắt cột và tổng hợp trước.
+      - en: Move ELT and BI to separate compute with a budget alert.
+        vi: Chuyển ELT và BI sang compute riêng kèm cảnh báo ngân sách.
+      - en: Re-run both workloads together and measure dashboard latency.
+        vi: Chạy lại cả hai workload cùng lúc và đo độ trễ dashboard.
+    expected:
+      en: A before-and-after table of runtime and scanned data, and dashboard latency that no longer depends on ELT.
+      vi: Bảng trước-sau về thời gian chạy và dữ liệu quét, và độ trễ dashboard không còn phụ thuộc ELT.
+    rubric:
+      - en: Fixes justified by plan or profile evidence
+        vi: Cách sửa được biện minh bằng bằng chứng plan hoặc profile
+      - en: Isolation verified under concurrent load
+        vi: Cô lập được kiểm chứng dưới tải đồng thời
+      - en: Cost impact estimated
+        vi: Ước tính được tác động chi phí
+    design:
+      en: Size compute and isolation for a peak of 200 concurrent dashboard users plus a nightly load.
+      vi: Định cỡ compute và cô lập cho đỉnh 200 người dùng dashboard đồng thời cộng một lần load ban đêm.
+    n:
+      en: Check that the speedup is measured by the same query before and after, not by different queries.
+      vi: Kiểm tra mức tăng tốc được đo bằng cùng một query trước và sau, không phải các query khác nhau.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: I can explain how my platform bills compute and storage
+          vi: Tôi có thể giải thích cách nền tảng của mình tính phí compute và storage
+        - en: Large tables are partitioned and clustered on real filters
+          vi: Các bảng lớn được partition và cluster theo filter thực tế
+        - en: Workloads are isolated with budgets or monitors
+          vi: Workload được cô lập bằng ngân sách hoặc monitor
+        - en: I know the trade-offs of Delta versus Iceberg
+          vi: Tôi biết các trade-off giữa Delta và Iceberg
+        - en: I can read the query profile to find the expensive step
+          vi: Tôi có thể đọc query profile để tìm bước tốn kém
+        - en: I have compared platforms using my own workload
+          vi: Tôi đã so sánh các nền tảng bằng workload của chính mình
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Warehouse or lakehouse for a 50-person company? What changes at 5,000?
+          vi: Warehouse hay lakehouse cho công ty 50 người? Điều gì thay đổi ở quy mô 5.000?
+        - en: Why can partitioning make queries slower?
+          vi: Tại sao partitioning có thể làm query chậm hơn?
+        - en: How would you cut a warehouse bill by 30% without hurting users?
+          vi: Bạn sẽ cắt giảm 30% hóa đơn warehouse như thế nào mà không ảnh hưởng người dùng?
+        - en: What does an open table format give you that Parquet files alone do not?
+          vi: Open table format mang lại gì mà chỉ riêng file Parquet thì không?
+        - en: How do you decide whether to materialize a model?
+          vi: Bạn quyết định có materialize một model hay không như thế nào?
+    n:
+      en: "The first question is a good conversation starter: the answer should change with team size, skills and workload, not with brand preference."
+      vi: "Câu hỏi đầu tiên là một cách mở đầu cuộc trò chuyện tốt: câu trả lời nên thay đổi theo quy mô team, kỹ năng và workload, không theo sở thích thương hiệu."

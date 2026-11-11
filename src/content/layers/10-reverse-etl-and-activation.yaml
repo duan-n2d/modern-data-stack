@@ -1,0 +1,429 @@
+layer: 10
+slides:
+  - id: reverse-etl-and-activation-putting-warehouse-data-to
+    k: cards
+    t:
+      en: "Reverse ETL and activation: putting warehouse data to work"
+      vi: "Reverse ETL và activation: đưa dữ liệu warehouse vào hành động"
+    lead:
+      en: "Reverse ETL syncs modeled warehouse data back into the tools where people act: CRM, ads, support and marketing platforms."
+      vi: "Reverse ETL đồng bộ dữ liệu đã mô hình hóa từ warehouse về công cụ nơi mọi người hành động: CRM, quảng cáo, hỗ trợ, marketing."
+    cols: 3
+    cards:
+      - h:
+          en: Sales and CRM
+          vi: Sales và CRM
+        tag: must
+        p:
+          en: Push product usage and health scores into the CRM so account teams see them where they work.
+          vi: Đẩy mức sử dụng sản phẩm và health score vào CRM để team phụ trách tài khoản thấy ngay nơi họ làm việc.
+      - h:
+          en: Marketing audiences
+          vi: Đối tượng marketing
+        tag: must
+        p:
+          en: Sync segments to email and ad platforms from one governed definition.
+          vi: Đồng bộ segment sang nền tảng email và quảng cáo từ một định nghĩa được quản trị duy nhất.
+      - h:
+          en: Support and success
+          vi: Hỗ trợ và customer success
+        tag: nice
+        p:
+          en: Surface customer value and recent issues in the support tool.
+          vi: Hiển thị giá trị khách hàng và các vấn đề gần đây trong công cụ support.
+      - h:
+          en: Product personalization
+          vi: Cá nhân hóa sản phẩm
+        tag: nice
+        p:
+          en: Feed traits to in-app messaging and experimentation tools.
+          vi: Cấp trait cho công cụ in-app messaging và experimentation.
+      - h:
+          en: Event collection (CDP)
+          vi: Thu thập event (CDP)
+        tag: nice
+        p:
+          en: Segment and RudderStack collect events from apps and route them to many destinations.
+          vi: Segment và RudderStack thu thập event từ ứng dụng và định tuyến đến nhiều destination.
+      - h:
+          en: Why warehouse-first
+          vi: Vì sao warehouse-first
+        tag: senior
+        p:
+          en: One tested source of truth feeding every tool, rather than each tool computing its own version.
+          vi: Một nguồn sự thật đã được test cấp cho mọi công cụ, thay vì mỗi công cụ tự tính một phiên bản riêng.
+    n:
+      en: "Activation closes the loop: analytics stops being a report and becomes an operational input. It also raises the stakes, because a bad sync can email the wrong customers."
+      vi: "Activation khép vòng lặp: analytics không còn là báo cáo mà trở thành đầu vào vận hành. Nó cũng nâng mức rủi ro, vì một sync lỗi có thể gửi email nhầm khách hàng."
+  - id: tool-landscape-reverse-etl-and-customer-data-platforms
+    k: table
+    t:
+      en: "Tool landscape: reverse ETL and customer data platforms"
+      vi: "Bức tranh công cụ: reverse ETL và customer data platform"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - Hightouch
+        - Reverse ETL / composable CDP
+        - en: Warehouse-first activation with audience building
+          vi: Activation warehouse-first kèm xây dựng audience
+        - en: Many destinations; audience and sync tooling; observability
+          vi: Nhiều destination; công cụ audience và sync; observability
+        - en: Cost scales with usage; another system to govern
+          vi: Chi phí tăng theo mức sử dụng; thêm một hệ thống cần quản trị
+        - en: Subscription (plan and usage based)
+          vi: Subscription (theo gói và mức sử dụng)
+      - - Census
+        - Reverse ETL
+        - en: Syncing modeled data to operational tools
+          vi: Đồng bộ dữ liệu đã mô hình hóa sang các công cụ vận hành
+        - en: Mature syncs; dbt-friendly modeling; good diffing
+          vi: Sync trưởng thành; mô hình hóa thân thiện với dbt; diffing tốt
+        - en: Overlap with other tools; cost at scale
+          vi: Chồng chéo với công cụ khác; chi phí ở quy mô lớn
+        - en: Subscription (plan and usage based)
+          vi: Subscription (theo gói và mức sử dụng)
+      - - RudderStack
+        - en: Customer data pipeline (event collection and reverse ETL)
+          vi: Customer data pipeline (thu thập event và reverse ETL)
+        - en: Warehouse-centric event collection plus routing
+          vi: Thu thập event lấy warehouse làm trung tâm cộng với routing
+        - en: Open-source roots; warehouse-first; event routing
+          vi: Gốc mã nguồn mở; warehouse-first; routing event
+        - en: Self-hosted option adds operations; fewer packaged audience features
+          vi: Tùy chọn self-hosted tăng công vận hành; ít tính năng audience đúng gói sẵn hơn
+        - en: Open source plus managed plans
+          vi: Mã nguồn mở cộng gói managed
+      - - Segment
+        - en: Customer data platform
+          vi: Nền tảng dữ liệu khách hàng
+        - en: Event collection and routing to many tools
+          vi: Thu thập event và định tuyến đến nhiều công cụ
+        - en: Large integration catalog; mature SDKs
+          vi: Danh mục tích hợp lớn; SDK trưởng thành
+        - en: Costs rise with volume; less warehouse-first by default
+          vi: Chi phí tăng theo volume; mặc định ít warehouse-first hơn
+        - en: Subscription (volume based)
+          vi: Subscription (theo volume)
+    cap:
+      en: "Alternative: a small custom job. Reasonable for one or two destinations; poor value as destinations and rules multiply."
+      vi: "Phương án thay thế: một job tùy chỉnh nhỏ. Hợp lý với một hai destination; kém hiệu quả khi destination và quy tắc nhân lên."
+    n:
+      en: "Two categories again: reverse ETL tools read from the warehouse; CDPs collect events from products. Many teams use one of each, with the warehouse as the shared source."
+      vi: "Lại là hai nhóm: công cụ reverse ETL đọc từ warehouse; CDP thu thập event từ sản phẩm. Nhiều team dùng mỗi loại một công cụ, với warehouse là nguồn chung."
+  - id: deep-dive-an-activation-model-and-a-resilient-sync
+    k: code
+    t:
+      en: "Deep dive: an activation model and a resilient sync"
+      vi: "Đào sâu: model activation và một sync bền bỉ"
+    lead:
+      en: The model decides who and what to sync. The sync code handles retries and idempotency.
+      vi: Model quyết định sync ai và cái gì. Code sync xử lý retry và idempotency.
+    blocks:
+      - lang: sql
+        title: models/activation/act_customer_health.sql
+        code: |-
+          select
+              c.customer_id,
+              c.email,
+              c.lifetime_value,
+              case when c.days_since_last_order > 90 then 'at_risk' else 'active' end as lifecycle_stage,
+              c.updated_at
+          from {{ ref('dim_customers') }} c
+          where c.email is not null
+            and c.marketing_opt_in = true     -- consent is part of the model, not an afterthought
+      - lang: python
+        title: sync_contacts.py (custom sync, for illustration)
+        code: |-
+          import time
+
+          import requests
+
+          API = "https://api.crm.example.com/v1/contacts"
+          RETRYABLE = {429, 500, 502, 503, 504}
+
+
+          def upsert_contact(row: dict, token: str, max_attempts: int = 5) -> None:
+              for attempt in range(1, max_attempts + 1):
+                  resp = requests.put(
+                      f"{API}/{row['customer_id']}",  # idempotent: keyed by external id
+                      json={"email": row["email"], "lifecycle_stage": row["lifecycle_stage"]},
+                      headers={"Authorization": f"Bearer {token}"},
+                      timeout=30,
+                  )
+                  if resp.status_code < 300:
+                      return
+                  if resp.status_code not in RETRYABLE or attempt == max_attempts:
+                      raise RuntimeError(
+                          f"CRM rejected {row['customer_id']}: {resp.status_code} {resp.text[:200]}"
+                      )
+                  time.sleep(float(resp.headers.get("Retry-After", 2 ** attempt)))
+    points:
+      - h:
+          en: Consent in the model
+          vi: Consent trong model
+        p:
+          en: Filter on opt-in and region in SQL so no sync can bypass it.
+          vi: Lọc theo opt-in và region trong SQL để không sync nào có thể bỏ qua.
+      - h:
+          en: Sync only changes
+          vi: Chỉ sync thay đổi
+        p:
+          en: Compare to the last synced snapshot (or a row hash) to avoid re-sending everything and hitting API limits.
+          vi: So với snapshot sync lần trước (hoặc row hash) để tránh gửi lại toàn bộ và chạm giới hạn API.
+      - h:
+          en: Idempotent upserts
+          vi: Upsert idempotent
+        p:
+          en: Keying writes by an external id means retries are safe.
+          vi: Ghi theo external id nghĩa là retry an toàn.
+      - h:
+          en: Respect rate limits
+          vi: Tôn trọng rate limit
+        tag: senior
+        p:
+          en: Back off on 429s and honour `Retry-After` when the API provides it.
+          vi: Back off khi gặp 429 và tuân theo `Retry-After` khi API cung cấp.
+    n:
+      en: "The first file is about governance: consent filtering lives in the model. The second shows the mechanics a reverse ETL tool hides for you: retries with backoff and idempotent writes. Know them even if you buy the tool."
+      vi: "File đầu nói về governance: lọc consent nằm trong model. File thứ hai cho thấy cơ chế mà công cụ reverse ETL giấu đi: retry với backoff và ghi idempotent. Hãy nắm chúng dù bạn mua công cụ."
+  - id: design-patterns-sync-modes-and-failure-handling
+    k: cards
+    t:
+      en: "Design patterns: sync modes and failure handling"
+      vi: "Mẫu thiết kế: chế độ sync và xử lý lỗi"
+    cols: 3
+    cards:
+      - h: Upsert
+        p:
+          en: Create or update by key. The default for most contact and account objects.
+          vi: Tạo hoặc cập nhật theo key. Mặc định cho hầu hết đối tượng contact và account.
+      - h: Mirror
+        p:
+          en: Make the destination match the model exactly, including removals. Powerful, and dangerous without safeguards.
+          vi: Làm destination khớp chính xác với model, kể cả việc xóa. Mạnh mẽ, và nguy hiểm nếu thiếu biện pháp bảo vệ.
+      - h:
+          en: Insert-only and update-only
+          vi: Chỉ insert và chỉ update
+        p:
+          en: Use when the destination owns some records, or for append-only event data.
+          vi: Dùng khi destination sở hữu một số bản ghi, hoặc cho dữ liệu event chỉ append.
+      - h:
+          en: Diff-based syncs
+          vi: Sync dựa trên diff
+        p:
+          en: Send only added, changed and removed rows. Cheaper, faster and kinder to API limits.
+          vi: Chỉ gửi các dòng được thêm, đổi và xóa. Rẻ hơn, nhanh hơn và nhẹ nhàng hơn với giới hạn API.
+      - h:
+          en: Dead-letter and retry queues
+          vi: Dead-letter và retry queue
+        p:
+          en: Failed rows go to a queue with the reason, instead of failing the whole sync.
+          vi: Các dòng lỗi vào queue kèm lý do, thay vì làm hỏng toàn bộ sync.
+      - h:
+          en: Kill switch and thresholds
+          vi: Kill switch và ngưỡng
+        p:
+          en: Abort when a sync would delete or change an unusual share of records.
+          vi: Hủy khi một sync sẽ xóa hoặc đổi tỷ lệ bản ghi bất thường.
+    n:
+      en: Reverse ETL failures hit real customers, so thresholds and kill switches matter more than in analytics pipelines. A mirror sync with an empty model will delete everything.
+      vi: Lỗi reverse ETL ảnh hưởng khách hàng thật, nên ngưỡng và kill switch quan trọng hơn so với analytics pipeline. Một mirror sync với model rỗng sẽ xóa sạch mọi thứ.
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Syncing from untested models.
+          vi: Sync từ model chưa được test.
+        why:
+          en: Bad data reaches customers, not just dashboards.
+          vi: Dữ liệu xấu đến tay khách hàng, không chỉ dashboard.
+        fix:
+          en: Tests and contracts on every activation model.
+          vi: Test và contract cho mọi activation model.
+      - bad:
+          en: Mirror sync with no safeguards.
+          vi: Mirror sync không có biện pháp bảo vệ.
+        why:
+          en: An empty table can delete the destination.
+          vi: Một bảng rỗng có thể xóa destination.
+        fix:
+          en: Row-count and change-rate thresholds.
+          vi: Ngưỡng row-count và tỷ lệ thay đổi.
+      - bad:
+          en: Ignoring consent and region rules.
+          vi: Bỏ qua quy tắc consent và region.
+        why:
+          en: Compliance and trust risk.
+          vi: Rủi ro tuân thủ và niềm tin.
+        fix:
+          en: Encode consent in the model.
+          vi: Mã hóa consent vào model.
+      - bad:
+          en: Full resyncs every run.
+          vi: Full resync mỗi lần chạy.
+        why:
+          en: Hits API limits and cost.
+          vi: Chạm giới hạn API và tốn chi phí.
+        fix:
+          en: Diff-based syncs.
+          vi: Sync dựa trên diff.
+      - bad:
+          en: Business logic in the sync tool.
+          vi: Business logic nằm trong công cụ sync.
+        why:
+          en: Hidden, untested logic.
+          vi: Logic ẩn, không được test.
+        fix:
+          en: Keep logic in dbt models; the tool just transports.
+          vi: Giữ logic trong dbt model; công cụ chỉ vận chuyển.
+      - bad:
+          en: No monitoring of destination health.
+          vi: Không giám sát sức khỏe destination.
+        why:
+          en: Failures go unnoticed for days.
+          vi: Lỗi không bị phát hiện suốt nhiều ngày.
+        fix:
+          en: Alert on failed rows, sync latency and volume change.
+          vi: Alert khi có dòng lỗi, sync latency và thay đổi volume.
+    n:
+      en: "The safest rule: the activation tool transports data, it does not decide anything."
+      vi: "Quy tắc an toàn nhất: công cụ activation chỉ vận chuyển dữ liệu, không quyết định gì cả."
+  - id: what-senior-looks-like-activation
+    k: cards
+    t:
+      en: "What senior looks like: activation"
+      vi: "Senior trông như thế nào: activation"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: Buy a reverse ETL tool or build
+            vi: Mua công cụ reverse ETL hay tự build
+          - en: Which objects the warehouse owns versus the destination
+            vi: Đối tượng nào do warehouse sở hữu so với destination
+          - en: Which syncs are allowed to delete
+            vi: Sync nào được phép xóa
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Speed to value versus another vendor to govern
+            vi: Tốc độ ra giá trị so với thêm một vendor cần quản trị
+          - en: Freshness versus API limits
+            vi: Độ tươi dữ liệu so với giới hạn API
+          - en: Central activation versus team-owned syncs
+            vi: Activation tập trung so với sync do từng team sở hữu
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Treat activation models as products with tests
+            vi: Coi activation model như sản phẩm có test
+          - en: Own failure handling and alerts
+            vi: Sở hữu việc xử lý lỗi và alert
+          - en: Coordinate with marketing and sales operations
+            vi: Phối hợp với marketing và sales operations
+          - en: Review privacy implications
+            vi: Rà soát tác động về quyền riêng tư
+    n:
+      en: "A senior engineer treats an outbound sync like a production API: it has contracts, tests, limits and an owner."
+      vi: "Một senior engineer coi sync đầu ra như một production API: có contract, test, giới hạn và owner."
+  - id: reverse-etl-lab-an-idempotent-activation-pipeline
+    k: lab
+    t:
+      en: "Reverse ETL lab: an idempotent activation pipeline"
+      vi: "Lab reverse ETL: pipeline activation idempotent"
+    lead:
+      en: Sync warehouse data to a rate-limited API without duplicates or accidents.
+      vi: Đồng bộ dữ liệu warehouse tới một API có giới hạn tốc độ mà không trùng lặp hay tai nạn.
+    scenario:
+      en: Customer health scores must reach a CRM, respecting consent and API limits.
+      vi: Điểm sức khỏe khách hàng phải tới được CRM, tôn trọng sự đồng ý và giới hạn API.
+    input:
+      en: A mart with consent flags, a mock CRM API returning 429 and 500 randomly, and Python or a reverse ETL tool.
+      vi: Một mart có cờ đồng ý, một CRM API giả trả 429 và 500 ngẫu nhiên, và Python hoặc công cụ reverse ETL.
+    tasks:
+      - en: Build the activation model with the consent filter.
+        vi: Xây model activation có bộ lọc đồng ý.
+      - en: Implement a diff-based, idempotent upsert with retries and backoff.
+        vi: Cài upsert dựa trên diff, idempotent, có retry và backoff.
+      - en: Add a kill switch that stops a sync changing more than a set share of records.
+        vi: Thêm kill switch dừng sync khi thay đổi vượt một tỷ lệ bản ghi đặt trước.
+      - en: Run twice and kill the job midway; show the destination is correct.
+        vi: Chạy hai lần và tắt job giữa chừng; cho thấy đích vẫn đúng.
+    expected:
+      en: The second run changes nothing; a partial failure resumes cleanly; the kill switch trips on an empty model.
+      vi: Lần chạy thứ hai không đổi gì; lỗi dở dang tiếp tục gọn gàng; kill switch kích hoạt với model rỗng.
+    rubric:
+      - en: Idempotency proven by comparison
+        vi: Idempotency được chứng minh bằng so sánh
+      - en: Rate limits respected
+        vi: Tôn trọng giới hạn tốc độ
+      - en: No record outside consent is sent
+        vi: Không gửi bản ghi nào ngoài phạm vi đồng ý
+    design:
+      en: Design rollback for a sync that wrote bad values to ten thousand CRM records.
+      vi: Thiết kế rollback cho một lần sync đã ghi giá trị sai vào mười nghìn bản ghi CRM.
+    n:
+      en: The empty-model test is the one that prevents real disasters.
+      vi: Test với model rỗng là test ngăn được thảm họa thật.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: Activation models are tested and have contracts
+          vi: Activation model được test và có contract
+        - en: Consent filters live in the model
+          vi: Bộ lọc consent nằm trong model
+        - en: Syncs are diff-based and idempotent
+          vi: Sync dựa trên diff và idempotent
+        - en: Destructive syncs have thresholds and alerts
+          vi: Sync có tính phá hủy có ngưỡng và alert
+        - en: Failures go to a queue with reasons
+          vi: Lỗi đi vào queue kèm lý do
+        - en: Owners exist on both the data and the destination side
+          vi: Có owner ở cả phía dữ liệu lẫn phía destination
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Design a sync of churn-risk scores into a CRM.
+          vi: Thiết kế một sync điểm churn-risk vào CRM.
+        - en: How do you prevent a bad model from wiping a destination?
+          vi: Làm sao ngăn một model lỗi xóa sạch destination?
+        - en: Buy a reverse ETL tool or build one? What changes your answer?
+          vi: Mua công cụ reverse ETL hay tự build? Điều gì thay đổi câu trả lời của bạn?
+        - en: How do you handle API rate limits?
+          vi: Bạn xử lý API rate limit thế nào?
+        - en: "Who should own the activation model: data or marketing?"
+          vi: "Ai nên sở hữu activation model: data hay marketing?"
+    n:
+      en: Listen for safeguards (thresholds, dry runs) in answers to the second question.
+      vi: Hãy chú ý các biện pháp bảo vệ (ngưỡng, dry run) trong câu trả lời cho câu hỏi thứ hai.

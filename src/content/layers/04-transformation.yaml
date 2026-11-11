@@ -1,0 +1,489 @@
+layer: 4
+slides:
+  - id: transformation-turning-raw-data-into-trusted-models
+    k: cards
+    t:
+      en: "Transformation: turning raw data into trusted models"
+      vi: "Biến đổi dữ liệu: từ dữ liệu thô thành model đáng tin"
+    lead:
+      en: "This is where analytics engineering lives: SQL in version control, tested, documented and deployed like software."
+      vi: "Đây là nơi analytics engineering sinh sống: SQL trong version control, được test, có tài liệu và deploy như phần mềm."
+    cols: 3
+    cards:
+      - h:
+          en: Layered models
+          vi: Model phân tầng
+        tag: must
+        p:
+          en: Staging cleans and renames, intermediate combines, marts serve business entities.
+          vi: Staging làm sạch và đổi tên, intermediate kết hợp, mart phục vụ các thực thể nghiệp vụ.
+      - h:
+          en: Tests and docs
+          vi: Test và tài liệu
+        tag: must
+        p:
+          en: Assertions about the data and descriptions live next to the code.
+          vi: Các assertion về dữ liệu và phần mô tả nằm cạnh code.
+      - h:
+          en: Incremental processing
+          vi: Xử lý incremental
+        tag: must
+        p:
+          en: Only process new or changed rows so large models stay cheap and fast.
+          vi: Chỉ xử lý các dòng mới hoặc thay đổi để model lớn vẫn rẻ và nhanh.
+      - h:
+          en: Snapshots
+          vi: Snapshot
+        tag: nice
+        p:
+          en: Capture how mutable source rows change over time (type 2 history).
+          vi: Ghi lại cách các dòng nguồn có thể thay đổi biến động theo thời gian (lịch sử type 2).
+      - h:
+          en: Contracts and versions
+          vi: Contract và version
+        tag: senior
+        p:
+          en: Enforce column names and types on public models, and version breaking changes.
+          vi: Ép buộc tên cột và kiểu dữ liệu trên các model public, và đánh version cho breaking change.
+      - h: Slim CI
+        tag: senior
+        p:
+          en: Build and test only what a pull request changed, compared with production state.
+          vi: Chỉ build và test những gì một pull request đã thay đổi, so với trạng thái production.
+    n:
+      en: "The shift from “SQL scripts” to “software engineering for SQL” is the story of this layer: modularity, review, tests, environments and deployments."
+      vi: "Chuyển từ “SQL script” sang “software engineering cho SQL” là câu chuyện của tầng này: tính module, review, test, environment và deployment."
+  - id: tool-landscape-transformation-frameworks
+    k: table
+    t:
+      en: "Tool landscape: transformation frameworks"
+      vi: "Bức tranh công cụ: framework biến đổi dữ liệu"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - en: dbt (Core and Cloud)
+          vi: dbt (Core và Cloud)
+        - en: SQL transformation framework
+          vi: Framework biến đổi dữ liệu bằng SQL
+        - en: SQL-centric analytics engineering teams
+          vi: Team analytics engineering lấy SQL làm trung tâm
+        - en: Large ecosystem; tests, docs, lineage; packages; wide adapter support
+          vi: Hệ sinh thái lớn; test, tài liệu, lineage; package; hỗ trợ adapter rộng
+        - en: Python models are limited; DAG-level state handling is basic
+          vi: Python model còn hạn chế; xử lý state ở mức DAG còn cơ bản
+        - en: Core is open source; Cloud is seat- and plan-based
+          vi: Core là mã nguồn mở; Cloud tính theo seat và gói
+      - - SQLMesh
+        - en: SQL transformation framework
+          vi: Framework biến đổi dữ liệu bằng SQL
+        - en: Teams wanting virtual environments and state-aware planning
+          vi: Team muốn virtual environment và lập kế hoạch nhận biết state
+        - en: Plans show impact before applying; cheaper dev environments
+          vi: Plan cho thấy tác động trước khi áp dụng; môi trường dev rẻ hơn
+        - en: Smaller ecosystem and community than dbt
+          vi: Hệ sinh thái và cộng đồng nhỏ hơn dbt
+        - en: Open source, with a commercial offering
+          vi: Mã nguồn mở, kèm bản thương mại
+      - - Dataform
+        - en: SQL workflow tool in BigQuery
+          vi: Công cụ SQL workflow trong BigQuery
+        - en: BigQuery-only teams that want a native tool
+          vi: Team chỉ dùng BigQuery muốn công cụ native
+        - en: Native to Google Cloud; SQLX with assertions
+          vi: Native với Google Cloud; SQLX có assertion
+        - en: Tied to BigQuery; smaller ecosystem
+          vi: Gắn với BigQuery; hệ sinh thái nhỏ hơn
+        - en: No separate fee; you pay for BigQuery and related usage
+          vi: Không có phí riêng; bạn trả cho BigQuery và mức dùng liên quan
+      - - Apache Spark
+        - en: Distributed processing engine
+          vi: Engine xử lý phân tán
+        - en: Very large data, complex or non-SQL logic, ML pipelines
+          vi: Dữ liệu rất lớn, logic phức tạp hoặc không phải SQL, ML pipeline
+        - en: Scales out; SQL, Python, Scala; streaming
+          vi: Scale out; SQL, Python, Scala; streaming
+        - en: Cluster tuning; heavier operations; harder to review
+          vi: Tinh chỉnh cluster; vận hành nặng hơn; khó review hơn
+        - en: Open source engine; pay for compute
+          vi: Engine mã nguồn mở; trả tiền cho compute
+      - - en: Stored procedures / raw SQL
+          vi: Stored procedure / SQL thuần
+        - en: Imperative SQL in the warehouse
+          vi: SQL imperative trong warehouse
+        - en: Legacy or very simple pipelines
+          vi: Pipeline legacy hoặc rất đơn giản
+        - en: No extra tooling
+          vi: Không cần thêm tooling
+        - en: Hard to test, review and lineage-track
+          vi: Khó test, review và theo dõi lineage
+        - en: Included in warehouse
+          vi: Đã gồm trong warehouse
+    cap:
+      en: dbt is the common default for SQL transformation; evaluate alternatives when you need virtual environments, a native BigQuery tool or large-scale non-SQL logic. Check current dbt engine and licensing announcements before deciding.
+      vi: dbt là mặc định phổ biến cho biến đổi dữ liệu bằng SQL; hãy đánh giá các lựa chọn thay thế khi bạn cần virtual environment, công cụ BigQuery native hoặc logic non-SQL quy mô lớn. Kiểm tra các thông báo hiện hành về dbt engine và giấy phép trước khi quyết định.
+    n:
+      en: Do not turn this into a tool war. State the default (dbt), then name the conditions under which each alternative wins.
+      vi: Đừng biến nó thành cuộc chiến công cụ. Nêu mặc định (dbt), rồi chỉ ra các điều kiện để mỗi lựa chọn thay thế chiến thắng.
+  - id: deep-dive-a-dbt-model-its-tests-and-a-source
+    k: code
+    t:
+      en: "Deep dive: a dbt model, its tests and a source"
+      vi: "Đào sâu: một model dbt, test và source của nó"
+    lead:
+      en: A staging model, the YAML that describes and tests it, and the macro that keeps repeated logic in one place.
+      vi: Một staging model, file YAML mô tả và test nó, và macro giữ logic lặp lại ở một nơi.
+    blocks:
+      - lang: sql
+        title: models/staging/shop/stg_shop__orders.sql
+        code: |-
+          with source as (
+              select * from {{ source('shop', 'orders') }}
+          ),
+
+          renamed as (
+              select
+                  id                                   as order_id,
+                  customer_id,
+                  lower(status)                        as order_status,
+                  {{ cents_to_dollars('amount_cents') }} as order_amount,
+                  created_at::timestamp                as ordered_at,
+                  updated_at::timestamp                as updated_at
+              from source
+          )
+
+          select * from renamed
+      - lang: yaml
+        title: models/staging/shop/_shop__models.yml
+        code: |-
+          version: 2
+
+          sources:
+            - name: shop
+              database: raw
+              schema: raw_shop
+              tables:
+                - name: orders
+                  loaded_at_field: _loaded_at
+                  freshness:
+                    warn_after: {count: 12, period: hour}
+                    error_after: {count: 24, period: hour}
+
+          models:
+            - name: stg_shop__orders
+              description: "One row per order, cleaned and renamed from the shop source."
+              columns:
+                - name: order_id
+                  description: "Primary key."
+                  data_tests:
+                    - unique
+                    - not_null
+                - name: customer_id
+                  data_tests:
+                    - not_null
+                    - relationships:
+                        to: ref('stg_shop__customers')
+                        field: customer_id
+                - name: order_status
+                  data_tests:
+                    - accepted_values:
+                        values: ['placed', 'shipped', 'returned', 'cancelled']
+      - lang: sql
+        title: macros/cents_to_dollars.sql
+        code: |-
+          {% macro cents_to_dollars(column_name, scale=2) %}
+              round({{ column_name }} / 100.0, {{ scale }})
+          {% endmacro %}
+    n:
+      en: "Three files, one workflow: the model renames and casts, the YAML declares freshness, tests and descriptions, the macro removes duplicated arithmetic. Note the key naming: data_tests is the current key in recent dbt versions; older versions use tests. Check your version."
+      vi: "Ba file, một workflow: model đổi tên và cast, YAML khai báo freshness, test và mô tả, macro loại bỏ phép tính trùng lặp. Lưu ý tên key: data_tests là key hiện hành trong các phiên bản dbt gần đây; phiên bản cũ dùng tests. Hãy kiểm tra phiên bản của bạn."
+  - id: deep-dive-incremental-models-snapshots-and-contracts
+    k: code
+    t:
+      en: "Deep dive: incremental models, snapshots and contracts"
+      vi: "Đào sâu: model incremental, snapshot và contract"
+    lead:
+      en: Three features that move a project from “works on my laptop” to “works at scale”.
+      vi: Ba tính năng đưa một dự án từ “chạy được trên laptop của tôi” sang “chạy được ở quy mô lớn”.
+    blocks:
+      - lang: sql
+        title: models/marts/fct_orders.sql (incremental)
+        code: |-
+          {{
+              config(
+                  materialized='incremental',
+                  unique_key='order_id',
+                  incremental_strategy='merge',
+                  on_schema_change='append_new_columns'
+              )
+          }}
+
+          select
+              order_id,
+              customer_id,
+              order_status,
+              order_amount,
+              ordered_at,
+              updated_at
+          from {{ ref('stg_shop__orders') }}
+
+          {% if is_incremental() %}
+          where updated_at > (select max(updated_at) from {{ this }})
+          {% endif %}
+      - lang: yaml
+        title: snapshots/customers_snapshot.yml and a contract
+        code: |-
+          snapshots:
+            - name: customers_snapshot
+              relation: source('shop', 'customers')
+              config:
+                schema: snapshots
+                unique_key: customer_id
+                strategy: timestamp
+                updated_at: updated_at
+
+          models:
+            - name: fct_orders
+              config:
+                contract:
+                  enforced: true
+              columns:
+                - name: order_id
+                  data_type: bigint
+                  constraints:
+                    - type: not_null
+                    - type: primary_key
+                - name: order_amount
+                  data_type: numeric(18, 2)
+    points:
+      - h:
+          en: Choose the strategy
+          vi: Chọn strategy
+        p:
+          en: "`merge` and `delete+insert` handle updates; `append` is for immutable events; `insert_overwrite` replaces partitions. Newer dbt versions also offer a microbatch strategy."
+          vi: "`merge` và `delete+insert` xử lý update; `append` dành cho event bất biến; `insert_overwrite` thay thế partition. Các phiên bản dbt mới hơn còn có strategy microbatch."
+      - h:
+          en: Incremental needs a safety net
+          vi: Incremental cần lưới an toàn
+        p:
+          en: Run periodic full refreshes or reconcile counts. Late data and logic changes make drift likely.
+          vi: Chạy full refresh định kỳ hoặc đối soát số lượng. Dữ liệu đến trễ và thay đổi logic khiến drift rất dễ xảy ra.
+      - h:
+          en: Contracts protect consumers
+          vi: Contract bảo vệ người dùng
+        tag: senior
+        p:
+          en: An enforced contract fails the build if names or types change, so downstream users are not surprised.
+          vi: Contract được ép buộc sẽ làm build thất bại nếu tên hoặc kiểu thay đổi, nhờ đã người dùng downstream không bị bất ngờ.
+      - h: Slim CI
+        tag: senior
+        p:
+          en: "`dbt build --select state:modified+ --defer --state prod-artifacts` runs only what a PR affects."
+          vi: "`dbt build --select state:modified+ --defer --state prod-artifacts` chỉ chạy những gì một PR ảnh hưởng."
+    n:
+      en: "Incremental logic is where most subtle bugs live: the where-clause assumes updated_at is reliable. The snapshot YAML uses the newer YAML-based syntax; older projects define snapshots in SQL blocks. Contracts and Slim CI are what make dbt safe for many contributors."
+      vi: "Logic incremental là nơi chứa hầu hết các bug tinh vi: mệnh đề where giả định updated_at đáng tin cậy. YAML của snapshot dùng cú pháp mới dựa trên YAML; các dự án cũ định nghĩa snapshot trong khối SQL. Contract và Slim CI là thứ giúp dbt an toàn cho nhiều contributor."
+  - id: design-patterns-and-best-practices
+    k: cards
+    t:
+      en: Design patterns and best practices
+      vi: Mẫu thiết kế và thực hành tốt
+    cols: 3
+    cards:
+      - h:
+          en: Staging, intermediate, marts
+          vi: Staging, intermediate, mart
+        p:
+          en: One staging model per source table; business logic after, never before. Keeps lineage readable.
+          vi: Một staging model cho mỗi bảng nguồn; logic nghiệp vụ đặt sau, không bao giờ trước. Giữ lineage dễ đọc.
+      - h:
+          en: "`ref` and `source` only"
+          vi: Chỉ dùng `ref` và `source`
+        p:
+          en: Never hard-code table names. It keeps lineage, environments and state selection working.
+          vi: Không bao giờ hard-code tên bảng. Điều này giữ cho lineage, environment và state selection hoạt động.
+      - h:
+          en: Test at the right level
+          vi: Test ở đúng mức
+        p:
+          en: Primary keys and relationships everywhere; business rules where they have caught real bugs.
+          vi: Primary key và relationship ở mọi nơi; business rule ở nơi chúng đã bắt được bug thật.
+      - h:
+          en: Unit-test tricky logic
+          vi: Unit test cho logic khó
+        p:
+          en: Use dbt unit tests on small mocked inputs for complex case statements and window logic.
+          vi: Dùng dbt unit test trên input mock nhỏ cho case statement và window logic phức tạp.
+      - h:
+          en: Modular macros and packages
+          vi: Macro và package module hóa
+        p:
+          en: Share logic through macros and vetted packages, and pin package versions.
+          vi: Chia sẻ logic qua macro và package đã kiểm duyệt, và pin version của package.
+      - h:
+          en: Environments per developer
+          vi: Environment cho mỗi developer
+        p:
+          en: Each branch builds into its own schema, defers to production for unchanged models.
+          vi: Mỗi branch build vào schema riêng, defer về production cho các model không đổi.
+    n:
+      en: Most of these patterns exist to keep the DAG understandable and to catch problems in a pull request instead of in a dashboard.
+      vi: Phần lớn các pattern này tồn tại để giữ DAG dễ hiểu và bắt lỗi trong pull request thay vì trong dashboard.
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Business logic in staging models.
+          vi: Business logic trong staging model.
+        why:
+          en: Mixes cleaning with meaning; hard to reuse.
+          vi: Trộn lẫn làm sạch với ý nghĩa; khó tái sử dụng.
+        fix:
+          en: Keep staging mechanical; put logic in intermediate and marts.
+          vi: Giữ staging thuần cơ học; đặt logic ở intermediate và mart.
+      - bad:
+          en: Everything is a table.
+          vi: Mọi thứ đều là table.
+        why:
+          en: Slow, costly builds for little value.
+          vi: Build chậm, tốn kém mà ít giá trị.
+        fix:
+          en: Views for light models, incremental for big ones, tables for heavy reuse.
+          vi: View cho model nhẹ, incremental cho model lớn, table cho model tái sử dụng nhiều.
+      - bad:
+          en: Incremental models with no full-refresh plan.
+          vi: Model incremental không có kế hoạch full-refresh.
+        why:
+          en: Silent drift after logic changes or late data.
+          vi: Drift âm thầm sau khi đổi logic hoặc dữ liệu đến trễ.
+        fix:
+          en: Schedule reconciliation and document when to full-refresh.
+          vi: Lên lịch đối soát và ghi tài liệu khi nào cần full-refresh.
+      - bad:
+          en: Tests only on primary keys.
+          vi: Chỉ test trên primary key.
+        why:
+          en: Misses referential and business-rule failures.
+          vi: Bỏ sót lỗi tham chiếu và lỗi business rule.
+        fix:
+          en: Add relationships, accepted values and a few high-value rules.
+          vi: Thêm relationship, accepted value và vài rule giá trị cao.
+      - bad:
+          en: Giant models with 800 lines of SQL.
+          vi: Model khổng lồ với 800 dòng SQL.
+        why:
+          en: Impossible to test or review.
+          vi: Không thể test hay review.
+        fix:
+          en: Split into named CTEs, then into models.
+          vi: Tách thành các CTE có tên, rồi tách thành các model.
+      - bad:
+          en: Unpinned packages and no CI.
+          vi: Package không pin version và không có CI.
+        why:
+          en: Upgrades and merges break production.
+          vi: Nâng cấp và merge làm hỏng production.
+        fix:
+          en: Pin versions; run build and tests on every pull request.
+          vi: Pin version; chạy build và test trên mọi pull request.
+    n:
+      en: These pitfalls all trace to missing feedback loops. CI plus tests turn most of them into failed pull requests.
+      vi: Những pitfall này đều bắt nguồn từ thiếu vòng phản hồi. CI cộng test biến phần lớn chúng thành các pull request thất bại.
+  - id: what-senior-looks-like-transformation
+    k: cards
+    t:
+      en: "What senior looks like: transformation"
+      vi: "Senior trông như thế nào: biến đổi dữ liệu"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: Project structure and naming conventions
+            vi: Cấu trúc dự án và quy ước đặt tên
+          - en: Materialization strategy per model
+            vi: Chiến lược materialization cho từng model
+          - en: Which models are public, with contracts and versions
+            vi: Model nào là public, kèm contract và version
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Freshness versus build cost
+            vi: Độ tươi của dữ liệu so với chi phí build
+          - en: Strict contracts versus development speed
+            vi: Contract nghiêm ngặt so với tốc độ phát triển
+          - en: Framework features versus tool lock-in
+            vi: Tính năng framework so với lock-in công cụ
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Own CI and deployment of the project
+            vi: Làm chủ CI và deployment của dự án
+          - en: Keep build time and cost under control
+            vi: Kiểm soát thời gian và chi phí build
+          - en: Review for grain, tests and documentation
+            vi: Review về grain, test và tài liệu
+          - en: Manage deprecations of public models
+            vi: Quản lý việc deprecate các model public
+    n:
+      en: "A senior owns the project’s health: build time, test coverage, naming, and the process for changing models other teams rely on."
+      vi: "Một senior chịu trách nhiệm về sức khỏe của dự án: thời gian build, độ phủ test, cách đặt tên và quy trình thay đổi các model mà team khác phụ thuộc."
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: Models follow a layered structure
+          vi: Các model theo cấu trúc phân tầng
+        - en: Primary keys have unique and not-null tests
+          vi: Primary key có test unique và not-null
+        - en: Large models are incremental, with a reconciliation plan
+          vi: Model lớn dùng incremental, kèm kế hoạch đối soát
+        - en: Public models have contracts and descriptions
+          vi: Model public có contract và mô tả
+        - en: CI runs only what changed (Slim CI)
+          vi: CI chỉ chạy phần đã thay đổi (Slim CI)
+        - en: Packages are pinned
+          vi: Package được pin phiên bản
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: How does an incremental model handle late-arriving data?
+          vi: Một model incremental xử lý dữ liệu đến muộn như thế nào?
+        - en: When would you use a snapshot instead of an incremental model?
+          vi: Khi nào bạn dùng snapshot thay vì model incremental?
+        - en: What does an enforced contract protect against?
+          vi: Contract được enforce bảo vệ khỏi điều gì?
+        - en: How would you reduce a 3-hour dbt run to 30 minutes?
+          vi: Bạn sẽ giảm một lần chạy dbt 3 giờ xuống 30 phút như thế nào?
+        - en: When would you choose Spark over dbt?
+          vi: Khi nào bạn chọn Spark thay vì dbt?
+    n:
+      en: "Look for answers that discuss failure modes: late data, schema change, cost. A pure feature list is a mid-level answer."
+      vi: "Hãy tìm các câu trả lời bàn về failure mode: dữ liệu đến muộn, thay đổi schema, chi phí. Một danh sách tính năng thuần túy chỉ là câu trả lời mức mid-level."

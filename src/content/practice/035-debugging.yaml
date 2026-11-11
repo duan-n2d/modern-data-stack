@@ -1,0 +1,77 @@
+practice:
+  id: debugging
+  name:
+    en: Debugging command reference
+    vi: Tham chiếu lệnh debug
+  color: "#B91C1C"
+slides:
+  - id: diagnostic-focus-commands-and-signals-per-technology
+    k: table
+    t:
+      en: Diagnostic focus, commands and signals per technology
+      vi: Trọng tâm chẩn đoán, lệnh và tín hiệu theo công nghệ
+    lead:
+      en: Start from the signal, then drill into the technology. Command and metric names vary by version, so confirm them in the documentation.
+      vi: Bắt đầu từ tín hiệu, rồi đào sâu vào công nghệ. Tên lệnh và metric thay đổi theo phiên bản, hãy xác nhận trong tài liệu.
+    head:
+      - en: Technology
+        vi: Công nghệ
+      - en: Diagnostic focus
+        vi: Trọng tâm chẩn đoán
+      - en: Commands and where to look
+        vi: Lệnh và nơi cần nhìn
+      - en: Unhealthy signal
+        vi: Tín hiệu không lành mạnh
+    rows:
+      - - Kafka
+        - en: Consumer lag, ISR, under-replicated partitions
+          vi: Consumer lag, ISR, partition thiếu bản sao
+        - "`kafka-consumer-groups.sh --describe`, `kafka-topics.sh --describe --under-replicated-partitions`"
+        - en: Lag growing; ISR smaller than replicas
+          vi: Lag tăng; ISR nhỏ hơn số replica
+      - - Spark
+        - en: Stage duration, shuffle spill, skew, executor OOM
+          vi: Thời lượng stage, shuffle spill, lệch, executor OOM
+        - en: Spark UI Stages tab, `df.explain("formatted")`, executor logs
+          vi: Tab Stages của Spark UI, `df.explain("formatted")`, log executor
+        - en: Max task far above median; spill; lost executors
+          vi: Task lâu nhất vượt xa trung vị; spill; mất executor
+      - - Flink
+        - en: Checkpoint duration, backpressure, watermark delay
+          vi: Thời lượng checkpoint, backpressure, độ trễ watermark
+        - en: Web UI checkpoints and backpressure views; metrics `lastCheckpointDuration`, `backPressuredTimeMsPerSecond`, `currentOutputWatermark`
+          vi: Màn checkpoint và backpressure trong Web UI; metric `lastCheckpointDuration`, `backPressuredTimeMsPerSecond`, `currentOutputWatermark`
+        - en: Checkpoints timing out; watermark not advancing
+          vi: Checkpoint timeout; watermark không tiến
+      - - Airflow
+        - en: Scheduler delay, task state, queue time
+          vi: Độ trễ scheduler, trạng thái task, thời gian chờ hàng đợi
+        - en: "`airflow dags list-import-errors`, `airflow tasks states-for-dag-run`, scheduler logs"
+          vi: "`airflow dags list-import-errors`, `airflow tasks states-for-dag-run`, log của scheduler"
+        - en: Tasks stuck in queued; import errors; slow parsing
+          vi: Task kẹt ở queued; lỗi import; parse chậm
+      - - dbt
+        - en: Compiled SQL, lineage, test failures
+          vi: SQL đã compile, lineage, test thất bại
+        - "`dbt compile`, `dbt ls --select`, `dbt debug`, `target/run_results.json`"
+        - en: Surprising SQL; slow model; failing tests
+          vi: SQL bất ngờ; model chậm; test thất bại
+      - - Iceberg
+        - en: Snapshot growth, manifest count, small files
+          vi: Tăng trưởng snapshot, số manifest, file nhỏ
+        - en: "`table.snapshots`, `table.files`, `table.manifests`, maintenance procedures"
+          vi: "`table.snapshots`, `table.files`, `table.manifests`, thủ tục bảo trì"
+        - en: Thousands of tiny files; many manifests; slow planning
+          vi: Hàng nghìn file nhỏ; nhiều manifest; planning chậm
+      - - Kubernetes
+        - en: Pod events, requests and limits, probes, scheduling
+          vi: Sự kiện pod, requests và limits, probe, lập lịch
+        - "`kubectl describe pod`, `kubectl get events --sort-by=.lastTimestamp`, `kubectl logs --previous`, `kubectl top pod`"
+        - en: Pending; CrashLoopBackOff; OOMKilled; failing probes
+          vi: Pending; CrashLoopBackOff; OOMKilled; probe thất bại
+    cap:
+      en: "Pair this table with the incident format: signal, evidence, diagnosis, fix, prevention."
+      vi: "Kết hợp bảng này với định dạng sự cố: tín hiệu, bằng chứng, chẩn đoán, cách sửa, phòng ngừa."
+    n:
+      en: This is a quick reference, not a substitute for the technology’s own monitoring guide.
+      vi: Đây là tham chiếu nhanh, không thay thế hướng dẫn giám sát của chính công nghệ đã.

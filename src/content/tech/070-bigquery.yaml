@@ -1,0 +1,88 @@
+tech:
+  id: bigquery
+  name: BigQuery
+  color: "#1A73E8"
+  refs:
+    - [BigQuery, https://cloud.google.com/bigquery/docs]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "BigQuery: architecture"
+      vi: "BigQuery: kiến trúc"
+    lead:
+      en: "Serverless: your query becomes stages that run on slots, reading columnar files from storage that is separate from compute."
+      vi: "Serverless: query của bạn trở thành các stage chạy trên slot, đọc file columnar từ storage tách biệt với compute."
+    svg: bqSVG
+    cap:
+      en: "You do not provision clusters. You choose how compute is billed: bytes scanned, or reserved slot capacity."
+      vi: "Bạn không provision cluster. Bạn chọn cách tính phí compute: theo bytes quét, hoặc theo slot dự trữ."
+    n:
+      en: "BigQuery is the easiest to describe in one sentence: you submit SQL, Google runs it on a large pool of slots against columnar storage. Because nothing is provisioned, cost control comes from bytes scanned and reservations."
+      vi: "BigQuery dễ mô tả nhất trong một câu: bạn gửi SQL, Google chạy nó trên một pool slot lớn với columnar storage. Vì không provision gì, việc kiểm soát chi phí đến từ bytes quét và reservation."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "BigQuery: components and workflow"
+      vi: "BigQuery: thành phần và quy trình"
+    comps:
+      - - Dremel
+        - en: Distributed SQL execution engine
+          vi: Engine thực thi SQL phân tán
+      - - Slot
+        - en: Unit of compute (virtual CPU) that runs pieces of a query stage
+          vi: Đơn vị compute (virtual CPU) chạy các phần của một query stage
+      - - Colossus
+        - en: Google’s distributed file system that holds table storage
+          vi: Hệ thống file phân tán của Google chứa storage của bảng
+      - - Capacitor
+        - en: Columnar storage format used by BigQuery
+          vi: Định dạng lưu trữ columnar mà BigQuery sử dụng
+      - - Shuffle tier
+        - en: In-memory distributed layer moving data between stages
+          vi: Layer phân tán in-memory chuyển dữ liệu giữa các stage
+      - - en: Borg and network
+          vi: Borg và network
+        - en: Cluster scheduler and high-bandwidth network under the service
+          vi: Cluster scheduler và network băng thông cao bên dưới dịch vụ
+      - - en: Reservations and editions
+          vi: Reservation và edition
+        - en: Capacity-based pricing as an alternative to on-demand
+          vi: Định giá theo capacity, thay thế cho on-demand
+      - - en: Partitioning and clustering
+          vi: Partitioning và clustering
+        - en: Prune data so fewer bytes are scanned
+          vi: Prune dữ liệu để quét ít bytes hơn
+      - - en: BigLake and external tables
+          vi: BigLake và external table
+        - en: Query Parquet and Iceberg data in object storage
+          vi: Query dữ liệu Parquet và Iceberg trong object storage
+    flow:
+      - en: A query arrives at the job service.
+        vi: Một query đến job service.
+      - en: The service parses and plans it, and prunes partitions and clusters.
+        vi: Dịch vụ parse và lập kế hoạch, đồng thời prune partition và cluster.
+      - en: The plan becomes a tree of stages; slots read only the referenced columns from storage.
+        vi: Plan trở thành một cây các stage; slot chỉ đọc các cột được tham chiếu từ storage.
+      - en: Intermediate results move between stages through the shuffle tier.
+        vi: Kết quả trung gian di chuyển giữa các stage qua shuffle tier.
+      - en: The final stage produces the result. Deterministic results can be served from cache for a period.
+        vi: Stage cuối tạo ra kết quả. Kết quả deterministic có thể được phục vụ từ cache trong một khoảng thời gian.
+      - en: On-demand billing counts bytes processed; capacity billing counts slot usage.
+        vi: Tính phí on-demand đếm bytes đã xử lý; tính phí capacity đếm mức dùng slot.
+    ops:
+      - en: Columnar storage means `select *` pays for every column. Select only what you need.
+        vi: Columnar storage nghĩa là `select *` trả tiền cho mọi cột. Chỉ select những gì bạn cần.
+      - en: Use partitioning and `require_partition_filter` to avoid accidental full scans.
+        vi: Dùng partitioning và `require_partition_filter` để tránh full scan ngoài ý muốn.
+      - en: Slot contention shows up as slow queries when capacity is shared. Check the query plan in the console.
+        vi: Slot contention biểu hiện thành query chậm khi capacity dùng chung. Kiểm tra query plan trong console.
+      - en: Materialized views and BI acceleration can cut repeated work.
+        vi: Materialized view và BI acceleration có thể giảm công việc lặp lại.
+      - en: Verify current pricing and editions in the official documentation.
+        vi: Hãy xác minh giá và edition hiện hành trong tài liệu chính thức.
+    n:
+      en: Trace one query. The main cost lever is how much data it reads, which is why partitioning, clustering and column selection matter.
+      vi: Theo dõi một query. Đãn bẩy chi phí chính là lượng dữ liệu nó đọc, đã là lý do partitioning, clustering và chọn cột quan trọng.

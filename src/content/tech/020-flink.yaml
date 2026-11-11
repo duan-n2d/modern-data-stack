@@ -1,0 +1,326 @@
+tech:
+  id: flink
+  name: Flink
+  color: "#0E7490"
+  refs:
+    - [Apache Flink, https://nightlies.apache.org/flink/flink-docs-stable/]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "Flink: architecture"
+      vi: "Flink: kiến trúc"
+    lead:
+      en: Flink runs a continuous dataflow with local state. Periodic, consistent snapshots make failures recoverable without losing correctness.
+      vi: Flink chạy một dataflow liên tục với state cục bộ. Các snapshot nhất quán, định kỳ giúp phục hồi sau lỗi mà không mất tính đúng đắn.
+    svg: flinkSVG
+    cap:
+      en: Checkpoint barriers travel with the records, so a snapshot is consistent without stopping the job.
+      vi: Checkpoint barrier di chuyển cùng các record, nên snapshot nhất quán mà không cần dừng job.
+    n:
+      en: "Contrast with Spark: Flink processes records continuously with local state, Spark Structured Streaming processes micro-batches. The checkpoint barrier idea is what gives Flink its fault tolerance."
+      vi: "So sánh với Spark: Flink xử lý record liên tục với state cục bộ, Spark Structured Streaming xử lý micro-batch. Ý tưởng checkpoint barrier là thứ mang lại khả năng chịu lỗi cho Flink."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "Flink: components and workflow"
+      vi: "Flink: thành phần và quy trình"
+    comps:
+      - - JobManager
+        - en: "Coordinates a job: Dispatcher (submissions), ResourceManager (slots), JobMaster (one per job)"
+          vi: "Điều phối một job: Dispatcher (nhận submit), ResourceManager (slot), JobMaster (một cho mỗi job)"
+      - - TaskManager
+        - en: Worker process with task slots that run chained operators
+          vi: Worker process có các task slot chạy các operator được chain
+      - - Task slot
+        - en: Unit of resource isolation inside a TaskManager
+          vi: Đơn vị cô lập tài nguyên bên trong một TaskManager
+      - - State backend
+        - en: "Where keyed state lives: JVM heap or RocksDB (spills to disk, handles large state)"
+          vi: "Nơi keyed state nằm: JVM heap hoặc RocksDB (spill ra đĩa, xử lý state lớn)"
+      - - Checkpoint
+        - en: Automatic distributed snapshot of operator state and source positions, using barriers
+          vi: Snapshot phân tán tự động của state operator và vị trí source, dùng barrier
+      - - Savepoint
+        - en: Manually triggered snapshot for upgrades, migrations and rollbacks
+          vi: Snapshot kích hoạt thủ công cho nâng cấp, migration và rollback
+      - - Watermark
+        - en: Marker of event-time progress; decides when windows can close
+          vi: Dấu mốc tiến độ event-time; quyết định khi nào window có thể đúng
+      - - en: Connectors
+          vi: Connector
+        - en: Kafka, files, JDBC, CDC and lakehouse tables such as Iceberg, Paimon and Delta
+          vi: Kafka, file, JDBC, CDC và các bảng lakehouse như Iceberg, Paimon và Delta
+      - - Flink SQL / Table API
+        - en: Declarative streaming and batch queries
+          vi: Query streaming và batch dạng khai báo
+      - - en: Deployment mode
+          vi: Chế độ deploy
+        - en: Application mode (cluster per job) or session cluster, on Kubernetes or YARN
+          vi: Application mode (cluster cho mỗi job) hoặc session cluster, trên Kubernetes hoặc YARN
+    flow:
+      - en: Client compiles the program into a JobGraph and submits it.
+        vi: Client biên dịch chương trình thành JobGraph và submit nó.
+      - en: JobMaster expands it into an ExecutionGraph and requests slots.
+        vi: JobMaster mở rộng nó thành ExecutionGraph và yêu cầu slot.
+      - en: Sources read (for example Kafka partitions) and records flow through operators, which keep keyed state locally.
+        vi: Source đọc (ví dụ các partition Kafka) và record chảy qua các operator, vốn giữ keyed state cục bộ.
+      - en: JobManager injects checkpoint barriers; operators snapshot state asynchronously to durable storage.
+        vi: JobManager chèn checkpoint barrier; operator snapshot state bất đồng bộ vào storage bền vững.
+      - en: Transactional sinks commit when a checkpoint completes, giving end-to-end exactly-once.
+        vi: Transactional sink commit khi checkpoint hoàn tất, cho exactly-once đầu-cuối.
+      - en: On failure the job restarts from the last checkpoint and sources rewind to the saved offsets.
+        vi: Khi lỗi, job restart từ checkpoint gần nhất và source tua lại về các offset đã lưu.
+    ops:
+      - en: Use event time with watermarks. Decide how to handle late data.
+        vi: Dùng event time với watermark. Quyết định cách xử lý dữ liệu đến trễ.
+      - en: State size drives cost and recovery time. Set state TTL and use RocksDB for large state.
+        vi: Kích thước state quyết định chi phí và thời gian phục hồi. Đặt state TTL và dùng RocksDB cho state lớn.
+      - en: Checkpoint interval trades recovery time against overhead.
+        vi: Checkpoint interval đánh đổi giữa thời gian phục hồi và overhead.
+      - en: Take a savepoint before every upgrade.
+        vi: Tạo savepoint trước mỗi lần nâng cấp.
+      - en: Backpressure is the main health signal. Find the slow operator.
+        vi: Backpressure là tín hiệu sức khỏe chính. Tìm operator chậm.
+    n:
+      en: Walk the flow from submission to recovery. The two interview-grade ideas are event time with watermarks, and checkpoint barriers with replayable sources. Confirm current features, such as state options, in the Flink docs.
+      vi: Đi qua luồng từ submit đến phục hồi. Hai ý đúng hỏi phỏng vấn là event time với watermark, và checkpoint barrier với source có thể replay. Xác nhận các tính năng hiện hành, như tùy chọn state, trong tài liệu Flink.
+  - id: flink-internals-time-state-and-checkpoints
+    k: stack
+    mod: [internals]
+    t:
+      en: "Flink internals: time, state and checkpoints"
+      vi: "Nội bộ Flink: thời gian, state và checkpoint"
+    lead:
+      en: "Four mechanisms explain almost every Flink behaviour: event time, watermarks, keyed state and checkpoints."
+      vi: "Bốn cơ chế giải thích gần như mọi hành vi của Flink: event time, watermark, keyed state và checkpoint."
+    parts:
+      - table:
+          head:
+            - en: Mechanism
+              vi: Cơ chế
+            - en: How it works
+              vi: Cách hoạt động
+            - en: On failure
+              vi: Khi lỗi
+            - en: Key settings
+              vi: Cấu hình chính
+          rows:
+            - - en: Watermarks
+                vi: Watermark
+              - en: A watermark W(t) asserts that no more events with timestamp ≤ t are expected. A window fires when the watermark passes its end. With several inputs the operator uses the minimum.
+                vi: Watermark W(t) khẳng định sẽ không còn sự kiện có timestamp ≤ t. Cửa sổ kích hoạt khi watermark vượt cuối cửa sổ. Với nhiều đầu vào, operator dùng giá trị nhỏ nhất.
+              - en: An idle source partition can stall the watermark; later events may be dropped as late
+                vi: Một partition nguồn rảnh có thể làm watermark đứng yên; sự kiện đến sau có thể bị bỏ như trễ
+              - en: watermark strategy, `table.exec.source.idle-timeout`, allowed lateness
+                vi: chiến lược watermark, `table.exec.source.idle-timeout`, allowed lateness
+            - - Keyed state
+              - en: State is partitioned by key and lives with the operator, on heap or in RocksDB on local disk.
+                vi: State được chia theo key và nằm cùng operator, trên heap hoặc trong RocksDB ở đĩa cục bộ.
+              - en: Large state slows checkpoints and recovery
+                vi: State lớn làm checkpoint và khôi phục chậm
+              - state backend, state TTL
+            - - en: Checkpoint barriers
+                vi: Checkpoint barrier
+              - en: The JobManager injects barriers into the streams. Each operator snapshots its state when barriers arrive, aligned across inputs, and acknowledges. When all acknowledge the checkpoint is complete.
+                vi: JobManager chèn barrier vào các luồng. Mỗi operator snapshot state khi barrier đến, căn chỉnh giữa các đầu vào, rồi xác nhận. Khi tất cả xác nhận thì checkpoint hoàn tất.
+              - en: Restart from the last completed checkpoint; sources rewind to saved offsets
+                vi: Khởi động lại từ checkpoint hoàn tất gần nhất; nguồn quay về offset đã lưu
+              - en: interval, timeout, min pause, unaligned checkpoints
+                vi: interval, timeout, min pause, unaligned checkpoint
+            - - Backpressure
+              - en: "Credit-based flow control: a slow downstream stops granting credits and upstream operators slow down."
+                vi: "Điều khiển luồng theo credit: phía sau chậm ngừng cấp credit và các operator phía trước chậm lại."
+              - en: Persistent backpressure delays barriers and checkpoints
+                vi: Backpressure kéo dài làm trễ barrier và checkpoint
+              - en: parallelism, buffer settings, find the slow operator
+                vi: parallelism, cấu hình buffer, tìm operator chậm
+            - - en: Savepoints
+                vi: Savepoint
+              - en: A user-triggered, portable snapshot used for upgrades, rescaling and migrations.
+                vi: Snapshot do người dùng kích hoạt, mang đi được, dùng cho nâng cấp, đổi cỡ và di chuyển.
+              - en: Incompatible state schema blocks restore
+                vi: Schema state không tương thích làm restore thất bại
+              - en: operator UIDs, state schema evolution
+                vi: UID của operator, tiến hóa schema state
+      - code:
+          lang: sql
+          title: orders_tumbling_window.sql (Flink SQL)
+          code: |-
+            CREATE TABLE orders (
+                order_id    BIGINT,
+                customer_id BIGINT,
+                amount      DECIMAL(10, 2),
+                order_ts    TIMESTAMP(3),
+                WATERMARK FOR order_ts AS order_ts - INTERVAL '5' SECOND
+            ) WITH (
+                'connector' = 'kafka',
+                'topic' = 'orders',
+                'properties.bootstrap.servers' = 'broker1:9092',
+                'properties.group.id' = 'flink-orders',
+                'scan.startup.mode' = 'earliest-offset',
+                'format' = 'json'
+            );
+
+            SELECT window_start, window_end, COUNT(*) AS orders, SUM(amount) AS revenue
+            FROM TABLE(TUMBLE(TABLE orders, DESCRIPTOR(order_ts), INTERVAL '1' MINUTE))
+            GROUP BY window_start, window_end;
+    n:
+      en: "The 5-second watermark delay is a trade-off: a larger delay tolerates more disorder but increases latency. Setting names change between Flink versions, so verify them in the docs."
+      vi: "Độ trễ watermark 5 giây là một đánh đổi: trễ lớn hơn chịu được nhiều xáo trộn hơn nhưng tăng độ trễ. Tên cấu hình thay đổi giữa các phiên bản Flink, hãy kiểm tra trong tài liệu."
+  - id: flink-troubleshooting-symptoms-to-fixes
+    k: table
+    mod: [troubleshooting]
+    t:
+      en: "Flink troubleshooting: symptoms to fixes"
+      vi: "Troubleshooting Flink: từ triệu chứng đến cách sửa"
+    head:
+      - en: Symptom
+        vi: Triệu chứng
+      - en: Likely cause
+        vi: Nguyên nhân có thể
+      - en: Diagnose
+        vi: Chẩn đoán
+      - en: Fix
+        vi: Cách sửa
+    rows:
+      - - en: Checkpoints time out or fail
+          vi: Checkpoint bị timeout hoặc thất bại
+        - en: Backpressure, huge state, slow storage
+          vi: Backpressure, state quá lớn, storage chậm
+        - en: "Checkpoint history: duration, size, alignment time"
+          vi: "Lịch sử checkpoint: thời lượng, kích thước, thời gian căn chỉnh"
+        - en: Fix the slow operator, shrink state, try unaligned checkpoints, check storage throughput
+          vi: Sửa operator chậm, giảm state, thử unaligned checkpoint, kiểm tra throughput storage
+      - - en: Job is backpressured
+          vi: Job bị backpressure
+        - en: A slow sink, skewed key, or too little parallelism
+          vi: Sink chậm, key lệch, hoặc parallelism quá thấp
+        - en: Backpressure and busy-time metrics per operator
+          vi: Metric backpressure và busy-time theo operator
+        - en: Scale the bottleneck operator, batch sink writes, rebalance keys
+          vi: Mở rộng operator nút thắt, gộp batch ghi sink, cân bằng key
+      - - en: Windows never fire
+          vi: Cửa sổ không bao giờ kích hoạt
+        - en: "Watermark is stuck: idle partitions or no timestamps"
+          vi: "Watermark kẹt: partition rảnh hoặc không có timestamp"
+        - en: Watermark per source subtask in the UI
+          vi: Watermark theo từng subtask nguồn trong UI
+        - en: Set idleness timeout; verify the timestamp field
+          vi: Đặt idle timeout; kiểm tra trường timestamp
+      - - en: Results missing late events
+          vi: Kết quả thiếu sự kiện đến muộn
+        - en: Allowed lateness too small
+          vi: Allowed lateness quá nhỏ
+        - en: Late-record counters, side output
+          vi: Bộ đếm record trễ, side output
+        - en: Increase lateness or route late data to a side output and correct later
+          vi: Tăng độ trễ cho phép hoặc đưa dữ liệu trễ ra side output rồi sửa sau
+      - - en: State grows without bound
+          vi: State phình mãi
+        - en: No TTL on keyed state; high-cardinality keys
+          vi: Không có TTL cho keyed state; key có cardinality cao
+        - en: State size per operator over time
+          vi: Kích thước state theo operator theo thời gian
+        - en: Set state TTL, redesign keys, use RocksDB
+          vi: Đặt state TTL, thiết kế lại key, dùng RocksDB
+      - - en: Restart loop
+          vi: Vòng lặp khởi động lại
+        - en: Poison record, deserialization error, restore failure
+          vi: Record độc, lỗi deserialize, restore thất bại
+        - en: Exception stack in the JobManager logs
+          vi: Stack exception trong log JobManager
+        - en: Skip or dead-letter the record; fix schema compatibility; restore from a savepoint
+          vi: Bỏ qua hoặc dead-letter record; sửa tương thích schema; restore từ savepoint
+    cap:
+      en: Backpressure is the main health signal. Always start by finding which operator is the slow one.
+      vi: Backpressure là tín hiệu sức khỏe chính. Luôn bắt đầu bằng việc tìm operator nào đang chậm.
+    n:
+      en: "Practice reading the Flink UI: the checkpoint tab, backpressure column and watermark view answer most questions."
+      vi: "Luyện đọc Flink UI: tab checkpoint, cột backpressure và màn watermark trả lời hầu hết câu hỏi."
+  - id: flink-lab-out-of-order-events-and-recovery
+    k: lab
+    mod: [lab]
+    t:
+      en: "Flink lab: out-of-order events and recovery"
+      vi: "Lab Flink: sự kiện sai thứ tự và khôi phục"
+    lead:
+      en: Prove that event-time windows are correct under disorder and that a crash loses nothing.
+      vi: Chứng minh cửa sổ event-time đúng khi dữ liệu xáo trộn và crash không làm mất gì.
+    scenario:
+      en: Per-minute revenue from an orders stream must be correct even though 5 percent of events arrive up to 30 seconds late, and the job must survive a crash.
+      vi: Doanh thu mỗi phút từ luồng đơn hàng phải đúng dù 5 phần trăm sự kiện đến trễ tới 30 giây, và job phải sống sót qua một lần crash.
+    input:
+      en: Kafka topic with a generator that shuffles event timestamps. Flink session with checkpoints every 10 seconds to local storage. An independent batch query over the same data as ground truth.
+      vi: Topic Kafka với bộ sinh xáo trộn timestamp. Flink session có checkpoint mỗi 10 giây vào storage cục bộ. Một query batch độc lập trên cùng dữ liệu làm chuẩn.
+    tasks:
+      - en: Run the windowed query with a 5-second watermark delay and compare with ground truth.
+        vi: Chạy query theo cửa sổ với độ trễ watermark 5 giây và so với chuẩn.
+      - en: Tune the delay and allowed lateness until the difference is below 0.1 percent.
+        vi: Chỉnh độ trễ và allowed lateness đến khi chênh lệch dưới 0.1 phần trăm.
+      - en: Kill the TaskManager mid-run and confirm no duplicates or gaps.
+        vi: Tắt TaskManager giữa chừng và xác nhận không có trùng hay thiếu.
+      - en: Take a savepoint, change parallelism and resume.
+        vi: Lấy savepoint, đổi parallelism rồi chạy tiếp.
+    expected:
+      en: A report of window error versus latency for each delay setting, and a recovery log showing restore from checkpoint.
+      vi: Báo cáo sai số cửa sổ theo độ trễ cho từng cấu hình, và log khôi phục cho thấy restore từ checkpoint.
+    rubric:
+      - en: Correctness measured against ground truth
+        vi: Tính đúng đo so với dữ liệu chuẩn
+      - en: Latency versus accuracy trade-off quantified
+        vi: Đánh đổi độ trễ và độ chính xác được định lượng
+      - en: Recovery shows exactly-once results
+        vi: Khôi phục cho kết quả exactly-once
+      - en: Savepoint rescale succeeds
+        vi: Đổi cỡ bằng savepoint thành công
+    design:
+      en: Design the late-data policy for a financial report that must be final within one hour but may be corrected afterwards.
+      vi: Thiết kế chính sách dữ liệu trễ cho báo cáo tài chính phải chốt trong một giờ nhưng có thể điều chỉnh sau đó.
+    n:
+      en: "The key learning: lateness handling is a business decision about when a number is final."
+      vi: "Điểm học chính: xử lý dữ liệu trễ là quyết định nghiệp vụ về thời điểm một con số được coi là chốt."
+  - id: flink-lifecycle-from-job-submission-to-committed-output
+    k: lifecycle
+    mod: [internals]
+    t:
+      en: "Flink lifecycle: from job submission to committed output"
+      vi: "Vòng đời Flink: từ gửi job đến output được commit"
+    lead:
+      en: Time, state and checkpoints connect into one lifecycle.
+      vi: Thời gian, state và checkpoint nối thành một vòng đời.
+    steps:
+      - - en: Submit the job
+          vi: Gửi job
+        - en: The JobGraph becomes an ExecutionGraph.
+          vi: JobGraph trở thành ExecutionGraph.
+        - "Web UI: Job overview"
+      - - en: Allocate slots
+          vi: Cấp phát slot
+        - en: The ResourceManager provides slots on TaskManagers.
+          vi: ResourceManager cấp slot trên các TaskManager.
+        - available task slots
+      - - en: Read and timestamp
+          vi: Đọc và gán timestamp
+        - en: Sources read records and generate watermarks.
+          vi: Source đọc record và sinh watermark.
+        - currentOutputWatermark
+      - - en: Process with state
+          vi: Xử lý với state
+        - en: Operators update keyed state and fire windows.
+          vi: Operator cập nhật keyed state và kích hoạt cửa sổ.
+        - state size, busyTimeMsPerSecond
+      - - Checkpoint
+        - en: Barriers trigger asynchronous state snapshots.
+          vi: Barrier kích hoạt snapshot state bất đồng bộ.
+        - lastCheckpointDuration
+      - - en: Commit the sink
+          vi: Commit sink
+        - en: Transactional sinks commit when the checkpoint completes.
+          vi: Sink giao dịch commit khi checkpoint hoàn tất.
+        - backPressuredTimeMsPerSecond
+    n:
+      en: Metric names come from the Flink metrics reference; confirm them for your version.
+      vi: Tên metric lấy từ tài liệu metric của Flink; hãy xác nhận theo phiên bản của bạn.

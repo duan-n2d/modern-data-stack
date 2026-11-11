@@ -1,0 +1,99 @@
+tech: {id: dbt, name: dbt, color: "#F97316"}
+slides:
+  - id: dbt-overview-models-tests-and-lineage
+    k: components
+    mod: [overview]
+    t: {en: "dbt overview: models, tests and lineage", vi: "dbt tong quan: model, test va lineage"}
+    lead: {en: "dbt turns SQL transformations into a dependency graph with tests, documentation and reproducible builds.", vi: "dbt bien transformation SQL thanh dependency graph voi test, tai lieu va build lap lai duoc."}
+    comps:
+      - - Model
+        - {en: "A SELECT statement materialized as a view, table or incremental relation.", vi: "SELECT duoc materialize thanh view, table hoac relation incremental."}
+      - - Test
+        - {en: "An assertion about keys, relationships, freshness or business rules.", vi: "Assertion ve key, relationship, freshness hoac rule nghiep vu."}
+      - - Manifest
+        - {en: "Compiled graph used for selection, lineage and impacted builds.", vi: "Graph da compile dung cho selection, lineage va build bi tac dong."}
+    flow: [{en: "Declare sources", vi: "Khai bao source"}, {en: "Build models", vi: "Build model"}, {en: "Test and document", vi: "Test va viet tai lieu"}]
+    ops: [{en: "Review compiled SQL and warehouse query history for every critical model.", vi: "Review SQL da compile va query history cua warehouse cho moi model quan trong."}]
+    n: {en: "dbt owns the transformation contract, not extraction or orchestration by itself; connect it to those systems explicitly.", vi: "dbt quan ly transformation contract, khong tu no quan ly extraction hay orchestration; ket noi ro voi he thong do."}
+  - id: dbt-configuration-environments-and-materializations
+    k: code
+    mod: [config]
+    t: {en: "dbt configuration: environments and materializations", vi: "Cau hinh dbt: environment va materialization"}
+    lead: {en: "Materialization is a cost and freshness decision; configure it per model rather than using one global default.", vi: "Materialization la quyet dinh ve chi phi va freshness; cau hinh theo model thay vi mot default toan cuc."}
+    blocks:
+      - lang: yaml
+        title: dbt_project.yml
+        code: |-
+          models:
+            warehouse:
+              staging:
+                +materialized: view
+                +schema: stg
+              marts:
+                +materialized: table
+                +schema: mart
+                revenue_incremental:
+                  +materialized: incremental
+                  +unique_key: order_id
+          vars:
+            environment: prod
+    points:
+      - {h: {en: Separate dev and prod, vi: Tach dev va prod}, p: {en: "Use target-aware schemas and credentials; never let a developer run destructive production operations by default.", vi: "Dung schema va credential theo target; khong de developer mac dinh chay thao tac pha huy o production."}}
+    n: {en: "Document when a model may be a view, table or incremental relation and who owns a full-refresh decision.", vi: "Viet ro khi nao model la view, table hay incremental va ai owner quyet dinh full-refresh."}
+  - id: dbt-implementation-incremental-model-and-tests
+    k: code
+    mod: [implementation]
+    t: {en: "dbt implementation: incremental model and tests", vi: "Trien khai dbt: model incremental va test"}
+    lead: {en: "An incremental model needs a stable key, a bounded source predicate and tests that catch missed updates.", vi: "Model incremental can stable key, predicate source co gioi han va test bat duoc update bi bo sot."}
+    blocks:
+      - lang: sql
+        title: orders.sql
+        code: |-
+          {{ config(materialized='incremental', unique_key='order_id') }}
+          select order_id, customer_id, updated_at, status, amount
+          from {{ ref('stg_orders') }}
+          {% if is_incremental() %}
+            where updated_at >= (select coalesce(max(updated_at), '1900-01-01') from {{ this }})
+          {% endif %}
+      - lang: yaml
+        title: orders.yml
+        code: |-
+          models:
+            - name: orders
+              columns:
+                - name: order_id
+                  tests: [unique, not_null]
+    points:
+      - {h: {en: Handle late updates, vi: Xu ly update den muon}, p: {en: "Use a lookback window or merge predicate when source updates can arrive after the previous maximum timestamp.", vi: "Dung lookback window hoac merge predicate khi source update co the den sau timestamp lon nhat truoc."}}
+    n: {en: "Test the first run, an empty increment, a late update and a full refresh; each exercises a different branch.", vi: "Test lan chay dau, increment rong, update den muon va full refresh; moi truong hop exercise mot nhanh khac."}
+  - id: dbt-operations-artifacts-and-failures
+    k: table
+    mod: [operations]
+    t: {en: "dbt operations: artifacts and failures", vi: "Van hanh dbt: artifact va failure"}
+    lead: {en: "The manifest, run results and warehouse history together explain what changed and what actually ran.", vi: "Manifest, run result va history warehouse cung nhau giai thich thay doi va thu gi da chay."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Evidence, vi: Bang chung}, {en: Action, vi: Hanh dong}]
+    rows:
+      - - {en: Model failed, vi: Model fail}
+        - {en: "Compiled SQL, upstream status and warehouse error code.", vi: "SQL da compile, status upstream va error code warehouse."}
+        - {en: "Fix the earliest failing node; downstream failures may be consequences.", vi: "Sua node fail som nhat; failure downstream co the chi la consequence."}
+      - - {en: Freshness missed, vi: Freshness bi miss}
+        - {en: "Source freshness artifact and ingestion completion time.", vi: "Artifact freshness source va thoi diem ingestion xong."}
+        - {en: "Separate late source data from a slow transformation run.", vi: "Tach source den muon khoi transformation run cham."}
+    n: {en: "Persist artifacts with the build and link them to the deployment commit so an incident is reproducible.", vi: "Luu artifact cung build va lien ket voi commit deploy de incident co the lap lai."}
+  - id: dbt-performance-selection-and-incremental-builds
+    k: table
+    mod: [performance]
+    t: {en: "dbt performance: selection and incremental builds", vi: "Hieu nang dbt: selection va incremental build"}
+    lead: {en: "Faster dbt builds come from less data and fewer models in the critical path, not only larger warehouse size.", vi: "Build dbt nhanh hon den tu it du lieu va it model tren critical path, khong chi tu warehouse lon hon."}
+    head: [{en: Lever, vi: Don bay}, {en: Benefit, vi: Loi ich}, {en: Risk, vi: Rui ro}]
+    rows:
+      - - {en: State selection, vi: Selection theo state}
+        - {en: "Build modified models and their required parents or children.", vi: "Build model thay doi va parent hoac child can thiet."}
+        - {en: "A stale state artifact can omit an impacted model.", vi: "State artifact cu co the bo sot model bi tac dong."}
+      - - {en: Incremental materialization, vi: Materialization incremental}
+        - {en: "Avoids rebuilding historical rows.", vi: "Tranh build lai row lich su."}
+        - {en: "Late updates and deletes need explicit handling.", vi: "Update muon va delete can cach xu ly ro rang."}
+      - - {en: Warehouse clustering, vi: Clustering warehouse}
+        - {en: "Reduces scans for recurring predicates.", vi: "Giam scan cho predicate lap lai."}
+        - {en: "Adds maintenance cost and can lock in a workload assumption.", vi: "Them chi phi maintenance va co the khoa mot gia dinh workload."}
+    n: {en: "Measure bytes scanned, model runtime and queue time separately; optimization should target the largest component.", vi: "Do bytes scanned, runtime model va queue time tach nhau; toi uu phai nham vao thanh phan lon nhat."}

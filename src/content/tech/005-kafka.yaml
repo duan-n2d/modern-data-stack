@@ -1,0 +1,644 @@
+tech:
+  id: kafka
+  name: Kafka
+  color: "#0891B2"
+  refs:
+    - [Apache Kafka, https://kafka.apache.org/documentation/]
+    - [Debezium, https://debezium.io/documentation/]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "Kafka: architecture"
+      vi: "Kafka: kiến trúc"
+    lead:
+      en: A topic is a set of partitions. Each partition is an ordered log that is replicated across brokers and read by consumer groups.
+      vi: Một topic là tập hợp các partition. Mỗi partition là một log có thứ tự, được replicate qua các broker và được consumer group đọc.
+    svg: kafkaSVG
+    cap:
+      en: Ordering is guaranteed only inside one partition. Parallelism is capped by the partition count.
+      vi: Thứ tự chỉ được đảm bảo bên trong một partition. Mức song song bị giới hạn bởi số partition.
+    n:
+      en: "Start from the left: producers choose a partition, brokers replicate, consumers track offsets. Point out that the log is not deleted on read, which is why several groups can read the same data independently and why replay is possible."
+      vi: "Bắt đầu từ bên trái: producer chọn partition, broker replicate, consumer theo dõi offset. Nhấn mạnh rằng log không bị xóa khi đọc, nên nhiều group có thể đọc cùng dữ liệu độc lập và có thể replay."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "Kafka: components and workflow"
+      vi: "Kafka: thành phần và quy trình"
+    comps:
+      - - Broker
+        - en: Server that stores partitions and serves producers and consumers
+          vi: Server lưu các partition và phục vụ producer và consumer
+      - - en: Topic and partition
+          vi: Topic và partition
+        - en: Topic is a named stream; each partition is an ordered, append-only log and the unit of parallelism
+          vi: Topic là một stream có tên; mỗi partition là một log có thứ tự, chỉ append và là đơn vị song song
+      - - Leader, follower, ISR
+        - en: The leader handles reads and writes; followers replicate; in-sync replicas are eligible to take over
+          vi: Leader xử lý đọc và ghi; follower replicate; các in-sync replica đủ điều kiện tiếp quản
+      - - Controller (KRaft)
+        - en: Quorum that holds cluster metadata and elects leaders. Recent releases no longer use ZooKeeper
+          vi: Quorum lưu metadata của cluster và bầu leader. Các bản phát hành gần đây không còn dùng ZooKeeper
+      - - Consumer group
+        - en: Members divide a topic’s partitions; each partition has one reader per group
+          vi: Các thành viên chia nhau partition của topic; mỗi partition có một reader trong mỗi group
+      - - Offset
+        - en: Position in a partition, committed per group so work resumes after failure
+          vi: Vị trí trong partition, được commit theo group để công việc tiếp tục sau khi lỗi
+      - - Kafka Connect
+        - en: Framework for source and sink connectors, such as Debezium for CDC
+          vi: Framework cho source và sink connector, như Debezium cho CDC
+      - - Kafka Streams / ksqlDB
+        - en: Stream processing built on producers and consumers
+          vi: Xử lý stream xây trên producer và consumer
+      - - Schema Registry
+        - en: Separate service (Confluent ecosystem) storing Avro, Protobuf or JSON schemas with compatibility rules
+          vi: Dịch vụ riêng (hệ sinh thái Confluent) lưu schema Avro, Protobuf hoặc JSON cùng các quy tắc tương thích
+    flow:
+      - en: Producer serializes the record and picks a partition from the key hash (or round-robin).
+        vi: Producer serialize record và chọn partition từ hash của key (hoặc round-robin).
+      - en: The partition leader appends it to a log segment on disk.
+        vi: Leader của partition append nó vào một log segment trên đĩa.
+      - en: Followers fetch and replicate. The leader acknowledges according to `acks` and `min.insync.replicas`.
+        vi: Follower fetch và replicate. Leader xác nhận theo `acks` và `min.insync.replicas`.
+      - en: Consumers in a group poll their assigned partitions and process records.
+        vi: Consumer trong một group poll các partition được gán và xử lý record.
+      - en: Consumers commit offsets. After a crash or rebalance they resume from the last committed offset.
+        vi: Consumer commit offset. Sau khi crash hoặc rebalance, chúng tiếp tục từ offset đã commit gần nhất.
+      - en: Retention (time or size) or compaction (latest value per key) removes old data.
+        vi: Retention (theo thời gian hoặc kích thước) hoặc compaction (giá trị mới nhất theo key) xóa dữ liệu cũ.
+    ops:
+      - en: Choose the key so related events share a partition and stay ordered.
+        vi: Chọn key để các event liên quan nằm chung partition và giữ đúng thứ tự.
+      - en: Partition count is easy to raise and hard to lower, and it caps consumer parallelism.
+        vi: Số partition dễ tăng nhưng khó giảm, và nó giới hạn mức song song của consumer.
+      - en: For durability combine `acks=all`, `min.insync.replicas=2` and an idempotent producer.
+        vi: Để đảm bảo độ bền, kết hợp `acks=all`, `min.insync.replicas=2` và một producer idempotent.
+      - en: Watch consumer lag, under-replicated partitions and disk usage.
+        vi: Theo dõi consumer lag, các partition under-replicated và mức sử dụng đĩa.
+      - en: Exactly-once needs idempotent producers, transactions and a compatible sink.
+        vi: Exactly-once cần producer idempotent, transaction và một sink tương thích.
+    n:
+      en: Walk the six workflow steps. The most important operational ideas are partition key choice, replication settings and consumer lag. Check the current Kafka docs for version-specific defaults.
+      vi: Đi qua sáu bước workflow. Các ý vận hành quan trọng nhất là chọn partition key, cấu hình replication và consumer lag. Kiểm tra tài liệu Kafka hiện hành để biết giá trị mặc định theo từng phiên bản.
+  - id: kafka-engineering-curriculum-12-modules
+    k: table
+    mod: [overview]
+    t:
+      en: "Kafka engineering curriculum: 12 modules"
+      vi: "Giáo trình Kafka: 12 module"
+    lead:
+      en: Each module should be learned with one diagram, one configuration, one troubleshooting exercise and one design question.
+      vi: Mỗi module nên học cùng một sơ đồ, một cấu hình, một bài tập xử lý sự cố và một câu hỏi thiết kế.
+    head:
+      - Module
+      - en: Topics
+        vi: Chủ đề
+      - en: After this you can…
+        vi: Học xong bạn có thể…
+    rows:
+      - - en: 01 Architecture
+          vi: 01 Kiến trúc
+        - Broker, controller, KRaft, metadata
+        - en: Explain where state lives and what a controller does
+          vi: Giải thích trạng thái nằm ở đâu và controller làm gì
+      - - en: 02 Producer internals
+          vi: 02 Nội bộ producer
+        - en: Batching, acks, retries, idempotence
+          vi: Batching, acks, retry, idempotence
+        - en: Tune a producer for durability or throughput
+          vi: Tinh chỉnh producer cho độ bền hoặc throughput
+      - - 03 Partitioning
+        - en: Keys, partitioner, ordering, hot partitions
+          vi: Key, partitioner, thứ tự, hot partition
+        - en: Choose a key and a partition count with reasons
+          vi: Chọn khóa và số partition có lý do
+      - - 04 Replication
+        - Leader, follower, ISR, min.insync.replicas, election
+        - en: Predict what happens when a broker fails
+          vi: Dự đoán điều gì xảy ra khi một broker hỏng
+      - - en: 05 Consumer internals
+          vi: 05 Nội bộ consumer
+        - en: Poll loop, offsets, group coordinator, rebalance
+          vi: Poll loop, offset, group coordinator, rebalance
+        - en: Avoid rebalance storms and lost commits
+          vi: Tránh bão rebalance và mất commit
+      - - en: 06 Delivery semantics
+          vi: 06 Ngữ nghĩa phân phối
+        - en: At-most/at-least/exactly-once, transactions
+          vi: At-most/at-least/exactly-once, transaction
+        - en: Design an end-to-end exactly-once pipeline
+          vi: Thiết kế pipeline exactly-once đầu-cuối
+      - - en: 07 Storage
+          vi: 07 Lưu trữ
+        - en: Segments, indexes, retention, compaction
+          vi: Segment, index, retention, compaction
+        - en: Size disks and explain compaction
+          vi: Định cỡ đĩa và giải thích compaction
+      - - en: 08 Schema management
+          vi: 08 Quản lý schema
+        - en: Avro, Protobuf, Schema Registry, compatibility
+          vi: Avro, Protobuf, Schema Registry, tương thích
+        - en: Evolve a schema without breaking consumers
+          vi: Tiến hóa schema mà không làm hỏng consumer
+      - - en: 09 Connect and CDC
+          vi: 09 Connect và CDC
+        - en: Connectors, Debezium, offsets, snapshots
+          vi: Connector, Debezium, offset, snapshot
+        - en: Run a CDC pipeline and handle a re-snapshot
+          vi: Chạy pipeline CDC và xử lý snapshot lại
+      - - en: 10 Performance
+          vi: 10 Hiệu năng
+        - en: Throughput, latency, compression, sizing
+          vi: Throughput, latency, nén, sizing
+        - en: Benchmark and size a cluster
+          vi: Benchmark và định cỡ một cluster
+      - - en: 11 Operations
+          vi: 11 Vận hành
+        - en: Monitoring, lag, rolling upgrades, recovery
+          vi: Giám sát, lag, rolling upgrade, khôi phục
+        - en: Run an on-call rotation for Kafka
+          vi: Trực on-call cho Kafka
+      - - en: 12 Security and deployment
+          vi: 12 Bảo mật và triển khai
+        - en: TLS, SASL, ACLs, Docker, Kubernetes
+          vi: TLS, SASL, ACL, Docker, Kubernetes
+        - en: Deploy and secure a cluster
+          vi: Triển khai và bảo mật một cluster
+    cap:
+      en: The same module pattern should be applied to Spark, Flink, Airflow, Iceberg, dbt, Snowflake, BigQuery, Kubernetes and Terraform.
+      vi: Cùng mẫu module này nên áp dụng cho Spark, Flink, Airflow, Iceberg, dbt, Snowflake, BigQuery, Kubernetes và Terraform.
+    n:
+      en: "Use the table as a syllabus. The third column is the Level 3 outcome: not “knows the term” but “can do the task in production”."
+      vi: "Dùng bảng như một đề cương. Cột thứ ba là kết quả Level 3: không phải “biết thuật ngữ” mà là “làm được việc ở production”."
+  - id: kafka-hands-on-topic-producer-consumer
+    k: code
+    mod: [implementation]
+    t:
+      en: "Kafka hands-on: topic, producer, consumer"
+      vi: "Kafka thực hành: topic, producer, consumer"
+    lead:
+      en: "A durability-first setup: three replicas, two must acknowledge, idempotent producer, manual commits after processing."
+      vi: "Một thiết lập ưu tiên độ bền: ba replica, hai phải xác nhận, producer idempotent, commit thủ công sau khi xử lý."
+    blocks:
+      - lang: bash
+        title: create_topic.sh
+        code: |-
+          kafka-topics.sh --bootstrap-server broker1:9092 --create --topic orders \
+            --partitions 12 --replication-factor 3 \
+            --config min.insync.replicas=2 --config retention.ms=604800000
+      - lang: ini
+        title: producer.properties
+        code: |-
+          bootstrap.servers=broker1:9092,broker2:9092
+          acks=all
+          enable.idempotence=true
+          max.in.flight.requests.per.connection=5
+          delivery.timeout.ms=120000
+          linger.ms=20
+          batch.size=65536
+          compression.type=zstd
+      - lang: python
+        title: consumer.py (confluent-kafka)
+        code: |-
+          from confluent_kafka import Consumer
+
+          c = Consumer({
+              "bootstrap.servers": "broker1:9092",
+              "group.id": "orders-etl",
+              "enable.auto.commit": False,
+              "auto.offset.reset": "earliest",
+              "isolation.level": "read_committed",
+              "partition.assignment.strategy": "cooperative-sticky",
+          })
+          c.subscribe(["orders"])
+
+          while True:
+              msg = c.poll(1.0)
+              if msg is None:
+                  continue
+              if msg.error():
+                  raise RuntimeError(msg.error())
+              process(msg.value())                    # must be idempotent
+              c.commit(message=msg, asynchronous=False)  # commit only after success
+    points:
+      - h:
+          en: Durability trio
+          vi: Bộ ba độ bền
+        p:
+          en: "`acks=all`, `min.insync.replicas=2` and replication factor 3: one broker can fail with no loss and no downtime."
+          vi: "`acks=all`, `min.insync.replicas=2` và replication factor 3: một broker có thể hỏng mà không mất dữ liệu và không ngừng dịch vụ."
+      - h:
+          en: Throughput knobs
+          vi: Núm vặn throughput
+        p:
+          en: "`linger.ms`, `batch.size` and compression trade a little latency for much higher throughput."
+          vi: "`linger.ms`, `batch.size` và nén đổi một chút độ trễ lấy throughput cao hơn nhiều."
+      - h:
+          en: Commit after processing
+          vi: Commit sau khi xử lý
+        tag: senior
+        p:
+          en: This gives at-least-once. Make `process` idempotent so duplicates are harmless.
+          vi: Cách này cho at-least-once. Hãy làm `process` idempotent để bản trùng vô hại.
+      - h:
+          en: Cooperative rebalancing
+          vi: Rebalance hợp tác
+        tag: senior
+        p:
+          en: Cooperative-sticky assignment limits stop-the-world pauses when consumers join or leave.
+          vi: Gán cooperative-sticky giảm các lần dừng toàn bộ khi consumer vào hoặc rời.
+    n:
+      en: Hostnames and sizes are examples. Property names are standard Kafka client settings, but defaults change between versions, so check the documentation for the version you run.
+      vi: Hostname và kích thước chỉ là ví dụ. Tên thuộc tính là cấu hình chuẩn của Kafka client, nhưng giá trị mặc định đổi theo phiên bản, hãy xem tài liệu của phiên bản bạn chạy.
+  - id: kafka-troubleshooting-symptoms-to-recovery
+    k: table
+    mod: [troubleshooting]
+    t:
+      en: "Kafka troubleshooting: symptoms to recovery"
+      vi: "Xử lý sự cố Kafka: từ triệu chứng đến khôi phục"
+    head:
+      - en: Symptom
+        vi: Triệu chứng
+      - en: Likely causes
+        vi: Nguyên nhân có thể
+      - en: Diagnose
+        vi: Chẩn đoán
+      - en: Recover
+        vi: Khôi phục
+    rows:
+      - - en: Consumer lag grows
+          vi: Consumer lag tăng
+        - en: Slow handler, hot partition, too few consumers
+          vi: Handler chậm, partition nóng, quá ít consumer
+        - "`kafka-consumer-groups.sh --bootstrap-server broker1:9092 --describe --group orders-etl`"
+        - en: Fix the slow step; scale consumers up to partition count
+          vi: Sửa bước chậm; tăng consumer đến số partition
+      - - en: Constant rebalances
+          vi: Rebalance liên tục
+        - en: Handler exceeds `max.poll.interval.ms`, flapping members
+          vi: Handler vượt `max.poll.interval.ms`, thành viên chập chờn
+        - en: Consumer logs, group state, poll duration
+          vi: Log consumer, trạng thái group, thời gian poll
+        - en: Shorten batches, raise the interval, use cooperative assignment
+          vi: Rút ngắn batch, tăng ngưỡng, dùng gán hợp tác
+      - - en: Under-replicated partitions
+          vi: Partition thiếu bản sao
+        - en: Broker down, slow disk or network
+          vi: Broker hỏng, đĩa hoặc mạng chậm
+        - "`kafka-topics.sh --bootstrap-server broker1:9092 --describe --under-replicated-partitions`"
+        - en: Restore the broker; check ISR recovers
+          vi: Khôi phục broker; kiểm tra ISR hồi phục
+      - - en: Duplicates downstream
+          vi: Trùng lặp phía sau
+        - en: Retry after commit failure, at-least-once consumer
+          vi: Retry sau lỗi commit, consumer at-least-once
+        - en: Compare event IDs, check commit order
+          vi: So sánh event ID, kiểm tra thứ tự commit
+        - en: Add dedupe key or idempotent sink
+          vi: Thêm khóa chống trùng hoặc sink idempotent
+      - - en: Producer timeouts
+          vi: Producer bị timeout
+        - en: "`min.insync.replicas` not met, network, overloaded broker"
+          vi: Không đủ `min.insync.replicas`, mạng, broker quá tải
+        - en: Producer error codes, broker request metrics
+          vi: Mã lỗi producer, metric request của broker
+        - en: Restore replicas; tune batching and timeouts
+          vi: Khôi phục replica; tinh chỉnh batching và timeout
+      - - en: Disk filling up
+          vi: Đĩa đầy dần
+        - en: Retention too long, compaction stuck, traffic spike
+          vi: Retention quá dài, compaction kẹt, lưu lượng tăng đột biến
+        - en: Per-topic size, log segments, retention settings
+          vi: Dung lượng từng topic, log segment, cấu hình retention
+        - en: Lower retention, add storage or brokers, rebalance partitions
+          vi: Giảm retention, thêm đĩa hoặc broker, cân bằng lại partition
+    cap:
+      en: Check current Kafka documentation for the exact command options of your version.
+      vi: Xem tài liệu Kafka hiện hành để biết chính xác tùy chọn lệnh của phiên bản bạn dùng.
+    n:
+      en: "Run this as a drill: break a test cluster in each of these ways and let learners find the cause from metrics and logs alone."
+      vi: "Chạy như một bài diễn tập: làm hỏng cluster test theo từng cách và để người học tìm nguyên nhân chỉ từ metric và log."
+  - id: kafka-module-partitioning-1-of-4-fundamentals-mechanism
+    k: stack
+    mod: [fundamentals, internals]
+    t:
+      en: "Kafka module: Partitioning (1 of 4) fundamentals, mechanism, workflow"
+      vi: "Module Kafka: Partitioning (1/4) nền tảng, cơ chế, quy trình"
+    lead:
+      en: Partitions are how a topic scales and how ordering is defined. This lesson follows the ten-part template.
+      vi: Partition là cách topic mở rộng và là cách thứ tự được định nghĩa. Bài này theo template mười phần.
+    parts:
+      - svg: partitionSVG
+      - cols: 3
+        cards:
+          - h:
+              en: 1. Fundamentals
+              vi: 1. Nền tảng
+            p:
+              en: A topic is split into partitions. Each partition is an ordered log read by at most one consumer per group. More partitions mean more parallelism, but ordering exists only inside one partition.
+              vi: Topic được chia thành các partition. Mỗi partition là một log có thứ tự, được tối đa một consumer trong mỗi group đọc. Nhiều partition nghĩa là song song hơn, nhưng thứ tự chỉ tồn tại trong một partition.
+          - h:
+              en: 2. Internal mechanism
+              vi: 2. Cơ chế bên trong
+            p:
+              en: For a keyed record the default partitioner hashes the key bytes (murmur2) modulo the partition count. Records without a key are placed in batches onto one partition at a time (sticky). Each partition is a sequence of segment files with offsets.
+              vi: Với record có key, partitioner mặc định băm byte của key (murmur2) rồi lấy modulo số partition. Record không có key được đặt theo batch vào từng partition một (sticky). Mỗi partition là chuỗi file segment có offset.
+          - h:
+              en: 3. Workflow
+              vi: 3. Quy trình
+            p:
+              en: Producer sends a record, partitioner picks the partition, the leader appends it, followers replicate, consumers read by offset. Changing the partition count later changes where keys land, which can break per-key ordering.
+              vi: Producer gửi record, partitioner chọn partition, leader ghi thêm, follower replicate, consumer đọc theo offset. Đổi số partition sau này làm đổi nơi key rơi vào, có thể phá thứ tự theo key.
+    n:
+      en: "Stress the ordering rule: per key, not per topic. If the business needs order per customer, the customer ID must be the key."
+      vi: "Nhấn mạnh quy tắc thứ tự: theo key, không theo topic. Nếu nghiệp vụ cần thứ tự theo khách hàng thì customer ID phải là key."
+  - id: kafka-module-partitioning-2-of-4-configuration-and-code
+    k: code
+    mod: [config, implementation]
+    t:
+      en: "Kafka module: Partitioning (2 of 4) configuration and code"
+      vi: "Module Kafka: Partitioning (2/4) cấu hình và code"
+    lead:
+      en: Choose the key deliberately, and know the settings that interact with it.
+      vi: Chọn key có chủ đích, và biết các cấu hình tương tác với nó.
+    blocks:
+      - lang: python
+        title: partitioned_producer.py (confluent-kafka)
+        code: |-
+          import json
+
+          from confluent_kafka import Producer
+
+          p = Producer({
+              "bootstrap.servers": "broker1:9092",
+              "enable.idempotence": True,
+              "acks": "all",
+              "partitioner": "murmur2_random",   # same hashing as the Java client for keyed records
+              "linger.ms": 20,
+          })
+
+
+          def on_delivery(err, msg):
+              if err:
+                  print(f"failed: {err}")
+              else:
+                  print(f"partition={msg.partition()} offset={msg.offset()}")
+
+
+          def send_order(order: dict) -> None:
+              # Same customer_id -> same partition -> one customer's events stay ordered
+              p.produce("orders", key=str(order["customer_id"]), value=json.dumps(order), on_delivery=on_delivery)
+              p.poll(0)
+
+
+          def send_hot_key(order: dict, salts: int = 8) -> None:
+              # Spread a very hot customer over several partitions. Ordering per customer is lost.
+              key = f"{order['customer_id']}#{order['order_id'] % salts}"
+              p.produce("orders", key=key, value=json.dumps(order), on_delivery=on_delivery)
+              p.poll(0)
+
+
+          p.flush()
+    points:
+      - h:
+          en: Partition count
+          vi: Số partition
+        p:
+          en: Set at topic creation (`--partitions`). Raising it later remaps keys.
+          vi: Đặt khi tạo topic (`--partitions`). Tăng sau này sẽ ánh xạ lại key.
+      - h:
+          en: Key strategy
+          vi: Chiến lược key
+        tag: senior
+        p:
+          en: Pick the entity whose events must stay ordered. A skewed key (one huge customer) creates a hot partition.
+          vi: Chọn thực thể có sự kiện phải giữ thứ tự. Key lệch (một khách hàng khổng lồ) tạo ra partition nóng.
+      - h:
+          en: "`acks` and `min.insync.replicas`"
+          vi: "`acks` và `min.insync.replicas`"
+        p:
+          en: Durability per partition. Use `acks=all` with `min.insync.replicas=2` and replication factor 3.
+          vi: Độ bền theo từng partition. Dùng `acks=all` với `min.insync.replicas=2` và replication factor 3.
+      - h:
+          en: Ordering and retries
+          vi: Thứ tự và retry
+        tag: senior
+        p:
+          en: Idempotent producers keep order across retries. Without it, retries with several in-flight requests can reorder.
+          vi: Producer idempotent giữ thứ tự khi retry. Nếu không, retry với nhiều request đang bay có thể làm đảo thứ tự.
+    n:
+      en: The custom partitioner class setting exists in the Java client; in librdkafka-based clients you choose a named partitioner. Defaults and client options differ between versions, so verify against your client documentation.
+      vi: Cấu hình lớp partitioner tùy biến có ở Java client; ở client dựa trên librdkafka bạn chọn partitioner có tên. Mặc định và tùy chọn client khác nhau theo phiên bản, hãy đối chiếu tài liệu client của bạn.
+  - id: kafka-module-partitioning-3-of-4-performance-and
+    k: table
+    mod: [performance]
+    t:
+      en: "Kafka module: Partitioning (3 of 4) performance and troubleshooting"
+      vi: "Module Kafka: Partitioning (3/4) hiệu năng và troubleshooting"
+    head:
+      - en: Symptom
+        vi: Triệu chứng
+      - en: Likely cause
+        vi: Nguyên nhân có thể
+      - en: Diagnose
+        vi: Chẩn đoán
+      - en: Fix
+        vi: Cách sửa
+    rows:
+      - - en: One partition has most of the traffic
+          vi: Một partition chứa phần lớn lưu lượng
+        - en: Skewed key distribution
+          vi: Phân phối key bị lệch
+        - en: Bytes in per partition; consumer lag per partition
+          vi: Byte vào theo partition; lag theo partition
+        - en: Better key, salting for hot keys, or a composite key
+          vi: Key tốt hơn, salting cho key nóng, hoặc key ghép
+      - - en: Lag only on one partition
+          vi: Chỉ một partition bị lag
+        - en: Hot partition or one slow poison record
+          vi: Partition nóng hoặc một record độc làm chậm
+        - "`kafka-consumer-groups.sh --describe --group <group>`"
+        - en: Skip or dead-letter the bad record; fix the skew
+          vi: Bỏ qua hoặc chuyển dead-letter record lỗi; sửa độ lệch
+      - - en: Added consumers but no speedup
+          vi: Thêm consumer nhưng không nhanh hơn
+        - en: Consumers exceed partitions
+          vi: Số consumer vượt số partition
+        - en: "Group assignment: idle members"
+          vi: "Phân công của group: thành viên rảnh"
+        - en: Add partitions, or speed up each handler
+          vi: Thêm partition, hoặc làm handler nhanh hơn
+      - - en: Order violated for one entity
+          vi: Thứ tự bị phá với một thực thể
+        - en: Wrong key, partition count changed, or retries without idempotence
+          vi: Sai key, số partition đổi, hoặc retry không idempotent
+        - en: Compare offsets and timestamps for that key
+          vi: So sánh offset và timestamp của key đã
+        - en: Fix the key; enable idempotence; migrate to a new topic when resizing
+          vi: Sửa key; bật idempotence; chuyển sang topic mới khi đổi cỡ
+      - - en: Slow rebalances and many open files
+          vi: Rebalance chậm và nhiều file mở
+        - en: Far too many partitions
+          vi: Quá nhiều partition
+        - en: Partitions per broker, rebalance duration
+          vi: Số partition mỗi broker, thời gian rebalance
+        - en: Consolidate topics; size partitions from throughput targets
+          vi: Gộp topic; định cỡ partition từ mục tiêu throughput
+    cap:
+      en: "Sizing starting point: partitions ≥ target throughput ÷ throughput per partition, for both producers and consumers. Benchmark your own message sizes."
+      vi: "Điểm xuất phát định cỡ: partition ≥ throughput mục tiêu ÷ throughput mỗi partition, cho cả producer và consumer. Hãy benchmark theo kích thước message của bạn."
+    n:
+      en: "Walk the first row with a real story: a marketplace where one seller produces 40 percent of orders. Choosing seller ID as the key creates a hot partition; choosing order ID loses per-seller ordering. The honest answer is a trade-off decided by the business."
+      vi: "Kể câu chuyện thật cho hàng đầu: một sàn thương mại mà một người bán tạo 40 phần trăm đơn. Chọn seller ID làm key tạo partition nóng; chọn order ID thì mất thứ tự theo người bán. Câu trả lời trung thực là một đánh đổi do nghiệp vụ quyết định."
+  - id: kafka-module-partitioning-4-of-4-lab-production-design
+    k: lab
+    mod: [lab]
+    t:
+      en: "Kafka module: Partitioning (4 of 4) lab, production design, assessment"
+      vi: "Module Kafka: Partitioning (4/4) lab, thiết kế production, đánh giá"
+    lead:
+      en: Observe skew, fix it, and measure the difference.
+      vi: Quan sát độ lệch, sửa nó và đo sự khác biệt.
+    scenario:
+      en: An orders topic has 12 partitions. One customer produces 35 percent of events and one partition lags far behind the rest.
+      vi: Topic orders có 12 partition. Một khách hàng tạo 35 phần trăm sự kiện và một partition lag xa hơn hẳn các partition còn lại.
+    input:
+      en: Local Kafka (Docker Compose, 3 brokers). A generator script that emits 1 million order events with a Zipf-skewed customer_id. A consumer that sleeps 1 ms per record.
+      vi: Kafka cục bộ (Docker Compose, 3 broker). Script sinh 1 triệu sự kiện đơn hàng với customer_id lệch kiểu Zipf. Consumer ngủ 1 ms mỗi record.
+    tasks:
+      - en: Create the topic with 12 partitions and replication factor 3.
+        vi: Tạo topic 12 partition, replication factor 3.
+      - en: Produce the skewed data and record bytes and lag per partition.
+        vi: Sinh dữ liệu lệch và ghi lại byte và lag theo partition.
+      - en: Fix the skew with salting for the hot key and measure again.
+        vi: Sửa độ lệch bằng salting cho key nóng và đo lại.
+      - en: Kill one broker during the run and record recovery time.
+        vi: Tắt một broker trong lúc chạy và ghi thời gian hồi phục.
+    expected:
+      en: A before-and-after table of lag per partition and total drain time, plus a note on what ordering guarantee was given up.
+      vi: Bảng trước-sau về lag theo partition và tổng thời gian xử lý xong, kèm ghi chú về bảo đảm thứ tự đã nhượng lại.
+    rubric:
+      - en: Skew is demonstrated with data, not asserted
+        vi: Độ lệch được chứng minh bằng dữ liệu, không chỉ khẳng định
+      - en: The fix is justified against the ordering requirement
+        vi: Cách sửa được biện minh theo yêu cầu thứ tự
+      - en: Broker failure shows no acknowledged data loss
+        vi: Lỗi broker không làm mất dữ liệu đã xác nhận
+      - en: Metrics and commands are reproducible
+        vi: Số liệu và lệnh có thể tái lập
+    design:
+      en: Design the partition and key strategy for an order system with several million events per day, per-customer ordering, and one very large merchant. State the trade-offs and how you would resize the topic later.
+      vi: Thiết kế chiến lược partition và key cho hệ thống đơn hàng vài triệu sự kiện mỗi ngày, cần thứ tự theo khách hàng và có một merchant rất lớn. Nêu các đánh đổi và cách bạn đổi cỡ topic sau này.
+    n:
+      en: "Assessment: ask learners to defend the key choice in a design review. The strongest answers state the ordering guarantee they keep and the one they sacrifice."
+      vi: "Đánh giá: yêu cầu người học bảo vệ lựa chọn key trong buổi review thiết kế. Câu trả lời mạnh nhất nêu bảo đảm thứ tự họ giữ và cái họ hy sinh."
+  - id: kafka-internals-isr-rebalance-transactions-storage
+    k: table
+    mod: [internals]
+    t:
+      en: "Kafka internals: ISR, rebalance, transactions, storage"
+      vi: "Nội bộ Kafka: ISR, rebalance, transaction, lưu trữ"
+    head:
+      - en: Mechanism
+        vi: Cơ chế
+      - en: How it works
+        vi: Cách hoạt động
+      - en: On failure
+        vi: Khi lỗi
+      - en: Key settings
+        vi: Cấu hình chính
+    rows:
+      - - en: Replication and ISR
+          vi: Replication và ISR
+        - en: Followers fetch from the leader. The in-sync replica set is those keeping up. The high watermark is the highest offset replicated to all ISR; consumers read up to it.
+          vi: Follower fetch từ leader. Tập ISR gồm các replica theo kịp. High watermark là offset cao nhất đã replicate tới mọi ISR; consumer đọc đến mức đã.
+        - en: A lagging follower leaves the ISR; if the leader fails, a new leader is elected from the ISR
+          vi: Follower tụt lại rời ISR; nếu leader hỏng, leader mới được bầu từ ISR
+        - "`replica.lag.time.max.ms`, `min.insync.replicas`, `unclean.leader.election.enable`"
+      - - en: Group coordinator and rebalance
+          vi: Group coordinator và rebalance
+        - en: Members join the group; one is the leader and computes the assignment; the coordinator distributes it. Cooperative protocols move only the affected partitions.
+          vi: Các thành viên tham gia group; một người là leader và tính phân công; coordinator phân phối. Giao thức hợp tác chỉ chuyển các partition bị ảnh hưởng.
+        - en: A member missing heartbeats or exceeding the poll interval is removed and a rebalance starts
+          vi: Thành viên mất heartbeat hoặc vượt ngưỡng poll bị loại và rebalance bắt đầu
+        - "`session.timeout.ms`, `heartbeat.interval.ms`, `max.poll.interval.ms`"
+      - - en: Idempotent producer
+          vi: Producer idempotent
+        - en: The broker tracks a producer ID and a sequence number per partition and drops duplicates.
+          vi: Broker theo dõi producer ID và số thứ tự theo partition và loại bỏ bản trùng.
+        - en: Retries cannot create duplicates inside a session
+          vi: Retry không tạo bản trùng trong một phiên
+        - "`enable.idempotence`"
+      - - en: Transactions
+          vi: Transaction
+        - en: A transactional producer writes to several partitions atomically using a transaction coordinator and commit markers. Consumers with read_committed skip aborted data. A producer epoch fences zombies.
+          vi: Producer giao dịch ghi nguyên tử vào nhiều partition qua transaction coordinator và commit marker. Consumer read_committed bỏ qua dữ liệu bị hủy. Epoch của producer chặn zombie.
+        - en: A crashed producer’s open transaction is aborted after a timeout
+          vi: Giao dịch đang mở của producer bị sập sẽ bị hủy sau timeout
+        - "`transactional.id`, `isolation.level`"
+      - - en: Log storage
+          vi: Lưu trữ log
+        - en: Each partition is a directory of segments with offset and time indexes. Old segments are deleted by retention or rewritten by compaction (latest value per key).
+          vi: Mỗi partition là thư mục các segment cùng chỉ mục offset và thời gian. Segment cũ bị xóa theo retention hoặc ghi lại bằng compaction (giá trị mới nhất mỗi key).
+        - en: Disk full stops the broker; recover by freeing space or reducing retention
+          vi: Đầy đĩa làm broker dừng; khôi phục bằng giải phóng chỗ hoặc giảm retention
+        - "`retention.ms`, `segment.bytes`, `cleanup.policy`"
+      - - en: KRaft controller
+          vi: Controller KRaft
+        - en: A Raft quorum stores cluster metadata as a log and elects partition leaders.
+          vi: Quorum Raft lưu metadata cluster dưới dạng log và bầu leader cho partition.
+        - en: Losing a controller quorum freezes metadata changes, not data already being served
+          vi: Mất quorum controller làm đúng băng thay đổi metadata, không ảnh hưởng dữ liệu đang phục vụ
+        - "`process.roles`, `controller.quorum.voters`"
+    cap:
+      en: Setting names and defaults vary by Kafka version. Confirm them in the documentation for your release.
+      vi: Tên và mặc định của cấu hình thay đổi theo phiên bản Kafka. Hãy xác nhận trong tài liệu của bản bạn dùng.
+    n:
+      en: "This is the Level 3 reference table: each row explains a mechanism, what breaks, and which knob you turn."
+      vi: "Đây là bảng tham chiếu Level 3: mỗi hàng giải thích một cơ chế, cái gì có thể hỏng và núm nào cần vặn."
+  - id: kafka-lifecycle-from-producer-to-consumer
+    k: lifecycle
+    mod: [internals]
+    t:
+      en: "Kafka lifecycle: from producer to consumer"
+      vi: "Vòng đời Kafka: từ producer đến consumer"
+    lead:
+      en: Six steps from a record being created to progress being committed, and what to observe at each.
+      vi: Sáu bước từ lúc record được tạo đến lúc tiến độ được commit, và cần quan sát gì ở mỗi bước.
+    steps:
+      - - en: Serialize and partition
+          vi: Serialize và chọn partition
+        - en: The producer serializes key and value and picks a partition.
+          vi: Producer serialize key và value rồi chọn partition.
+        - record-send-rate, batch-size-avg
+      - - en: Send to the leader
+          vi: Gửi tới leader
+        - en: Records are batched and sent to the partition leader.
+          vi: Record được gom batch và gửi tới leader của partition.
+        - request-latency-avg
+      - - en: Append to the log
+          vi: Ghi vào log
+        - en: The broker appends to the active segment and assigns an offset.
+          vi: Broker ghi thêm vào segment đang mở và gán offset.
+        - log end offset
+      - - en: Replicate and acknowledge
+          vi: Replicate và xác nhận
+        - en: Followers fetch; the ack follows `acks` and `min.insync.replicas`.
+          vi: Follower fetch; ack theo `acks` và `min.insync.replicas`.
+        - UnderReplicatedPartitions
+      - - Consumer fetch
+        - en: The consumer fetches from its offset up to the high watermark.
+          vi: Consumer fetch từ offset của nó đến high watermark.
+        - fetch-rate, records-lag-max
+      - - en: Process and commit
+          vi: Xử lý và commit
+        - en: The application processes, then commits the offset.
+          vi: Ứng dụng xử lý rồi commit offset.
+        - kafka-consumer-groups.sh --describe
+    n:
+      en: Walk the six steps and ask at which step each earlier incident would appear.
+      vi: Đi qua sáu bước và hỏi từng sự cố trước đó sẽ xuất hiện ở bước nào.

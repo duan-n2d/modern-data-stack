@@ -1,0 +1,260 @@
+practice:
+  id: scenario-a-cdc
+  name:
+    en: "Scenario A: real-time CDC to a lakehouse"
+    vi: "Kịch bản A: CDC thời gian thực vào lakehouse"
+  color: "#0E7490"
+slides:
+  - id: scenario-a-postgresql-debezium-kafka-flink-iceberg-trino
+    k: stack
+    t:
+      en: "Scenario A: PostgreSQL → Debezium → Kafka → Flink → Iceberg → Trino"
+      vi: "Kịch bản A: PostgreSQL → Debezium → Kafka → Flink → Iceberg → Trino"
+    lead:
+      en: Change events flow from the database log to analytics tables. The hard parts are duplicates, ordering, schema change and proving the copy is correct.
+      vi: Sự kiện thay đổi chảy từ log của database sang bảng analytics. Phần khó là trùng lặp, thứ tự, đổi schema và chứng minh bản sao là đúng.
+    parts:
+      - svg: scenASVG
+      - cols: 3
+        cards:
+          - h:
+              en: Duplicates and ordering
+              vi: Trùng lặp và thứ tự
+            p:
+              en: Replays and retries create duplicates. Keep the LSN and event time, and apply a change only if its LSN is newer than the stored one.
+              vi: Replay và retry tạo bản trùng. Giữ LSN và event time, và chỉ áp dụng thay đổi nếu LSN mới hơn bản đang lưu.
+          - h:
+              en: Schema evolution
+              vi: Tiến hóa schema
+            p:
+              en: Add nullable columns first. Register schemas with compatibility rules, and let Iceberg evolve columns by ID.
+              vi: Thêm cột nullable trước. Đăng ký schema với quy tắc tương thích, và để Iceberg tiến hóa cột theo ID.
+          - h:
+              en: Recovery and correctness
+              vi: Khôi phục và tính đúng
+            p:
+              en: Restart from checkpoints and committed offsets, then prove equality with source using count, sum and max timestamp.
+              vi: Khởi động lại từ checkpoint và offset đã commit, rồi chứng minh khớp nguồn bằng count, sum và max timestamp.
+    n:
+      en: "This follows the CDC lakehouse design from your reference diagram: operational databases, Kafka Connect with Debezium, Kafka with a Schema Registry, streaming ingestion, then bronze, silver and gold. Use Flink or Spark for the streaming step."
+      vi: "Kịch bản này theo thiết kế CDC lakehouse trong sơ đồ tham chiếu của bạn: database vận hành, Kafka Connect với Debezium, Kafka với Schema Registry, ingestion streaming, rồi bronze, silver, gold. Dùng Flink hoặc Spark cho bước streaming."
+  - id: scenario-a-implementation-connector-streaming-job-and
+    k: code
+    t:
+      en: "Scenario A implementation: connector, streaming job and idempotent repair"
+      vi: "Kịch bản A triển khai: connector, job streaming và sửa idempotent"
+    lead:
+      en: Capture changes, apply them as upserts, and keep a SQL merge that is safe to rerun for repair.
+      vi: Bắt thay đổi, áp dụng như upsert, và giữ một câu merge SQL an toàn khi chạy lại để sửa dữ liệu.
+    blocks:
+      - lang: json
+        title: pg-orders-cdc.json (Debezium PostgreSQL connector)
+        code: |-
+          {
+            "name": "pg-orders-cdc",
+            "config": {
+              "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+              "database.hostname": "pg.internal",
+              "database.port": "5432",
+              "database.user": "debezium",
+              "database.password": "${file:/opt/secrets/pg.properties:password}",
+              "database.dbname": "shop",
+              "topic.prefix": "shop",
+              "table.include.list": "public.orders,public.customers",
+              "plugin.name": "pgoutput",
+              "slot.name": "debezium_shop",
+              "publication.name": "dbz_publication",
+              "snapshot.mode": "initial",
+              "heartbeat.interval.ms": "10000",
+              "key.converter": "io.confluent.connect.avro.AvroConverter",
+              "key.converter.schema.registry.url": "http://schema-registry:8081",
+              "value.converter": "io.confluent.connect.avro.AvroConverter",
+              "value.converter.schema.registry.url": "http://schema-registry:8081"
+            }
+          }
+      - lang: sql
+        title: orders_cdc_to_iceberg.sql (Flink SQL)
+        code: |-
+          CREATE TABLE orders_cdc (
+              order_id    BIGINT,
+              customer_id BIGINT,
+              status      STRING,
+              amount      DECIMAL(10, 2),
+              updated_at  TIMESTAMP(3),
+              PRIMARY KEY (order_id) NOT ENFORCED,
+              WATERMARK FOR updated_at AS updated_at - INTERVAL '10' SECOND
+          ) WITH (
+              'connector' = 'kafka',
+              'topic' = 'shop.public.orders',
+              'properties.bootstrap.servers' = 'broker1:9092',
+              'properties.group.id' = 'flink-orders-cdc',
+              'scan.startup.mode' = 'earliest-offset',
+              'format' = 'debezium-json'
+          );
+
+          CREATE CATALOG lake WITH (
+              'type' = 'iceberg', 'catalog-type' = 'rest',
+              'uri' = 'http://polaris:8181/api/catalog', 'warehouse' = 'lake'
+          );  -- plus the credentials your catalog requires
+
+          CREATE TABLE IF NOT EXISTS lake.silver.orders_current (
+              order_id BIGINT, customer_id BIGINT, status STRING,
+              amount DECIMAL(10, 2), updated_at TIMESTAMP(3),
+              PRIMARY KEY (order_id) NOT ENFORCED
+          ) WITH ('format-version' = '2', 'write.upsert.enabled' = 'true');
+
+          INSERT INTO lake.silver.orders_current
+          SELECT order_id, customer_id, status, amount, updated_at FROM orders_cdc;
+      - lang: sql
+        title: repair_merge.sql (Spark SQL, safe to rerun)
+        code: |-
+          MERGE INTO lake.silver.orders_current t
+          USING (
+              SELECT * FROM (
+                  SELECT *, ROW_NUMBER() OVER (
+                      PARTITION BY order_id ORDER BY source_lsn DESC, event_ts DESC) AS rn
+                  FROM lake.bronze.orders_cdc
+                  WHERE ingest_date = current_date()
+              ) WHERE rn = 1
+          ) s ON t.order_id = s.order_id
+          WHEN MATCHED AND s.op = 'd' THEN DELETE
+          WHEN MATCHED AND s.source_lsn > t.source_lsn THEN UPDATE SET *
+          WHEN NOT MATCHED AND s.op <> 'd' THEN INSERT *;
+    points:
+      - h: Replication slot
+        tag: senior
+        p:
+          en: The slot keeps WAL until the connector reads it. A stopped connector makes the source disk grow. Monitor slot lag.
+          vi: Slot giữ WAL cho đến khi connector đọc. Connector dừng làm đĩa của nguồn đầy dần. Hãy giám sát độ trễ của slot.
+      - h:
+          en: Ordering rule
+          vi: Quy tắc thứ tự
+        p:
+          en: Apply a change only if its source LSN is newer. That makes replays and out-of-order arrivals harmless.
+          vi: Chỉ áp dụng thay đổi nếu source LSN mới hơn. Điều đã làm replay và sự kiện đến sai thứ tự trở nên vô hại.
+      - h:
+          en: Deletes
+          vi: Xóa
+        p:
+          en: Capture delete events, not just inserts and updates, or the lake diverges from the source.
+          vi: Phải bắt cả sự kiện delete, không chỉ insert và update, nếu không lake sẽ lệch khỏi nguồn.
+      - h:
+          en: Versions and secrets
+          vi: Phiên bản và secret
+        tag: senior
+        p:
+          en: Connector property names differ between Debezium versions (older ones use `database.server.name`). The password comes from a config provider, never from the file.
+          vi: Tên thuộc tính connector khác nhau giữa các phiên bản Debezium (bản cũ dùng `database.server.name`). Mật khẩu lấy từ config provider, không nằm trong file.
+    n:
+      en: "Treat these as templates to adapt: hostnames, catalog credentials and the Flink-Iceberg upsert options depend on your versions. The merge statement is the correctness backstop: if the streaming job ever misbehaves, re-running it repairs silver from bronze."
+      vi: "Hãy coi đây là mẫu để điều chỉnh: hostname, credential của catalog và các tùy chọn upsert Flink-Iceberg phụ thuộc phiên bản. Câu merge là chốt chặn tính đúng: nếu job streaming có lúc hoạt động sai, chạy lại nó sẽ sửa silver từ bronze."
+  - id: scenario-a-failure-simulations
+    k: table
+    t:
+      en: Scenario A failure simulations
+      vi: "Kịch bản A: mô phỏng sự cố"
+    head:
+      - en: Failure
+        vi: Sự cố
+      - en: How to simulate
+        vi: Cách mô phỏng
+      - en: Expected behaviour
+        vi: Hành vi mong đợi
+      - en: How to verify
+        vi: Cách kiểm chứng
+    rows:
+      - - en: Flink TaskManager crash
+          vi: Flink TaskManager sập
+        - en: Kill the TaskManager during a load test
+          vi: Tắt TaskManager trong lúc test tải
+        - en: Job restores from the last checkpoint; no gaps or duplicates in silver
+          vi: Job khôi phục từ checkpoint gần nhất; silver không thiếu hay trùng
+        - en: "Reconciliation query: counts and checksums match"
+          vi: "Query đối soát: số dòng và checksum khớp"
+      - - en: Connector restart
+          vi: Connector khởi động lại
+        - en: Restart Kafka Connect mid-stream
+          vi: Khởi động lại Kafka Connect giữa chừng
+        - en: Resumes from the stored offset; duplicates possible but harmless
+          vi: Tiếp tục từ offset đã lưu; có thể trùng nhưng vô hại
+        - en: Duplicate count in bronze versus rows in silver
+          vi: Số trùng ở bronze so với số dòng ở silver
+      - - en: Replication slot lost
+          vi: Mất replication slot
+        - en: Drop the slot, then restart the connector
+          vi: Xóa slot rồi khởi động lại connector
+        - en: Connector fails; a re-snapshot is needed
+          vi: Connector lỗi; cần snapshot lại
+        - en: Re-snapshot, then reconcile; alert on slot absence
+          vi: Snapshot lại rồi đối soát; cảnh báo khi mất slot
+      - - en: Schema change
+          vi: Đổi schema
+        - en: Add a nullable column, then try a rename
+          vi: Thêm cột nullable, sau đó thử đổi tên
+        - en: Add succeeds; rename is rejected or handled by a mapping
+          vi: Thêm thành công; đổi tên bị từ chối hoặc xử lý bằng mapping
+        - en: Schema Registry compatibility result; Iceberg schema history
+          vi: Kết quả tương thích của Schema Registry; lịch sử schema Iceberg
+      - - en: Out-of-order and late events
+          vi: Sự kiện sai thứ tự và đến trễ
+        - en: Replay older events after newer ones
+          vi: Phát lại sự kiện cũ sau sự kiện mới
+        - en: Older events do not overwrite newer state
+          vi: Sự kiện cũ không ghi đè trạng thái mới
+        - en: Compare LSN and updated_at of final rows
+          vi: So sánh LSN và updated_at của các dòng cuối
+      - - en: Poison record
+          vi: Record độc
+        - en: Inject a malformed event
+          vi: Chèn một sự kiện sai định dạng
+        - en: Job routes it to a dead-letter topic and continues
+          vi: Job chuyển nó sang dead-letter topic và chạy tiếp
+        - en: Dead-letter count and alert
+          vi: Số lượng dead-letter và cảnh báo
+    cap:
+      en: Run each failure on purpose. A pipeline that was never broken in testing will break in production.
+      vi: Hãy cố ý chạy từng sự cố. Pipeline chưa từng bị phá khi test sẽ hỏng ở production.
+    n:
+      en: "Verification always uses the same instrument: a reconciliation query comparing the source and the lake."
+      vi: "Việc kiểm chứng luôn dùng cùng một công cụ: query đối soát so nguồn với lake."
+  - id: scenario-a-lab-performance-test-and-design-review
+    k: lab
+    t:
+      en: Scenario A lab, performance test and design review
+      vi: "Kịch bản A: lab, test hiệu năng và review thiết kế"
+    lead:
+      en: Build it, break it, measure it, and defend it.
+      vi: Xây nó, phá nó, đo nó và bảo vệ nó.
+    scenario:
+      en: Replicate an orders and customers database into Iceberg with seconds-to-minutes freshness and provably correct results.
+      vi: Sao chép database orders và customers vào Iceberg với độ mới từ vài giây đến vài phút và kết quả chứng minh được là đúng.
+    input:
+      en: "Docker Compose: PostgreSQL, Kafka, Schema Registry, Kafka Connect with Debezium, Flink, an Iceberg REST catalog, MinIO and Trino. A generator performing 500 changes per second with 5 percent deletes."
+      vi: "Docker Compose: PostgreSQL, Kafka, Schema Registry, Kafka Connect với Debezium, Flink, Iceberg REST catalog, MinIO và Trino. Bộ sinh thực hiện 500 thay đổi mỗi giây với 5 phần trăm là xóa."
+    tasks:
+      - en: Deploy the pipeline and show end-to-end freshness.
+        vi: Triển khai pipeline và cho thấy độ mới đầu-cuối.
+      - en: Run all failure simulations and record results.
+        vi: Chạy mọi mô phỏng sự cố và ghi lại kết quả.
+      - en: Raise the change rate until lag appears; find and relieve the bottleneck.
+        vi: Tăng tốc độ thay đổi đến khi xuất hiện lag; tìm và gỡ nút thắt.
+      - en: Write the reconciliation job and alerts.
+        vi: Viết job đối soát và cảnh báo.
+    expected:
+      en: A freshness and lag chart versus change rate, a failure matrix with outcomes, and a passing reconciliation.
+      vi: Biểu đồ độ mới và lag theo tốc độ thay đổi, ma trận sự cố kèm kết quả và một lần đối soát đạt.
+    rubric:
+      - en: Correctness proven after every failure
+        vi: Tính đúng được chứng minh sau mỗi sự cố
+      - en: Bottleneck identified from metrics
+        vi: Nút thắt xác định từ metric
+      - en: Schema change handled safely
+        vi: Đổi schema được xử lý an toàn
+      - en: Runbook written for each failure
+        vi: Có runbook cho từng sự cố
+    design:
+      en: "Design review: justify Flink versus Spark for the streaming step, the key and partition choices, the compaction plan, and what you would change at 100 times the volume."
+      vi: "Review thiết kế: biện minh Flink so với Spark cho bước streaming, lựa chọn key và partition, kế hoạch compaction, và bạn sẽ đổi gì khi khối lượng gấp 100 lần."
+    n:
+      en: Grade the failure matrix more heavily than the happy path.
+      vi: Chấm ma trận sự cố nặng hơn đường chạy thuận lợi.

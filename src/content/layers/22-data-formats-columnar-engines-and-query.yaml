@@ -1,0 +1,435 @@
+layer: 22
+slides:
+  - id: data-formats-columnar-engines-and-query-engines
+    k: cards
+    t:
+      en: Data formats, columnar engines and query engines
+      vi: Định dạng dữ liệu, engine cột và query engine
+    lead:
+      en: Modern analytics is fast because of how data is laid out and how engines read it. This layer explains file formats, in-memory columnar data, query engines, push-downs, OLAP systems and the open, composable stack.
+      vi: Analytics hiện đại nhanh nhờ cách bố trí dữ liệu và cách engine đọc nó. Layer này giải thích định dạng file, dữ liệu cột trong bộ nhớ, query engine, push-down, hệ OLAP và stack mở, có thể ghép nối.
+    cols: 3
+    cards:
+      - h:
+          en: File formats
+          vi: Định dạng file
+        tag: must
+        p:
+          en: "Parquet, ORC, Avro: row groups, pages, encodings and statistics."
+          vi: "Parquet, ORC, Avro: row group, page, encoding và thống kê."
+      - h:
+          en: Arrow and in-memory columns
+          vi: Arrow và cột trong bộ nhớ
+        tag: must
+        p:
+          en: A shared columnar memory format that lets tools exchange data without copying.
+          vi: Định dạng bộ nhớ cột dùng chung giúp các công cụ trao đổi dữ liệu mà không sao chép.
+      - h:
+          en: Query engines
+          vi: Query engine
+        tag: must
+        p:
+          en: "DuckDB, DataFusion, Trino, Spark SQL: parse, optimize, execute, vectorize."
+          vi: "DuckDB, DataFusion, Trino, Spark SQL: parse, tối ưu, thực thi, vector hóa."
+      - h:
+          en: Push-downs
+          vi: Push-down
+        tag: senior
+        p:
+          en: Moving filters, projections and aggregates to where the data lives to read less.
+          vi: Đẩy bộ lọc, phép chiếu và tổng hợp tới nơi dữ liệu nằm để đọc ít hơn.
+      - h:
+          en: Modern OLAP
+          vi: OLAP hiện đại
+        tag: senior
+        p:
+          en: ClickHouse, Druid, Pinot, StarRocks and the replacement of classic OLAP cubes.
+          vi: ClickHouse, Druid, Pinot, StarRocks và việc thay thế OLAP cube cổ điển.
+      - h:
+          en: Open and declarative stacks
+          vi: Stack mở và khai báo
+        tag: nice
+        p:
+          en: Composable open components and pipelines described as configuration.
+          vi: Các thành phần mở ghép nối được và pipeline mô tả bằng cấu hình.
+    n:
+      en: This layer explains why a query scans little data in one layout and everything in another.
+      vi: Layer này giải thích vì sao một query quét rất ít dữ liệu ở bố cục này và quét tất cả ở bố cục khác.
+  - id: parquet-and-other-data-lake-file-formats
+    k: stack
+    t:
+      en: Parquet and other data lake file formats
+      vi: Parquet và các định dạng file data lake khác
+    lead:
+      en: Columnar files let engines read only the columns and row groups a query needs.
+      vi: File dạng cột cho phép engine chỉ đọc các cột và row group mà query cần.
+    parts:
+      - svg: parquetSVG
+      - table:
+          head:
+            - en: Format
+              vi: Định dạng
+            - en: Layout
+              vi: Bố cục
+            - en: Best for
+              vi: Phù hợp nhất
+            - en: Schema evolution
+              vi: Tiến hóa schema
+            - en: Notes
+              vi: Ghi chú
+          rows:
+            - - Parquet
+              - en: "Columnar: row groups, column chunks, pages, footer"
+                vi: "Cột: row group, column chunk, page, footer"
+              - en: Analytics and lakehouse tables
+                vi: Analytics và bảng lakehouse
+              - en: Add columns; rename needs care
+                vi: Thêm cột; đổi tên cần cẩn thận
+              - en: Dictionary, RLE and delta encodings; min/max statistics; wide engine support
+                vi: Encoding dictionary, RLE và delta; thống kê min/max; được nhiều engine hỗ trợ
+            - - ORC
+              - en: "Columnar: stripes with indexes"
+                vi: "Cột: stripe kèm chỉ mục"
+              - en: Hive and Hadoop ecosystems
+                vi: Hệ sinh thái Hive và Hadoop
+              - en: Supported
+                vi: Được hỗ trợ
+              - en: Strong compression; ACID support in Hive
+                vi: Nén tốt; hỗ trợ ACID trong Hive
+            - - Avro
+              - en: Row-based with embedded schema
+                vi: Theo dòng với schema nhúng
+              - en: Streaming and Kafka records
+                vi: Streaming và record của Kafka
+              - en: Strong, with schema resolution rules
+                vi: Mạnh, có quy tắc phân giải schema
+              - en: Good for writes and whole-row reads; poor for column scans
+                vi: Tốt cho ghi và đọc cả dòng; kém cho quét cột
+            - - Arrow IPC / Feather
+              - en: Columnar in-memory layout on disk
+                vi: Bố cục cột trong bộ nhớ lưu ra đĩa
+              - en: Fast interchange between tools
+                vi: Trao đổi nhanh giữa các công cụ
+              - en: Limited
+                vi: Hạn chế
+              - en: Optimized for speed over size
+                vi: Tối ưu tốc độ hơn kích thước
+            - - CSV / JSON
+              - en: Text, row-based
+                vi: Văn bản, theo dòng
+              - en: Interchange and human readability
+                vi: Trao đổi và dễ đọc với con người
+              - en: None or ad hoc
+                vi: Không có hoặc tùy biến
+              - en: Large, slow to parse, types are guessed
+                vi: Lớn, parse chậm, kiểu dữ liệu bị đoán
+    n:
+      en: "Parquet’s footer is the key: a reader fetches it first, then uses statistics to skip row groups. Sorting data on common filter columns makes those statistics far more selective."
+      vi: "Footer của Parquet là mấu chốt: reader lấy nó trước rồi dùng thống kê để bỏ qua row group. Sắp xếp dữ liệu theo các cột lọc thường dùng làm các thống kê đã chọn lọc hơn nhiều."
+  - id: writing-inspecting-and-reading-parquet
+    k: code
+    t:
+      en: Writing, inspecting and reading Parquet
+      vi: Ghi, kiểm tra và đọc Parquet
+    lead:
+      en: "See the layout for yourself: row groups, statistics and column projection."
+      vi: "Tự nhìn thấy bố cục: row group, thống kê và phép chiếu cột."
+    blocks:
+      - lang: python
+        title: parquet_layout.py (pyarrow)
+        code: |-
+          import pyarrow as pa
+          import pyarrow.parquet as pq
+
+          table = pa.table({
+              "user_id": pa.array(range(1_000_000), type=pa.int64()),
+              "country": pa.array(["VN", "SG", "US", "DE"] * 250_000),
+              "amount": pa.array([float(i % 500) for i in range(1_000_000)]),
+          }).sort_by("country")                      # sorting makes min/max statistics selective
+
+          pq.write_table(table, "events.parquet", compression="zstd", row_group_size=250_000, use_dictionary=True)
+
+          pf = pq.ParquetFile("events.parquet")
+          print(pf.metadata.num_row_groups, pf.schema_arrow)
+          stats = pf.metadata.row_group(0).column(1).statistics
+          print(stats.min, stats.max, stats.null_count)          # used to skip row groups
+
+          # Read only one column and push a filter down to the reader
+          only_country = pq.read_table("events.parquet", columns=["amount"], filters=[("country", "=", "VN")])
+          print(only_country.num_rows)
+    points:
+      - h:
+          en: Row group size
+          vi: Kích thước row group
+        p:
+          en: Larger groups compress and scan better; smaller groups skip more precisely and use less memory.
+          vi: Group lớn nén và quét tốt hơn; group nhỏ bỏ qua chính xác hơn và tốn ít bộ nhớ hơn.
+      - h:
+          en: Sort and cluster
+          vi: Sắp xếp và gom cụm
+        tag: senior
+        p:
+          en: Order data by frequently filtered columns so statistics can prune whole row groups.
+          vi: Sắp xếp dữ liệu theo các cột thường lọc để thống kê loại bỏ được cả row group.
+      - h:
+          en: Avoid tiny files
+          vi: Tránh file nhỏ
+        p:
+          en: Each file has a footer and an open cost. Many small files slow every engine.
+          vi: Mỗi file có một footer và chi phí mở. Nhiều file nhỏ làm chậm mọi engine.
+      - h:
+          en: Types and nulls
+          vi: Kiểu và null
+        tag: senior
+        p:
+          en: Choose precise types (decimal, timestamp with zone). Wrong types silently inflate size and cost.
+          vi: Chọn kiểu chính xác (decimal, timestamp có múi giờ). Sai kiểu âm thầm làm tăng kích thước và chi phí.
+    n:
+      en: Run the script and compare file size and read time with a CSV copy of the same data.
+      vi: Chạy script và so sánh kích thước file và thời gian đọc với bản CSV của cùng dữ liệu.
+  - id: apache-arrow-datafusion-duckdb-and-vertipaq
+    k: stack
+    t:
+      en: Apache Arrow, DataFusion, DuckDB and VertiPaq
+      vi: Apache Arrow, DataFusion, DuckDB và VertiPaq
+    lead:
+      en: A shared columnar memory format and embeddable engines changed how tools cooperate.
+      vi: Một định dạng bộ nhớ cột dùng chung và các engine nhúng được đã thay đổi cách các công cụ phối hợp.
+    parts:
+      - table:
+          head:
+            - en: Project
+              vi: Dự án
+            - en: What it is
+              vi: Nó là gì
+            - en: Role
+              vi: Vai trò
+            - en: Notes
+              vi: Ghi chú
+          rows:
+            - - Apache Arrow
+              - en: A language-independent columnar in-memory format and libraries
+                vi: Định dạng cột trong bộ nhớ độc lập ngôn ngữ cùng các thư viện
+              - en: Zero-copy exchange between engines, dataframes and databases; IPC, Flight and ADBC for transport
+                vi: Trao đổi zero-copy giữa engine, dataframe và database; IPC, Flight và ADBC để truyền tải
+              - en: A format and toolkit, not a database
+                vi: Là định dạng và bộ công cụ, không phải database
+            - - DataFusion
+              - en: An extensible query engine written in Rust on Arrow
+                vi: Query engine mở rộng được viết bằng Rust trên Arrow
+              - en: Embeddable SQL engine for building databases and tools
+                vi: Engine SQL nhúng được để xây database và công cụ
+              - en: Building block, with a Python binding for direct use
+                vi: Là khối xây dựng, có binding Python để dùng trực tiếp
+            - - DuckDB
+              - en: In-process analytical database
+                vi: Database phân tích chạy trong tiến trình
+              - en: Local analytics on Parquet, CSV and Arrow; prototyping and testing
+                vi: Analytics cục bộ trên Parquet, CSV và Arrow; tạo mẫu và test
+              - en: Single node; vectorized execution
+                vi: Một node; thực thi vector hóa
+            - - VertiPaq
+              - en: The in-memory columnar engine of Power BI and tabular models
+                vi: Engine cột trong bộ nhớ của Power BI và tabular model
+              - en: Fast analytics via dictionary and run-length encoding and compression
+                vi: Analytics nhanh nhờ encoding dictionary, run-length và nén
+              - en: Proprietary; data is compressed and held in memory
+                vi: Độc quyền; dữ liệu được nén và giữ trong bộ nhớ
+      - code:
+          lang: python
+          title: arrow_duckdb_datafusion.py
+          code: |-
+            import duckdb
+            import pyarrow.dataset as ds
+            from datafusion import SessionContext
+
+            # DuckDB queries an Arrow dataset directly, without copying it into the database
+            dataset = ds.dataset("lake/events/", format="parquet")
+            con = duckdb.connect()
+            con.register("events", dataset)
+            result = con.sql("select country, count(*) as n from events group by country").arrow()
+            print(result)                                        # an Arrow table
+
+            # DataFusion reads the same files with its own engine
+            ctx = SessionContext()
+            ctx.register_parquet("events", "lake/events/")
+            print(ctx.sql("select country, count(*) as n from events group by country").to_pandas())
+    n:
+      en: "Arrow is why modern tools interoperate cheaply: the same in-memory layout is understood by many engines. VertiPaq is the same idea inside the Microsoft BI stack."
+      vi: "Arrow là lý do các công cụ hiện đại phối hợp với chi phí thấp: cùng một bố cục bộ nhớ được nhiều engine hiểu. VertiPaq là cùng ý tưởng bên trong stack BI của Microsoft."
+  - id: query-engines-and-push-downs
+    k: code
+    t:
+      en: Query engines and push-downs
+      vi: Query engine và push-down
+    lead:
+      en: A query engine parses, optimizes and executes. The cheapest data to process is the data you never read.
+      vi: Query engine parse, tối ưu và thực thi. Dữ liệu rẻ nhất để xử lý là dữ liệu bạn không bao giờ đọc.
+    blocks:
+      - lang: sql
+        title: see_pushdown.sql (DuckDB)
+        code: |-
+          EXPLAIN
+          SELECT country, count(*) AS n
+          FROM read_parquet('events/*.parquet')
+          WHERE event_date >= DATE '2026-10-01' AND country = 'VN'
+          GROUP BY country;
+          -- In the scan operator, look for the filters and the projected columns.
+          -- If the filter appears in a separate FILTER node above the scan, it was not pushed down.
+      - lang: text
+        title: push_down_types.txt
+        code: |-
+          Predicate push-down    filter evaluated in the scan, skipping row groups, partitions or files
+          Projection push-down   only the referenced columns are read
+          Aggregate push-down    the source computes count, sum, min, max and returns less data
+          Limit / top-N          the source stops early
+          Partition pruning      whole partitions are skipped from the file path or metadata
+          Dynamic filtering      a join builds a filter from one side and applies it to the scan of the other
+    points:
+      - h: Pipeline
+        p:
+          en: Parse, bind, logical optimization, physical planning, then vectorized or compiled execution.
+          vi: Parse, bind, tối ưu logic, lập kế hoạch vật lý, rồi thực thi vector hóa hoặc compile.
+      - h:
+          en: Vectorized execution
+          vi: Thực thi vector hóa
+        tag: senior
+        p:
+          en: Operators process batches of values at a time, using CPU caches and SIMD effectively.
+          vi: Operator xử lý từng lô giá trị, dùng hiệu quả cache CPU và SIMD.
+      - h:
+          en: Why pushdown fails
+          vi: Vì sao push-down thất bại
+        p:
+          en: Wrapping a column in a function, implicit casts, or UDFs can stop the engine from pushing a filter.
+          vi: Bọc một cột trong hàm, ép kiểu ngầm hoặc UDF có thể ngăn engine đẩy bộ lọc xuống.
+      - h:
+          en: Verify, do not assume
+          vi: Hãy kiểm chứng, đừng giả định
+        tag: senior
+        p:
+          en: Use EXPLAIN to confirm what was pushed down in your engine and connector.
+          vi: Dùng EXPLAIN để xác nhận cái gì đã được đẩy xuống trong engine và connector của bạn.
+    n:
+      en: Output format of EXPLAIN differs between engines. The learning goal is to find where the filter is applied.
+      vi: Định dạng output của EXPLAIN khác nhau giữa các engine. Mục tiêu học là tìm ra bộ lọc được áp dụng ở đâu.
+  - id: modern-olap-systems-and-the-end-of-the-classic-olap-cube
+    k: code
+    t:
+      en: Modern OLAP systems and the end of the classic OLAP cube
+      vi: OLAP hiện đại và sự kết thúc của OLAP cube cổ điển
+    lead:
+      en: Fast columnar engines plus pre-aggregation and a semantic layer replace many traditional cubes.
+      vi: Engine cột nhanh cùng pre-aggregation và semantic layer thay thế nhiều cube truyền thống.
+    blocks:
+      - lang: sql
+        title: clickhouse_events.sql (ClickHouse)
+        code: |-
+          CREATE TABLE events
+          (
+              event_date  Date,
+              user_id     UInt64,
+              country     LowCardinality(String),
+              event_name  LowCardinality(String),
+              amount      Decimal(10, 2)
+          )
+          ENGINE = MergeTree
+          PARTITION BY toYYYYMM(event_date)
+          ORDER BY (country, event_date, user_id);
+      - lang: yaml
+        title: cube_preaggregation.yml (excerpt)
+        code: |-
+          cubes:
+            - name: orders
+              sql_table: analytics.marts.fct_orders
+              pre_aggregations:
+                - name: daily_revenue
+                  measures: [CUBE.revenue]
+                  dimensions: [CUBE.country]
+                  time_dimension: CUBE.ordered_at
+                  granularity: day
+                  refresh_key:
+                    every: 1 hour
+    points:
+      - h: ClickHouse
+        p:
+          en: Columnar store with MergeTree tables sorted by a key; strong for fast aggregations on event data.
+          vi: Kho dạng cột với bảng MergeTree sắp xếp theo khóa; mạnh cho tổng hợp nhanh trên dữ liệu sự kiện.
+      - h: Druid, Pinot, StarRocks
+        p:
+          en: Built for low-latency, high-concurrency, user-facing analytics, often on streaming data.
+          vi: Xây cho analytics hướng người dùng với độ trễ thấp, đồng thời cao, thường trên dữ liệu streaming.
+      - h:
+          en: Classic cubes
+          vi: Cube cổ điển
+        tag: senior
+        p:
+          en: Precomputed multidimensional structures with their own query language. Maintenance and rigidity drove the shift away.
+          vi: Cấu trúc đa chiều tính trước với ngôn ngữ truy vấn riêng. Chi phí bảo trì và sự cứng nhắc đã thúc đẩy việc rời bỏ.
+      - h:
+          en: Replacement pattern
+          vi: Mẫu thay thế
+        tag: senior
+        p:
+          en: Columnar engine, materialized views or pre-aggregations for hot queries, and a semantic layer for consistent metrics.
+          vi: Engine cột, materialized view hoặc pre-aggregation cho query nóng, và semantic layer để metric nhất quán.
+    n:
+      en: Which system to choose depends on concurrency, latency, freshness and the team’s skills. Check each project’s documentation for current features.
+      vi: Chọn hệ thống nào phụ thuộc đồng thời, độ trễ, độ mới và kỹ năng của đội. Hãy xem tài liệu từng dự án để biết tính năng hiện tại.
+  - id: open-data-stack-and-declarative-data-stack
+    k: table
+    t:
+      en: Open data stack and declarative data stack
+      vi: Open data stack và declarative data stack
+    head:
+      - en: Idea
+        vi: Ý tưởng
+      - en: Meaning
+        vi: Ý nghĩa
+      - en: Examples
+        vi: Ví dụ
+      - en: Trade-off
+        vi: Đánh đổi
+    rows:
+      - - en: Open formats
+          vi: Định dạng mở
+        - en: Data stored in documented formats any engine can read
+          vi: Dữ liệu lưu ở định dạng có tài liệu mà mọi engine đọc được
+        - Parquet, Iceberg, Delta, Hudi
+        - en: You own file layout and maintenance
+          vi: Bạn tự lo bố cục file và bảo trì
+      - - en: Open catalogs and protocols
+          vi: Catalog và giao thức mở
+        - en: Standard APIs for table metadata and data transfer
+          vi: API chuẩn cho metadata bảng và truyền dữ liệu
+        - Iceberg REST catalog, Arrow Flight, OpenLineage
+        - en: Standards evolve and tools implement them unevenly
+          vi: Chuẩn phát triển và công cụ cài đặt không đồng đều
+      - - en: Composable stack
+          vi: Stack ghép nối
+        - en: Choose best components and connect them (the open data stack)
+          vi: Chọn thành phần tốt nhất và nối chúng (open data stack)
+        - DuckDB, Arrow, Iceberg, dbt, Dagster, Superset
+        - en: More integration work and more owners
+          vi: Nhiều việc tích hợp hơn và nhiều chủ sở hữu hơn
+      - - en: Declarative stack
+          vi: Stack khai báo
+        - en: Describe the desired result in configuration; the tool works out how
+          vi: Mô tả kết quả mong muốn trong cấu hình; công cụ tự tìm cách
+        - en: dbt and SQLMesh models, Kestra YAML flows, Dagster assets, Terraform
+          vi: Model dbt và SQLMesh, flow YAML của Kestra, asset Dagster, Terraform
+        - en: Less control over execution; debugging needs the compiled plan
+          vi: Ít kiểm soát việc thực thi; debug cần xem plan đã compile
+      - - en: Vendor-managed suite
+          vi: Bộ do nhà cung cấp quản lý
+        - en: One platform provides most components
+          vi: Một nền tảng cung cấp phần lớn thành phần
+        - Snowflake, Databricks, Fabric, BigQuery
+        - en: Faster start, higher lock-in risk
+          vi: Khởi đầu nhanh hơn, rủi ro khóa chặt cao hơn
+    cap:
+      en: Neither extreme is right for everyone. Decide with a decision matrix and an exit plan.
+      vi: Không cực nào đúng cho mọi người. Hãy quyết định bằng ma trận quyết định và một kế hoạch rút lui.
+    n:
+      en: "Connect back to the decision matrices: “open” reduces lock-in but moves operational responsibility to you."
+      vi: "Nối lại với các ma trận quyết định: “mở” giảm khóa chặt nhưng chuyển trách nhiệm vận hành sang bạn."

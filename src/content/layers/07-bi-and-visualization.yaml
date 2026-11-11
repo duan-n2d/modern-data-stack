@@ -1,0 +1,505 @@
+layer: 7
+slides:
+  - id: bi-and-visualization-where-the-work-meets-decisions
+    k: cards
+    t:
+      en: "BI and visualization: where the work meets decisions"
+      vi: "BI và trực quan hóa: nơi công việc gặp quyết định"
+    lead:
+      en: A dashboard nobody trusts or uses is a cost, not an asset. This layer is about clarity, speed and governed self-service.
+      vi: Dashboard không ai tin hay dùng là chi phí, không phải tài sản. Lớp này nói về sự rõ ràng, tốc độ và self-service có quản trị.
+    cols: 3
+    cards:
+      - h:
+          en: Dashboard design
+          vi: Thiết kế dashboard
+        tag: must
+        p:
+          en: Start from the decision the viewer must make. Show few metrics, with context and comparisons.
+          vi: Bắt đầu từ quyết định mà người xem phải đưa ra. Chỉ hiển thị ít metric, kèm bối cảnh và so sánh.
+      - h:
+          en: Self-service governance
+          vi: Governance cho self-service
+        tag: senior
+        p:
+          en: Let people explore, within certified datasets, clear ownership and a way to retire clutter.
+          vi: Cho phép mọi người khám phá trong phạm vi dataset đã certified, có chủ sở hữu rõ ràng và cách loại bỏ các báo cáo rác.
+      - h:
+          en: Performance
+          vi: Hiệu năng
+        tag: must
+        p:
+          en: Slow dashboards are abandoned dashboards. Aggregate upstream, limit queries, and cache.
+          vi: Dashboard chậm sẽ bị bỏ rơi. Aggregate ở upstream, giới hạn query và dùng cache.
+      - h:
+          en: Data apps
+          vi: Data app
+        tag: nice
+        p:
+          en: Streamlit, Evidence and Observable build custom, code-first interactive experiences.
+          vi: Streamlit, Evidence và Observable xây dựng trải nghiệm tương tác tùy biến, code-first.
+      - h:
+          en: Notebooks and collaboration
+          vi: Notebook và cộng tác
+        tag: nice
+        p:
+          en: Hex and Mode blend SQL, Python and sharing for analyst workflows.
+          vi: Hex và Mode kết hợp SQL, Python và chia sẻ cho workflow của analyst.
+      - h:
+          en: Choose by audience
+          vi: Chọn theo đối tượng
+        tag: senior
+        p:
+          en: Executives, analysts and customers need different tools and different levels of freedom.
+          vi: Lãnh đạo, analyst và khách hàng cần công cụ khác nhau và mức độ tự do khác nhau.
+    n:
+      en: Start with the audience and the decision, not the tool. A senior engineer owns the data foundation under the dashboards, and increasingly the governance around who can build what.
+      vi: Hãy bắt đầu từ đối tượng và quyết định, không phải từ công cụ. Senior engineer sở hữu nền tảng dữ liệu bên dưới các dashboard, và ngày càng phụ trách cả governance về việc ai được xây gì.
+  - id: tool-landscape-bi-platforms
+    k: table
+    t:
+      en: "Tool landscape: BI platforms"
+      vi: "Bức tranh công cụ: nền tảng BI"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - Power BI
+        - en: Enterprise BI
+          vi: BI doanh nghiệp
+        - en: Microsoft-centric organizations
+          vi: Tổ chức xoay quanh Microsoft
+        - en: Low entry cost; deep Microsoft integration; large community
+          vi: Chi phí đầu vào thấp; tích hợp sâu với Microsoft; cộng đồng lớn
+        - en: DAX learning curve; logic can get trapped in the tool
+          vi: Đường cong học DAX; logic có thể bị kẹt trong công cụ
+        - en: Per-user licensing plus capacity options
+          vi: Licensing theo người dùng kèm tùy chọn capacity
+      - - Tableau
+        - Visual analytics
+        - en: Rich visual exploration; analyst-led teams
+          vi: Khám phá trực quan phong phú; nhóm do analyst dẫn dắt
+        - en: Powerful visual grammar; mature community
+          vi: Visual grammar mạnh mẽ; cộng đồng trưởng thành
+        - en: Governance needs discipline; licensing cost
+          vi: Governance ??i hỏi kỷ luật; chi phí licensing
+        - en: Per-user (role-based)
+          vi: Theo người dùng (theo vai trò)
+      - - Looker
+        - en: Governed BI on LookML
+          vi: BI có governance trên LookML
+        - en: Governed metrics and embedded analytics
+          vi: Metric có governance và embedded analytics
+        - en: Strong modeling layer; Git workflow
+          vi: Lớp modeling mạnh; workflow dùng Git
+        - en: Requires LookML skills; less ad hoc freedom
+          vi: Cần kỹ năng LookML; ít tự do ad hoc hơn
+        - en: Platform licensing
+          vi: Licensing theo nền tảng
+      - - Sigma
+        - en: Spreadsheet-style cloud BI
+          vi: BI cloud kiểu spreadsheet
+        - en: Business users who think in spreadsheets, on a cloud warehouse
+          vi: Người dùng nghiệp vụ quen tư duy spreadsheet, trên cloud warehouse
+        - en: Familiar interface; live queries on the warehouse
+          vi: Giao diện quen thuộc; query trực tiếp trên warehouse
+        - en: Warehouse compute cost; newer ecosystem
+          vi: Chi phí compute của warehouse; hệ sinh thái còn mới
+        - en: Per-user or platform-based
+          vi: Theo người dùng hoặc theo nền tảng
+      - - Mode
+        - en: SQL-first analytics and reporting
+          vi: Analytics và báo cáo ưu tiên SQL
+        - en: Analyst teams that live in SQL and Python
+          vi: Nhóm analyst làm việc chủ yếu bằng SQL và Python
+        - en: SQL, Python and visualization in one place
+          vi: SQL, Python và trực quan hóa trong một chỗ
+        - en: Less suited to broad business self-service
+          vi: Ít phù hợp với self-service nghiệp vụ diện rộng
+        - en: Plan-based
+          vi: Theo gói
+      - - Hex
+        - en: Collaborative notebooks and apps
+          vi: Notebook và app cộng tác
+        - en: Data teams building analyses and shareable apps
+          vi: Nhóm dữ liệu xây dựng phân tích và app có thể chia sẻ
+        - en: SQL and Python in one notebook; app publishing
+          vi: SQL và Python trong một notebook; publish app
+        - en: Not a classic enterprise dashboarding tool
+          vi: Không phải công cụ dashboard doanh nghiệp truyền thống
+        - en: Seat-based plans
+          vi: Gói theo seat
+    cap:
+      en: "Many companies run two: a governed standard for broad reporting and a flexible tool for analysts."
+      vi: "Nhiều công ty chạy song song hai công cụ: một chuẩn có governance cho báo cáo diện rộng và một công cụ linh hoạt cho analyst."
+    n:
+      en: The fastest way to choose a BI tool is to ask who builds and who consumes. Spreadsheet users, analysts and executives want different things.
+      vi: Cách nhanh nhất để chọn công cụ BI là hỏi ai xây và ai dùng. Người dùng spreadsheet, analyst và lãnh đạo muốn những thứ khác nhau.
+  - id: tool-landscape-open-source-bi-and-data-apps
+    k: table
+    t:
+      en: "Tool landscape: open-source BI and data apps"
+      vi: "Bức tranh công cụ: BI mã nguồn mở và data app"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - Metabase
+        - en: Open-source BI
+          vi: BI mã nguồn mở
+        - en: Small teams wanting quick self-service
+          vi: Nhóm nhỏ cần self-service nhanh
+        - en: Very easy to start; question builder for non-SQL users
+          vi: Rất dễ bắt đầu; question builder cho người dùng không biết SQL
+        - en: Governance and advanced modeling are lighter
+          vi: Governance và modeling nâng cao còn nhẹ
+        - en: Open source plus paid and cloud plans
+          vi: Mã nguồn mở kèm gói trả phí và cloud
+      - - Apache Superset
+        - en: Open-source BI
+          vi: BI mã nguồn mở
+        - en: Teams comfortable running and customizing infrastructure
+          vi: Nhóm thoải mái với việc vận hành và tùy biến hạ tầng
+        - en: Many chart types; extensible; SQL Lab
+          vi: Nhiều loại biểu đồ; dễ mở rộng; SQL Lab
+        - en: Operationally heavier; UX less polished
+          vi: Vận hành nặng hơn; UX kém mượt hơn
+        - en: Open source; managed offerings exist
+          vi: Mã nguồn mở; có dịch vụ managed
+      - - Lightdash
+        - en: dbt-native open-source BI
+          vi: BI mã nguồn mở native với dbt
+        - en: dbt-centric teams that want metrics defined in dbt
+          vi: Nhóm xoay quanh dbt muốn định nghĩa metric trong dbt
+        - en: Reads dbt YAML as the semantic layer
+          vi: Đọc dbt YAML làm semantic layer
+        - en: Smaller ecosystem; tied to dbt workflow
+          vi: Hệ sinh thái nhỏ hơn; gắn chặt với workflow dbt
+        - en: Open source plus cloud plans
+          vi: Mã nguồn mở kèm gói cloud
+      - - Streamlit
+        - en: Python data-app framework
+          vi: Framework data app bằng Python
+        - en: Custom internal tools and prototypes
+          vi: Công cụ nội bộ tùy biến và prototype
+        - en: Pure Python; rapid to build
+          vi: Thuần Python; xây dựng nhanh
+        - en: Not a BI tool; you own hosting, auth and performance
+          vi: Không phải công cụ BI; bạn tự lo hosting, auth và hiệu năng
+        - en: Open source; hosting options vary
+          vi: Mã nguồn mở; tùy chọn hosting đa dạng
+      - - Evidence
+        - en: Code-first BI (SQL and Markdown)
+          vi: BI code-first (SQL và Markdown)
+        - en: Analytics-as-code reports in Git
+          vi: Báo cáo analytics-as-code trong Git
+        - en: Version-controlled reports; clean output
+          vi: Báo cáo được quản lý phiên bản; đầu ra gọn gàng
+        - en: Smaller ecosystem; less interactive than classic BI
+          vi: Hệ sinh thái nhỏ hơn; ít tương tác hơn BI truyền thống
+        - en: Open source plus managed hosting
+          vi: Mã nguồn mở kèm managed hosting
+      - - Observable
+        - en: Data visualization and notebooks
+          vi: Trực quan hóa dữ liệu và notebook
+        - en: Custom, highly interactive visualizations
+          vi: Trực quan hóa tùy biến, tương tác cao
+        - en: Powerful JavaScript visualization stack
+          vi: Stack trực quan hóa JavaScript mạnh mẽ
+        - en: Higher skill bar; less business self-service
+          vi: Yêu cầu kỹ năng cao hơn; ít self-service cho nghiệp vụ
+        - en: Free and paid plans
+          vi: Gói miễn phí và trả phí
+    cap:
+      en: Open-source tools reduce license cost but shift cost to operations, upgrades and support.
+      vi: Công cụ mã nguồn mở giảm chi phí license nhưng chuyển chi phí sang vận hành, nâng cấp và hỗ trợ.
+    n:
+      en: "The tradeoff pattern: lower license cost, higher operational and training cost. Data apps (Streamlit, Evidence, Observable) are for custom experiences, not replacements for a governed BI standard."
+      vi: "Mẫu đánh đổi: chi phí license thấp hơn, chi phí vận hành và đào tạo cao hơn. Data app (Streamlit, Evidence, Observable) dành cho trải nghiệm tùy biến, không thay thế chuẩn BI có governance."
+  - id: deep-dive-a-governed-data-app-in-streamlit
+    k: code
+    t:
+      en: "Deep dive: a governed data app in Streamlit"
+      vi: "Đào sâu: một data app có quản trị bằng Streamlit"
+    lead:
+      en: Parameterized SQL, a cache, and a defensive input check. About 25 lines, and it already avoids common dashboard problems.
+      vi: SQL có tham số, một cache và bước kiểm tra input phòng thủ. Khoảng 25 dòng mà đã tránh được các vấn đề dashboard thường gặp.
+    blocks:
+      - lang: python
+        title: revenue_app.py
+        code: |-
+          from datetime import date
+
+          import duckdb
+          import pandas as pd
+          import streamlit as st
+
+          st.set_page_config(page_title="Revenue explorer", layout="wide")
+
+
+          @st.cache_data(ttl=600)
+          def load_revenue(start: date, end: date) -> pd.DataFrame:
+              con = duckdb.connect("warehouse.duckdb", read_only=True)
+              return con.execute(
+                  """
+                  select date_trunc('month', ordered_at) as month,
+                         sum(order_amount) as revenue
+                  from fct_orders
+                  where ordered_at >= ? and ordered_at < ?
+                  group by 1
+                  order by 1
+                  """,
+                  [start, end],
+              ).df()
+
+
+          dates = st.date_input("Date range", value=(date(2026, 1, 1), date(2026, 6, 30)))
+          if len(dates) != 2:
+              st.stop()  # the user is mid-selection
+
+          df = load_revenue(*dates)
+          st.metric("Total revenue", f"{df['revenue'].sum():,.0f}")
+          st.line_chart(df, x="month", y="revenue")
+    points:
+      - h:
+          en: Bind parameters
+          vi: Bind parameter
+        p:
+          en: Never format user input into SQL strings. Use placeholders.
+          vi: Không bao giờ format input của người dùng vào chuỗi SQL. Hãy dùng placeholder.
+      - h:
+          en: Cache with a time limit
+          vi: Cache có giới hạn thời gian
+        p:
+          en: A short TTL cuts warehouse load while keeping data reasonably fresh.
+          vi: TTL ngắn giảm tải cho warehouse mà vẫn giữ dữ liệu khá mới.
+      - h:
+          en: Read-only credentials
+          vi: Credential chỉ đọc
+        tag: senior
+        p:
+          en: Apps should connect with a least-privilege role scoped to the marts they need.
+          vi: App nên kết nối bằng role least-privilege, giới hạn trong các mart cần dùng.
+      - h:
+          en: End bound is exclusive here
+          vi: Cận cuối ở đây là exclusive
+        p:
+          en: The `<` end filter excludes the end day. Adjust if the picker should be inclusive.
+          vi: Bộ lọc cuối `<` loại trừ ngày cuối. Điều chỉnh nếu date picker cần inclusive.
+    n:
+      en: "The code is deliberately small. Pull attention to parameter binding and the read-only connection: those two lines are the difference between a toy and something safe to share. The date range end is exclusive in this query; note that as a deliberate choice you would confirm with users."
+      vi: "Code cố ý viết nhỏ gọn. Hãy tập trung vào việc bind parameter và kết nối chỉ đọc: hai dòng đã là khác biệt giữa đồ chơi và thứ an toàn để chia sẻ. Cận cuối của khoảng ngày là exclusive trong query này; hãy nêu đã là lựa chọn có chủ đích mà bạn sẽ xác nhận với người dùng."
+  - id: design-patterns-dashboards-and-self-service
+    k: cards
+    t:
+      en: "Design patterns: dashboards and self-service"
+      vi: "Mẫu thiết kế: dashboard và self-service"
+    cols: 3
+    cards:
+      - h:
+          en: One question per dashboard
+          vi: Mỗi dashboard một câu hỏi
+        p:
+          en: Title it with the decision it supports. Put the headline number first, then the breakdown.
+          vi: Đặt tiêu đề theo quyết định mà nó hỗ trợ. Đặt con số chính lên trước, rồi đến phần phân rã.
+      - h:
+          en: Context beats decoration
+          vi: Bối cảnh quan trọng hơn trang trí
+        p:
+          en: Show targets, prior periods and thresholds. Avoid 3D charts, rainbow palettes and gauges.
+          vi: Hiển thị mục tiêu, kỳ trước và ngưỡng. Tránh biểu đồ 3D, bảng màu cầu vồng và gauge.
+      - h:
+          en: Certified versus exploratory
+          vi: Certified và exploratory
+        p:
+          en: Label certified content, and give people a sandbox so exploration does not pollute the standard.
+          vi: Gắn nhãn nội dung certified, và cho mọi người một sandbox để khám phá không làm nhiễu chuẩn chung.
+      - h:
+          en: Performance budget
+          vi: Ngân sách hiệu năng
+        p:
+          en: Aggregate in marts, limit filters and tiles per page, and cache expensive queries.
+          vi: Aggregate trong mart, giới hạn số filter và tile mỗi trang, và cache các query tốn kém.
+      - h:
+          en: Access by role
+          vi: Truy cập theo vai trò
+        p:
+          en: Use groups and row-level security rather than sharing individual links to sensitive data.
+          vi: Dùng group và row-level security thay vì chia sẻ link riêng lẻ tới dữ liệu nhạy cảm.
+      - h:
+          en: Lifecycle
+          vi: Vòng đời
+        p:
+          en: Track usage; archive unused dashboards on a schedule; assign an owner to every one.
+          vi: Theo dõi mức sử dụng; lưu trữ dashboard không dùng theo lịch; gán owner cho từng dashboard.
+    n:
+      en: "The senior idea is lifecycle: dashboards are products with owners, usage metrics and retirement dates, not one-off deliverables."
+      vi: "Ý tưởng của senior là vòng đời: dashboard là sản phẩm có owner, metric sử dụng và ngày ngừng hoạt động, không phải sản phẩm bàn giao một lần."
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: The “everything” dashboard.
+          vi: Dashboard “cái gì cũng có”.
+        why:
+          en: Nobody knows what decision it serves; it is slow.
+          vi: Không ai biết nó phục vụ quyết định nào; nó chạy chậm.
+        fix:
+          en: One purpose per dashboard; link to details.
+          vi: Mỗi dashboard một mục đích; link tới phần chi tiết.
+      - bad:
+          en: Business logic inside the BI tool.
+          vi: Business logic nằm trong công cụ BI.
+        why:
+          en: Numbers differ across tools; hard to test.
+          vi: Số liệu khác nhau giữa các công cụ; khó test.
+        fix:
+          en: Push logic into models and the semantic layer.
+          vi: Đẩy logic vào model và semantic layer.
+      - bad:
+          en: Live queries on raw tables.
+          vi: Query trực tiếp trên bảng raw.
+        why:
+          en: Slow, expensive and fragile.
+          vi: Chậm, tốn kém và dễ vỡ.
+        fix:
+          en: Point dashboards at modeled, aggregated marts.
+          vi: Trỏ dashboard vào các mart đã model và aggregate.
+      - bad:
+          en: Ungoverned self-service.
+          vi: Self-service không có governance.
+        why:
+          en: Hundreds of conflicting, stale reports.
+          vi: Hàng trăm báo cáo mâu thuẫn và lỗi thời.
+        fix:
+          en: Certified datasets, naming rules and cleanups.
+          vi: Dataset certified, quy tắc đặt tên và dọn dẹp định kỳ.
+      - bad:
+          en: Chart choice by habit.
+          vi: Chọn biểu đồ theo thói quen.
+        why:
+          en: Misleading or unreadable visuals.
+          vi: Hình ảnh gây hiểu nhầm hoặc khó đọc.
+        fix:
+          en: Pick the chart for the comparison being made.
+          vi: Chọn biểu đồ phù hợp với phép so sánh đang thực hiện.
+      - bad:
+          en: No usage monitoring.
+          vi: Không theo dõi mức sử dụng.
+        why:
+          en: You cannot tell what is valuable.
+          vi: Bạn không biết cái nào có giá trị.
+        fix:
+          en: Track views, owners and last-used dates.
+          vi: Theo dõi lượt xem, owner và ngày dùng gần nhất.
+    n:
+      en: These pitfalls explain most dashboard sprawl. The remedies are mostly governance, not design skills.
+      vi: Những cái bẫy này giải thích phần lớn tình trạng dashboard tràn lan. Cách khắc phục chủ yếu là governance, không phải kỹ năng thiết kế.
+  - id: what-senior-looks-like-bi
+    k: cards
+    t:
+      en: "What senior looks like: BI"
+      vi: "Senior trông như thế nào: BI"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: BI standard and exceptions
+            vi: Chuẩn BI và các ngoại lệ
+          - en: What is certified
+            vi: Cái gì được certified
+          - en: Embedded versus internal analytics
+            vi: Embedded và internal analytics
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Self-service freedom versus consistency
+            vi: Tự do self-service và tính nhất quán
+          - en: License cost versus operating cost
+            vi: Chi phí license và chi phí vận hành
+          - en: Live queries versus extracts and caches
+            vi: Query trực tiếp và extract/cache
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Own the data layer beneath dashboards
+            vi: Sở hữu lớp dữ liệu bên dưới dashboard
+          - en: Set review and certification processes
+            vi: Thiết lập quy trình review và certification
+          - en: Track adoption and performance
+            vi: Theo dõi mức độ áp dụng và hiệu năng
+          - en: Train and support analysts and business users
+            vi: Đào tạo và hỗ trợ analyst và người dùng nghiệp vụ
+    n:
+      en: "The engineering role in BI is the foundation: reliable marts, fast queries and clear definitions. The pretty chart is the last 10%."
+      vi: "Vai trò của engineering trong BI là nền móng: mart đáng tin cậy, query nhanh và định nghĩa rõ ràng. Biểu đồ đẹp chỉ là 10% cuối cùng."
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: Each dashboard names the decision it supports
+          vi: Mỗi dashboard nêu rõ quyết định mà nó hỗ trợ
+        - en: Dashboards read from tested marts or a semantic layer
+          vi: Dashboard đọc từ mart đã test hoặc semantic layer
+        - en: Slow dashboards are measured and improved
+          vi: Dashboard chậm được đo lường và cải thiện
+        - en: Sensitive data uses roles and row-level security
+          vi: Dữ liệu nhạy cảm dùng role và row-level security
+        - en: Unused dashboards are archived
+          vi: Dashboard không dùng được lưu trữ
+        - en: I know when a data app beats a dashboard
+          vi: Tôi biết khi nào data app tốt hơn dashboard
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: A key dashboard takes 40 seconds to load. What do you check?
+          vi: Một dashboard quan trọng mất 40 giây để tải. Bạn kiểm tra gì?
+        - en: How would you govern self-service without blocking analysts?
+          vi: Bạn sẽ quản trị self-service thế nào mà không chặn analyst?
+        - en: Power BI, Tableau or Looker for a 200-person company? What would you ask first?
+          vi: Power BI, Tableau hay Looker cho công ty 200 người? Bạn sẽ hỏi gì đầu tiên?
+        - en: When would you build a Streamlit app instead of a dashboard?
+          vi: Khi nào bạn xây app Streamlit thay vì dashboard?
+        - en: How do you handle two teams who define “active customer” differently?
+          vi: Bạn xử lý thế nào khi hai nhóm định nghĩa “khách hàng active” khác nhau?
+    n:
+      en: Look for answers that start with questions about audience and existing stack rather than with a favorite tool.
+      vi: Hãy tìm những câu trả lời bắt đầu bằng câu hỏi về đối tượng và stack hiện có, thay vì bắt đầu bằng công cụ yêu thích.

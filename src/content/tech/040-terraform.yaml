@@ -1,0 +1,83 @@
+tech:
+  id: terraform
+  name: Terraform
+  color: "#7C3AED"
+  refs:
+    - [Terraform, https://developer.hashicorp.com/terraform/docs]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "Terraform: architecture"
+      vi: "Terraform: kiến trúc"
+    lead:
+      en: Terraform compares what you declared with what it recorded in state, then asks provider plugins to close the gap.
+      vi: Terraform so sánh những gì bạn khai báo với những gì nó đã ghi trong state, rồi nhờ các provider plugin thu hẹp khoảng cách.
+    svg: tfSVG
+    cap:
+      en: State is the memory of Terraform. Protect it, lock it, and never edit it by hand.
+      vi: State là bộ nhớ của Terraform. Hãy bảo vệ nó, lock nó và không bao giờ sửa tay.
+    n:
+      en: "Anchor on the three artifacts: configuration (what you want), state (what Terraform believes exists), and reality (what actually exists). Plan reconciles the first two and refresh reconciles the last two."
+      vi: "Bám vào ba artifact: configuration (điều bạn muốn), state (điều Terraform tin là đang tồn tại) và thực tế (điều thực sự tồn tại). Plan đối soát hai cái đầu và refresh đối soát hai cái sau."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "Terraform: components and workflow"
+      vi: "Terraform: thành phần và quy trình"
+    comps:
+      - - Configuration (HCL)
+        - en: Declares desired resources, variables and outputs
+          vi: Khai báo các resource, variable và output mong muốn
+      - - Terraform Core
+        - en: Builds the dependency graph, computes the plan and applies it in order
+          vi: Xây dựng dependency graph, tính plan và áp dụng theo thứ tự
+      - - Provider
+        - en: Plugin that translates resources into cloud or SaaS API calls
+          vi: Plugin chuyển resource thành các lời gọi API của cloud hoặc SaaS
+      - - en: Resource and data source
+          vi: Resource và data source
+        - en: Managed object versus read-only lookup
+          vi: Object được quản lý so với tra cứu chỉ đọc
+      - - en: State
+          vi: Trạng thái
+        - en: Mapping from configuration to real object IDs and attributes. Can contain secrets
+          vi: Ánh xạ từ configuration sang ID và thuộc tính của object thực. Có thể chứa secret
+      - - Backend
+        - en: "Where state is stored and locked: remote object storage or a managed service"
+          vi: "Nơi state được lưu và lock: object storage từ xa hoặc một dịch vụ managed"
+      - - Module
+        - en: Reusable bundle of resources with inputs and outputs
+          vi: Gói resource tái sử dụng được, có input và output
+      - - Workspace
+        - en: Separate state per environment using the same configuration
+          vi: State riêng cho từng môi trường dùng cùng một configuration
+    flow:
+      - en: Write `.tf` files and open a pull request.
+        vi: Viết các file `.tf` và mở pull request.
+      - en: "`terraform init` downloads providers and modules and configures the backend."
+        vi: "`terraform init` tải provider và module, và cấu hình backend."
+      - en: "`terraform plan` refreshes state, compares it with the configuration and prints the changes."
+        vi: "`terraform plan` làm mới state, so sánh với configuration và in ra các thay đổi."
+      - en: The plan is reviewed in the pull request (and often posted by CI).
+        vi: Plan được review trong pull request (và thường được CI đăng lên).
+      - en: "`terraform apply` executes changes in dependency order and updates state."
+        vi: "`terraform apply` thực thi thay đổi theo thứ tự dependency và cập nhật state."
+      - en: Later runs of `plan` reveal drift caused by manual changes.
+        vi: Các lần chạy `plan` sau đó cho thấy drift do thay đổi thủ công.
+    ops:
+      - en: Use remote state with locking. Restrict who can read it, because it can hold secrets.
+        vi: Dùng remote state có locking. Giới hạn ai được đọc nó, vì nó có thể chứa secret.
+      - en: "Keep blast radius small: separate state per environment and per domain."
+        vi: "Giữ blast radius nhỏ: tách state theo môi trường và theo domain."
+      - en: Pin provider and module versions.
+        vi: Pin phiên bản provider và module.
+      - en: Terraform’s license changed to source-available; OpenTofu is an open-source fork. Check which you use.
+        vi: License của Terraform đã chuyển sang source-available; OpenTofu là bản fork mã nguồn mở. Hãy kiểm tra bạn dùng bản nào.
+      - en: Console edits cause drift. Make the pipeline the only way to change production.
+        vi: Sửa trên console gây drift. Hãy biến pipeline thành cách duy nhất để thay đổi production.
+    n:
+      en: Walk the commands in order. The two big incidents are state corruption or loss, and drift from manual changes. Both are prevented by remote locked state and a single deployment path.
+      vi: Đi qua các lệnh theo thứ tự. Hai sự cố lớn là state bị hỏng hoặc mất, và drift do thay đổi thủ công. Cả hai đều được ngăn bằng remote state có lock và một đường deploy duy nhất.

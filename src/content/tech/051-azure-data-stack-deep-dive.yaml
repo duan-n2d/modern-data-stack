@@ -1,0 +1,126 @@
+tech: {id: azure-data-stack, name: {en: Azure data stack, vi: Data stack Azure}, color: "#0078D4"}
+slides:
+  - id: overview-adls-fabric-and-analytics
+    k: components
+    mod: [overview]
+    t: {en: "Azure data stack: lake, integration and analytics", vi: "Azure data stack: lake, integration va analytics"}
+    lead: {en: "Azure data platforms combine ADLS Gen2, identity, integration and analytics services under a tenant and subscription governance model.", vi: "Nen tang data Azure ket hop ADLS Gen2, identity, integration va analytics trong governance tenant va subscription."}
+    comps:
+      - - ADLS Gen2
+        - {en: "Hierarchical namespace over object storage for lake data.", vi: "Hierarchical namespace tren object storage cho lake data."}
+      - - Data Factory
+        - {en: "Managed pipeline orchestration and data movement.", vi: "Orchestration pipeline managed va data movement."}
+      - - Synapse / Fabric
+        - {en: "Analytics runtimes and integrated workspace experiences.", vi: "Analytics runtime va workspace experience tich hop."}
+      - - Entra ID
+        - {en: "Identity, managed identities and access governance.", vi: "Identity, managed identity va access governance."}
+    flow: [{en: "Ingest to lake zones", vi: "Ingest vao lake zone"}, {en: "Transform with managed identity", vi: "Transform bang managed identity"}, {en: "Serve governed analytics", vi: "Phuc vu analytics co governance"}]
+    ops: [{en: "Separate workspace permissions, storage ACLs and network access when diagnosing data visibility.", vi: "Tach quyen workspace, ACL storage va network access khi chan doan visibility data."}]
+    n: {en: "Azure products overlap and evolve; anchor architecture choices to identity, data locality, workload and operating ownership.", vi: "San pham Azure co vung giao nhau va thay doi; chon kien truc theo identity, locality data, workload va owner van hanh."}
+  - id: internals-managed-identity-and-storage-acls
+    k: table
+    mod: [internals]
+    t: {en: "Azure internals: managed identity and storage ACLs", vi: "Noi bo Azure: managed identity va storage ACL"}
+    lead: {en: "A workload's data access depends on token identity, role assignment, storage ACL and network path.", vi: "Data access cua workload phu thuoc token identity, role assignment, storage ACL va network path."}
+    head: [{en: Layer, vi: Layer}, {en: Responsibility, vi: Trach nhiem}, {en: Common gap, vi: Gap thuong gap}]
+    rows:
+      - - {en: Managed identity, vi: Managed identity}
+        - {en: "Obtains tokens without application-managed secrets.", vi: "Lay token ma khong can secret do app quan ly."}
+        - {en: "Wrong identity attached or token audience mismatch.", vi: "Gan sai identity hoac token audience khong khop."}
+      - - {en: RBAC role, vi: RBAC role}
+        - {en: "Grants data actions at a scope.", vi: "Cap data action tai mot scope."}
+        - {en: "Control-plane role may not grant blob data access.", vi: "Control-plane role co the khong cap blob data access."}
+      - - {en: ADLS ACL, vi: ADLS ACL}
+        - {en: "Controls directory traversal and file access where ACLs apply.", vi: "Kiem soat traversal directory va file access khi ACL ap dung."}
+        - {en: "Missing execute permission on a parent directory.", vi: "Thieu execute permission tren directory cha."}
+    n: {en: "Trace identity and scope at each layer; a successful portal browse under a human identity proves little about a managed job.", vi: "Trace identity va scope o moi layer; portal browse thanh cong bang human identity khong chung minh managed job truy cap duoc."}
+  - id: configuration-private-network-and-identity
+    k: code
+    mod: [config]
+    t: {en: "Azure configuration: private network and identity", vi: "Cau hinh Azure: private network va identity"}
+    lead: {en: "Prefer managed identity and private endpoints where the workload requires restricted data paths.", vi: "Uu tien managed identity va private endpoint khi workload can data path han che."}
+    blocks:
+      - lang: bicep
+        title: storage_security.bicep
+        code: |-
+          resource storage 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+            name: storageName
+            location: location
+            kind: 'StorageV2'
+            sku: { name: 'Standard_ZRS' }
+            properties: {
+              isHnsEnabled: true
+              minimumTlsVersion: 'TLS1_2'
+              allowBlobPublicAccess: false
+              supportsHttpsTrafficOnly: true
+            }
+          }
+    points:
+      - {h: {en: Scope roles and ACLs, vi: Scope role va ACL}, p: {en: "Grant the narrow data-plane role at the required container or filesystem, then verify directory ACL inheritance.", vi: "Cap data-plane role hep tai container hoac filesystem can thiet, sau do verify inheritance ACL directory."}}
+    n: {en: "Network isolation can break managed integration runtimes or private DNS; test name resolution from the actual runtime subnet.", vi: "Network isolation co the lam hong integration runtime hoac private DNS; test phan giai ten tu subnet runtime thuc."}
+  - id: implementation-adf-to-adls-publish
+    k: list
+    mod: [implementation]
+    t: {en: "Azure implementation: publish a governed ADLS dataset", vi: "Trien khai Azure: publish ADLS dataset co governance"}
+    lead: {en: "A production pipeline uses managed identity, staged zones and a publication step after quality checks.", vi: "Pipeline production dung managed identity, zone staging va buoc publish sau quality check."}
+    items:
+      - {en: "Configure a managed identity for the integration runtime.", vi: "Cau hinh managed identity cho integration runtime."}
+      - {en: "Land source data into an immutable dated path in ADLS.", vi: "Nap source vao path theo ngay bat bien trong ADLS."}
+      - {en: "Validate schema, completeness and duplicate keys.", vi: "Validate schema, completeness va key trung."}
+      - {en: "Transform into curated storage and register the serving metadata.", vi: "Transform vao storage curated va dang ky metadata serving."}
+      - {en: "Publish a success marker only after all outputs commit.", vi: "Chi publish success marker sau khi moi output commit."}
+    n: {en: "Keep the marker or catalog update as the consumer-visible commit point so retries remain safe.", vi: "Giu marker hoac catalog update lam commit point consumer thay duoc de retry an toan."}
+  - id: operations-capacity-freshness-and-cost
+    k: table
+    mod: [operations]
+    t: {en: "Azure data operations: freshness, capacity and cost", vi: "Van hanh data Azure: freshness, capacity va cost"}
+    lead: {en: "Monitor pipeline freshness, capacity throttling, storage growth and access failures as distinct signals.", vi: "Monitor freshness pipeline, capacity throttling, storage growth va access failure nhu tin hieu tach biet."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Inspect, vi: Kiem tra}, {en: Action, vi: Hanh dong}]
+    rows:
+      - - {en: Pipeline late, vi: Pipeline tre}
+        - {en: "Activity queue, integration runtime availability and source arrival.", vi: "Activity queue, runtime integration va source arrival."}
+        - {en: "Separate source delay from orchestration capacity.", vi: "Tach source delay khoi capacity orchestration."}
+      - - {en: Storage access failures, vi: Loi storage access}
+        - {en: "Managed identity, RBAC scope, ACL path and private DNS.", vi: "Managed identity, RBAC scope, ACL path va private DNS."}
+        - {en: "Repair the failing layer and retain audit evidence.", vi: "Sua layer bi loi va giu bang chung audit."}
+    n: {en: "Assign dataset owners for freshness SLOs and cost budgets across pipeline, storage and serving layers.", vi: "Gan owner dataset cho freshness SLO va cost budget xuyen pipeline, storage va serving."}
+  - id: troubleshooting-identity-private-endpoint-and-dns
+    k: table
+    mod: [troubleshooting]
+    t: {en: "Azure troubleshooting: identity, endpoint and DNS", vi: "Xu ly Azure: identity, endpoint va DNS"}
+    lead: {en: "A private storage failure may be authorization or name resolution; inspect both from the workload runtime.", vi: "Loi storage private co the la authorization hoac DNS; inspect ca hai tu runtime workload."}
+    head: [{en: Symptom, vi: Trieu chung}, {en: Check, vi: Kiem tra}, {en: Response, vi: Phan hoi}]
+    rows:
+      - - {en: 403 from storage, vi: 403 tu storage}
+        - {en: "Token identity, data-plane RBAC and ACL traversal.", vi: "Token identity, data-plane RBAC va ACL traversal."}
+        - {en: "Test the same path as the managed runtime identity.", vi: "Test cung path bang managed runtime identity."}
+      - - {en: Public endpoint resolution, vi: Resolve public endpoint}
+        - {en: "Private DNS zone link, VNet and runtime subnet resolver.", vi: "Private DNS zone link, VNet va resolver subnet runtime."}
+        - {en: "Correct private DNS links and validate from the workload subnet.", vi: "Sua private DNS link va validate tu subnet workload."}
+    n: {en: "Collect correlation IDs, token principal and DNS answers before changing broad network or role settings.", vi: "Thu correlation ID, token principal va DNS answer truoc khi doi network hoac role rong."}
+  - id: performance-partitioning-and-capacity
+    k: table
+    mod: [performance]
+    t: {en: "Azure data performance: partitioning and capacity", vi: "Hieu nang data Azure: partitioning va capacity"}
+    lead: {en: "Performance depends on pruning, file layout and the capacity limits of the selected managed runtime.", vi: "Hieu nang phu thuoc pruning, layout file va gioi han capacity cua managed runtime da chon."}
+    head: [{en: Lever, vi: Don bay}, {en: Benefit, vi: Loi ich}, {en: Risk, vi: Rui ro}]
+    rows:
+      - - {en: Partition pruning, vi: Partition pruning}
+        - {en: "Reduces scanned bytes and elapsed time.", vi: "Giam bytes scan va elapsed time."}
+        - {en: "Over-partitioning increases file and metadata count.", vi: "Partition qua nhieu tang file va metadata."}
+      - - {en: Capacity scaling, vi: Capacity scaling}
+        - {en: "Adds concurrency or compute for bursts.", vi: "Them concurrency hoac compute cho burst."}
+        - {en: "Quota and cold-start limits remain.", vi: "Quota va gioi han cold-start van con."}
+    n: {en: "Benchmark representative concurrency and data volume; a single-user test does not expose shared capacity contention.", vi: "Benchmark concurrency va volume dai dien; test mot user khong phoi bay tranh chap shared capacity."}
+  - id: lab-debug-adls-managed-identity-access
+    k: lab
+    mod: [lab]
+    t: {en: "Azure data lab: debug ADLS managed identity access", vi: "Lab data Azure: debug managed identity ADLS"}
+    lead: {en: "Restore access for a pipeline whose human test succeeds but managed run fails.", vi: "Khoi phuc access cho pipeline ma human test thanh cong nhung managed run fail."}
+    scenario: {en: "A pipeline cannot traverse a curated directory through a private endpoint after deployment.", vi: "Pipeline khong traverse duoc curated directory qua private endpoint sau deploy."}
+    input: {en: "Runtime identity, role assignments, ACLs, DNS lookup and pipeline logs.", vi: "Runtime identity, role assignment, ACL, DNS lookup va log pipeline."}
+    tasks: [{en: "Identify the runtime principal and failing authorization or network layer.", vi: "Tim runtime principal va layer authorization hoac network bi loi."}, {en: "Propose a narrow fix and a verification path.", vi: "De xuat sua hep va duong verify."}, {en: "Record audit evidence and rollback.", vi: "Ghi bang chung audit va rollback."}]
+    expected: {en: "The managed runtime can read the intended path and no broader data scope is granted.", vi: "Runtime managed doc duoc path can thiet va khong duoc cap scope data rong hon."}
+    rubric: [{en: "Distinguishes RBAC from ACL and DNS failure.", vi: "Phan biet RBAC voi ACL va loi DNS."}, {en: "Tests as the workload identity.", vi: "Test bang workload identity."}]
+    design: {en: "Include identity lifecycle, private DNS and least privilege.", vi: "Gom lifecycle identity, private DNS va least privilege."}
+    n: {en: "Require a runtime-context test; portal access as a human is not a valid acceptance test.", vi: "Yeu cau test trong runtime context; portal access bang human khong phai acceptance test hop le."}

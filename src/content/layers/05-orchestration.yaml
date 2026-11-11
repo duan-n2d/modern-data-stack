@@ -1,0 +1,522 @@
+layer: 5
+slides:
+  - id: orchestration-running-the-right-work-in-the-right-order
+    k: cards
+    t:
+      en: "Orchestration: running the right work in the right order"
+      vi: "Điều phối: chạy đúng việc theo đúng thứ tự"
+    lead:
+      en: An orchestrator schedules work, tracks dependencies, retries failures and tells humans when something needs them.
+      vi: Orchestrator lên lịch công việc, theo dõi phụ thuộc, retry khi lỗi và báo con người khi cần can thiệp.
+    cols: 3
+    cards:
+      - h:
+          en: DAG design
+          vi: Thiết kế DAG
+        tag: must
+        p:
+          en: Small, idempotent tasks with explicit dependencies. A failed task can be re-run alone.
+          vi: Các task nhỏ, idempotent với dependency tường minh. Task lỗi có thể chạy lại riêng lẻ.
+      - h:
+          en: Retries and timeouts
+          vi: Retry và timeout
+        tag: must
+        p:
+          en: Retry transient failures with backoff; time-box everything; fail loudly on real errors.
+          vi: Retry các lỗi tạm thời với backoff; đặt giới hạn thời gian cho mọi thứ; báo lỗi rõ ràng khi gặp lỗi thật.
+      - h:
+          en: Scheduling and sensors
+          vi: Lập lịch và sensor
+        tag: must
+        p:
+          en: Time-based schedules are simple. Sensors and event triggers wait for upstream data instead of guessing.
+          vi: Lịch theo thời gian thì đơn giản. Sensor và event trigger chờ dữ liệu upstream thay vì đoán.
+      - h:
+          en: Task-based versus asset-based
+          vi: Hướng task so với hướng asset
+        tag: senior
+        p:
+          en: Task-based tools model “what runs”. Asset-based tools model “what data should exist and how fresh it is”.
+          vi: Công cụ hướng task mô hình hóa “cái gì chạy”. Công cụ hướng asset mô hình hóa “dữ liệu nào cần tồn tại và mới đến mức nào”.
+      - h:
+          en: SLAs and alerting
+          vi: SLA và cảnh báo
+        tag: senior
+        p:
+          en: Define what “late” means in business terms, then alert on that rather than on every task failure.
+          vi: Định nghĩa “muộn” theo ngôn ngữ nghiệp vụ, rồi cảnh báo dựa trên đó thay vì mỗi lần task lỗi.
+      - h:
+          en: Backfills
+          vi: Backfill
+        tag: must
+        p:
+          en: Re-running history by date range, safely, without duplicating data.
+          vi: Chạy lại lịch sử theo khoảng ngày, an toàn, không nhân ??i dữ liệu.
+    n:
+      en: The one conceptual fork in this layer is task-based versus asset-based orchestration. Everything else (retries, sensors, backfills) is shared.
+      vi: Điểm rẽ nhánh khái niệm duy nhất ở tầng này là điều phối hướng task so với hướng asset. Mọi thứ còn lại (retry, sensor, backfill) đều dùng chung.
+  - id: tool-landscape-orchestrators
+    k: table
+    t:
+      en: "Tool landscape: orchestrators"
+      vi: "Bức tranh công cụ: orchestrator"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - Apache Airflow
+        - en: Task-based orchestrator
+          vi: Orchestrator hướng task
+        - en: Broad, general-purpose pipelines; large teams
+          vi: Pipeline đa dạng, đa dụng; team lớn
+        - en: Huge ecosystem and provider library; mature; widely known
+          vi: Hệ sinh thái và thư viện provider khổng lồ; trưởng thành; được biết đến rộng rãi
+        - en: Operational overhead; local development friction; scheduler-centric model
+          vi: Chi phí vận hành; khó khăn khi phát triển local; mô hình xoay quanh scheduler
+        - en: Open source; managed by several vendors
+          vi: Mã nguồn mở; được nhiều vendor cung cấp dạng managed
+      - - Dagster
+        - en: Asset-based orchestrator
+          vi: Orchestrator hướng asset
+        - en: Data-asset-centric teams; strong dbt integration
+          vi: Team lấy data asset làm trung tâm; tích hợp dbt mạnh
+        - en: Assets, checks and lineage built in; good local dev
+          vi: Asset, check và lineage tích hợp sẵn; dev local tốt
+        - en: Different mental model; smaller hiring pool than Airflow
+          vi: Mô hình tư duy khác; nguồn nhân lực ít hơn Airflow
+        - en: Open source plus managed cloud (usage/plan based)
+          vi: Mã nguồn mở cộng với cloud managed (tính theo mức dùng/gói)
+      - - Prefect
+        - en: Python workflow orchestrator
+          vi: Orchestrator workflow Python
+        - en: Python-first teams wanting dynamic flows
+          vi: Team ưu tiên Python muốn flow động
+        - en: Pythonic API; dynamic workflows; easy start
+          vi: API kiểu Python; workflow động; dễ bắt đầu
+        - en: Smaller ecosystem than Airflow; fewer enterprise integrations
+          vi: Hệ sinh thái nhỏ hơn Airflow; ít tích hợp enterprise hơn
+        - en: Open source plus managed cloud
+          vi: Mã nguồn mở cộng managed cloud
+      - - Mage
+        - en: Notebook-style pipeline tool
+          vi: Công cụ pipeline kiểu notebook
+        - en: Small teams wanting a visual, quick-start tool
+          vi: Team nhỏ muốn công cụ trực quan, khởi động nhanh
+        - en: Fast to prototype; integrated editor
+          vi: Prototype nhanh; editor tích hợp
+        - en: Less proven at large scale; smaller community
+          vi: Chưa được kiểm chứng ở quy mô lớn; cộng đồng nhỏ hơn
+        - en: Open source plus managed offering
+          vi: Mã nguồn mở cộng với bản managed
+      - - Kestra
+        - en: Declarative YAML orchestrator
+          vi: Orchestrator YAML khai báo
+        - en: Teams that want flows defined as YAML with event triggers and a UI
+          vi: Team muốn định nghĩa flow bằng YAML với event trigger và UI
+        - en: Declarative flows; event-driven triggers; many plugins; language-agnostic tasks
+          vi: Flow khai báo; trigger hướng sự kiện; nhiều plugin; task không phụ thuộc ngôn ngữ
+        - en: Younger ecosystem than Airflow; fewer in-house skills available
+          vi: Hệ sinh thái non trẻ hơn Airflow; ít kỹ năng sẵn có trong nội bộ
+        - en: Open source plus enterprise edition
+          vi: Mã nguồn mở cộng với bản enterprise
+      - - dbt Cloud jobs
+        - en: Scheduler inside dbt platform
+          vi: Scheduler nằm trong nền tảng dbt
+        - en: Teams that only need to run dbt on a schedule
+          vi: Team chỉ cần chạy dbt theo lịch
+        - en: Zero extra infrastructure; knows dbt state
+          vi: Không cần thêm hạ tầng; hiểu state của dbt
+        - en: Only orchestrates dbt; limited cross-tool logic
+          vi: Chỉ điều phối dbt; logic liên công cụ hạn chế
+        - en: Plan/seat-based
+          vi: Tính theo gói/seat
+      - - Databricks Workflows
+        - en: Platform-native jobs
+          vi: Job gốc của nền tảng
+        - en: Teams already on Databricks
+          vi: Team đã dùng Databricks
+        - en: Tight integration with notebooks, Delta and clusters
+          vi: Tích hợp chặt với notebook, Delta và cluster
+        - en: Tied to Databricks
+          vi: Gắn chặt với Databricks
+        - en: Included with Databricks compute (DBUs)
+          vi: Đã gồm trong compute của Databricks (DBU)
+      - - Cloud Composer
+        - en: Managed Airflow on GCP
+          vi: Airflow managed trên GCP
+        - en: GCP teams that want Airflow without running it
+          vi: Team GCP muốn dùng Airflow mà không phải tự vận hành
+        - en: Managed environment; GCP integration
+          vi: Môi trường managed; tích hợp GCP
+        - en: Environment cost even when idle; Airflow constraints remain
+          vi: Tốn chi phí môi trường kể cả khi nhàn rỗi; vẫn còn các ràng buộc của Airflow
+        - en: Environment and resource-based
+          vi: Tính theo môi trường và tài nguyên
+    cap:
+      en: The orchestrator is the hardest tool to change later. Pick for your team’s skills and the scale you will reach in two years.
+      vi: Orchestrator là công cụ khó đổi nhất về sau. Hãy chọn theo kỹ năng của team và quy mô bạn sẽ đạt tới trong hai năm.
+    n:
+      en: Airflow is the incumbent; Dagster and Prefect are modern challengers; dbt Cloud jobs and Databricks Workflows are “good enough” if you live inside one platform.
+      vi: Airflow là lựa chọn đương nhiệm; Dagster và Prefect là các đối thủ hiện đại; dbt Cloud jobs và Databricks Workflows là “đủ tốt” nếu bạn làm việc trọn trong một nền tảng.
+  - id: deep-dive-a-production-minded-airflow-dag
+    k: code
+    t:
+      en: "Deep dive: a production-minded Airflow DAG"
+      vi: "Đào sâu: một DAG Airflow chuẩn production"
+    lead:
+      en: Retries with backoff, a single active run, an idempotent extract keyed by the logical date, and a data check before the dbt build.
+      vi: Retry với backoff, chỉ một run active, extract idempotent keyed theo logical date, và một bước kiểm tra dữ liệu trước khi dbt build.
+    blocks:
+      - lang: python
+        title: dags/daily_shop_pipeline.py (Airflow 2.x import paths)
+        code: |-
+          from datetime import timedelta
+
+          import pendulum
+          from airflow.decorators import dag, task
+          from airflow.operators.bash import BashOperator
+
+
+          def notify_failure(context):
+              ti = context["task_instance"]
+              # Replace with a Slack or PagerDuty call
+              print(f"FAILED {ti.dag_id}.{ti.task_id} run_id={context['run_id']}")
+
+
+          default_args = {
+              "owner": "analytics-eng",
+              "retries": 3,
+              "retry_delay": timedelta(minutes=5),
+              "retry_exponential_backoff": True,
+              "on_failure_callback": notify_failure,
+          }
+
+
+          @dag(
+              dag_id="daily_shop_pipeline",
+              schedule="0 3 * * *",
+              start_date=pendulum.datetime(2026, 1, 1, tz="UTC"),
+              catchup=False,
+              max_active_runs=1,
+              default_args=default_args,
+              tags=["shop", "daily"],
+          )
+          def daily_shop_pipeline():
+              @task
+              def extract(ds=None) -> str:
+                  # Idempotent: the output location is keyed by the logical date
+                  path = f"s3://lake/raw/shop/orders/dt={ds}/"
+                  # ... call the extractor and overwrite this partition ...
+                  return path
+
+              @task
+              def check_row_count(path: str) -> None:
+                  rows = 1234  # replace with a real count of the landed partition
+                  if rows == 0:
+                      raise ValueError(f"No rows landed at {path}")
+
+              dbt_build = BashOperator(
+                  task_id="dbt_build",
+                  bash_command="cd /opt/dbt/shop && dbt build --target prod --select tag:daily",
+                  execution_timeout=timedelta(hours=1),
+              )
+
+              check_row_count(extract()) >> dbt_build
+
+
+          daily_shop_pipeline()
+    points:
+      - h:
+          en: Idempotent tasks
+          vi: Task idempotent
+        p:
+          en: Output keyed by the logical date means a retry or backfill overwrites rather than duplicates.
+          vi: Output keyed theo logical date nghĩa là retry hoặc backfill sẽ ghi đè thay vì nhân ??i.
+      - h: "`catchup=False`"
+        p:
+          en: Decide backfills deliberately. Automatic catch-up on a new DAG can launch hundreds of runs.
+          vi: Quyết định backfill một cách có chủ đích. Catch-up tự động trên một DAG mới có thể khởi chạy hàng trăm run.
+      - h:
+          en: Gate on data, not just on exit codes
+          vi: Chặn theo dữ liệu, không chỉ theo exit code
+        p:
+          en: A cheap row-count check prevents building models on an empty load.
+          vi: Một bước kiểm tra row-count rẻ tiền giúp tránh build model trên một lần load rỗng.
+      - h:
+          en: SLAs
+          vi: SLA
+        tag: senior
+        p:
+          en: Airflow’s task SLA feature changed across major versions. Check your version, and consider monitoring freshness on the data itself.
+          vi: Tính năng task SLA của Airflow đã thay đổi giữa các phiên bản major. Hãy kiểm tra phiên bản của bạn, và cân nhắc giám sát freshness ngay trên dữ liệu.
+    n:
+      en: "Walk the file top to bottom: default retries and a failure callback, a DAG with one active run, and three tasks. Emphasize that the extract path includes the logical date, which is what makes re-runs safe. Airflow 3 moves some imports to airflow.sdk and a standard provider; the structure is unchanged."
+      vi: "Đi qua file từ trên xuống dưới: retry mặc định và failure callback, một DAG với một run active, và ba task. Nhấn mạnh rằng đường dẫn extract có chứa logical date, chính điều đó làm cho việc chạy lại an toàn. Airflow 3 chuyển một số import sang airflow.sdk và một standard provider; cấu trúc không đổi."
+  - id: deep-dive-asset-based-orchestration-in-dagster
+    k: code
+    t:
+      en: "Deep dive: asset-based orchestration in Dagster"
+      vi: "Đào sâu: điều phối theo asset trong Dagster"
+    lead:
+      en: Instead of “run task A then task B”, you declare the data assets, their dependencies and the checks on them.
+      vi: Thay vì “chạy task A rồi task B”, bạn khai báo các data asset, dependency của chúng và các check trên chúng.
+    blocks:
+      - lang: python
+        title: definitions.py
+        code: |-
+          import dagster as dg
+
+
+          @dg.asset(group_name="raw", description="Orders landed from the shop API")
+          def raw_orders() -> dg.MaterializeResult:
+              rows_loaded = 1234  # replace with a real load
+              return dg.MaterializeResult(metadata={"rows_loaded": rows_loaded})
+
+
+          @dg.asset(deps=[raw_orders], group_name="marts")
+          def fct_orders() -> None:
+              ...  # run the dbt model or SQL transformation here
+
+
+          @dg.asset_check(asset=fct_orders)
+          def orders_not_empty() -> dg.AssetCheckResult:
+              row_count = 42  # replace with: select count(*) from fct_orders
+              return dg.AssetCheckResult(passed=row_count > 0, metadata={"row_count": row_count})
+
+
+          daily_job = dg.define_asset_job("daily_assets", selection=[raw_orders, fct_orders])
+          daily_schedule = dg.ScheduleDefinition(job=daily_job, cron_schedule="0 3 * * *")
+
+          defs = dg.Definitions(
+              assets=[raw_orders, fct_orders],
+              asset_checks=[orders_not_empty],
+              jobs=[daily_job],
+              schedules=[daily_schedule],
+          )
+    points:
+      - h:
+          en: Task-based
+          vi: Hướng task
+        p:
+          en: Model the steps. Strong for arbitrary workflows, mixed systems and existing Airflow estates.
+          vi: Mô hình hóa các bước. Mạnh cho workflow tùy ý, hệ thống hỗn hợp và các hệ Airflow sẵn có.
+      - h:
+          en: Asset-based
+          vi: Hướng asset
+        p:
+          en: Model the outputs. Strong for lineage, partial re-materialization and freshness-driven runs.
+          vi: Mô hình hóa các output. Mạnh cho lineage, re-materialization một phần và các run điều khiển bởi freshness.
+      - h:
+          en: Choose by the question you ask most
+          vi: Chọn theo câu hỏi bạn hỏi nhiều nhất
+        tag: senior
+        p:
+          en: “Did the job run?” fits tasks. “Is this table fresh and correct?” fits assets.
+          vi: “Job có chạy không?” hợp với task. “Bảng này có mới và đúng không?” hợp với asset.
+    n:
+      en: The point is the mental model. In the asset model, lineage and checks are first-class, so the tool can answer which tables are stale. In a task model you reconstruct that from DAG structure.
+      vi: Điểm mấu chốt là mô hình tư duy. Trong mô hình asset, lineage và check là thành phần hạng nhất, nên công cụ có thể trả lời bảng nào đã cũ. Trong mô hình task, bạn phải tự suy ra điều đó từ cấu trúc DAG.
+  - id: design-patterns-and-best-practices
+    k: cards
+    t:
+      en: Design patterns and best practices
+      vi: Mẫu thiết kế và thực hành tốt
+    cols: 3
+    cards:
+      - h:
+          en: Small, idempotent tasks
+          vi: Task nhỏ, idempotent
+        p:
+          en: One responsibility per task, with outputs keyed by logical date or partition.
+          vi: Mỗi task một trách nhiệm, với output keyed theo logical date hoặc partition.
+      - h:
+          en: Retries with backoff
+          vi: Retry với backoff
+        p:
+          en: Retry only transient failures. Cap attempts, add timeouts, and surface the final error.
+          vi: Chỉ retry các lỗi tạm thời. Giới hạn số lần thử, thêm timeout, và hiển thị lỗi cuối cùng.
+      - h:
+          en: Event-driven where it matters
+          vi: Hướng sự kiện ở nơi cần thiết
+        p:
+          en: Sensors or triggers on upstream completion beat fixed schedules that race the data.
+          vi: Sensor hoặc trigger khi upstream hoàn tất tốt hơn lịch cố định chạy đua với dữ liệu.
+      - h:
+          en: Separate orchestration from logic
+          vi: Tách điều phối khỏi logic
+        p:
+          en: The orchestrator calls code; it does not contain business logic. Test the code independently.
+          vi: Orchestrator gọi code; nó không chứa business logic. Test code một cách độc lập.
+      - h:
+          en: Alert on outcomes
+          vi: Cảnh báo theo kết quả
+        p:
+          en: Page on missed freshness targets, not on every retry.
+          vi: Page khi trượt mục tiêu freshness, không phải mỗi lần retry.
+      - h:
+          en: Runbooks and backfill tooling
+          vi: Runbook và công cụ backfill
+        p:
+          en: A documented, rehearsed way to re-run a date range, with limits on concurrency.
+          vi: Một cách chạy lại khoảng ngày có tài liệu, đã diễn tập, với giới hạn về concurrency.
+    n:
+      en: "Every pattern keeps the orchestrator boring. The best DAGs are thin: they schedule, order and retry, while real logic lives in versioned code."
+      vi: "Mọi pattern đều giữ cho orchestrator thật “nhàm chán”. DAG tốt nhất là DAG mỏng: chúng lập lịch, sắp thứ tự và retry, còn logic thật nằm trong code có version."
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Business logic inside DAG files.
+          vi: Business logic nằm trong file DAG.
+        why:
+          en: Hard to test and slows scheduler parsing.
+          vi: Khó test và làm chậm việc parse của scheduler.
+        fix:
+          en: Keep DAG files thin; put logic in packages or dbt.
+          vi: Giữ file DAG mỏng; đặt logic vào package hoặc dbt.
+      - bad:
+          en: Non-idempotent tasks with retries.
+          vi: Task không idempotent kèm retry.
+        why:
+          en: A retry after partial success creates duplicates.
+          vi: Retry sau khi thành công một phần tạo ra bản trùng lặp.
+        fix:
+          en: Overwrite by partition or merge by key.
+          vi: Ghi đã theo partition hoặc merge theo key.
+      - bad:
+          en: "`depends_on_past` and wide fan-outs everywhere."
+          vi: "`depends_on_past` và fan-out rộng ở khắp nơi."
+        why:
+          en: One failure blocks or floods the system.
+          vi: Một lỗi chặn hoặc làm tràn hệ thống.
+        fix:
+          en: Use them sparingly; cap concurrency with pools.
+          vi: Dùng chừng mực; giới hạn concurrency bằng pool.
+      - bad:
+          en: Fixed 3 a.m. schedule “because ingestion finishes by 2:30”.
+          vi: Lịch cố định 3 giờ sáng “vì ingestion xong lúc 2:30”.
+        why:
+          en: The day it finishes at 3:10, you build on stale data.
+          vi: Hôm nào nó xong lúc 3:10, bạn build trên dữ liệu cũ.
+        fix:
+          en: Trigger on completion or check freshness first.
+          vi: Trigger khi hoàn tất hoặc kiểm tra freshness trước.
+      - bad:
+          en: Alert on every task failure.
+          vi: Cảnh báo mỗi khi task lỗi.
+        why:
+          en: Alert fatigue; real incidents get ignored.
+          vi: Mệt mỏi vì cảnh báo; sự cố thật bị bỏ qua.
+        fix:
+          en: Tiered alerts tied to SLAs and ownership.
+          vi: Cảnh báo phân tầng gắn với SLA và quyền sở hữu.
+      - bad:
+          en: Heavy work in the scheduler or webserver process.
+          vi: Việc nặng chạy trong process scheduler hoặc webserver.
+        why:
+          en: Platform instability for everyone.
+          vi: Nền tảng mất ổn định cho tất cả mọi người.
+        fix:
+          en: Run heavy work in workers, containers or the warehouse.
+          vi: Chạy việc nặng trong worker, container hoặc warehouse.
+    n:
+      en: The most common production incident in this layer is the race between ingestion and transformation. Event-driven triggers or freshness checks remove it.
+      vi: Sự cố production phổ biến nhất ở tầng này là cuộc chạy đua giữa ingestion và transformation. Trigger hướng sự kiện hoặc check freshness loại bỏ nó.
+  - id: what-senior-looks-like-orchestration
+    k: cards
+    t:
+      en: "What senior looks like: orchestration"
+      vi: "Senior trông như thế nào: điều phối"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: Task-based or asset-based
+            vi: Hướng task hay hướng asset
+          - en: Managed or self-hosted
+            vi: Managed hay tự host
+          - en: How teams share one orchestrator safely
+            vi: Cách các team dùng chung một orchestrator an toàn
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Flexibility versus standardization
+            vi: Linh hoạt so với chuẩn hóa
+          - en: Ecosystem breadth versus developer experience
+            vi: Độ rộng hệ sinh thái so với trải nghiệm developer
+          - en: Operating cost versus vendor cost
+            vi: Chi phí vận hành so với chi phí vendor
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Define SLAs and on-call expectations
+            vi: Định nghĩa SLA và kỳ vọng on-call
+          - en: Own the backfill and recovery playbooks
+            vi: Sở hữu playbook backfill và khôi phục
+          - en: Standardize templates and conventions
+            vi: Chuẩn hóa template và quy ước
+          - en: Keep scheduler health and cost visible
+            vi: Giữ sức khỏe và chi phí của scheduler luôn hiển thị
+    n:
+      en: The senior question is not “which tool?” but “what is the recovery story when this fails at 3 a.m. and the on-call engineer is new?”
+      vi: Câu hỏi của senior không phải “dùng công cụ nào?” mà là “kịch bản khôi phục là gì khi thứ này lỗi lúc 3 giờ sáng và kỹ sư on-call còn mới?”
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: Every task is idempotent
+          vi: Mọi task đều idempotent
+        - en: Retries have backoff and timeouts
+          vi: Retry có backoff và timeout
+        - en: I can backfill a date range safely
+          vi: Tôi có thể backfill một khoảng ngày an toàn
+        - en: Alerts map to business impact
+          vi: Cảnh báo ánh xạ tới tác động nghiệp vụ
+        - en: DAG files contain orchestration, not logic
+          vi: File DAG chứa điều phối, không chứa logic
+        - en: I know when assets beat tasks
+          vi: Tôi biết khi nào asset thắng task
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Design the orchestration for a daily pipeline that ends in a finance report.
+          vi: Thiết kế phần điều phối cho một pipeline hằng ngày kết thúc bằng báo cáo tài chính.
+        - en: What is the difference between task-based and asset-based orchestration?
+          vi: Điều phối hướng task và hướng asset khác nhau thế nào?
+        - en: How do you prevent a downstream job from running on stale upstream data?
+          vi: Làm sao ngăn một job downstream chạy trên dữ liệu upstream đã cũ?
+        - en: A DAG partially succeeded and was retried. What could go wrong?
+          vi: Một DAG thành công một phần rồi được retry. Điều gì có thể sai?
+        - en: How would you migrate off Airflow with minimal risk?
+          vi: Bạn sẽ chuyển khỏi Airflow với rủi ro tối thiểu như thế nào?
+    n:
+      en: Strong answers to the second question mention lineage, partial re-runs and freshness as the practical differences.
+      vi: Câu trả lời tốt cho câu hỏi thứ hai nhắc đến lineage, chạy lại một phần và freshness như những khác biệt thực tế.

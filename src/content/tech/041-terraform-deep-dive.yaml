@@ -1,0 +1,135 @@
+tech: {id: terraform, name: Terraform, color: "#7C3AED"}
+slides:
+  - id: overview-plan-apply-and-state
+    k: components
+    mod: [overview]
+    t: {en: "Terraform overview: plan, apply and state", vi: "Terraform tong quan: plan, apply va state"}
+    lead: {en: "Terraform compares declared configuration with provider-observed infrastructure and records managed objects in state.", vi: "Terraform so sanh cau hinh khai bao voi infrastructure provider quan sat duoc va ghi object quan ly vao state."}
+    comps:
+      - - Configuration
+        - {en: "Desired resources and dependencies.", vi: "Resource mong muon va dependency."}
+      - - Provider
+        - {en: "Maps resource operations to a cloud or service API.", vi: "Anh xa thao tac resource sang API cloud hoac service."}
+      - - State
+        - {en: "Maps Terraform addresses to remote object identities and attributes.", vi: "Map dia chi Terraform toi identity va attribute remote object."}
+    flow: [{en: "Initialize providers", vi: "Khoi tao provider"}, {en: "Plan changes", vi: "Plan thay doi"}, {en: "Review and apply", vi: "Review va apply"}]
+    ops: [{en: "Treat state as sensitive operational data and protect its backend and locking.", vi: "Xem state la du lieu van hanh nhay cam, bao ve backend va locking."}]
+    n: {en: "A plan is a proposal based on current state and provider reads; review destructive replacements before approval.", vi: "Plan la de xuat dua tren state hien tai va provider read; review replacement pha huy truoc khi duyet."}
+  - id: internals-dependency-graph-and-state-locking
+    k: table
+    mod: [internals]
+    t: {en: "Terraform internals: dependency graph and state locking", vi: "Noi bo Terraform: dependency graph va state locking"}
+    lead: {en: "Terraform builds a graph to order operations; backend locking prevents concurrent writers from corrupting state transitions.", vi: "Terraform tao graph de sap xep operation; backend locking ngan writer dong thoi lam hong chuyen doi state."}
+    head: [{en: Mechanism, vi: Co che}, {en: Role, vi: Vai tro}, {en: Risk, vi: Rui ro}]
+    rows:
+      - - {en: Dependency graph, vi: Dependency graph}
+        - {en: "Orders create, update and destroy operations.", vi: "Sap xep thao tac create, update va destroy."}
+        - {en: "Hidden dependencies can produce ordering failures.", vi: "Dependency an co the gay loi thu tu."}
+      - - {en: State lock, vi: State lock}
+        - {en: "Serializes state-changing runs for one workspace.", vi: "Serial hoa run thay state cua mot workspace."}
+        - {en: "Force-unlock can allow overlapping writers if the owner is still active.", vi: "Force-unlock co the cho writer chay chong nhau neu owner van active."}
+      - - {en: Refresh, vi: Refresh}
+        - {en: "Reads remote attributes before planning.", vi: "Doc attribute remote truoc khi plan."}
+        - {en: "Provider/API drift or eventual consistency can affect the diff.", vi: "Drift provider/API hoac eventual consistency co the anh huong diff."}
+    n: {en: "Inspect graph and state address changes during refactors; a rename may appear as destroy plus create unless moved explicitly.", vi: "Kiem tra graph va thay doi dia chi state khi refactor; rename co the thanh destroy va create neu khong move ro rang."}
+  - id: configuration-backend-provider-and-workspaces
+    k: code
+    mod: [config]
+    t: {en: "Terraform configuration: backend, provider and workspace", vi: "Cau hinh Terraform: backend, provider va workspace"}
+    lead: {en: "Pin provider behavior and use a remote backend with locking, encryption and controlled access.", vi: "Pin hanh vi provider va dung remote backend co locking, encryption va access kiem soat."}
+    blocks:
+      - lang: hcl
+        title: versions.tf
+        code: |-
+          terraform {
+            required_version = ">= 1.10, < 2.0"
+            required_providers {
+              aws = { source = "hashicorp/aws", version = "~> 5.0" }
+            }
+            backend "s3" {
+              bucket = "company-tf-state"
+              key = "analytics/prod.tfstate"
+              region = "ap-southeast-1"
+              encrypt = true
+              use_lockfile = true
+            }
+          }
+          provider "aws" { region = var.region }
+    points:
+      - {h: {en: Separate environments deliberately, vi: Tach environment co chu dich}, p: {en: "Use isolated state and credentials per environment; workspaces alone do not provide a security boundary.", vi: "Dung state va credential tach rieng theo environment; workspace mot minh khong tao security boundary."}}
+    n: {en: "Backend capabilities vary by version and provider. Verify locking and recovery behavior in a non-production state before adoption.", vi: "Backend capability thay doi theo version va provider. Verify locking va recovery tren state non-production truoc khi ap dung."}
+  - id: implementation-module-and-safe-refactor
+    k: code
+    mod: [implementation]
+    t: {en: "Terraform implementation: module and safe refactor", vi: "Trien khai Terraform: module va refactor an toan"}
+    lead: {en: "Modules define reusable interfaces; moved blocks preserve identity when resource addresses change.", vi: "Module dinh nghia interface tai su dung; moved block giu identity khi dia chi resource thay doi."}
+    blocks:
+      - lang: hcl
+        title: module_usage.tf
+        code: |-
+          module "lake_bucket" {
+            source = "./modules/data_bucket"
+            name   = "analytics-prod-lake"
+            tags   = { owner = "data-platform", env = "prod" }
+          }
+          moved {
+            from = aws_s3_bucket.raw
+            to   = module.lake_bucket.aws_s3_bucket.this
+          }
+    points:
+      - {h: {en: Review module contracts, vi: Review module contract}, p: {en: "Keep inputs typed, outputs minimal and defaults safe; a module is an API used by future callers.", vi: "Khai bao input co type, output toi thieu va default an toan; module la API cho caller tuong lai."}}
+    n: {en: "Run a plan and verify that a refactor shows address moves rather than infrastructure replacement.", vi: "Chay plan va verify refactor hien address move thay vi thay resource."}
+  - id: operations-state-backup-and-drift
+    k: table
+    mod: [operations]
+    t: {en: "Terraform operations: state backup and drift", vi: "Van hanh Terraform: backup state va drift"}
+    lead: {en: "State recovery and drift review are routine operations, not emergency-only procedures.", vi: "Recovery state va review drift la operation thuong le, khong chi danh cho emergency."}
+    head: [{en: Event, vi: Su kien}, {en: Safe response, vi: Phan hoi an toan}]
+    rows:
+      - - {en: State lock appears stale, vi: State lock co ve stale}
+        - {en: "Confirm the owning process ended and inspect backend lease before force-unlock.", vi: "Xac nhan process owner da dung va inspect backend lease truoc force-unlock."}
+      - - {en: Manual cloud change, vi: Thay doi cloud thu cong}
+        - {en: "Run a refreshed plan, identify owner intent and either codify or revert the change.", vi: "Chay refreshed plan, tim y dinh owner roi codify hoac revert thay doi."}
+      - - {en: State corruption or loss, vi: State hong hoac mat}
+        - {en: "Restore a versioned backend copy and verify resource identity before another apply.", vi: "Restore ban backend versioned va verify identity resource truoc apply tiep."}
+    n: {en: "Keep state versioning, access audit and recovery instructions available to the on-call team.", vi: "Duy tri versioning state, audit access va huong dan recovery cho doi on-call."}
+  - id: troubleshooting-plan-and-provider-failures
+    k: table
+    mod: [troubleshooting]
+    t: {en: "Terraform troubleshooting: plan and provider failures", vi: "Xu ly su co Terraform: loi plan va provider"}
+    lead: {en: "Read the first provider error and the planned address; later errors are often cascading symptoms.", vi: "Doc provider error dau tien va dia chi trong plan; error sau thuong la trieu chung day chuyen."}
+    head: [{en: Symptom, vi: Trieu chung}, {en: Check, vi: Kiem tra}, {en: Response, vi: Phan hoi}]
+    rows:
+      - - {en: Unexpected replacement, vi: Replacement bat ngo}
+        - {en: "Immutable provider field, address rename or changed identity.", vi: "Field provider bat bien, doi address hoac identity thay doi."}
+        - {en: "Inspect plan JSON and use a moved/import workflow when identity is unchanged.", vi: "Inspect plan JSON va dung moved/import workflow neu identity khong doi."}
+      - - {en: State lock timeout, vi: Timeout state lock}
+        - {en: "Backend lease, stale runner or concurrent pipeline.", vi: "Backend lease, runner stale hoac pipeline chay dong thoi."}
+        - {en: "Find the lock owner and serialize applies for that state key.", vi: "Tim owner lock va serialize apply cho state key do."}
+    n: {en: "Do not use targeted apply as a routine repair: it can leave the dependency graph only partially reconciled.", vi: "Khong dung targeted apply nhu cach sua thuong le: no co the de dependency graph reconcile mot phan."}
+  - id: performance-plan-scale-and-provider-api
+    k: table
+    mod: [performance]
+    t: {en: "Terraform performance: plan scale and provider API", vi: "Hieu nang Terraform: quy mo plan va provider API"}
+    lead: {en: "Large plans are constrained by graph size, provider API throttling and state refresh work.", vi: "Plan lon bi gioi han boi kich thuoc graph, provider API throttle va cong viec refresh state."}
+    head: [{en: Lever, vi: Don bay}, {en: Benefit, vi: Loi ich}, {en: Trade-off, vi: Danh doi}]
+    rows:
+      - - {en: Split state by ownership boundary, vi: Tach state theo ranh gioi owner}
+        - {en: "Smaller plans and reduced blast radius.", vi: "Plan nho hon va blast radius giam."}
+        - {en: "Cross-state dependencies need explicit interfaces.", vi: "Dependency cross-state can interface ro rang."}
+      - - {en: Provider parallelism, vi: Provider parallelism}
+        - {en: "More concurrent resource operations.", vi: "Nhieu operation resource dong thoi hon."}
+        - {en: "Can trigger API throttling or service quotas.", vi: "Co the gay API throttle hoac vuot quota service."}
+    n: {en: "Measure refresh time separately from apply time; provider API limits often dominate large estates.", vi: "Do refresh time tach khoi apply time; gioi han provider API thuong chi phoi estate lon."}
+  - id: lab-review-a-risky-infrastructure-plan
+    k: lab
+    mod: [lab]
+    t: {en: "Terraform lab: review a risky infrastructure plan", vi: "Lab Terraform: review infrastructure plan co rui ro"}
+    lead: {en: "Decide whether a production plan is safe when it proposes replacing a stateful data resource.", vi: "Quyet dinh plan production co an toan khi de xuat thay resource dataful hay khong."}
+    scenario: {en: "A refactor changes module addresses and the plan proposes replacing a bucket with retained data.", vi: "Refactor doi module address va plan de xuat thay bucket dang chua data."}
+    input: {en: "Configuration diff, state addresses, provider plan and bucket retention policy.", vi: "Config diff, state address, provider plan va retention policy bucket."}
+    tasks: [{en: "Classify every destructive action and its data impact.", vi: "Phan loai moi thao tac pha huy va tac dong data."}, {en: "Propose a state move or import if the remote identity is unchanged.", vi: "De xuat state move hoac import neu remote identity khong doi."}, {en: "Define approvals and post-apply checks.", vi: "Dinh nghia approval va check sau apply."}]
+    expected: {en: "A reviewed plan with no unapproved data loss and a reproducible recovery path.", vi: "Plan da review, khong mat data chua duyet va co recovery path lap lai duoc."}
+    rubric: [{en: "Identifies replacement and deletion semantics.", vi: "Nhan dien semantics replacement va deletion."}, {en: "Protects state and data before apply.", vi: "Bao ve state va data truoc apply."}]
+    design: {en: "State who can approve production apply and how backend state is restored.", vi: "Neu ai duoc duyet production apply va cach restore backend state."}
+    n: {en: "A correct answer may cancel the apply; safety is judged by identity and data impact, not by completing the command.", vi: "Dap an dung co the huy apply; danh gia safety theo identity va tac dong data, khong theo viec chay xong lenh."}

@@ -1,0 +1,473 @@
+layer: 12
+slides:
+  - id: modeling-and-design-shaping-data-so-questions-are-easy
+    k: cards
+    t:
+      en: "Modeling and design: shaping data so questions are easy"
+      vi: "Mô hình hóa và thiết kế: định hình dữ liệu để câu hỏi dễ trả lời"
+    lead:
+      en: Tools change every few years; modeling choices outlive them. Good models make correct answers the easy ones.
+      vi: Công cụ đổi sau vài năm; lựa chọn mô hình hóa sống lâu hơn. Model tốt khiến câu trả lời đúng trở thành câu dễ nhất.
+    cols: 3
+    cards:
+      - h:
+          en: Kimball dimensional modeling
+          vi: Mô hình hóa chiều Kimball
+        tag: must
+        p:
+          en: Facts and dimensions in star schemas, designed around business processes and a declared grain.
+          vi: Fact và dimension trong star schema, thiết kế quanh quy trình nghiệp vụ và grain đã khai báo.
+      - h:
+          en: Slowly changing dimensions
+          vi: Slowly changing dimension
+        tag: must
+        p:
+          en: "Rules for how attribute changes are recorded: overwrite, add a row, or keep the previous value."
+          vi: "Quy tắc ghi nhận thay đổi thuộc tính: ghi đè, thêm một dòng, hoặc giữ giá trị trước đó."
+      - h:
+          en: Medallion architecture
+          vi: Kiến trúc medallion
+        tag: must
+        p:
+          en: Bronze, silver and gold layers that raise quality step by step.
+          vi: Các lớp bronze, silver và gold nâng chất lượng từng bước.
+      - h: Data Vault
+        tag: nice
+        p:
+          en: Hubs, links and satellites for integration and auditability across many changing sources.
+          vi: Hub, link và satellite để tích hợp và kiểm toán trên nhiều nguồn thay đổi liên tục.
+      - h: One Big Table
+        tag: nice
+        p:
+          en: A wide denormalized table. Simple for consumers, hard to keep consistent as use cases grow.
+          vi: Một bảng rộng denormalized. Đơn giản cho người dùng, khó giữ nhất quán khi use case tăng.
+      - h:
+          en: Data mesh and data products
+          vi: Data mesh và data product
+        tag: senior
+        p:
+          en: Domain teams own data as products with contracts. Mainly an organizational model.
+          vi: Các domain team sở hữu dữ liệu như sản phẩm với contract. Chủ yếu là mô hình tổ chức.
+    n:
+      en: "The unifying idea is grain: what does one row represent? Every approach here is a different way to keep grain and meaning explicit as the system grows."
+      vi: "Ý tưởng thống nhất là grain: một dòng đại diện cho cái gì? Mỗi cách tiếp cận ở đây là một cách khác nhau để giữ grain và ý nghĩa rõ ràng khi hệ thống lớn lên."
+  - id: modeling-approaches-compared
+    k: table
+    t:
+      en: Modeling approaches compared
+      vi: So sánh các cách tiếp cận mô hình hóa
+    head:
+      - en: Approach
+        vi: Cách tiếp cận
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Effort and cost
+        vi: Công sức và chi phí
+    rows:
+      - - Kimball dimensional
+        - en: Presentation-layer modeling
+          vi: Mô hình hóa lớp presentation
+        - en: Business-facing analytics and BI
+          vi: Analytics và BI hướng nghiệp vụ
+        - en: Understandable; fast joins; BI-tool friendly
+          vi: Dễ hiểu; join nhanh; thân thiện với công cụ BI
+        - en: Needs upfront grain and conformed dimension work
+          vi: Cần làm trước grain và conformed dimension
+        - en: Moderate design effort; low run cost
+          vi: Công sức thiết kế vừa phải; chi phí vận hành thấp
+      - - Data Vault
+        - en: Integration-layer modeling
+          vi: Mô hình hóa lớp tích hợp
+        - en: Many changing sources, audit and history needs
+          vi: Nhiều nguồn thay đổi, cần audit và lịch sử
+        - en: Flexible; auditable; supports parallel loading
+          vi: Linh hoạt; có thể kiểm toán; hỗ trợ load song song
+        - en: More tables and joins; needs a presentation layer on top
+          vi: Nhiều bảng và join hơn; cần lớp presentation phía trên
+        - en: High design and tooling effort
+          vi: Công sức thiết kế và tooling cao
+      - - One Big Table
+        - en: Denormalized wide table
+          vi: Bảng rộng denormalized
+        - en: Single, well-defined use case; small teams
+          vi: Một use case rõ ràng; team nhỏ
+        - en: Simple to query; fast scans on columnar engines
+          vi: Query đơn giản; scan nhanh trên engine columnar
+        - en: Redundancy; fragile when requirements grow; grain confusion
+          vi: Dư thừa; dễ vỡ khi yêu cầu tăng; nhầm lẫn grain
+        - en: Low upfront; rises as it grows
+          vi: Chi phí ban đầu thấp; tăng dần khi mở rộng
+      - - Medallion
+        - en: Layering pattern
+          vi: Mẫu phân lớp
+        - en: Lakehouse pipelines with clear quality stages
+          vi: Pipeline lakehouse với các giai đoạn chất lượng rõ ràng
+        - en: Reprocessing from bronze; clear contracts per layer
+          vi: Xử lý lại từ bronze; contract rõ ràng cho mỗi lớp
+        - en: "A pattern, not a model: gold still needs modeling"
+          vi: "Là một pattern, không phải model: gold vẫn cần mô hình hóa"
+        - en: Low to moderate
+          vi: Thấp đến vừa
+      - - en: Data mesh / data products
+          vi: Data mesh / data product
+        - en: Organizational model
+          vi: Mô hình tổ chức
+        - en: Large organizations with many domains
+          vi: Tổ chức lớn có nhiều domain
+        - en: Scales ownership; aligns data with domains
+          vi: Mở rộng quyền sở hữu; gắn dữ liệu với domain
+        - en: Needs platform maturity and cultural change; can fragment definitions
+          vi: Cần platform trưởng thành và thay đổi văn hóa; có thể làm phân mảnh định nghĩa
+        - en: High organizational effort
+          vi: Công sức tổ chức cao
+    cap:
+      en: These are not mutually exclusive. A common combination is medallion layers with dimensional models in the gold layer.
+      vi: Các cách này không loại trừ nhau. Một tổ hợp phổ biến là các lớp medallion với dimensional model ở lớp gold.
+    n:
+      en: "Stress the last point: people often pose these as rivals, but they work at different levels. Medallion describes stages; Kimball and Data Vault describe shape; mesh describes ownership."
+      vi: "Nhấn mạnh điểm cuối: mọi người hay coi chúng là đối thủ, nhưng chúng hoạt động ở các cấp khác nhau. Medallion mô tả các giai đoạn; Kimball và Data Vault mô tả hình dạng; mesh mô tả quyền sở hữu."
+  - id: star-schema-facts-in-the-middle-dimensions-around
+    k: svg
+    t:
+      en: "Star schema: facts in the middle, dimensions around"
+      vi: "Star schema: fact ở giữa, dimension xung quanh"
+    lead:
+      en: Declare the grain, put measurements in the fact table, put descriptions in dimensions, and join on surrogate keys.
+      vi: Khai báo grain, đặt các phép đo vào fact table, đặt mô tả vào dimension, và join bằng surrogate key.
+    svg: starSVG
+    cap:
+      en: Fact tables hold numeric measurements and keys. Dimensions hold the attributes people filter and group by.
+      vi: Fact table chứa các phép đo dạng số và key. Dimension chứa các thuộc tính mà người dùng filter và group by.
+    n:
+      en: "Walk through the grain statement first: one row per order line. Every measure and every foreign key must be true at that grain. Dimensions use surrogate keys so that slowly changing attributes can be tracked without breaking history."
+      vi: "Đi qua câu phát biểu grain trước: một dòng cho mỗi order line. Mọi measure và mọi foreign key phải đúng ở grain đã. Dimension dùng surrogate key để theo dõi được các thuộc tính thay đổi chậm mà không làm hỏng lịch sử."
+  - id: medallion-architecture-bronze-silver-and-gold
+    k: svg
+    t:
+      en: "Medallion architecture: bronze, silver and gold"
+      vi: "Kiến trúc medallion: bronze, silver và gold"
+    lead:
+      en: Each layer has a job and a test strategy. Problems are fixed at the earliest layer where they can be fixed.
+      vi: Mỗi lớp có một nhiệm vụ và một chiến lược test. Vấn đề được sửa ở lớp sớm nhất có thể sửa.
+    svg: medallionSVG
+    cap:
+      en: Name layers in your project structure and permissions so that consumers read only from gold.
+      vi: Đặt tên các lớp trong cấu trúc project và permission để consumer chỉ đọc từ gold.
+    n:
+      en: The medallion naming comes from lakehouse platforms, but the same idea appears as staging, intermediate and marts in dbt projects. The value is the shared vocabulary and the rule that consumers only touch the top layer.
+      vi: Cách đặt tên medallion đến từ các nền tảng lakehouse, nhưng cùng ý tưởng xuất hiện dưới dạng staging, intermediate và marts trong các dự án dbt. Giá trị nằm ở vốn từ chung và quy tắc rằng consumer chỉ chạm vào lớp trên cùng.
+  - id: slowly-changing-dimensions-and-incremental-strategies
+    k: code
+    t:
+      en: Slowly changing dimensions and incremental strategies
+      vi: Slowly changing dimension và chiến lược incremental
+    lead:
+      en: Type 2 keeps full history with validity ranges, so facts can join to the attribute value that was true at the time.
+      vi: Type 2 giữ toàn bộ lịch sử với khoảng hiệu lực, nên fact có thể join tới giá trị thuộc tính đúng tại thời điểm đó.
+    blocks:
+      - lang: sql
+        title: scd2_customer.sql (two-step Type 2 pattern)
+        code: |-
+          -- Step 1: close the current row when a tracked attribute changed
+          update dim_customer d
+          set valid_to = s.updated_at,
+              is_current = false
+          from stg_customers s
+          where d.customer_id = s.customer_id
+            and d.is_current
+            and (d.city is distinct from s.city
+                 or d.segment is distinct from s.segment);
+
+          -- Step 2: insert a new current row for new and changed customers
+          insert into dim_customer
+              (customer_id, city, segment, valid_from, valid_to, is_current)
+          select s.customer_id, s.city, s.segment, s.updated_at, null, true
+          from stg_customers s
+          left join dim_customer d
+              on d.customer_id = s.customer_id and d.is_current
+          where d.customer_id is null;
+    points:
+      - h:
+          en: "Type 1: overwrite"
+          vi: "Type 1: ghi đè"
+        p:
+          en: Simplest. History is lost. Fine for corrections such as typos.
+          vi: Đơn giản nhất. Mất lịch sử. Phù hợp để sửa lỗi như gõ sai.
+      - h:
+          en: "Type 2: add a row"
+          vi: "Type 2: thêm một dòng"
+        tag: must
+        p:
+          en: Full history with `valid_from`, `valid_to` and `is_current`. The usual choice when history matters. dbt snapshots automate it.
+          vi: Đầy đủ lịch sử với `valid_from`, `valid_to` và `is_current`. Lựa chọn thông thường khi lịch sử quan trọng. dbt snapshot tự động hóa việc này.
+      - h:
+          en: "Type 3: keep previous"
+          vi: "Type 3: giữ giá trị trước"
+        tag: nice
+        p:
+          en: Adds a “previous value” column. Limited history, rarely used.
+          vi: Thêm cột “giá trị trước”. Lịch sử hạn chế, hiếm khi dùng.
+      - h:
+          en: Incremental strategies
+          vi: Chiến lược incremental
+        tag: senior
+        p:
+          en: Append for immutable events, merge for updates, partition overwrite for large time-sliced facts. Pick by how data changes and how late it arrives.
+          vi: Append cho event bất biến, merge cho update, partition overwrite cho fact lớn chia theo thời gian. Chọn theo cách dữ liệu thay đổi và mức độ đến muộn.
+    n:
+      en: "The two statements are standard Type 2 logic: first expire the old row, then insert the new current one. The same pattern appears inside dbt snapshots. Note the null-safe comparison, which is a common bug source. Syntax varies slightly between warehouses."
+      vi: "Hai câu lệnh là logic Type 2 chuẩn: trước tiên expire dòng cũ, sau đó insert dòng current mới. Cùng pattern này xuất hiện bên trong dbt snapshot. Lưu ý phép so sánh null-safe, một nguồn bug phổ biến. Cú pháp khác nhau ??i chút giữa các warehouse."
+  - id: decision-guide-which-approach-when
+    k: table
+    t:
+      en: "Decision guide: which approach when?"
+      vi: "Hướng dẫn quyết định: khi nào dùng cách nào?"
+    head:
+      - en: Situation
+        vi: Tình huống
+      - en: Prefer
+        vi: Ưu tiên
+      - en: Why
+        vi: Lý do
+      - en: Watch out for
+        vi: Cần lưu ý
+    rows:
+      - - en: Stable business questions, BI-heavy consumption
+          vi: Câu hỏi nghiệp vụ ổn định, tiêu thụ nặng qua BI
+        - en: Kimball star schemas in gold
+          vi: Kimball star schema ở gold
+        - en: Easy to understand, fast, BI-friendly
+          vi: Dễ hiểu, nhanh, thân thiện BI
+        - en: Conformed dimensions across teams; grain discipline
+          vi: Conformed dimension giữa các team; kỷ luật về grain
+      - - en: Many source systems, frequent change, strict audit and history
+          vi: Nhiều hệ thống nguồn, thay đổi thường xuyên, audit và lịch sử nghiêm ngặt
+        - en: Data Vault in the integration layer, with marts on top
+          vi: Data Vault ở lớp tích hợp, với marts phía trên
+        - en: Absorbs change; auditable; parallel loads
+          vi: Hấp thụ thay đổi; có thể kiểm toán; load song song
+        - en: Added complexity; you still need a consumable layer
+          vi: Phức tạp hơn; vẫn cần một lớp để tiêu thụ
+      - - en: Small team, one use case, columnar warehouse, need speed
+          vi: Team nhỏ, một use case, warehouse columnar, cần tốc độ
+        - en: One Big Table (or a few wide tables)
+          vi: One Big Table (hoặc vài bảng rộng)
+        - en: Simple to build and use
+          vi: Dễ xây và dễ dùng
+        - en: Redundancy and consistency as questions multiply
+          vi: Dư thừa và nhất quán khi câu hỏi tăng lên
+      - - en: Lakehouse with raw and messy data
+          vi: Lakehouse với dữ liệu thô và lộn xộn
+        - en: Medallion layering
+          vi: Phân lớp medallion
+        - en: Clear stages; replay from bronze
+          vi: Các giai đoạn rõ ràng; replay từ bronze
+        - en: Do not mistake layers for a design; model gold deliberately
+          vi: Đừng nhầm các lớp với thiết kế; hãy mô hình hóa gold có chủ đích
+      - - en: Large organization with many data-owning domains
+          vi: Tổ chức lớn có nhiều domain sở hữu dữ liệu
+        - en: Data products with contracts (mesh principles)
+          vi: Data product với contract (nguyên tắc mesh)
+        - en: Scales ownership and accountability
+          vi: Mở rộng quyền sở hữu và trách nhiệm giải trình
+        - en: Needs platform support; risk of inconsistent metrics without a semantic layer
+          vi: Cần hỗ trợ platform; rủi ro metric không nhất quán nếu thiếu semantic layer
+    cap:
+      en: "Default for most analytics teams: medallion-style layers with Kimball-style marts. Reach for Data Vault or mesh when scale and organization demand it."
+      vi: "Mặc định cho hầu hết analytics team: lớp kiểu medallion với marts kiểu Kimball. Chỉ dùng Data Vault hoặc mesh khi quy mô và tổ chức ??i hỏi."
+    n:
+      en: Give the default first, then the conditions that change it. A senior engineer can justify a deviation from the default in terms of source volatility, audit needs and team size.
+      vi: Đưa ra mặc định trước, rồi các điều kiện làm nó thay đổi. Một senior engineer có thể biện minh cho việc lệch khỏi mặc định dựa trên độ biến động của nguồn, nhu cầu audit và quy mô team.
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Modeling without declaring the grain.
+          vi: Mô hình hóa mà không khai báo grain.
+        why:
+          en: Facts double-count and joins misbehave.
+          vi: Fact bị đếm ??i và join hoạt động sai.
+        fix:
+          en: Write the grain sentence first and test uniqueness.
+          vi: Viết câu grain trước và test tính duy nhất.
+      - bad:
+          en: Natural keys as dimension keys.
+          vi: Dùng natural key làm dimension key.
+        why:
+          en: Breaks when keys change or history is needed.
+          vi: Vỡ khi key thay đổi hoặc khi cần lịch sử.
+        fix:
+          en: Surrogate keys, with natural keys kept as attributes.
+          vi: Surrogate key, giữ natural key làm thuộc tính.
+      - bad:
+          en: Snowflaking every dimension.
+          vi: Snowflake hóa mọi dimension.
+        why:
+          en: More joins and little benefit on modern engines.
+          vi: Nhiều join hơn mà ít lợi ích trên engine hiện đại.
+        fix:
+          en: Denormalize dimensions for usability.
+          vi: Denormalize dimension để dễ dùng.
+      - bad:
+          en: Adopting Data Vault “because enterprise”.
+          vi: Áp dụng Data Vault “vì là enterprise”.
+        why:
+          en: Heavy overhead for a small team.
+          vi: Overhead nặng cho team nhỏ.
+        fix:
+          en: Use it when volatility and audit needs justify it.
+          vi: Dùng khi độ biến động và nhu cầu audit biện minh được.
+      - bad:
+          en: Calling a layer name a model.
+          vi: Gọi tên một lớp là một model.
+        why:
+          en: Bronze, silver and gold with no design inside.
+          vi: Bronze, silver và gold mà không có thiết kế bên trong.
+        fix:
+          en: Decide the modeling approach per layer.
+          vi: Quyết định cách mô hình hóa theo từng lớp.
+      - bad:
+          en: Mesh as a reorg with no platform.
+          vi: Mesh như một cuộc tái tổ chức không có platform.
+        why:
+          en: Duplicated effort and inconsistent metrics.
+          vi: Công sức bị trùng lặp và metric không nhất quán.
+        fix:
+          en: Invest in platform, contracts and a shared semantic layer first.
+          vi: Đầu tư trước vào platform, contract và semantic layer dùng chung.
+    n:
+      en: Most modeling failures are failures to be explicit about grain and keys.
+      vi: Hầu hết thất bại trong mô hình hóa là thất bại trong việc tường minh về grain và key.
+  - id: what-senior-looks-like-modeling
+    k: cards
+    t:
+      en: "What senior looks like: modeling"
+      vi: "Senior trông như thế nào: mô hình hóa"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: Modeling approach per layer
+            vi: Cách mô hình hóa theo từng lớp
+          - en: Grain and key strategy for core entities
+            vi: Chiến lược grain và key cho các entity cốt lõi
+          - en: How history is tracked
+            vi: Cách theo dõi lịch sử
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Normalization versus usability
+            vi: Normalization so với tính dễ dùng
+          - en: Flexibility versus complexity
+            vi: Linh hoạt so với phức tạp
+          - en: Central models versus domain ownership
+            vi: Model tập trung so với quyền sở hữu theo domain
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Own the conformed dimensions
+            vi: Sở hữu các conformed dimension
+          - en: Review models for grain and fan-out
+            vi: Review model về grain và fan-out
+          - en: Document modeling conventions
+            vi: Tài liệu hóa quy ước mô hình hóa
+          - en: Guide teams through model changes
+            vi: Hướng dẫn các team qua những thay đổi model
+    n:
+      en: "Seniors also know when not to model: a quick wide table is a perfectly good answer for a throwaway analysis, provided nobody mistakes it for the foundation."
+      vi: "Senior cũng biết khi nào không nên mô hình hóa: một bảng rộng làm nhanh là câu trả lời hoàn toàn ổn cho một phân tích dùng một lần, miễn là không ai nhầm nó với nền tảng."
+  - id: modeling-lab-scd-type-2-and-data-vault
+    k: lab
+    t:
+      en: "Modeling lab: SCD Type 2 and Data Vault"
+      vi: "Lab mô hình hóa: SCD Type 2 và Data Vault"
+    lead:
+      en: Keep history correctly, then compare two modeling styles on the same data.
+      vi: Giữ lịch sử đúng, rồi so sánh hai phong cách mô hình hóa trên cùng dữ liệu.
+    scenario:
+      en: Customers change region over time and finance needs revenue by the region that applied at the time of sale.
+      vi: Khách hàng đổi khu vực theo thời gian và tài chính cần doanh thu theo khu vực có hiệu lực tại thời điểm bán.
+    input:
+      en: Raw customers and orders with attribute changes and late-arriving updates, dbt on DuckDB or a warehouse.
+      vi: Dữ liệu customers và orders thô có thay đổi thuộc tính và cập nhật đến muộn, dbt trên DuckDB hoặc warehouse.
+    tasks:
+      - en: Build a Type 2 dimension with a dbt snapshot.
+        vi: Xây dimension Type 2 bằng dbt snapshot.
+      - en: Write the point-in-time join from facts to the dimension.
+        vi: Viết point-in-time join từ fact tới dimension.
+      - en: Model the same domain as hubs, links and satellites.
+        vi: Mô hình hóa cùng miền đã thành hub, link và satellite.
+      - en: Compare query complexity, load logic and audit ability.
+        vi: So sánh độ phức tạp query, logic load và khả năng audit.
+    expected:
+      en: Revenue by historical region that matches a hand-computed sample, and a written comparison of the two styles.
+      vi: Doanh thu theo khu vực lịch sử khớp với mẫu tính tay, và bản so sánh bằng văn bản hai phong cách.
+    rubric:
+      - en: Grain stated for every table
+        vi: Nêu grain cho mọi bảng
+      - en: Historical totals verified
+        vi: Tổng lịch sử được kiểm chứng
+      - en: Choice between styles justified
+        vi: Lựa chọn giữa hai phong cách được biện minh
+    design:
+      en: Decide when this company should move from dimensional marts to Data Vault, and what would trigger the move.
+      vi: Quyết định khi nào công ty này nên chuyển từ mart dimensional sang Data Vault, và điều gì kích hoạt việc chuyển.
+    n:
+      en: Hand-compute a small sample so correctness is proven independently.
+      vi: Tính tay một mẫu nhỏ để chứng minh tính đúng một cách độc lập.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: I can state the grain of every fact table
+          vi: Tôi có thể nêu grain của mọi fact table
+        - en: Dimensions use surrogate keys
+          vi: Dimension dùng surrogate key
+        - en: I know when to use SCD Type 2
+          vi: Tôi biết khi nào dùng SCD Type 2
+        - en: I can explain medallion versus Kimball
+          vi: Tôi có thể giải thích medallion so với Kimball
+        - en: I can justify a modeling approach for my context
+          vi: Tôi có thể biện minh cách mô hình hóa cho bối cảnh của mình
+        - en: My conformed dimensions are shared across facts
+          vi: Conformed dimension của tôi được chia sẻ giữa các fact
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Design a star schema for an e-commerce business.
+          vi: Thiết kế star schema cho một doanh nghiệp e-commerce.
+        - en: How do you handle a customer who changes region over time?
+          vi: Bạn xử lý thế nào với khách hàng đổi region theo thời gian?
+        - en: Kimball or Data Vault for a company that acquires others often?
+          vi: Kimball hay Data Vault cho một công ty thường xuyên thâu tóm công ty khác?
+        - en: What does medallion architecture give you that staging and marts do not?
+          vi: Medallion architecture mang lại điều gì mà staging và marts không có?
+        - en: How would you introduce data products to a 500-person company?
+          vi: Bạn sẽ đưa data product vào một công ty 500 người như thế nào?
+    n:
+      en: For the second question, listen for Type 2 history and the point-in-time join from facts.
+      vi: Với câu hỏi thứ hai, hãy lắng nghe lịch sử Type 2 và point-in-time join từ fact.

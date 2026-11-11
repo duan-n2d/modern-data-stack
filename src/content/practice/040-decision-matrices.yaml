@@ -1,0 +1,112 @@
+practice:
+  id: decision-matrices
+  name:
+    en: System design decision matrices
+    vi: Ma trận quyết định thiết kế hệ thống
+  color: "#0369A1"
+slides:
+  - id: decision-matrix-five-common-design-choices
+    k: table
+    t:
+      en: "Decision matrix: five common design choices"
+      vi: "Ma trận quyết định: năm lựa chọn thiết kế phổ biến"
+    lead:
+      en: No option is universally better. Each choice depends on constraints, and each has a cost to reverse.
+      vi: Không lựa chọn nào tốt hơn ở mọi nơi. Mỗi lựa chọn phụ thuộc ràng buộc, và mỗi cái đều có chi phí để đảo ngược.
+    head:
+      - en: Decision
+        vi: Quyết định
+      - en: Choose A when
+        vi: Chọn A khi
+      - en: Choose B when
+        vi: Chọn B khi
+      - en: Migration implications
+        vi: Hệ quả khi di chuyển
+    rows:
+      - - en: "Batch (A: Airflow + warehouse) versus streaming (B: Kafka + Flink)"
+          vi: "Batch (A: Airflow + warehouse) so với streaming (B: Kafka + Flink)"
+        - en: Minutes to hours of latency is acceptable; a small team; simpler operations
+          vi: Chấp nhận độ trễ từ vài phút đến vài giờ; đội nhỏ; vận hành đơn giản
+        - en: Seconds of latency pay for themselves; the team can run stateful streaming
+          vi: Độ trễ vài giây đúng giá; đội vận hành được streaming có state
+        - en: Moving to streaming needs event design, replay and reconciliation; the reverse loses freshness
+          vi: Chuyển sang streaming cần thiết kế sự kiện, replay và đối soát; chiều ngược lại mất độ mới
+      - - en: "Lakehouse format (A: Iceberg, B: Delta Lake)"
+          vi: "Định dạng lakehouse (A: Iceberg, B: Delta Lake)"
+        - en: Many engines must read the same tables; avoiding lock-in matters
+          vi: Nhiều engine phải đọc cùng bảng; tránh khóa chặt vào nhà cung cấp là quan trọng
+        - en: You are centered on Databricks and its ecosystem
+          vi: Bạn xoay quanh Databricks và hệ sinh thái của nó
+        - en: Interoperability layers exist, but tables and catalogs usually need rewrites and testing
+          vi: Có lớp tương thích, nhưng bảng và catalog thường cần viết lại và test
+      - - en: "Orchestration (A: Airflow, B: Dagster)"
+          vi: "Điều phối (A: Airflow, B: Dagster)"
+        - en: Large existing estate, wide integrations, task-centric workflows
+          vi: Hệ thống hiện có lớn, nhiều tích hợp, workflow xoay quanh task
+        - en: Asset lineage, freshness and local developer experience are priorities
+          vi: Lineage theo asset, độ mới và trải nghiệm phát triển cục bộ là ưu tiên
+        - en: Run both in parallel; migrate pipeline by pipeline; map tasks to assets
+          vi: Chạy song song; di chuyển từng pipeline; ánh xạ task sang asset
+      - - en: "Processing (A: Spark, B: Flink)"
+          vi: "Xử lý (A: Spark, B: Flink)"
+        - en: Large batch, ML and SQL workloads; micro-batch streaming is enough
+          vi: Batch lớn, workload ML và SQL; micro-batch streaming là đủ
+        - en: Low-latency, event-time, stateful streaming is the core need
+          vi: Nhu cầu cốt lõi là streaming độ trễ thấp, event-time, có state
+        - en: Different state, time and API models; plan for rewrites, not a lift and shift
+          vi: Mô hình state, thời gian và API khác nhau; hãy tính viết lại, không phải chép nguyên
+      - - en: "Transformation (A: dbt, B: SQLMesh)"
+          vi: "Biến đổi (A: dbt, B: SQLMesh)"
+        - en: Broad ecosystem, team familiarity, hiring pool
+          vi: Hệ sinh thái rộng, đội đã quen, dễ tuyển người
+        - en: Virtual environments and plan-based deployment are priorities
+          vi: Môi trường ảo và triển khai dựa trên plan là ưu tiên
+        - en: SQL models port easily; macros, tests and CI usually need rework
+          vi: Model SQL chuyển dễ; macro, test và CI thường cần làm lại
+    cap:
+      en: Add a measured proof of concept to any decision that would be expensive to reverse.
+      vi: Hãy thêm proof of concept có đo đạc cho mọi quyết định tốn kém nếu phải đảo ngược.
+    n:
+      en: These rows are starting points for a conversation, not verdicts.
+      vi: Các hàng này là điểm khởi đầu cho cuộc thảo luận, không phải phán quyết.
+  - id: worked-decision-batch-or-streaming-for-order-analytics
+    k: table
+    t:
+      en: "Worked decision: batch or streaming for order analytics"
+      vi: "Quyết định minh họa: batch hay streaming cho analytics đơn hàng"
+    head:
+      - en: Element
+        vi: Yếu tố
+      - en: Content
+        vi: Nội dung
+    rows:
+      - - en: Scenario
+          vi: Kịch bản
+        - en: An e-commerce company wants live order dashboards and fraud alerts; finance needs exact daily totals.
+          vi: Một công ty thương mại điện tử muốn dashboard đơn hàng trực tiếp và cảnh báo gian lận; tài chính cần tổng ngày chính xác.
+      - - en: Constraints
+          vi: Ràng buộc
+        - en: Four engineers, no streaming experience, one Kafka cluster already used by the application team, budget for managed services.
+          vi: Bốn kỹ sư, chưa có kinh nghiệm streaming, đã có một cluster Kafka do đội ứng dụng dùng, có ngân sách cho dịch vụ managed.
+      - - en: Recommendation
+          vi: Khuyến nghị
+        - en: "Hybrid: keep batch for finance totals; add a small streaming path only for fraud alerts and the live dashboard, using managed services where possible."
+          vi: "Kết hợp: giữ batch cho tổng tài chính; thêm một đường streaming nhỏ chỉ cho cảnh báo gian lận và dashboard trực tiếp, dùng dịch vụ managed khi có thể."
+      - - en: Disadvantages
+          vi: Nhược điểm
+        - en: Two paths to keep consistent; the team must learn state, watermarks and replay; higher on-call load.
+          vi: Hai đường phải giữ nhất quán; đội phải học state, watermark và replay; gánh nặng on-call cao hơn.
+      - - en: Migration implications
+          vi: Hệ quả khi di chuyển
+        - en: Start with a reconciliation job comparing both paths. Retire the streaming path if the business value does not justify the cost.
+          vi: Bắt đầu bằng job đối soát so sánh hai đường. Bỏ đường streaming nếu giá trị nghiệp vụ không biện minh được chi phí.
+      - - en: How to review it
+          vi: Cách review
+        - en: Ask what happens when the stream is wrong for an hour, who is paged, and how the two totals are reconciled.
+          vi: Hỏi chuyện gì xảy ra khi luồng sai một giờ, ai bị gọi và hai tổng được đối soát thế nào.
+    cap:
+      en: Notice that the recommendation names its costs. A decision without stated disadvantages is not finished.
+      vi: Hãy chú ý khuyến nghị nêu rõ chi phí của nó. Quyết định không nêu nhược điểm là chưa xong.
+    n:
+      en: "Use this format for every design review: scenario, constraints, recommendation, disadvantages, migration, review questions."
+      vi: "Dùng định dạng này cho mọi buổi review thiết kế: kịch bản, ràng buộc, khuyến nghị, nhược điểm, di chuyển, câu hỏi review."

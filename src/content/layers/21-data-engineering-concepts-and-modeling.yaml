@@ -1,0 +1,525 @@
+layer: 21
+slides:
+  - id: data-engineering-concepts-and-modeling-theory
+    k: cards
+    t:
+      en: Data engineering concepts and modeling theory
+      vi: Khái niệm data engineering và lý thuyết mô hình hóa
+    lead:
+      en: Tools change; these ideas do not. This layer covers the lifecycle, the role, modeling theory (normalization, Inmon versus Kimball, entity-centric modeling), data assets and products, master data, and how to keep learning.
+      vi: Công cụ thay đổi, các ý tưởng này thì không. Layer này gồm vòng đời, vai trò, lý thuyết mô hình hóa (chuẩn hóa, Inmon so với Kimball, entity-centric), data asset và data product, master data, và cách tiếp tục học.
+    cols: 3
+    cards:
+      - h:
+          en: Lifecycle
+          vi: Vòng đời
+        tag: must
+        p:
+          en: Generation, storage, ingestion, transformation and serving, with undercurrents that cut across all of them.
+          vi: Sinh dữ liệu, lưu trữ, nạp, biến đổi và phục vụ, cùng các dòng chảy ngầm cắt ngang tất cả.
+      - h:
+          en: The role
+          vi: Vai trò
+        tag: must
+        p:
+          en: What a data engineer owns and how it differs from software and analytics engineering.
+          vi: Data engineer sở hữu gì và khác kỹ sư phần mềm và analytics engineer ở đâu.
+      - h:
+          en: Modeling theory
+          vi: Lý thuyết mô hình hóa
+        tag: must
+        p:
+          en: Normalization for OLTP, dimensional models for analytics, Inmon and Kimball as two philosophies.
+          vi: Chuẩn hóa cho OLTP, mô hình dimensional cho analytics, Inmon và Kimball là hai triết lý.
+      - h:
+          en: Entity-centric modeling
+          vi: Mô hình entity-centric
+        tag: senior
+        p:
+          en: Model around business entities with wide, snapshot-based tables instead of many joins.
+          vi: Mô hình hóa quanh thực thể nghiệp vụ bằng bảng rộng dựa trên snapshot thay vì nhiều join.
+      - h:
+          en: Assets and products
+          vi: Asset và product
+        tag: senior
+        p:
+          en: Data assets, software-defined assets and data products with owners, contracts and SLAs.
+          vi: Data asset, software-defined asset và data product có chủ sở hữu, contract và SLA.
+      - h:
+          en: Master data and automation
+          vi: Master data và tự động hóa
+        tag: nice
+        p:
+          en: Golden records and metadata-driven warehouse automation.
+          vi: Golden record và tự động hóa warehouse dựa trên metadata.
+    n:
+      en: Use this layer to build shared vocabulary before diving into tools.
+      vi: Dùng layer này để xây từ vựng chung trước khi đi vào công cụ.
+  - id: the-data-engineering-lifecycle-and-its-undercurrents
+    k: svg
+    t:
+      en: The data engineering lifecycle and its undercurrents
+      vi: Vòng đời data engineering và các dòng chảy ngầm
+    lead:
+      en: Five stages move data from where it is created to where it is used. Six undercurrents decide whether the whole system is safe, reliable and maintainable.
+      vi: Năm giai đoạn đưa dữ liệu từ nơi sinh ra đến nơi dùng. Sáu dòng chảy ngầm quyết định cả hệ thống có an toàn, đáng tin và bảo trì được hay không.
+    svg: lifecycleDESVG
+    cap:
+      en: The lifecycle framing follows Fundamentals of Data Engineering by Reis and Housley. Layer numbers show where this deck covers each part.
+      vi: Cách chia vòng đời theo cuốn Fundamentals of Data Engineering của Reis và Housley. Số layer cho biết deck này nói về từng phần ở đâu.
+    n:
+      en: "Use the lifecycle as a map for any incident or design: which stage, and which undercurrent should have prevented it."
+      vi: "Dùng vòng đời như bản đồ cho mọi sự cố hay thiết kế: ở giai đoạn nào, và dòng chảy ngầm nào lẽ ra phải ngăn được nó."
+  - id: the-role-data-engineer-software-engineer-analytics
+    k: table
+    t:
+      en: "The role: data engineer, software engineer, analytics engineer"
+      vi: "Vai trò: data engineer, kỹ sư phần mềm, analytics engineer"
+    lead:
+      en: The roles overlap, but the center of gravity differs. Typical job descriptions ask for SQL, Python, one cloud, orchestration, modeling, CI/CD and communication.
+      vi: Các vai trò chồng lấn nhưng trọng tâm khác nhau. Mô tả công việc điển hình yêu cầu SQL, Python, một cloud, điều phối, mô hình hóa, CI/CD và giao tiếp.
+    head:
+      - en: Dimension
+        vi: Khía cạnh
+      - Data engineer
+      - en: Software engineer
+        vi: Kỹ sư phần mềm
+      - Analytics engineer
+    rows:
+      - - en: Main output
+          vi: Sản phẩm chính
+        - en: Pipelines, platforms and reliable datasets
+          vi: Pipeline, nền tảng và dataset đáng tin
+        - en: Applications and services
+          vi: Ứng dụng và dịch vụ
+        - en: Modeled, tested, documented datasets and metrics
+          vi: Dataset và metric đã mô hình hóa, test, có tài liệu
+      - - en: What breaks silently
+          vi: Cái gì hỏng âm thầm
+        - en: Data is wrong but jobs are green
+          vi: Dữ liệu sai nhưng job vẫn xanh
+        - en: Usually visible errors and latency
+          vi: Thường là lỗi và độ trễ nhìn thấy được
+        - en: Metric logic drifts between reports
+          vi: Logic metric lệch giữa các báo cáo
+      - - en: State
+          vi: Trạng thái
+        - en: "Data is the state: reprocessing and backfills are normal"
+          vi: "Dữ liệu chính là trạng thái: xử lý lại và backfill là bình thường"
+        - en: Often stateless services with a database behind
+          vi: Thường là dịch vụ không trạng thái với database phía sau
+        - en: Models rebuilt from raw data
+          vi: Model được dựng lại từ dữ liệu thô
+      - - en: Testing
+          vi: Kiểm thử
+        - en: Unit tests plus data tests, reconciliation, contracts
+          vi: Unit test cùng test dữ liệu, đối soát, contract
+        - en: Unit, integration and end-to-end tests
+          vi: Unit, integration và end-to-end test
+        - en: Data tests, unit tests on models
+          vi: Test dữ liệu, unit test trên model
+      - - en: Closest consumers
+          vi: Người dùng gần nhất
+        - en: Analysts, ML engineers, applications
+          vi: Analyst, ML engineer, ứng dụng
+        - en: End users and other services
+          vi: Người dùng cuối và dịch vụ khác
+        - en: Analysts and business stakeholders
+          vi: Analyst và các bên liên quan nghiệp vụ
+      - - en: Typical skills
+          vi: Kỹ năng điển hình
+        - en: SQL, Python, distributed systems, cloud, orchestration
+          vi: SQL, Python, hệ thống phân tán, cloud, điều phối
+        - en: Languages, APIs, system design, testing
+          vi: Ngôn ngữ, API, thiết kế hệ thống, kiểm thử
+        - en: SQL, dbt, modeling, BI, communication
+          vi: SQL, dbt, mô hình hóa, BI, giao tiếp
+    cap:
+      en: A data engineer is largely a software engineer whose product is data, with extra duties around correctness, freshness and cost.
+      vi: Data engineer phần lớn là kỹ sư phần mềm có sản phẩm là dữ liệu, kèm thêm trách nhiệm về tính đúng, độ mới và chi phí.
+    n:
+      en: Titles vary by company. Focus on the responsibilities rather than the label.
+      vi: Chức danh khác nhau theo công ty. Hãy tập trung vào trách nhiệm hơn là nhãn.
+  - id: normalization-and-denormalization
+    k: stack
+    t:
+      en: Normalization and denormalization
+      vi: Chuẩn hóa và phi chuẩn hóa
+    lead:
+      en: Normalize to protect writes (OLTP). Denormalize to speed up reads (analytics). Know both and why.
+      vi: Chuẩn hóa để bảo vệ thao tác ghi (OLTP). Phi chuẩn hóa để tăng tốc đọc (analytics). Hiểu cả hai và lý do.
+    parts:
+      - table:
+          head:
+            - en: Form
+              vi: Dạng
+            - en: Rule
+              vi: Quy tắc
+            - en: Problem it removes
+              vi: Vấn đề nó loại bỏ
+          rows:
+            - - 1NF
+              - en: Atomic values; no repeating groups
+                vi: Giá trị nguyên tử; không có nhóm lặp
+              - en: Lists stored in one cell
+                vi: Danh sách lưu trong một ô
+            - - 2NF
+              - en: 1NF and no partial dependency on part of a composite key
+                vi: 1NF và không phụ thuộc một phần vào một phần của khóa ghép
+              - en: Attributes repeated for each part of the key
+                vi: Thuộc tính lặp lại cho từng phần của khóa
+            - - 3NF
+              - en: 2NF and no transitive dependency (non-key depends on non-key)
+                vi: 2NF và không phụ thuộc bắc cầu (không-khóa phụ thuộc không-khóa)
+              - en: Update anomalies, such as changing a country name in many rows
+                vi: Bất thường khi cập nhật, như đổi tên quốc gia ở nhiều dòng
+            - - BCNF
+              - en: Every determinant is a candidate key
+                vi: Mọi determinant đều là khóa ứng viên
+              - en: Remaining anomalies from overlapping candidate keys
+                vi: Bất thường còn lại do các khóa ứng viên chồng lấn
+      - cols: 2
+        cards:
+          - h:
+              en: Why normalize
+              vi: Vì sao chuẩn hóa
+            p:
+              en: Updates touch one place, integrity is enforced by constraints, storage is small. Ideal for transactional systems.
+              vi: Cập nhật chỉ chạm một nơi, toàn vẹn được ràng buộc ép buộc, dung lượng nhỏ. Lý tưởng cho hệ thống giao dịch.
+          - h:
+              en: Why denormalize
+              vi: Vì sao phi chuẩn hóa
+            p:
+              en: Fewer joins, simpler queries and faster scans on columnar engines. The cost is redundancy, so rebuild from the source of truth rather than updating in place.
+              vi: Ít join hơn, query đơn giản hơn và quét nhanh hơn trên engine cột. Cái giá là dư thừa, nên hãy dựng lại từ nguồn sự thật thay vì cập nhật tại chỗ.
+      - code:
+          lang: sql
+          title: normalized_vs_denormalized.sql
+          code: |-
+            -- Normalized (OLTP): each fact stored once, more joins
+            create table countries (country_id int primary key, country_name text not null);
+            create table customers (customer_id bigint primary key, name text, country_id int references countries(country_id));
+            create table orders (order_id bigint primary key, customer_id bigint references customers(customer_id),
+                                 ordered_at timestamp, amount numeric(10, 2));
+
+            -- Denormalized (analytics): wide and read-optimized, repeated values accepted
+            create table fct_orders_wide as
+            select o.order_id, o.ordered_at, o.amount, c.customer_id, c.name as customer_name, co.country_name
+            from orders o
+            join customers c using (customer_id)
+            join countries co using (country_id);
+    n:
+      en: "Connect to section 12: star schemas are deliberately denormalized dimensions around a fact table."
+      vi: "Nối với phần 12: star schema là các dimension được phi chuẩn hóa có chủ đích quanh một bảng fact."
+  - id: inmon-versus-kimball-and-data-vault
+    k: table
+    t:
+      en: Inmon versus Kimball (and Data Vault)
+      vi: Inmon so với Kimball (và Data Vault)
+    lead:
+      en: "Two classic warehouse philosophies. Many real platforms mix them: an integrated, history-preserving core with dimensional marts on top."
+      vi: "Hai triết lý warehouse kinh điển. Nhiều nền tảng thật kết hợp cả hai: một lõi tích hợp có lưu lịch sử với các mart dimensional phía trên."
+    head:
+      - en: Aspect
+        vi: Khía cạnh
+      - Inmon
+      - Kimball
+      - Data Vault
+    rows:
+      - - en: Direction
+          vi: Hướng đi
+        - en: "Top-down: build an enterprise warehouse first"
+          vi: "Từ trên xuống: xây warehouse doanh nghiệp trước"
+        - en: "Bottom-up: build business-process marts that share conformed dimensions"
+          vi: "Từ dưới lên: xây mart theo quy trình nghiệp vụ dùng chung dimension conformed"
+        - en: Integration layer first, marts later
+          vi: Lớp tích hợp trước, mart sau
+      - - en: Core model
+          vi: Mô hình lõi
+        - en: Normalized (about 3NF) enterprise model
+          vi: Mô hình doanh nghiệp đã chuẩn hóa (khoảng 3NF)
+        - en: Star schemas of facts and dimensions
+          vi: Star schema gồm fact và dimension
+        - en: Hubs, links and satellites
+          vi: Hub, link và satellite
+      - - en: Time to first value
+          vi: Thời gian ra giá trị đầu tiên
+        - en: "Slower: heavy upfront modeling"
+          vi: "Chậm hơn: mô hình hóa nặng từ đầu"
+        - en: "Faster: a mart per business process"
+          vi: "Nhanh hơn: một mart cho mỗi quy trình nghiệp vụ"
+        - en: "Medium: requires automation to stay efficient"
+          vi: "Trung bình: cần tự động hóa để hiệu quả"
+      - - en: Strengths
+          vi: Điểm mạnh
+        - en: One integrated, consistent source of truth
+          vi: Một nguồn sự thật tích hợp và nhất quán
+        - en: Business-friendly, fast queries, BI-ready
+          vi: Thân thiện nghiệp vụ, query nhanh, sẵn sàng cho BI
+        - en: Handles change and auditability well
+          vi: Xử lý thay đổi và khả năng audit tốt
+      - - en: Weaknesses
+          vi: Điểm yếu
+        - en: Complex and slow to deliver; marts still needed
+          vi: Phức tạp và giao chậm; vẫn cần mart
+        - en: Needs discipline on conformed dimensions across teams
+          vi: Cần kỷ luật về dimension conformed giữa các đội
+        - en: Many tables and joins; needs a presentation layer
+          vi: Nhiều bảng và join; cần lớp trình bày
+      - - en: Best when
+          vi: Phù hợp khi
+        - en: A central team governs a stable enterprise model
+          vi: Một đội trung tâm quản trị mô hình doanh nghiệp ổn định
+        - en: You need analytics answers quickly in a few domains
+          vi: Bạn cần câu trả lời analytics nhanh ở vài domain
+        - en: Many volatile sources and strict audit needs
+          vi: Nhiều nguồn biến động và yêu cầu audit nghiêm ngặt
+    cap:
+      en: Descriptions are generalizations of well-known approaches; real implementations vary.
+      vi: Các mô tả là khái quát hóa của các cách tiếp cận nổi tiếng; cài đặt thực tế có khác biệt.
+    n:
+      en: "Avoid dogma: the question is which risk you are managing, delivery speed or integration consistency."
+      vi: "Tránh giáo điều: câu hỏi là bạn đang quản lý rủi ro nào, tốc độ giao hàng hay tính nhất quán của tích hợp."
+  - id: entity-centric-data-modeling-ecm
+    k: code
+    t:
+      en: Entity-centric data modeling (ECM)
+      vi: Mô hình hóa dữ liệu entity-centric (ECM)
+    lead:
+      en: Instead of forcing every question through facts and dimensions, build one wide table per business entity, refreshed as daily snapshots.
+      vi: Thay vì ép mọi câu hỏi đi qua fact và dimension, dựng một bảng rộng cho mỗi thực thể nghiệp vụ, làm mới dưới dạng snapshot hằng ngày.
+    blocks:
+      - lang: sql
+        title: entity_customer_daily.sql (DuckDB syntax)
+        code: |-
+          create or replace table entity_customer_daily as
+          select
+              c.customer_id,
+              current_date                                              as ds,
+              c.country,
+              c.segment,
+              count(o.order_id) filter (where o.ordered_at >= current_date - interval '30 days')  as orders_30d,
+              sum(o.amount)     filter (where o.ordered_at >= current_date - interval '30 days')  as revenue_30d,
+              max(o.ordered_at)                                         as last_order_at,
+              date_diff('day', max(o.ordered_at)::date, current_date)   as days_since_last_order
+          from dim_customers c
+          left join fct_orders o using (customer_id)
+          group by all;
+    points:
+      - h:
+          en: What it is
+          vi: Nó là gì
+        p:
+          en: A table whose grain is one row per entity per snapshot date, with attributes and rolling metrics side by side.
+          vi: Bảng có grain là một dòng cho mỗi thực thể mỗi ngày snapshot, với thuộc tính và metric cuốn chiếu cạnh nhau.
+      - h:
+          en: Benefits
+          vi: Lợi ích
+        tag: senior
+        p:
+          en: Fewer joins for analysts, easy history through snapshots, good fit for features and reverse ETL.
+          vi: Ít join hơn cho analyst, lịch sử dễ có qua snapshot, hợp với feature và reverse ETL.
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        p:
+          en: Wide tables, storage per snapshot, and metric definitions must be governed or they diverge.
+          vi: Bảng rộng, tốn dung lượng cho mỗi snapshot, và định nghĩa metric phải được quản trị nếu không sẽ lệch.
+      - h:
+          en: Source of the idea
+          vi: Nguồn gốc ý tưởng
+        tag: senior
+        p:
+          en: Popularized by Maxime Beauchemin’s writing on entity-centric modeling. Treat it as a pattern to evaluate, not a replacement for dimensional modeling.
+          vi: Được phổ biến qua bài viết của Maxime Beauchemin về mô hình entity-centric. Hãy coi đây là một mẫu cần đánh giá, không phải thay thế cho mô hình dimensional.
+    n:
+      en: "Show that this complements the star schema: facts remain the system of record, the entity table is a convenient, derived serving layer."
+      vi: "Cho thấy cách này bổ sung cho star schema: fact vẫn là nguồn ghi nhận, bảng entity là lớp phục vụ dẫn xuất tiện dụng."
+  - id: data-assets-software-defined-assets-and-data-products
+    k: code
+    t:
+      en: Data assets, software-defined assets and data products
+      vi: Data asset, software-defined asset và data product
+    lead:
+      en: A data asset is a dataset with value and an owner. A data product adds a contract, an SLA, documentation and discoverability.
+      vi: Data asset là dataset có giá trị và có chủ sở hữu. Data product thêm contract, SLA, tài liệu và khả năng tìm thấy.
+    blocks:
+      - lang: yaml
+        title: customer_360.data-product.yaml (illustrative)
+        code: |-
+          data_product:
+            name: customer_360
+            domain: sales
+            owner: team-sales-data@example.com
+            description: Curated customer attributes and 30-day behaviour.
+            output_ports:
+              - name: customer_daily
+                kind: table
+                location: lake.gold.customer_daily
+                schema_contract: contracts/customer_daily.contract.yml
+            sla:
+              freshness: 6h
+              availability: "99.5%"
+            quality_checks:
+              - unique(customer_id, ds)
+              - not_null(customer_id)
+              - freshness(ds) < 1d
+            access:
+              classification: confidential
+              approval: data-owner
+            lineage:
+              upstream: [lake.silver.customers, lake.silver.orders]
+    points:
+      - h: Asset
+        p:
+          en: "Anything stored that people rely on: table, file, model, dashboard, feature set."
+          vi: "Bất cứ thứ gì được lưu mà con người dựa vào: bảng, file, model, dashboard, feature set."
+      - h: Software-defined asset
+        tag: senior
+        p:
+          en: Declared in code with its dependencies and checks, so the orchestrator knows what exists and how fresh it is (as in Dagster).
+          vi: Được khai báo bằng code cùng phụ thuộc và kiểm tra, để orchestrator biết cái gì tồn tại và mới đến đâu (như trong Dagster).
+      - h: Data product
+        tag: senior
+        p:
+          en: "An asset treated as a product: named owner, output ports, contract, SLA, access rules and lineage."
+          vi: "Một asset được coi như sản phẩm: chủ sở hữu có tên, cổng đầu ra, contract, SLA, quy tắc truy cập và lineage."
+      - h:
+          en: Data mesh link
+          vi: Liên hệ với data mesh
+        p:
+          en: Data mesh makes domain teams responsible for their data products on a shared platform with federated governance.
+          vi: Data mesh giao cho các đội domain trách nhiệm với data product của mình trên nền tảng chung với quản trị liên kết.
+    n:
+      en: The descriptor format is a sketch. Several open specifications exist for data products and contracts; choose one deliberately.
+      vi: Định dạng mô tả chỉ là bản phác. Có nhiều đặc tả mở cho data product và contract; hãy chọn một cái có chủ đích.
+  - id: master-data-management-and-warehouse-automation
+    k: code
+    t:
+      en: Master data management and warehouse automation
+      vi: Master data management và tự động hóa warehouse
+    lead:
+      en: MDM builds one trusted record per business entity across systems. Warehouse automation generates repetitive modeling code from metadata.
+      vi: MDM tạo một bản ghi đáng tin cho mỗi thực thể nghiệp vụ xuyên các hệ thống. Tự động hóa warehouse sinh code mô hình hóa lặp lại từ metadata.
+    blocks:
+      - lang: sql
+        title: golden_record.sql (survivorship by source priority)
+        code: |-
+          with ranked as (
+              select
+                  lower(email) as email_key,
+                  full_name, phone, source_system, updated_at,
+                  row_number() over (
+                      partition by lower(email)
+                      order by case source_system when 'crm' then 1 when 'billing' then 2 else 3 end,
+                               updated_at desc
+                  ) as rn
+              from staging.customer_candidates
+          )
+          select email_key as email, full_name, phone
+          from ranked
+          where rn = 1;
+    points:
+      - h:
+          en: Match and merge
+          vi: Khớp và gộp
+        p:
+          en: Decide when two records are the same entity using exact keys, fuzzy matching or rules, and keep the evidence.
+          vi: Quyết định khi nào hai bản ghi là cùng một thực thể bằng khóa chính xác, khớp mờ hoặc quy tắc, và giữ lại bằng chứng.
+      - h: Survivorship
+        tag: senior
+        p:
+          en: "Rules that pick the winning value per attribute: source priority, recency or completeness."
+          vi: "Quy tắc chọn giá trị thắng cho từng thuộc tính: ưu tiên nguồn, độ mới hoặc độ đầy đủ."
+      - h: Stewardship
+        p:
+          en: People review uncertain matches and own reference data such as country and currency codes.
+          vi: Con người xem xét các khớp không chắc và sở hữu dữ liệu tham chiếu như mã quốc gia và tiền tệ.
+      - h:
+          en: Warehouse automation
+          vi: Tự động hóa warehouse
+        tag: nice
+        p:
+          en: Metadata-driven generators (commercial tools or dbt packages such as AutomateDV) produce staging, hubs, links and satellites consistently. Review generated code like any other.
+          vi: Bộ sinh dựa trên metadata (công cụ thương mại hoặc package dbt như AutomateDV) tạo staging, hub, link và satellite nhất quán. Hãy review code sinh ra như mọi code khác.
+    n:
+      en: "Golden records need a reversible audit trail: which sources fed the winning value, and why."
+      vi: "Golden record cần dấu vết audit đảo ngược được: nguồn nào cho giá trị thắng, và vì sao."
+  - id: learning-path-resources-and-open-source-projects
+    k: cards
+    t:
+      en: Learning path, resources and open-source projects
+      vi: Lộ trình học, tài nguyên và dự án mã nguồn mở
+    lead:
+      en: Learn by building. Read source and docs of real projects, and keep a portfolio of labs from this deck.
+      vi: Học bằng cách xây. Đọc source và tài liệu của các dự án thật, và giữ một portfolio gồm các lab từ deck này.
+    cols: 3
+    cards:
+      - h:
+          en: Suggested order
+          vi: Thứ tự gợi ý
+        tag: must
+        list:
+          - en: SQL and a relational database
+            vi: SQL và một database quan hệ
+          - en: Python and testing
+            vi: Python và kiểm thử
+          - en: Data modeling
+            vi: Mô hình hóa dữ liệu
+          - en: One warehouse plus dbt
+            vi: Một warehouse cùng dbt
+          - en: Orchestration
+            vi: Điều phối
+          - en: Streaming and lakehouse
+            vi: Streaming và lakehouse
+          - en: Platform, security and cost
+            vi: Nền tảng, bảo mật và chi phí
+      - h:
+          en: Books (verify current editions)
+          vi: Sách (kiểm tra ấn bản hiện hành)
+        tag: must
+        list:
+          - Fundamentals of Data Engineering (Reis, Housley)
+          - Designing Data-Intensive Applications (Kleppmann)
+          - The Data Warehouse Toolkit (Kimball, Ross)
+          - Building the Data Warehouse (Inmon)
+          - Data Engineering Design Patterns (Konieczny)
+      - h:
+          en: Newsletters and podcasts
+          vi: Newsletter và podcast
+        tag: nice
+        list:
+          - Data Engineering Podcast
+          - Data Engineering Weekly
+          - en: Vendor engineering blogs and conference talks
+            vi: Blog kỹ thuật của nhà cung cấp và các buổi nói chuyện hội nghị
+      - h:
+          en: Open-source projects to read
+          vi: Dự án mã nguồn mở nên đọc
+        tag: nice
+        list:
+          - Apache Airflow, Dagster, Kestra
+          - dbt Core, SQLMesh
+          - Apache Iceberg, Arrow, DataFusion
+          - DuckDB, Trino, Spark, Flink, Kafka
+      - h:
+          en: Practice habits
+          vi: Thói quen luyện tập
+        tag: senior
+        list:
+          - en: Write an ADR for every project
+            vi: Viết ADR cho mỗi dự án
+          - en: Run a failure drill monthly
+            vi: Chạy diễn tập sự cố hằng tháng
+          - en: Explain a system to a colleague
+            vi: Giải thích một hệ thống cho đồng nghiệp
+      - h:
+          en: Community
+          vi: Cộng đồng
+        tag: nice
+        p:
+          en: Follow authors and maintainers of the tools you use, join their community channels, and read their release notes.
+          vi: Theo dõi tác giả và maintainer của các công cụ bạn dùng, tham gia kênh cộng đồng và đọc release note của họ.
+    n:
+      en: "Titles and editions change: confirm them before recommending. The suggested order is one path, not the only one."
+      vi: "Tên sách và ấn bản thay đổi: hãy xác nhận trước khi giới thiệu. Thứ tự gợi ý chỉ là một con đường, không phải duy nhất."

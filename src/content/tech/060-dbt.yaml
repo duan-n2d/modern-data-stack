@@ -1,0 +1,301 @@
+tech:
+  id: dbt
+  name: dbt
+  color: "#EA580C"
+  refs:
+    - [dbt, https://docs.getdbt.com/]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "dbt: architecture"
+      vi: "dbt: kiến trúc"
+    lead:
+      en: dbt is a compiler and runner. It does not store or move data; it turns SQL and Jinja into a graph and runs it in your warehouse.
+      vi: dbt là compiler và runner. Nó không lưu hay di chuyển dữ liệu; nó biến SQL và Jinja thành một graph và chạy trong warehouse của bạn.
+    svg: dbtSVG
+    cap:
+      en: Every `ref()` and `source()` call becomes an edge in the dependency graph.
+      vi: Mỗi lời gọi `ref()` và `source()` trở thành một cạnh trong dependency graph.
+    n:
+      en: "Reinforce the mental model: dbt is a build tool for SQL, like make for data. It never touches data itself."
+      vi: "Củng cố mental model: dbt là công cụ build cho SQL, giống make cho dữ liệu. Bản thân nó không bao giờ chạm vào dữ liệu."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "dbt: components and workflow"
+      vi: "dbt: thành phần và quy trình"
+    comps:
+      - - Project
+        - en: Models, tests, macros, seeds, snapshots and sources in a directory
+          vi: Model, test, macro, seed, snapshot và source trong một thư mục
+      - - en: Profile and adapter
+          vi: Profile và adapter
+        - en: Connection settings and dialect layer for each warehouse
+          vi: Cài đặt kết nối và lớp dialect cho từng warehouse
+      - - en: ref() and source()
+          vi: ref() và source()
+        - en: Functions that declare dependencies and build the graph
+          vi: Hàm khai báo dependency và xây dựng graph
+      - - manifest.json
+        - en: "Parsed project: nodes, dependencies and configuration"
+          vi: "Project đã parse: node, dependency và configuration"
+      - - Materialization
+        - en: "How a model is persisted: view, table, incremental, ephemeral"
+          vi: "Cách một model được lưu: view, table, incremental, ephemeral"
+      - - en: Tests
+          vi: Test
+        - en: Generic and singular data tests, plus unit tests on mocked inputs
+          vi: Data test generic và singular, cùng unit test trên input mock
+      - - en: Macros and packages
+          vi: Macro và package
+        - en: Reusable Jinja and shared libraries such as dbt_utils
+          vi: Jinja tái sử dụng và các thư viện dùng chung như dbt_utils
+      - - en: Artifacts
+          vi: Artifact
+        - en: run_results.json, catalog.json and generated docs
+          vi: run_results.json, catalog.json và docs được sinh ra
+      - - en: dbt Cloud (optional)
+          vi: dbt Cloud (tùy chọn)
+        - en: Hosted IDE, scheduler, CI, catalog and semantic layer
+          vi: IDE hosted, scheduler, CI, catalog và semantic layer
+    flow:
+      - en: "`dbt build` parses Jinja and YAML into a manifest."
+        vi: "`dbt build` parse Jinja và YAML thành một manifest."
+      - en: The graph is built from `ref()` and `source()` calls.
+        vi: Graph được xây từ các lời gọi `ref()` và `source()`.
+      - en: Selectors (`--select`) choose the nodes to run.
+        vi: Selector (`--select`) chọn các node để chạy.
+      - en: Selected models are compiled from Jinja into SQL for the adapter.
+        vi: Các model được chọn được compile từ Jinja thành SQL cho adapter.
+      - en: Models run in topological order across the configured threads. Each model’s tests run right after it.
+        vi: Model chạy theo thứ tự topological qua số thread đã cấu hình. Test của mỗi model chạy ngay sau nó.
+      - en: A failing test blocks downstream models. Artifacts are written to `target/`.
+        vi: Một test thất bại sẽ chặn các model downstream. Artifact được ghi vào `target/`.
+    ops:
+      - en: The warehouse does the work. dbt cost is warehouse cost.
+        vi: Warehouse làm việc. Chi phí dbt chính là chi phí warehouse.
+      - en: Threads trade speed against warehouse concurrency.
+        vi: Thread đánh đổi tốc độ với concurrency của warehouse.
+      - en: Keep production artifacts so CI can use `state:modified+` and `--defer`.
+        vi: Giữ artifact production để CI có thể dùng `state:modified+` và `--defer`.
+      - en: Python models run on the platform’s Python runtime, not in dbt itself.
+        vi: Python model chạy trên Python runtime của nền tảng, không chạy trong chính dbt.
+      - en: The engine is evolving (for example the Fusion engine). Check compatibility for your adapter and version.
+        vi: Engine đang tiến hóa (ví dụ Fusion engine). Hãy kiểm tra khả năng tương thích với adapter và phiên bản của bạn.
+    n:
+      en: "Run through `dbt build` step by step. Then explain Slim CI as comparing two manifests: the one in production and the one in the pull request."
+      vi: "Đi qua `dbt build` từng bước. Sau đó giải thích Slim CI là việc so sánh hai manifest: manifest ở production và manifest trong pull request."
+  - id: dbt-internals-the-graph-selection-and-state-comparison
+    k: code
+    mod: [internals]
+    t:
+      en: "dbt internals: the graph, selection and state comparison"
+      vi: "Nội bộ dbt: đồ thị, selection và so sánh state"
+    lead:
+      en: dbt is a graph tool. Selection syntax and state comparison are how you run only what matters.
+      vi: dbt là công cụ đồ thị. Cú pháp selection và so sánh state giúp bạn chỉ chạy những gì quan trọng.
+    blocks:
+      - lang: bash
+        title: selection_cheatsheet.sh
+        code: |-
+          dbt ls --select stg_orders+                       # a model and everything downstream
+          dbt ls --select +fct_orders                       # a model and everything upstream
+          dbt ls --select tag:daily,config.materialized:incremental
+          dbt build --select state:modified+ --defer --state ./prod-artifacts
+          dbt build --select result:error+ --state ./target   # rerun failures and their children
+      - lang: python
+        title: inspect_manifest.py
+        code: |-
+          import json
+
+          with open("target/manifest.json") as f:
+              manifest = json.load(f)
+
+          for unique_id, node in manifest["nodes"].items():
+              if node["resource_type"] == "model":
+                  parents = node["depends_on"]["nodes"]
+                  print(unique_id, node["config"]["materialized"], f"{len(parents)} parents")
+    points:
+      - h:
+          en: Lifecycle
+          vi: Vòng đời
+        p:
+          en: Parse builds the manifest, selection picks nodes, compile renders Jinja to SQL, execute runs models in dependency order, then writes artifacts.
+          vi: Parse dựng manifest, selection chọn node, compile render Jinja ra SQL, execute chạy model theo thứ tự phụ thuộc, rồi ghi artifact.
+      - h:
+          en: State comparison
+          vi: So sánh state
+        tag: senior
+        p:
+          en: "`state:modified` compares your manifest with a saved one (usually production) by file and config checksums."
+          vi: "`state:modified` so manifest của bạn với manifest đã lưu (thường là production) bằng checksum file và cấu hình."
+      - h:
+          en: Materialization lifecycle
+          vi: Vòng đời materialization
+        p:
+          en: "A materialization is a macro: it decides how to create, replace, merge or skip an object in the warehouse."
+          vi: "Materialization là một macro: nó quyết định cách tạo, thay, merge hoặc bỏ qua một đối tượng trong warehouse."
+      - h:
+          en: Adapters
+          vi: Adapter
+        tag: senior
+        p:
+          en: Adapters translate dbt’s abstractions into each warehouse’s dialect and capabilities. Behaviour such as incremental strategies depends on the adapter.
+          vi: Adapter dịch các khái niệm của dbt sang dialect và khả năng của từng warehouse. Hành vi như incremental strategy phụ thuộc adapter.
+    n:
+      en: "Selector syntax and artifact fields evolve with dbt versions. The manifest is a rich data source: observability tools and lineage extractors read it."
+      vi: "Cú pháp selector và trường artifact thay đổi theo phiên bản dbt. Manifest là nguồn dữ liệu phong phú: công cụ observability và công cụ trích lineage đọc nó."
+  - id: dbt-troubleshooting-symptoms-to-fixes
+    k: table
+    mod: [troubleshooting]
+    t:
+      en: "dbt troubleshooting: symptoms to fixes"
+      vi: "Troubleshooting dbt: từ triệu chứng đến cách sửa"
+    head:
+      - en: Symptom
+        vi: Triệu chứng
+      - en: Likely cause
+        vi: Nguyên nhân có thể
+      - en: Diagnose
+        vi: Chẩn đoán
+      - en: Fix
+        vi: Cách sửa
+    rows:
+      - - "`Compilation Error: model not found`"
+        - en: Wrong `ref` name, disabled model, or package not installed
+          vi: Sai tên `ref`, model bị tắt, hoặc chưa cài package
+        - "`dbt ls`, `dbt deps`"
+        - en: Fix the name or enable the model; run `dbt deps`
+          vi: Sửa tên hoặc bật model; chạy `dbt deps`
+      - - en: Incremental model drifts from source
+          vi: Model incremental lệch khỏi nguồn
+        - en: Late data, logic change, unreliable `updated_at`
+          vi: Dữ liệu trễ, đổi logic, `updated_at` không đáng tin
+        - en: Compare counts and checksums for recent partitions
+          vi: So sánh số dòng và checksum của các partition gần đây
+        - en: Overlap window, periodic `--full-refresh`, reconciliation test
+          vi: Cửa sổ chồng lấn, `--full-refresh` định kỳ, test đối soát
+      - - en: Run takes much longer than before
+          vi: Lần chạy lâu hơn nhiều so với trước
+        - en: A model changed to a table, a new fan-out join, or full scans
+          vi: Model đổi thành table, join nở dòng mới, hoặc quét toàn bảng
+        - en: "`run_results.json` timing; warehouse query profile"
+          vi: Thời gian trong `run_results.json`; query profile của warehouse
+        - en: Incremental, prune columns, fix the join grain
+          vi: Incremental, cắt cột, sửa grain của join
+      - - en: Tests flaky or fail only in CI
+          vi: Test chập chờn hoặc chỉ fail ở CI
+        - en: Non-deterministic data, time-dependent tests, missing fixtures
+          vi: Dữ liệu không tất định, test phụ thuộc thời gian, thiếu fixture
+        - en: Rerun with a fixed dataset
+          vi: Chạy lại với tập dữ liệu cố định
+        - en: Pin test data, use unit tests, avoid `current_date` in tests
+          vi: Cố định dữ liệu test, dùng unit test, tránh `current_date` trong test
+      - - en: Contract error after a column change
+          vi: Lỗi contract sau khi đổi cột
+        - en: Column name or type no longer matches the declared contract
+          vi: Tên hoặc kiểu cột không còn khớp contract đã khai báo
+        - en: Compare model SQL with the YAML
+          vi: So sánh SQL của model với YAML
+        - en: Update the contract with a version bump; notify consumers
+          vi: Cập nhật contract kèm tăng version; thông báo cho consumer
+      - - en: Connection or concurrency errors
+          vi: Lỗi kết nối hoặc đồng thời
+        - en: Too many threads for the warehouse
+          vi: Quá nhiều thread so với warehouse
+        - en: Warehouse concurrency and queue metrics
+          vi: Metric đồng thời và hàng đợi của warehouse
+        - en: Lower `threads`; isolate dbt on its own warehouse
+          vi: Giảm `threads`; cô lập dbt trên warehouse riêng
+    cap:
+      en: "`target/run_results.json` and `target/compiled` answer most “what ran and how” questions."
+      vi: "`target/run_results.json` và `target/compiled` trả lời hầu hết câu hỏi “đã chạy gì và thế nào”."
+    n:
+      en: "Teach learners to open the compiled SQL: a surprising number of dbt bugs are bugs in the rendered SQL, not in dbt."
+      vi: "Dạy người học mở SQL đã compile: số lượng bug dbt thật ra là bug trong SQL đã render, không phải trong dbt, nhiều đúng ngạc nhiên."
+  - id: dbt-lab-a-tested-incremental-contract-backed-project
+    k: lab
+    mod: [lab]
+    t:
+      en: "dbt lab: a tested, incremental, contract-backed project"
+      vi: "Lab dbt: dự án có test, incremental và contract"
+    lead:
+      en: Build a small project the way a team would, then change it safely.
+      vi: Xây một dự án nhỏ như một đội thật sẽ làm, rồi thay đổi nó an toàn.
+    scenario:
+      en: Build orders and customers marts from raw tables, and ship a breaking column change without surprising downstream users.
+      vi: Xây mart orders và customers từ bảng thô, và phát hành thay đổi cột gây phá vỡ mà không làm bất ngờ người dùng phía sau.
+    input:
+      en: DuckDB or Postgres, dbt Core, a seed of raw orders and customers with intentional duplicates and late updates.
+      vi: DuckDB hoặc Postgres, dbt Core, một seed orders và customers thô có cố ý trùng lặp và cập nhật muộn.
+    tasks:
+      - en: Create staging, intermediate and mart models with unique, not-null and relationship tests.
+        vi: Tạo model staging, intermediate và mart với test unique, not-null và relationship.
+      - en: Make the fact incremental with a safe overlap and write a unit test for the tricky logic.
+        vi: Làm fact thành incremental với chồng lấn an toàn và viết unit test cho logic khó.
+      - en: Add a contract to a public mart, then rename a column using a new model version.
+        vi: Thêm contract cho một mart công khai, rồi đổi tên một cột bằng phiên bản model mới.
+      - en: Add a CI workflow that builds only modified models.
+        vi: Thêm workflow CI chỉ build các model đã đổi.
+    expected:
+      en: A passing CI run, evidence that late data is handled, and a change log explaining the versioned model change.
+      vi: Một lần chạy CI thành công, bằng chứng dữ liệu trễ được xử lý và changelog giải thích thay đổi model có version.
+    rubric:
+      - en: Tests catch the planted data problems
+        vi: Test bắt được các lỗi dữ liệu đã gài
+      - en: Incremental logic reconciles with a full refresh
+        vi: Logic incremental đối soát khớp với full refresh
+      - en: Breaking change handled with versions, not surprise
+        vi: Thay đổi phá vỡ được xử lý bằng version, không gây bất ngờ
+      - en: CI runs only what changed
+        vi: CI chỉ chạy phần đã đổi
+    design:
+      en: Design the project structure, ownership and contract policy for ten teams contributing to one dbt project.
+      vi: Thiết kế cấu trúc dự án, quyền sở hữu và chính sách contract cho mười đội cùng đúng góp vào một dự án dbt.
+    n:
+      en: "Assess the reconciliation between incremental and full-refresh results: it reveals whether the logic is safe."
+      vi: "Đánh giá việc đối soát giữa kết quả incremental và full-refresh: nó cho thấy logic có an toàn hay không."
+  - id: dbt-lifecycle-from-project-to-artifacts
+    k: lifecycle
+    mod: [internals]
+    t:
+      en: "dbt lifecycle: from project to artifacts"
+      vi: "Vòng đời dbt: từ dự án đến artifact"
+    lead:
+      en: What happens between typing dbt build and seeing a green run.
+      vi: Chuyện gì xảy ra giữa lúc gõ dbt build và lúc thấy run xanh.
+    steps:
+      - - Parse
+        - en: Jinja and YAML are parsed into the manifest.
+          vi: Jinja và YAML được parse thành manifest.
+        - target/manifest.json
+      - - en: Build the graph
+          vi: Dựng đồ thị
+        - en: ref and source calls define dependencies.
+          vi: Lời gọi ref và source định nghĩa phụ thuộc.
+        - dbt ls
+      - - en: Select nodes
+          vi: Chọn node
+        - en: Selectors and state comparison choose what to run.
+          vi: Selector và so sánh state chọn thứ cần chạy.
+        - --select state:modified+
+      - - Compile
+        - en: Jinja is rendered into SQL for the adapter.
+          vi: Jinja được render thành SQL cho adapter.
+        - target/compiled
+      - - en: Materialize and test
+          vi: Materialize và test
+        - en: Models run in order with threads; tests run after each.
+          vi: Model chạy theo thứ tự với các thread; test chạy sau mỗi model.
+        - dbt build logs
+      - - en: Write artifacts
+          vi: Ghi artifact
+        - en: Results and catalog are written for CI and tools.
+          vi: Kết quả và catalog được ghi cho CI và công cụ.
+        - target/run_results.json
+    n:
+      en: Point out that most debugging starts at the compiled SQL.
+      vi: Chỉ ra rằng phần lớn việc debug bắt đầu từ SQL đã compile.

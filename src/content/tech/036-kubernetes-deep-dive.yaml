@@ -1,0 +1,131 @@
+tech: {id: kubernetes, name: Kubernetes, color: "#2563EB"}
+slides:
+  - id: overview-pods-services-and-controllers
+    k: components
+    mod: [overview]
+    t: {en: "Kubernetes overview: pods, services and controllers", vi: "Kubernetes tong quan: pod, service va controller"}
+    lead: {en: "Kubernetes reconciles declared workloads and networking against cluster state through controllers.", vi: "Kubernetes reconcile workload va networking da khai bao voi state cluster thong qua controller."}
+    comps:
+      - - API server
+        - {en: "Validates requests and persists desired objects.", vi: "Validate request va luu object mong muon."}
+      - - Scheduler
+        - {en: "Places pending pods onto eligible nodes.", vi: "Dat pod pending len node phu hop."}
+      - - Controller
+        - {en: "Creates or repairs resources to match desired state.", vi: "Tao hoac sua resource de khop desired state."}
+      - - Kubelet
+        - {en: "Runs assigned pods and reports node status.", vi: "Chay pod duoc giao va bao cao status node."}
+    flow: [{en: "Apply desired objects", vi: "Apply object mong muon"}, {en: "Schedule and start pods", vi: "Schedule va khoi dong pod"}, {en: "Reconcile continuously", vi: "Reconcile lien tuc"}]
+    ops: [{en: "Design probes, resource requests and disruption budgets as part of each workload.", vi: "Thiet ke probe, resource request va disruption budget cung voi moi workload."}]
+    n: {en: "A successful API apply means the object was accepted, not that the application is ready; follow reconciliation to endpoint health.", vi: "API apply thanh cong chi co nghia object duoc chap nhan, khong phai app san sang; theo doi reconcile den khi endpoint khoe."}
+  - id: configuration-requests-limits-and-probes
+    k: code
+    mod: [config]
+    t: {en: "Kubernetes configuration: requests, limits and probes", vi: "Cau hinh Kubernetes: request, limit va probe"}
+    lead: {en: "Resource requests affect placement; limits affect runtime throttling or OOM behavior.", vi: "Resource request anh huong placement; limit anh huong throttling runtime hoac OOM."}
+    blocks:
+      - lang: yaml
+        title: deployment.yaml
+        code: |-
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata: {name: api}
+          spec:
+            replicas: 3
+            selector: {matchLabels: {app: api}}
+            template:
+              metadata: {labels: {app: api}}
+              spec:
+                containers:
+                  - name: api
+                    image: example/api:1.4.2
+                    resources:
+                      requests: {cpu: 500m, memory: 512Mi}
+                      limits: {cpu: "2", memory: 1Gi}
+                    readinessProbe: {httpGet: {path: /ready, port: 8080}}
+                    livenessProbe: {httpGet: {path: /health, port: 8080}}
+    points:
+      - {h: {en: Avoid probe feedback loops, vi: Tranh probe tao vong lap loi}, p: {en: "A slow readiness probe removes endpoints; an aggressive liveness probe can repeatedly kill a recovering process.", vi: "Readiness probe cham loai endpoint; liveness probe qua gat co the lien tuc kill process dang hoi phuc."}}
+    n: {en: "Set startup probes for slow initialization and validate resource values under peak traffic, not only idle tests.", vi: "Dat startup probe cho khoi dong cham va validate resource luc traffic dinh, khong chi luc test idle."}
+  - id: implementation-safe-rollout-and-service
+    k: code
+    mod: [implementation]
+    t: {en: "Kubernetes implementation: a safe rollout", vi: "Trien khai Kubernetes: rollout an toan"}
+    lead: {en: "A rollout needs health checks, capacity for overlap and a clear rollback trigger.", vi: "Rollout can health check, capacity cho overlap va trigger rollback ro rang."}
+    blocks:
+      - lang: yaml
+        title: rollout.yaml
+        code: |-
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata: {name: worker}
+          spec:
+            selector: {matchLabels: {app: worker}}
+            strategy:
+              rollingUpdate: {maxUnavailable: 0, maxSurge: 1}
+            template:
+              metadata: {labels: {app: worker}}
+              spec:
+                terminationGracePeriodSeconds: 60
+                containers:
+                  - name: worker
+                    image: example/worker:2.1.0
+                    lifecycle:
+                      preStop:
+                        exec: {command: ["/bin/sh", "-c", "sleep 10"]}
+    points:
+      - {h: {en: Match termination to application behavior, vi: Can termination theo hanh vi app}, p: {en: "The process must stop accepting work, finish or checkpoint in-flight tasks and exit before the grace period.", vi: "Process phai dung nhan work, hoan tat hoac checkpoint task dang chay va thoat truoc grace period."}}
+    n: {en: "Practice rollback using a failed readiness signal and verify old replicas remain available throughout the rollout.", vi: "Thuc hanh rollback khi readiness fail va xac minh replica cu van san sang suot rollout."}
+  - id: operations-capacity-and-disruption
+    k: table
+    mod: [operations]
+    t: {en: "Kubernetes operations: capacity and disruption", vi: "Van hanh Kubernetes: capacity va disruption"}
+    lead: {en: "Cluster health depends on allocatable capacity, scheduling constraints and disruption during maintenance.", vi: "Suc khoe cluster phu thuoc capacity allocatable, rang buoc scheduling va disruption luc maintenance."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Check, vi: Kiem tra}, {en: Response, vi: Phan hoi}]
+    rows:
+      - - {en: Pods Pending, vi: Pod Pending}
+        - {en: "Requests, affinity, taints, quotas and autoscaler events.", vi: "Request, affinity, taint, quota va event autoscaler."}
+        - {en: "Fix the unsatisfied constraint or add capacity in the correct pool.", vi: "Sua constraint khong duoc dap ung hoac them capacity dung pool."}
+      - - {en: Evictions, vi: Eviction}
+        - {en: "Node pressure, ephemeral storage and memory working set.", vi: "Ap luc node, ephemeral storage va memory working set."}
+        - {en: "Correct requests and capacity; protect critical pods with disruption budgets.", vi: "Sua request va capacity; bao ve pod critical bang disruption budget."}
+    n: {en: "Review events with metrics and deployment history; a PDB constrains voluntary disruption but does not create capacity.", vi: "Review event cung metric va deployment history; PDB gioi han disruption tu nguyen nhung khong tao capacity."}
+  - id: troubleshooting-networking-and-scheduling
+    k: table
+    mod: [troubleshooting]
+    t: {en: "Kubernetes troubleshooting: networking and scheduling", vi: "Xu ly su co Kubernetes: networking va scheduling"}
+    lead: {en: "Trace a request from Service endpoints through DNS, network policy and the target pod.", vi: "Trace request tu endpoint Service qua DNS, network policy toi pod dich."}
+    head: [{en: Symptom, vi: Trieu chung}, {en: Inspect, vi: Kiem tra}, {en: Likely cause, vi: Nguyen nhan}]
+    rows:
+      - - {en: Service has no endpoints, vi: Service khong co endpoint}
+        - {en: "Selector labels, readiness and EndpointSlice.", vi: "Label selector, readiness va EndpointSlice."}
+        - {en: "Label mismatch or pods never became Ready.", vi: "Label khong khop hoac pod chua Ready."}
+      - - {en: Pod cannot schedule, vi: Pod khong schedule duoc}
+        - {en: "Events, requests, taints and node allocatable values.", vi: "Event, request, taint va gia tri allocatable node."}
+        - {en: "Unsatisfied resource or placement constraint.", vi: "Resource hoac placement constraint khong thoa."}
+    n: {en: "Change one network boundary at a time and test from the same namespace and service account as the failing workload.", vi: "Chi doi mot ranh gioi network moi lan va test tu cung namespace, service account voi workload loi."}
+  - id: performance-resource-efficiency-and-autoscaling
+    k: table
+    mod: [performance]
+    t: {en: "Kubernetes performance: efficiency and autoscaling", vi: "Hieu nang Kubernetes: efficiency va autoscaling"}
+    lead: {en: "Autoscaling responds to signals; it cannot fix missing requests, slow startup or a saturated downstream service.", vi: "Autoscaling phan hoi tin hieu; no khong sua request thieu, startup cham hay downstream bi bao hoa."}
+    head: [{en: Lever, vi: Don bay}, {en: Measure, vi: Do luong}, {en: Failure mode, vi: Failure mode}]
+    rows:
+      - - {en: HPA, vi: HPA}
+        - {en: "CPU or custom metric against requests.", vi: "CPU hoac custom metric so voi request."}
+        - {en: "Missing requests or delayed metrics make scaling unstable.", vi: "Thieu request hoac metric tre lam scaling bat on dinh."}
+      - - {en: Cluster autoscaler, vi: Cluster autoscaler}
+        - {en: "Pending pods and node provisioning latency.", vi: "Pod pending va latency cap node."}
+        - {en: "Quota, subnet IP or instance capacity blocks new nodes.", vi: "Quota, IP subnet hoac capacity instance chan node moi."}
+    n: {en: "Model scale-up delay and warm-up time against the traffic burst; reactive scaling cannot protect a zero-latency SLO by itself.", vi: "Mo hinh hoa do tre scale-up va warm-up so voi traffic burst; reactive scaling tu no khong bao ve SLO latency bang khong."}
+  - id: lab-debug-a-pending-data-worker
+    k: lab
+    mod: [lab]
+    t: {en: "Kubernetes lab: debug a pending data worker", vi: "Lab Kubernetes: debug data worker pending"}
+    lead: {en: "Find why a batch worker is Pending and make it schedulable without weakening isolation.", vi: "Tim ly do batch worker Pending va lam no schedule duoc ma khong lam yeu isolation."}
+    scenario: {en: "A new worker rollout is stuck; pods are Pending and the queue is missing its freshness target.", vi: "Rollout worker moi bi ket; pod Pending va queue miss freshness target."}
+    input: {en: "Pod events, node capacity, taints, quota, affinity and autoscaler logs.", vi: "Event pod, capacity node, taint, quota, affinity va log autoscaler."}
+    tasks: [{en: "Identify the unsatisfied scheduling constraint.", vi: "Xac dinh scheduling constraint chua thoa."}, {en: "Propose the smallest safe change and a rollback.", vi: "De xuat thay doi an toan nho nhat va rollback."}, {en: "Show how to verify throughput and isolation after the change.", vi: "Cho thay cach verify throughput va isolation sau thay doi."}]
+    expected: {en: "A diagnosis tied to events and a scoped capacity or manifest correction.", vi: "Chan doan dua tren event va sua capacity hoac manifest co pham vi."}
+    rubric: [{en: "Does not remove security boundaries as a shortcut.", vi: "Khong go bo security boundary de lam tat."}, {en: "Includes a measurable recovery condition.", vi: "Co dieu kien recovery do duoc."}]
+    design: {en: "State expected scheduling latency, capacity headroom and service-level impact.", vi: "Neu scheduling latency, headroom capacity va tac dong service level du kien."}
+    n: {en: "Require the learner to distinguish a scheduling fix from an application readiness fix.", vi: "Yeu cau hoc vien phan biet sua scheduling voi sua application readiness."}

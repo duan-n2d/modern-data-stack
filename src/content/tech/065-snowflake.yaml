@@ -1,0 +1,86 @@
+tech:
+  id: snowflake
+  name: Snowflake
+  color: "#0284C7"
+  refs:
+    - [Snowflake, https://docs.snowflake.com/]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "Snowflake: architecture"
+      vi: "Snowflake: kiến trúc"
+    lead:
+      en: "Three layers: a metadata brain, independent compute clusters, and shared storage. Compute scales without moving data."
+      vi: "Ba layer: một bộ não metadata, các compute cluster độc lập và storage dùng chung. Compute scale mà không cần di chuyển dữ liệu."
+    svg: snowflakeSVG
+    cap:
+      en: Separate warehouses per workload prevent contention. They all read the same stored data.
+      vi: Mỗi workload dùng warehouse riêng để tránh tranh chấp tài nguyên. Tất cả cùng đọc một dữ liệu đã lưu.
+    n:
+      en: "The key ideas: storage is shared, compute is separate and elastic, and metadata drives pruning. That combination explains both the speed and the cost behavior."
+      vi: "Ý chính: storage dùng chung, compute tách biệt và co giãn, còn metadata điều khiển việc pruning. Sự kết hợp này giải thích cả tốc độ lẫn hành vi chi phí."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "Snowflake: components and workflow"
+      vi: "Snowflake: thành phần và quy trình"
+    comps:
+      - - Cloud services layer
+        - en: Authentication, metadata, optimizer, transaction management, access control
+          vi: Xác thực, metadata, optimizer, quản lý transaction, kiểm soát truy cập
+      - - Virtual warehouse
+        - en: Independent MPP compute cluster with T-shirt sizes and auto-suspend
+          vi: Compute cluster MPP độc lập với kích cỡ T-shirt và auto-suspend
+      - - en: Micro-partitions
+          vi: Micro-partition
+        - en: Immutable columnar files with min and max metadata per column
+          vi: File columnar bất biến, kèm metadata min và max cho mỗi cột
+      - - en: Storage
+          vi: Lưu trữ
+        - en: Cloud object storage managed by Snowflake
+          vi: Cloud object storage do Snowflake quản lý
+      - - en: Caches
+          vi: Cache
+        - en: Result cache, warehouse local disk cache and metadata cache
+          vi: Result cache, cache trên đĩa cục bộ của warehouse và metadata cache
+      - - en: Time travel, fail-safe, clones
+          vi: Time travel, fail-safe, clone
+        - en: Retained history and zero-copy copies of data
+          vi: Lưu lịch sử và bản sao zero-copy của dữ liệu
+      - - en: Snowpipe, streams, tasks, dynamic tables
+          vi: Snowpipe, stream, task, dynamic table
+        - en: Ingestion and incremental pipeline objects
+          vi: Các đối tượng ingestion và pipeline incremental
+      - - Secure data sharing
+        - en: Share live data across accounts without copying
+          vi: Chia sẻ dữ liệu live giữa các account mà không cần sao chép
+    flow:
+      - en: A client submits SQL to cloud services.
+        vi: Client gửi SQL tới cloud services.
+      - en: Cloud services parse and optimize the query and check the result cache.
+        vi: Cloud services parse và tối ưu query, đồng thời kiểm tra result cache.
+      - en: Micro-partition metadata prunes partitions that cannot match the filters.
+        vi: Metadata của micro-partition loại bỏ các partition không thể khớp với bộ lọc.
+      - en: Warehouse nodes scan only the remaining partitions in parallel, using the local cache when possible.
+        vi: Các node của warehouse quét song song chỉ những partition còn lại, dùng cache cục bộ khi có thể.
+      - en: Results return to the client and are cached.
+        vi: Kết quả trả về client và được cache.
+      - en: DML writes new micro-partitions; old ones are kept for time travel.
+        vi: DML ghi micro-partition mới; các partition cũ được giữ lại cho time travel.
+    ops:
+      - en: Credits equal warehouse size times running time. Keep auto-suspend short.
+        vi: Credit bằng kích cỡ warehouse nhân thời gian chạy. Giữ auto-suspend ngắn.
+      - en: A bigger warehouse is not always faster. Test sizes against real queries.
+        vi: Warehouse lớn hơn không phải lúc nào cũng nhanh hơn. Hãy test các kích cỡ với query thực tế.
+      - en: Multi-cluster warehouses add concurrency, not single-query speed.
+        vi: Warehouse multi-cluster tăng concurrency, không tăng tốc độ của một query đơn lẻ.
+      - en: Add clustering keys only to very large, frequently filtered tables.
+        vi: Chỉ thêm clustering key cho các bảng rất lớn và thường xuyên được lọc.
+      - en: Use separate warehouses and resource monitors per workload.
+        vi: Dùng warehouse và resource monitor riêng cho từng workload.
+    n:
+      en: Follow one query through the six steps. The senior takeaways are pruning (the cheapest query is the one that skips partitions) and workload isolation through multiple warehouses.
+      vi: Theo dõi một query qua sáu bước. Điểm mấu chốt cho senior là pruning (query rẻ nhất là query bỏ qua được partition) và cô lập workload bằng nhiều warehouse.

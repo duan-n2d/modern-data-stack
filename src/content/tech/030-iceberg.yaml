@@ -1,0 +1,376 @@
+tech:
+  id: iceberg
+  name: Iceberg
+  color: "#7C3AED"
+  refs:
+    - [Apache Iceberg, https://iceberg.apache.org/docs/latest/]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "Iceberg: architecture"
+      vi: "Iceberg: kiến trúc"
+    lead:
+      en: A table is a tree of immutable metadata files over data files. A commit adds new files and moves one pointer.
+      vi: Một table là cây các file metadata bất biến nằm trên các file dữ liệu. Mỗi commit thêm file mới và di chuyển một con trỏ.
+    svg: icebergSVG
+    cap:
+      en: Because files are immutable and the pointer swap is atomic, readers always see a consistent snapshot.
+      vi: Vì file là bất biến và việc hoán đổi con trỏ là atomic, reader luôn thấy một snapshot nhất quán.
+    n:
+      en: "Read bottom up: data files are plain Parquet, manifests index them, a snapshot is one consistent view, and the catalog says which snapshot is current. That is all “ACID on object storage” means here."
+      vi: "Đọc từ dưới lên: file dữ liệu là Parquet thuần, manifest đánh index chúng, snapshot là một góc nhìn nhất quán, và catalog cho biết snapshot nào là hiện tại. Đã là toàn bộ ý nghĩa của “ACID trên object storage” ở đây."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "Iceberg: components and workflow"
+      vi: "Iceberg: thành phần và quy trình"
+    comps:
+      - - Catalog
+        - en: Stores the pointer to the current metadata file and provides the atomic swap (Hive, Glue, REST, Nessie, JDBC)
+          vi: Lưu con trỏ tới file metadata hiện tại và cung cấp thao tác hoán đổi atomic (Hive, Glue, REST, Nessie, JDBC)
+      - - en: Metadata file
+          vi: File metadata
+        - en: Schema, partition spec, snapshot list and table properties
+          vi: Schema, partition spec, danh sách snapshot và thuộc tính của table
+      - - Snapshot
+        - en: Immutable state of the table after one commit; basis for time travel
+          vi: Trạng thái bất biến của table sau một commit; là cơ sở cho time travel
+      - - Manifest list
+        - en: Lists the manifests of a snapshot with partition summaries
+          vi: Liệt kê các manifest của một snapshot kèm tóm tắt partition
+      - - en: Manifest file
+          vi: File manifest
+        - en: Lists data files with per-column statistics (min, max, null counts)
+          vi: Liệt kê các file dữ liệu kèm thống kê theo từng cột (min, max, số lượng null)
+      - - en: Data files
+          vi: File dữ liệu
+        - en: Parquet, ORC or Avro files
+          vi: File Parquet, ORC hoặc Avro
+      - - en: Delete files
+          vi: File delete
+        - en: Positional or equality deletes for row-level changes (merge-on-read)
+          vi: Positional hoặc equality delete cho thay đổi ở mức dòng (merge-on-read)
+      - - Hidden partitioning
+        - en: Partitions defined as transforms such as `day(ts)` or `bucket(id)`; queries need no partition column
+          vi: Partition được định nghĩa dưới dạng transform như `day(ts)` hoặc `bucket(id)`; query không cần cột partition
+    flow:
+      - en: "Read: the engine asks the catalog for the current metadata file."
+        vi: "Đọc: engine hỏi catalog để lấy file metadata hiện tại."
+      - en: It reads the chosen snapshot’s manifest list.
+        vi: Đọc manifest list của snapshot được chọn.
+      - en: It prunes manifests by partition summaries, then data files by column statistics.
+        vi: Loại bớt manifest theo tóm tắt partition, rồi loại bớt file dữ liệu theo thống kê cột.
+      - en: It reads only the surviving data files (and applies delete files).
+        vi: Chỉ đọc các file dữ liệu còn lại (và áp dụng các file delete).
+      - en: "Write: new data files, new manifests and a new metadata file are created, then the catalog pointer swaps."
+        vi: "Ghi: tạo file dữ liệu mới, manifest mới và file metadata mới, sau đó con trỏ catalog được hoán đổi."
+      - en: If another writer committed first, the writer validates for conflicts and retries.
+        vi: Nếu writer khác đã commit trước, writer sẽ kiểm tra xung đột và retry.
+    ops:
+      - en: "Run maintenance: compaction (`rewrite_data_files`), `expire_snapshots`, `remove_orphan_files`."
+        vi: "Chạy bảo trì: compaction (`rewrite_data_files`), `expire_snapshots`, `remove_orphan_files`."
+      - en: Copy-on-write costs more at write time; merge-on-read costs more at read time.
+        vi: Copy-on-write tốn hơn lúc ghi; merge-on-read tốn hơn lúc đọc.
+      - en: Schema and partition evolution work by column ID without rewriting data.
+        vi: Schema evolution và partition evolution hoạt động theo column ID mà không cần ghi lại dữ liệu.
+      - en: The catalog is the coordination and access-control point. Choose it deliberately.
+        vi: Catalog là điểm điều phối và kiểm soát truy cập. Hãy chọn có chủ đích.
+    n:
+      en: "Walk the read path to show why Iceberg prunes well: three levels of statistics before any data file is opened. Then the commit path to show why concurrent writers are safe."
+      vi: "Đi qua read path để cho thấy vì sao Iceberg prune tốt: ba tầng thống kê trước khi mở bất kỳ file dữ liệu nào. Sau đó đến commit path để cho thấy vì sao nhiều writer đồng thời vẫn an toàn."
+  - id: table-formats-compared-iceberg-delta-lake-hudi
+    k: table
+    mod: [overview]
+    t:
+      en: "Table formats compared: Iceberg, Delta Lake, Hudi"
+      vi: "So sánh các table format: Iceberg, Delta Lake, Hudi"
+    lead:
+      en: All three add transactions and schema evolution to files on object storage. They differ in how metadata is laid out and where they are strongest.
+      vi: Cả ba đều bổ sung transaction và schema evolution cho các file trên object storage. Chúng khác nhau ở cách bố trí metadata và ở thế mạnh riêng.
+    head:
+      - en: Aspect
+        vi: Khía cạnh
+      - Iceberg
+      - Delta Lake
+      - Hudi
+    rows:
+      - - en: Metadata layout
+          vi: Bố cục metadata
+        - en: "Tree: metadata file, manifest list, manifests"
+          vi: "Cây: file metadata, manifest list, manifest"
+        - en: Ordered transaction log (`_delta_log`) with periodic checkpoints
+          vi: Transaction log có thứ tự (`_delta_log`) với checkpoint định kỳ
+        - en: Timeline of instants plus a metadata table
+          vi: Timeline các instant cùng một metadata table
+      - - en: Commit mechanism
+          vi: Cơ chế commit
+        - en: Atomic catalog pointer swap
+          vi: Hoán đổi con trỏ catalog atomic
+        - en: Atomic write of the next log entry
+          vi: Ghi atomic mục log tiếp theo
+        - en: Timeline instants with locking
+          vi: Timeline instant có locking
+      - - Partitioning
+        - en: Hidden partitioning and partition evolution
+          vi: Hidden partitioning và partition evolution
+        - en: Partitioning plus newer clustering features
+          vi: Partitioning cùng các tính năng clustering mới hơn
+        - en: Partitioning with indexing options
+          vi: Partitioning với các tùy chọn indexing
+      - - en: Row-level changes
+          vi: Thay đổi ở mức dòng
+        - en: Copy-on-write or merge-on-read with delete files
+          vi: Copy-on-write hoặc merge-on-read với file delete
+        - en: Copy-on-write, with deletion vectors in newer versions
+          vi: Copy-on-write, kèm deletion vector ở các phiên bản mới hơn
+        - en: Copy-on-write or merge-on-read (a core strength)
+          vi: Copy-on-write hoặc merge-on-read (thế mạnh cốt lõi)
+      - - en: Engine support
+          vi: Hỗ trợ engine
+        - en: "Broad: Spark, Flink, Trino, Snowflake, BigQuery, DuckDB"
+          vi: "Rộng: Spark, Flink, Trino, Snowflake, BigQuery, DuckDB"
+        - en: Strongest in Spark and Databricks; growing elsewhere
+          vi: Mạnh nhất trên Spark và Databricks; đang mở rộng ở nơi khác
+        - Spark, Flink, Trino, Presto
+      - - en: Typical fit
+          vi: Phù hợp điển hình
+        - en: Multi-engine lakehouse, avoiding lock-in
+          vi: Lakehouse đa engine, tránh lock-in
+        - en: Databricks-centered lakehouse
+          vi: Lakehouse xoay quanh Databricks
+        - en: Streaming upserts and CDC-heavy lakes
+          vi: Streaming upsert và data lake nặng CDC
+    cap:
+      en: Feature gaps between formats are narrowing, and interoperability layers exist. Verify the current state before choosing.
+      vi: Khoảng cách tính năng giữa các format đang thu hẹp, và đã có các lớp interoperability. Hãy kiểm tra hiện trạng trước khi chọn.
+    n:
+      en: "Do not declare a winner. The decision is about engine mix and workload: multi-engine reads favor Iceberg, Databricks favors Delta, heavy upsert streams are Hudi territory."
+      vi: "Đừng tuyên bố bên thắng. Quyết định phụ thuộc vào tổ hợp engine và workload: đọc đa engine nghiêng về Iceberg, Databricks nghiêng về Delta, stream upsert nặng là lãnh địa của Hudi."
+  - id: iceberg-internals-snapshots-maintenance-and-concurrency
+    k: code
+    mod: [internals]
+    t:
+      en: "Iceberg internals: snapshots, maintenance and concurrency"
+      vi: "Nội bộ Iceberg: snapshot, bảo trì và đồng thời"
+    lead:
+      en: Every commit creates a snapshot. Maintenance keeps metadata small, files large and storage bounded.
+      vi: Mỗi commit tạo một snapshot. Bảo trì giữ metadata nhỏ, file lớn và dung lượng có giới hạn.
+    blocks:
+      - lang: sql
+        title: inspect_and_time_travel.sql (Spark SQL)
+        code: |-
+          SELECT * FROM catalog.db.orders.snapshots;         -- every commit
+          SELECT * FROM catalog.db.orders.manifests;         -- manifest files and stats
+          SELECT file_path, record_count, file_size_in_bytes FROM catalog.db.orders.files;
+
+          SELECT * FROM catalog.db.orders VERSION AS OF 4871234567890;
+          SELECT * FROM catalog.db.orders TIMESTAMP AS OF '2026-11-01 00:00:00';
+      - lang: sql
+        title: maintenance.sql (run on a schedule)
+        code: |-
+          -- 1) Compact small files toward a target size
+          CALL catalog.system.rewrite_data_files(
+              table => 'db.orders',
+              options => map('target-file-size-bytes', '536870912')
+          );
+
+          -- 2) Rewrite manifests so planning stays fast
+          CALL catalog.system.rewrite_manifests('db.orders');
+
+          -- 3) Drop old snapshots (this removes time travel to them)
+          CALL catalog.system.expire_snapshots(
+              table => 'db.orders',
+              older_than => TIMESTAMP '2026-10-01 00:00:00',
+              retain_last => 5
+          );
+
+          -- 4) Delete files no snapshot references
+          CALL catalog.system.remove_orphan_files(table => 'db.orders');
+    points:
+      - h:
+          en: Snapshot lifecycle
+          vi: Vòng đời snapshot
+        p:
+          en: Each commit adds a snapshot; expiring snapshots lets unreferenced files be deleted. Time travel only works for retained snapshots.
+          vi: Mỗi commit thêm một snapshot; hết hạn snapshot cho phép xóa file không còn được tham chiếu. Time travel chỉ hoạt động với snapshot còn giữ.
+      - h:
+          en: Optimistic concurrency
+          vi: Đồng thời lạc quan
+        tag: senior
+        p:
+          en: Writers commit by swapping the catalog pointer. If another writer won, Iceberg validates for conflicts and retries, or fails when changes overlap.
+          vi: Writer commit bằng cách đổi con trỏ catalog. Nếu writer khác thắng, Iceberg kiểm tra xung đột và retry, hoặc thất bại khi thay đổi chồng lấn.
+      - h:
+          en: Delete files
+          vi: File delete
+        p:
+          en: Merge-on-read writes delete files that readers must apply. Compaction folds them back into data files.
+          vi: Merge-on-read ghi file delete mà reader phải áp dụng. Compaction gộp chúng lại vào file dữ liệu.
+      - h:
+          en: Safety first
+          vi: An toàn trước
+        tag: senior
+        p:
+          en: Never run orphan cleanup with a retention shorter than your longest running write job.
+          vi: Không chạy dọn file mồ côi với thời gian giữ ngắn hơn job ghi chạy lâu nhất của bạn.
+    n:
+      en: Procedure names and arguments are from the Iceberg Spark procedures and may differ by version and engine. Always test maintenance on a copy first.
+      vi: Tên và tham số thủ tục lấy từ Iceberg Spark procedures và có thể khác theo phiên bản và engine. Luôn test bảo trì trên bản sao trước.
+  - id: iceberg-troubleshooting-and-performance
+    k: table
+    mod: [troubleshooting, performance]
+    t:
+      en: Iceberg troubleshooting and performance
+      vi: Troubleshooting và hiệu năng Iceberg
+    head:
+      - en: Symptom
+        vi: Triệu chứng
+      - en: Likely cause
+        vi: Nguyên nhân có thể
+      - en: Diagnose
+        vi: Chẩn đoán
+      - en: Fix
+        vi: Cách sửa
+    rows:
+      - - en: Query planning is slow
+          vi: Lập kế hoạch query chậm
+        - en: Too many manifests or snapshots
+          vi: Quá nhiều manifest hoặc snapshot
+        - en: Count of `.manifests`; planning time in engine UI
+          vi: Số dòng `.manifests`; thời gian planning trong UI engine
+        - en: "`rewrite_manifests`, expire snapshots"
+          vi: "`rewrite_manifests`, hết hạn snapshot"
+      - - en: Reads are slow with many tiny files
+          vi: Đọc chậm vì nhiều file nhỏ
+        - en: Streaming or frequent small writes
+          vi: Ghi streaming hoặc ghi nhỏ thường xuyên
+        - en: File size distribution from `.files`
+          vi: Phân phối kích thước file từ `.files`
+        - en: "`rewrite_data_files`; tune write batch size"
+          vi: "`rewrite_data_files`; chỉnh kích thước batch ghi"
+      - - en: Commit failures under concurrency
+          vi: Commit thất bại khi đồng thời
+        - en: Overlapping writers modify the same files
+          vi: Các writer chồng lấn sửa cùng file
+        - en: Commit conflict errors in writer logs
+          vi: Lỗi xung đột commit trong log writer
+        - en: Partition-aligned writers, retry settings, serialize conflicting jobs
+          vi: Writer căn theo partition, cấu hình retry, tuần tự hóa job xung đột
+      - - en: Storage keeps growing
+          vi: Dung lượng cứ tăng
+        - en: Old snapshots and orphan files
+          vi: Snapshot cũ và file mồ côi
+        - en: Storage size versus live data size
+          vi: Dung lượng so với kích thước dữ liệu sống
+        - en: Scheduled `expire_snapshots` and `remove_orphan_files`
+          vi: Lên lịch `expire_snapshots` và `remove_orphan_files`
+      - - en: Reads slow after many updates and deletes
+          vi: Đọc chậm sau nhiều lần update và delete
+        - en: Accumulated delete files (merge-on-read)
+          vi: File delete tích tụ (merge-on-read)
+        - en: Delete file count per partition
+          vi: Số file delete theo partition
+        - en: Compact, or use copy-on-write for read-heavy tables
+          vi: Compaction, hoặc dùng copy-on-write cho bảng nặng đọc
+      - - en: Engine cannot see the latest data
+          vi: Engine không thấy dữ liệu mới nhất
+        - en: Catalog cache or wrong catalog configuration
+          vi: Cache catalog hoặc cấu hình catalog sai
+        - en: Compare current snapshot ID across engines
+          vi: So sánh ID snapshot hiện tại giữa các engine
+        - en: Refresh the table; align catalog settings
+          vi: Làm mới bảng; đồng bộ cấu hình catalog
+    cap:
+      en: Treat maintenance as a scheduled, monitored pipeline, like any other data job.
+      vi: Coi bảo trì là một pipeline có lịch và có giám sát, như mọi job dữ liệu khác.
+    n:
+      en: "The system tables (snapshots, files, manifests) are the main debugging tool: they turn invisible metadata problems into queries."
+      vi: "Các bảng hệ thống (snapshots, files, manifests) là công cụ debug chính: chúng biến vấn đề metadata vô hình thành các query."
+  - id: iceberg-lab-small-files-snapshots-and-time-travel
+    k: lab
+    mod: [lab]
+    t:
+      en: "Iceberg lab: small files, snapshots and time travel"
+      vi: "Lab Iceberg: file nhỏ, snapshot và time travel"
+    lead:
+      en: Create the problem, measure it, fix it, and recover from a bad write.
+      vi: Tạo ra vấn đề, đo nó, sửa nó và khôi phục sau một lần ghi hỏng.
+    scenario:
+      en: A streaming job writes every minute, leaving thousands of tiny files. Later a bad backfill overwrites good data.
+      vi: Một job streaming ghi mỗi phút, để lại hàng nghìn file nhỏ. Sau đó một lần backfill hỏng ghi đè dữ liệu tốt.
+    input:
+      en: Spark with an Iceberg REST or Hadoop catalog on local object storage. A script appending 100 small batches. A second script that overwrites a partition by mistake.
+      vi: Spark với Iceberg REST hoặc Hadoop catalog trên object storage cục bộ. Một script ghi thêm 100 batch nhỏ. Một script thứ hai ghi đè nhầm một partition.
+    tasks:
+      - en: Append 100 small batches; record file count, average size and query time.
+        vi: Ghi thêm 100 batch nhỏ; ghi lại số file, kích thước trung bình và thời gian query.
+      - en: Compact and rewrite manifests; measure again.
+        vi: Compaction và viết lại manifest; đo lại.
+      - en: Run the bad overwrite, then restore the previous state using a snapshot.
+        vi: Chạy lần ghi đè hỏng rồi khôi phục trạng thái trước bằng snapshot.
+      - en: Expire old snapshots and verify storage shrinks without breaking the current table.
+        vi: Hết hạn snapshot cũ và xác minh dung lượng giảm mà không hỏng bảng hiện tại.
+    expected:
+      en: Before-and-after metrics for files and query time, and a verified restore with matching row counts and checksums.
+      vi: Số liệu trước-sau về file và thời gian query, và một lần khôi phục đã kiểm chứng với số dòng và checksum khớp.
+    rubric:
+      - en: Improvement is measured, not asserted
+        vi: Cải thiện được đo, không chỉ khẳng định
+      - en: Restore verified by data comparison
+        vi: Khôi phục được kiểm chứng bằng so sánh dữ liệu
+      - en: Retention settings justified
+        vi: Cấu hình retention được biện minh
+      - en: No data loss from cleanup
+        vi: Dọn dẹp không gây mất dữ liệu
+    design:
+      en: Design the maintenance schedule and retention policy for a high-volume streaming table that must support seven days of time travel.
+      vi: Thiết kế lịch bảo trì và chính sách retention cho bảng streaming khối lượng lớn phải hỗ trợ time travel bảy ngày.
+    n:
+      en: "The restore step is the memorable one: it shows what snapshots really buy you."
+      vi: "Bước khôi phục là bước đúng nhớ nhất: nó cho thấy snapshot thực sự mang lại điều gì."
+  - id: iceberg-lifecycle-a-write-and-a-read
+    k: lifecycle
+    mod: [internals]
+    t:
+      en: "Iceberg lifecycle: a write and a read"
+      vi: "Vòng đời Iceberg: một lần ghi và một lần đọc"
+    lead:
+      en: Six steps from new data files to a reader seeing a consistent snapshot.
+      vi: Sáu bước từ file dữ liệu mới đến lúc reader thấy một snapshot nhất quán.
+    steps:
+      - - en: Write data files
+          vi: Ghi file dữ liệu
+        - en: The writer produces Parquet data files.
+          vi: Writer tạo các file dữ liệu Parquet.
+        - table.files
+      - - en: Write manifests
+          vi: Ghi manifest
+        - en: Manifest files list the new files with statistics.
+          vi: File manifest liệt kê các file mới kèm thống kê.
+        - table.manifests
+      - - en: Write the manifest list
+          vi: Ghi manifest list
+        - en: A new manifest list defines the snapshot.
+          vi: Manifest list mới định nghĩa snapshot.
+        - table.snapshots
+      - - en: Write metadata
+          vi: Ghi metadata
+        - en: A new metadata file records the snapshot.
+          vi: File metadata mới ghi nhận snapshot.
+        - table.history
+      - - en: Swap the pointer
+          vi: Đổi con trỏ
+        - en: The catalog atomically points to the new metadata; conflicts retry.
+          vi: Catalog trỏ nguyên tử tới metadata mới; xung đột sẽ retry.
+        - commit conflict errors
+      - - en: Plan a read
+          vi: Lập kế hoạch đọc
+        - en: A reader prunes manifests then files by statistics.
+          vi: Reader loại manifest rồi file theo thống kê.
+        - files scanned vs total
+    n:
+      en: Reading this slide next to the Iceberg architecture diagram makes the tree of metadata concrete.
+      vi: Đọc slide này cạnh sơ đồ kiến trúc Iceberg làm cây metadata trở nên cụ thể.

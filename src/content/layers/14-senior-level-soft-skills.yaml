@@ -1,0 +1,567 @@
+layer: 14
+slides:
+  - id: senior-level-soft-skills-multiplying-your-impact
+    k: cards
+    t:
+      en: "Senior-level soft skills: multiplying your impact"
+      vi: "Kỹ năng mềm cấp senior: nhân bội tác động của bạn"
+    lead:
+      en: Beyond a point, technical depth is table stakes. What separates senior engineers is judgment, communication and the ability to make a team better.
+      vi: Qua một ngưỡng, chiều sâu kỹ thuật chỉ là điều kiện cần. Điều phân biệt senior là phán đoán, giao tiếp và khả năng làm đội tốt hơn.
+    cols: 3
+    cards:
+      - h:
+          en: Stakeholder management
+          vi: Quản lý stakeholder
+        tag: must
+        p:
+          en: Understand the decision behind the request, set expectations, and say no with alternatives.
+          vi: Hiểu quyết định đằng sau yêu cầu, đặt kỳ vọng, và từ chối kèm phương án thay thế.
+      - h:
+          en: Metric definition and alignment
+          vi: Định nghĩa và thống nhất metric
+        tag: senior
+        p:
+          en: Get finance, product and sales to agree on one definition, and record who owns it.
+          vi: Để tài chính, sản phẩm và bán hàng thống nhất một định nghĩa, và ghi lại ai là người sở hữu.
+      - h:
+          en: Build versus buy
+          vi: Tự build hay mua
+        tag: senior
+        p:
+          en: Evaluate total cost, differentiation, skills, lock-in and exit, not just license price.
+          vi: Đánh giá tổng chi phí, tính khác biệt, kỹ năng, lock-in và đường thoát, không chỉ giá license.
+      - h:
+          en: Cost and performance
+          vi: Chi phí và hiệu năng
+        tag: senior
+        p:
+          en: Measure, fix the biggest costs first, and put guardrails in place.
+          vi: Đo lường, xử lý các khoản chi phí lớn nhất trước, và đặt guardrail.
+      - h:
+          en: Mentoring and documentation
+          vi: Mentoring và tài liệu
+        tag: must
+        p:
+          en: Teach through review and pairing. Write docs that people actually use.
+          vi: Dạy qua review và pairing. Viết tài liệu mà mọi người thực sự dùng.
+      - h:
+          en: Decisions and prioritization
+          vi: Quyết định và ưu tiên
+        tag: senior
+        p:
+          en: Write down decisions (ADRs) and prioritize by impact, effort and risk.
+          vi: Ghi lại các quyết định (ADR) và ưu tiên theo tác động, công sức và rủi ro.
+    n:
+      en: This is the layer people skip because it has no tool names, and it is the one that most determines promotion. Every item here can be practised on your current job.
+      vi: Đây là layer mọi người bỏ qua vì nó không có tên công cụ, và cũng là layer quyết định thăng tiến nhiều nhất. Mọi mục ở đây đều có thể luyện tập ngay ở công việc hiện tại.
+  - id: frameworks-that-make-judgment-visible
+    k: table
+    t:
+      en: Frameworks that make judgment visible
+      vi: Các khung làm việc giúp phán đoán trở nên rõ ràng
+    head:
+      - en: Framework
+        vi: Khung làm việc
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Effort
+        vi: Công sức
+    rows:
+      - - Architecture Decision Record (ADR)
+        - en: Decision log
+          vi: Nhật ký quyết định
+        - en: Recording significant technical decisions
+          vi: Ghi lại các quyết định kỹ thuật quan trọng
+        - en: Preserves context; reviewable; lightweight
+          vi: Giữ được ngữ cảnh; có thể review; nhẹ
+        - en: Becomes bureaucracy if used for trivial choices
+          vi: Thành quan liêu nếu dùng cho các lựa chọn tầm thường
+        - en: Low (an hour or less each)
+          vi: Thấp (mỗi cái một giờ hoặc ít hơn)
+      - - RACI / DACI
+        - en: Responsibility matrix
+          vi: Ma trận trách nhiệm
+        - en: Clarifying who decides and who is consulted
+          vi: Làm rõ ai quyết định và ai được tham vấn
+        - en: Removes ambiguity about ownership
+          vi: Loại bỏ sự mơ hồ về quyền sở hữu
+        - en: Ignored unless leaders enforce it
+          vi: Bị bỏ qua nếu lãnh đạo không thực thi
+        - en: Low
+          vi: Thấp
+      - - en: RICE or impact-effort scoring
+          vi: RICE hoặc chấm điểm impact-effort
+        - en: Prioritization
+          vi: Ưu tiên hóa
+        - en: Ranking a backlog of requests
+          vi: Xếp hạng backlog các yêu cầu
+        - en: Makes assumptions explicit
+          vi: Làm rõ các giả định
+        - en: Scores are estimates and can be gamed
+          vi: Điểm số chỉ là ước lượng và có thể bị lách
+        - en: Low to moderate
+          vi: Thấp đến vừa
+      - - en: Build-versus-buy scorecard
+          vi: Scorecard build-versus-buy
+        - en: Decision framework
+          vi: Khung ra quyết định
+        - en: Tool and platform selection
+          vi: Chọn công cụ và nền tảng
+        - en: Makes criteria comparable
+          vi: Giúp các tiêu chí so sánh được
+        - en: Weights are subjective
+          vi: Trọng số mang tính chủ quan
+        - en: Moderate
+          vi: Trung bình
+      - - en: Metric tree
+          vi: Cây metric
+        - en: Metric alignment
+          vi: Thống nhất metric
+        - en: Linking top-level KPIs to their drivers
+          vi: Liên kết KPI cấp cao với các yếu tố dẫn dắt
+        - en: Shows relationships and exposes conflicting definitions
+          vi: Cho thấy quan hệ và làm lộ các định nghĩa mâu thuẫn
+        - en: Needs cross-team input
+          vi: Cần đúng góp liên team
+        - en: Moderate
+          vi: Trung bình
+      - - en: Blameless postmortem
+          vi: Postmortem không đổ lỗi
+        - en: Learning process
+          vi: Quy trình học hỏi
+        - en: Learning from incidents
+          vi: Học từ sự cố
+        - en: Turns failures into improvements
+          vi: Biến thất bại thành cải tiến
+        - en: Needs psychological safety
+          vi: Cần sự an toàn tâm lý
+        - en: Low per incident
+          vi: Thấp cho mỗi sự cố
+      - - en: Docs-as-code and runbooks
+          vi: Docs-as-code và runbook
+        - en: Documentation
+          vi: Tài liệu
+        - en: Onboarding and incident response
+          vi: Onboarding và xử lý sự cố
+        - en: Versioned with the code; searchable
+          vi: Được version cùng code; tìm kiếm được
+        - en: Rots without owners and review
+          vi: Mục nát nếu không có người sở hữu và review
+        - en: Ongoing
+          vi: Liên tục
+    cap:
+      en: Frameworks are scaffolding for conversation. Use the lightest one that gets the decision made.
+      vi: Framework là giàn giáo cho cuộc trao đổi. Dùng cái nhẹ nhất giúp ra được quyết định.
+    n:
+      en: "The common thread: each framework makes a hidden thing visible, whether that is the decision, the owner, the assumption or the trade-off."
+      vi: "Điểm chung: mỗi framework làm một thứ ẩn trở nên nhìn thấy được, dù đã là quyết định, người sở hữu, giả định hay sự đánh đổi."
+  - id: deep-dive-an-architecture-decision-record-template
+    k: code
+    t:
+      en: "Deep dive: an architecture decision record template"
+      vi: "Đào sâu: mẫu architecture decision record"
+    lead:
+      en: One page, written before or during the decision, stored in the repository next to the code it affects.
+      vi: Một trang, viết trước hoặc trong lúc ra quyết định, lưu trong repository cạnh code mà nó ảnh hưởng.
+    blocks:
+      - lang: md
+        title: docs/adr/0007-adopt-dagster-for-orchestration.md
+        code: |-
+          # ADR-0007: Adopt Dagster for orchestration
+
+          - Status: Proposed | Accepted | Superseded by ADR-00xx
+          - Date: 2026-11-10
+          - Deciders: Analytics Engineering, Data Platform
+          - Consulted: Finance Data, Security
+          - Informed: All analytics stakeholders
+
+          ## Context
+          What problem are we solving? Constraints, scale, team skills, deadlines.
+
+          ## Decision drivers
+          - Must support asset lineage and dbt integration
+          - Team of six with one on-call rotation
+          - Annual budget ceiling
+
+          ## Options considered
+          1. Airflow (managed): familiar to the team, task-based model
+          2. Dagster: asset-based model, strong dbt integration
+          3. Keep cron and scripts: no cost, no visibility
+
+          ## Decision
+          We will adopt ... because ...
+
+          ## Consequences
+          - Positive: ...
+          - Negative and risks: ...
+          - Follow-ups: migration plan, training, review date
+    points:
+      - h:
+          en: Capture the options you rejected
+          vi: Ghi lại các phương án bạn đã loại
+        p:
+          en: The reasoning for “no” is the most valuable part when someone revisits the decision in a year.
+          vi: Lý do cho “không” là phần giá trị nhất khi ai đã xem lại quyết định sau một năm.
+      - h:
+          en: Write it for the future reader
+          vi: Viết cho người đọc trong tương lai
+        p:
+          en: Assume a new teammate with no context. Short, plain and dated.
+          vi: Giả định một đồng đội mới không có ngữ cảnh. Ngắn, rõ ràng và có ghi ngày.
+      - h:
+          en: Supersede, never delete
+          vi: Thay thế, không bao giờ xóa
+        tag: senior
+        p:
+          en: When a decision changes, add a new ADR and mark the old one superseded. The history is the point.
+          vi: Khi quyết định thay đổi, thêm ADR mới và đánh dấu ADR cũ là superseded. Lịch sử chính là mục đích.
+      - h:
+          en: Use it for real decisions
+          vi: Dùng cho các quyết định thực sự
+        p:
+          en: Tools, platforms, modeling approaches, major conventions. Not every pull request.
+          vi: Công cụ, nền tảng, cách tiếp cận modeling, các quy ước lớn. Không phải mọi pull request.
+    n:
+      en: "The example is a plausible ADR for the orchestration choice from section 5. The placeholders in the Decision and Consequences sections are intentional: they are the template fields to fill in. Keep ADRs to one page."
+      vi: "Ví dụ là một ADR hợp lý cho lựa chọn điều phối ở phần 5. Các placeholder trong mục Decision và Consequences là cố ý: chúng là các trường của template cần điền. Giữ ADR trong một trang."
+  - id: build-versus-buy-a-decision-framework
+    k: table
+    t:
+      en: "Build versus buy: a decision framework"
+      vi: "Build hay buy: khung ra quyết định"
+    head:
+      - en: Criterion
+        vi: Tiêu chí
+      - en: Question to ask
+        vi: Câu hỏi cần đặt
+      - en: Leans toward buy when
+        vi: Nghiêng về mua khi
+      - en: Leans toward build when
+        vi: Nghiêng về tự xây khi
+    rows:
+      - - en: Differentiation
+          vi: Tính khác biệt
+        - en: Does this give us a competitive advantage?
+          vi: Điều này có mang lại lợi thế cạnh tranh không?
+        - en: It is a commodity, like standard SaaS connectors
+          vi: Đây là hàng hóa đại trà, như các SaaS connector chuẩn
+        - en: It encodes unique logic or proprietary data
+          vi: Nó mã hóa logic độc đào hoặc dữ liệu độc quyền
+      - - en: Total cost of ownership
+          vi: Tổng chi phí sở hữu
+        - en: What are license, people, on-call and upgrade costs over three years?
+          vi: Chi phí license, nhân sự, on-call và nâng cấp trong ba năm là bao nhiêu?
+        - en: Vendor cost is below the engineering time it saves
+          vi: Chi phí vendor thấp hơn thời gian kỹ sư mà nó tiết kiệm được
+        - en: Usage-based pricing will far exceed a simple in-house version
+          vi: Giá theo mức sử dụng sẽ vượt xa một phiên bản tự làm đơn giản
+      - - en: Time to value
+          vi: Thời gian tạo ra giá trị
+        - en: How soon do we need it?
+          vi: Chúng ta cần nó sớm đến mức nào?
+        - en: The need is common and urgent
+          vi: Nhu cầu phổ biến và cấp bách
+        - en: Tight integration will pay off over a long horizon
+          vi: Tích hợp chặt chẽ sẽ có lợi trong dài hạn
+      - - en: Team skills and capacity
+          vi: Kỹ năng và năng lực của team
+        - en: Who maintains it at 3 a.m.?
+          vi: Ai bảo trì nó lúc 3 giờ sáng?
+        - en: The team is small or lacks depth in this area
+          vi: Team nhỏ hoặc thiếu chiều sâu ở mảng này
+        - en: The team has depth and real spare capacity
+          vi: Team có chiều sâu và năng lực dư thực sự
+      - - en: Lock-in and exit
+          vi: Lock-in và đường thoát
+        - en: How hard is it to leave?
+          vi: Rời đi khó đến mức nào?
+        - en: Standard formats and export paths exist
+          vi: Có định dạng chuẩn và đường export
+        - en: Vendor formats are proprietary and migration would be painful
+          vi: Định dạng của vendor là độc quyền và migration sẽ rất đau đầu
+      - - en: Security and compliance
+          vi: Bảo mật và tuân thủ
+        - en: Does it meet our requirements?
+          vi: Nó có đáp ứng yêu cầu của chúng ta không?
+        - en: The vendor holds the certifications you need
+          vi: Vendor có các chứng nhận bạn cần
+        - en: Data cannot leave your environment
+          vi: Dữ liệu không được rời khỏi môi trường của bạn
+    cap:
+      en: Score each criterion, weight them with stakeholders, and record the outcome in an ADR. Revisit when usage or pricing changes.
+      vi: Chấm điểm từng tiêu chí, đặt trọng số cùng stakeholder, và ghi kết quả vào một ADR. Xem lại khi mức sử dụng hoặc giá thay đổi.
+    n:
+      en: "The honest middle path is often “buy and wrap”: buy the commodity, build the thin layer that keeps you portable. Revisit decisions as pricing and team size change."
+      vi: "Con đường trung dung thực tế thường là “mua và bọc lại”: mua phần hàng hóa đại trà, tự build lớp mỏng giúp bạn giữ tính di động. Xem lại các quyết định khi giá và quy mô team thay đổi."
+  - id: stakeholders-and-metric-alignment
+    k: cards
+    t:
+      en: Stakeholders and metric alignment
+      vi: Stakeholder và thống nhất định nghĩa metric
+    lead:
+      en: Most data disputes are definition disputes. Facilitate the conversation rather than picking a number.
+      vi: Hầu hết tranh chấp về dữ liệu là tranh chấp về định nghĩa. Hãy điều phối cuộc trao đổi thay vì tự chọn một con số.
+    cols: 3
+    cards:
+      - h:
+          en: Ask for the decision, not the dashboard
+          vi: Hỏi về quyết định, không phải dashboard
+        p:
+          en: “What will you do differently if this number goes up?” often changes the request.
+          vi: “Bạn sẽ làm khác đi điều gì nếu con số này tăng?” thường làm thay đổi yêu cầu.
+        tag: senior
+      - h:
+          en: Set expectations early
+          vi: Đặt kỳ vọng sớm
+        p:
+          en: Agree on scope, freshness, accuracy and delivery date. Say what you are not doing.
+          vi: Thống nhất phạm vi, độ tươi, độ chính xác và ngày bàn giao. Nói rõ điều bạn không làm.
+        tag: must
+      - h:
+          en: Say no with options
+          vi: Từ chối kèm lựa chọn
+        p:
+          en: Offer a smaller version, a later date or a different approach, with the trade-off stated.
+          vi: Đề xuất phiên bản nhỏ hơn, ngày muộn hơn hoặc cách tiếp cận khác, kèm sự đánh đổi được nêu rõ.
+        tag: senior
+      - h:
+          en: Collect existing definitions
+          vi: Thu thập các định nghĩa hiện có
+        p:
+          en: Find every current version of the metric and where it is used. Show the differences with real examples.
+          vi: Tìm mọi phiên bản hiện tại của metric và nơi nó được dùng. Chỉ ra các khác biệt bằng ví dụ thật.
+        tag: senior
+      - h:
+          en: Decide with owners
+          vi: Quyết định cùng người sở hữu
+        p:
+          en: Convene the owners, agree on one definition and a name, and record the decision.
+          vi: Triệu tập các owner, thống nhất một định nghĩa và một tên gọi, và ghi lại quyết định.
+        tag: senior
+      - h:
+          en: Encode, announce, deprecate
+          vi: Mã hóa, thông báo, ngừng dùng
+        p:
+          en: Put the definition in the semantic layer, tell users what changed, and retire the old versions.
+          vi: Đưa định nghĩa vào semantic layer, báo người dùng điều gì đã thay đổi, và loại bỏ các phiên bản cũ.
+        tag: senior
+    n:
+      en: The first three are about requests; the last three form a repeatable process for metric alignment. Emphasize recording the decision so the argument does not restart in six months.
+      vi: Ba bước đầu nói về yêu cầu; ba bước cuối tạo thành quy trình lặp lại để thống nhất metric. Nhấn mạnh việc ghi lại quyết định để cuộc tranh luận không bắt đầu lại sau sáu tháng.
+  - id: operating-habits-cost-mentoring-documentation-priorities
+    k: cards
+    t:
+      en: "Operating habits: cost, mentoring, documentation, priorities"
+      vi: "Thói quen vận hành: chi phí, mentor, tài liệu, ưu tiên"
+    cols: 2
+    cards:
+      - h:
+          en: Cost and performance optimization
+          vi: Tối ưu chi phí và hiệu năng
+        tag: senior
+        list:
+          - en: "Measure first: rank queries and pipelines by cost"
+            vi: "Đo trước: xếp hạng query và pipeline theo chi phí"
+          - en: Fix the top few items, not everything
+            vi: Xử lý vài mục đứng đầu, không phải tất cả
+          - en: "Add guardrails: budgets, timeouts, monitors"
+            vi: "Thêm guardrail: ngân sách, timeout, monitor"
+          - en: Review monthly and report savings in business terms
+            vi: Review hằng tháng và báo cáo khoản tiết kiệm bằng ngôn ngữ kinh doanh
+      - h: Mentoring
+        tag: senior
+        list:
+          - en: Review code to teach, not just to approve
+            vi: Review code để dạy, không chỉ để duyệt
+          - en: Pair on hard problems, then step back
+            vi: Pair trên các vấn đề khó, rồi lùi lại
+          - en: Delegate with context and room to fail safely
+            vi: Giao việc kèm ngữ cảnh và không gian để thất bại an toàn
+          - en: Give specific, timely feedback
+            vi: Đưa feedback cụ thể, kịp thời
+      - h:
+          en: Documentation
+          vi: Tài liệu
+        tag: must
+        list:
+          - en: Docs live with the code and have owners
+            vi: Tài liệu nằm cùng code và có owner
+          - en: Write for onboarding and incident response first
+            vi: Ưu tiên viết cho onboarding và xử lý sự cố
+          - en: Prefer examples and runbooks to prose
+            vi: Ưu tiên ví dụ và runbook hơn văn xuôi
+          - en: Delete stale docs
+            vi: Xóa tài liệu lỗi thời
+      - h:
+          en: Prioritization
+          vi: Ưu tiên hóa
+        tag: senior
+        list:
+          - en: Rank by impact, effort and risk with stakeholders
+            vi: Xếp hạng theo tác động, công sức và rủi ro cùng stakeholder
+          - en: Protect time for reliability and debt
+            vi: Dành thời gian cho độ tin cậy và technical debt
+          - en: Make trade-offs visible in a shared backlog
+            vi: Làm cho các đánh đổi hiển thị trong một backlog chung
+          - en: Say what is deliberately not being done
+            vi: Nói rõ điều gì được cố ý không làm
+    n:
+      en: Each habit is small. The compounding effect comes from doing them consistently, in public, so the team copies them.
+      vi: Mỗi thói quen đều nhỏ. Hiệu ứng cộng dồn đến từ việc làm chúng nhất quán, công khai, để team bắt chước.
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Being the hero who fixes everything.
+          vi: Làm “anh hùng” sửa mọi thứ.
+        why:
+          en: Creates a bottleneck and a single point of failure.
+          vi: Tạo ra nút thắt cổ chai và điểm lỗi đơn lẻ.
+        fix:
+          en: Teach, document and delegate.
+          vi: Dạy, ghi tài liệu và giao việc.
+      - bad:
+          en: Saying yes to every request.
+          vi: Đồng ý với mọi yêu cầu.
+        why:
+          en: Quality and reliability suffer.
+          vi: Chất lượng và độ tin cậy bị ảnh hưởng.
+        fix:
+          en: Prioritize openly; offer alternatives.
+          vi: Ưu tiên công khai; đưa ra phương án thay thế.
+      - bad:
+          en: Choosing tools by enthusiasm.
+          vi: Chọn công cụ theo cảm hứng.
+        why:
+          en: Hidden costs and maintenance burden.
+          vi: Chi phí ẩn và gánh nặng bảo trì.
+        fix:
+          en: Scorecard, proof of concept and an ADR.
+          vi: Scorecard, proof of concept và một ADR.
+      - bad:
+          en: Settling metric disputes by seniority.
+          vi: Giải quyết tranh chấp metric theo thâm niên.
+        why:
+          en: Resentment and re-opened arguments.
+          vi: Oán giận và các tranh luận bị mở lại.
+        fix:
+          en: Convene owners and record the decision.
+          vi: Triệu tập owner và ghi lại quyết định.
+      - bad:
+          en: Documentation as a one-off project.
+          vi: Tài liệu như một dự án làm một lần.
+        why:
+          en: Rots within months.
+          vi: Mục nát trong vài tháng.
+        fix:
+          en: Docs-as-code with owners and review.
+          vi: Docs-as-code có owner và review.
+      - bad:
+          en: Optimizing cost without measuring.
+          vi: Tối ưu chi phí mà không đo lường.
+        why:
+          en: Effort goes to the wrong places.
+          vi: Công sức dồn vào sai chỗ.
+        fix:
+          en: Rank by actual spend first.
+          vi: Xếp hạng theo chi tiêu thực tế trước.
+    n:
+      en: The hero pattern is the most common in strong mid-level engineers, and the hardest to see in yourself.
+      vi: Mô thức anh hùng phổ biến nhất ở các kỹ sư mid-level giỏi, và khó nhận ra nhất ở chính mình.
+  - id: what-senior-looks-like-the-whole-role
+    k: cards
+    t:
+      en: "What senior looks like: the whole role"
+      vi: "Senior trông như thế nào: toàn bộ vai trò"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: What to build, buy or leave alone
+            vi: Nên build, mua hay bỏ qua cái gì
+          - en: What to prioritize and what to drop
+            vi: Nên ưu tiên gì và bỏ gì
+          - en: Where the team needs standards
+            vi: Nơi team cần tiêu chuẩn
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Speed versus reliability
+            vi: Tốc độ so với độ tin cậy
+          - en: Local optimization versus team health
+            vi: Tối ưu cục bộ so với sức khỏe của team
+          - en: Perfect versus shipped
+            vi: Hoàn hảo so với đã ship
+          - en: Autonomy versus consistency
+            vi: Tự chủ so với nhất quán
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Make others more effective
+            vi: Giúp người khác làm việc hiệu quả hơn
+          - en: Communicate risk and uncertainty clearly
+            vi: Truyền đạt rõ rủi ro và độ bất định
+          - en: Own outcomes, not just tasks
+            vi: Chịu trách nhiệm về kết quả, không chỉ nhiệm vụ
+          - en: Leave decisions, docs and systems better than you found them
+            vi: Để lại các quyết định, tài liệu và hệ thống tốt hơn lúc bạn nhận
+    n:
+      en: "Summarize the deck here: across every layer the senior pattern is the same. Own outcomes, make trade-offs explicit, write decisions down, and raise the level of the people around you."
+      vi: "Tổng kết deck ở đây: ở mọi layer, mô thức của người senior đều giống nhau. Chịu trách nhiệm về kết quả, làm rõ các đánh đổi, ghi lại quyết định, và nâng tầm những người xung quanh."
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: I write ADRs for significant decisions
+          vi: Tôi viết ADR cho các quyết định quan trọng
+        - en: I can facilitate a metric-definition alignment
+          vi: Tôi có thể điều phối việc thống nhất định nghĩa metric
+        - en: I use a scorecard for build-versus-buy
+          vi: Tôi dùng scorecard cho quyết định build-versus-buy
+        - en: I know my team’s top cost drivers
+          vi: Tôi biết các yếu tố chi phí lớn nhất của team mình
+        - en: I mentor at least one person deliberately
+          vi: Tôi mentor ít nhất một người một cách có chủ đích
+        - en: I can say no with an alternative
+          vi: Tôi có thể từ chối kèm phương án thay thế
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Two executives disagree on the definition of “active user”. What do you do?
+          vi: Hai giám đốc bất đồng về định nghĩa “active user”. Bạn làm gì?
+        - en: A stakeholder demands a real-time dashboard. How do you respond?
+          vi: Một stakeholder đòi dashboard real-time. Bạn phản hồi thế nào?
+        - en: Tell me about a technical decision you reversed.
+          vi: Hãy kể về một quyết định kỹ thuật bạn đã đảo ngược.
+        - en: How do you decide whether to build or buy an ingestion tool?
+          vi: Bạn quyết định tự build hay mua một công cụ ingestion như thế nào?
+        - en: How do you get a junior engineer to own a system?
+          vi: Làm sao để một kỹ sư junior chịu trách nhiệm một hệ thống?
+    n:
+      en: "Good answers are specific: a real situation, the options, the trade-off, the outcome and what was learned."
+      vi: "Câu trả lời tốt phải cụ thể: một tình huống thật, các phương án, sự đánh đổi, kết quả và bài học rút ra."

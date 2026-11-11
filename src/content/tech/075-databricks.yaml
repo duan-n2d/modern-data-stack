@@ -1,0 +1,82 @@
+tech:
+  id: databricks
+  name: Databricks
+  color: "#EA580C"
+  refs:
+    - [Databricks, https://docs.databricks.com/]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "Databricks: architecture"
+      vi: "Databricks: kiến trúc"
+    lead:
+      en: A managed control plane launches Spark and SQL compute that reads and writes open Delta tables in your cloud storage.
+      vi: Một control plane được quản lý khởi chạy compute Spark và SQL, đọc và ghi các bảng Delta mở trong cloud storage của bạn.
+    svg: dbxSVG
+    cap:
+      en: Data stays in object storage in open formats. Compute is started and stopped on demand.
+      vi: Dữ liệu nằm trong object storage ở định dạng mở. Compute được bật và tắt theo nhu cầu.
+    n:
+      en: "The message: separate control from compute, keep data in open formats, and govern centrally. That is the lakehouse pitch in architectural terms."
+      vi: "Thông điệp: tách control khỏi compute, giữ dữ liệu ở định dạng mở và governance tập trung. Đã là lời chào hàng của lakehouse về mặt kiến trúc."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "Databricks: components and workflow"
+      vi: "Databricks: thành phần và quy trình"
+    comps:
+      - - Control plane
+        - en: "Databricks-managed: UI, jobs scheduler, notebooks, cluster manager, Unity Catalog service"
+          vi: "Databricks quản lý: UI, jobs scheduler, notebook, cluster manager, dịch vụ Unity Catalog"
+      - - Compute plane
+        - en: Clusters and SQL warehouses, in your cloud account (classic) or Databricks’s (serverless)
+          vi: Cluster và SQL warehouse, trong cloud account của bạn (classic) hoặc của Databricks (serverless)
+      - - Delta Lake
+        - en: Parquet files plus a transaction log, giving ACID tables on object storage
+          vi: File Parquet cộng transaction log, tạo ra bảng ACID trên object storage
+      - - Photon
+        - en: Vectorized native query engine
+          vi: Query engine native dạng vectorized
+      - - Unity Catalog
+        - en: "Governance for tables, files and models: permissions, lineage, audit"
+          vi: "Governance cho bảng, file và model: quyền, lineage, audit"
+      - - en: Jobs and workflows
+          vi: Job và workflow
+        - en: Orchestration of notebooks, SQL, dbt and pipelines
+          vi: Điều phối notebook, SQL, dbt và pipeline
+      - - en: Declarative pipelines
+          vi: Declarative pipeline
+        - en: Managed streaming and batch pipelines (Delta Live Tables, now part of Lakeflow)
+          vi: Pipeline streaming và batch được quản lý (Delta Live Tables, nay thuộc Lakeflow)
+      - - en: Medallion layers
+          vi: Các layer medallion
+        - en: Common bronze, silver and gold convention
+          vi: Quy ước phổ biến bronze, silver và gold
+    flow:
+      - en: A user or job request reaches the control plane.
+        vi: Một request của user hoặc job đến control plane.
+      - en: The control plane starts compute (a cluster or a SQL warehouse).
+        vi: Control plane khởi động compute (một cluster hoặc một SQL warehouse).
+      - en: Compute reads and writes Delta tables in object storage.
+        vi: Compute đọc và ghi bảng Delta trong object storage.
+      - en: Unity Catalog checks permissions and records lineage.
+        vi: Unity Catalog kiểm tra quyền và ghi lại lineage.
+      - en: Jobs orchestrate repeated runs; SQL warehouses serve BI tools.
+        vi: Job điều phối các lần chạy lặp lại; SQL warehouse phục vụ các công cụ BI.
+      - en: Compute scales down or terminates when idle.
+        vi: Compute scale xuống hoặc tự terminate khi idle.
+    ops:
+      - en: Cost is Databricks units plus cloud VM cost. Use auto-termination and job clusters for scheduled work.
+        vi: Chi phí là Databricks unit cộng chi phí VM của cloud. Dùng auto-termination và job cluster cho công việc theo lịch.
+      - en: Run `OPTIMIZE` and `VACUUM`, and use clustering features, to keep Delta tables healthy.
+        vi: Chạy `OPTIMIZE` và `VACUUM`, và dùng các tính năng clustering, để giữ bảng Delta khỏe mạnh.
+      - en: Treat Unity Catalog as the single governance layer.
+        vi: Xem Unity Catalog là layer governance duy nhất.
+      - en: Product names and boundaries change often. Check current documentation.
+        vi: Tên sản phẩm và ranh giới thay đổi thường xuyên. Hãy kiểm tra tài liệu hiện hành.
+    n:
+      en: "Trace one job: control plane starts compute, compute reads Delta, catalog enforces access. Make sure the audience knows where the money goes: compute hours, not storage."
+      vi: "Theo dõi một job: control plane khởi động compute, compute đọc Delta, catalog thực thi kiểm soát truy cập. Đảm bảo khán giả biết tiền đi đâu: giờ compute, không phải storage."

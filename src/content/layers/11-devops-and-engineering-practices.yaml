@@ -1,0 +1,584 @@
+layer: 11
+slides:
+  - id: devops-and-engineering-practices-treat-data-work-like
+    k: cards
+    t:
+      en: "DevOps and engineering practices: treat data work like software"
+      vi: "DevOps và thực hành kỹ thuật: coi công việc dữ liệu như phần mềm"
+    lead:
+      en: Version control, review, automated tests and reproducible environments are what let a team scale beyond one person.
+      vi: Version control, review, test tự động và môi trường tái lập giúp một đội mở rộng vượt quá một người.
+    cols: 3
+    cards:
+      - h: Git workflow
+        tag: must
+        p:
+          en: Short-lived branches, pull requests, code review and a protected main branch.
+          vi: Branch sống ngắn, pull request, code review và main branch được bảo vệ.
+      - h: CI/CD
+        tag: must
+        p:
+          en: Lint, test and build on every pull request; deploy from main by automation.
+          vi: Lint, test và build trên mọi pull request; deploy từ main bằng tự động hóa.
+      - h: Infrastructure as code
+        tag: must
+        p:
+          en: Warehouses, roles, buckets and networks defined in Terraform or Pulumi, reviewed like code.
+          vi: Warehouse, role, bucket và network được định nghĩa bằng Terraform hoặc Pulumi, review như code.
+      - h:
+          en: Containers
+          vi: Container
+        tag: must
+        p:
+          en: Docker for reproducible environments. Kubernetes only when you need to run long-lived services.
+          vi: Docker cho môi trường tái lập được. Kubernetes chỉ khi bạn cần chạy các service sống lâu.
+      - h:
+          en: Cloud fundamentals
+          vi: Nền tảng cloud
+        tag: senior
+        p:
+          en: IAM, networking and cost control on AWS, GCP or Azure.
+          vi: IAM, networking và kiểm soát chi phí trên AWS, GCP hoặc Azure.
+      - h:
+          en: Local quality gates
+          vi: Quality gate cục bộ
+        tag: nice
+        p:
+          en: pre-commit hooks and SQLFluff give fast feedback before a push.
+          vi: pre-commit hook và SQLFluff cho phản hồi nhanh trước khi push.
+    n:
+      en: This layer is where analytics engineering inherits decades of software practice. The senior contribution is picking the minimum process that gives safety without slowing people down.
+      vi: Layer này là nơi analytics engineering kế thừa hàng chục năm thực hành phần mềm. Đúng góp của senior là chọn quy trình tối thiểu vừa đảm bảo an toàn vừa không làm chậm mọi người.
+  - id: tool-landscape-engineering-practices
+    k: table
+    t:
+      en: "Tool landscape: engineering practices"
+      vi: "Bức tranh công cụ: thực hành kỹ thuật"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - en: Git (GitHub Flow or trunk-based)
+          vi: Git (GitHub Flow hoặc trunk-based)
+        - en: Version-control practice
+          vi: Thực hành version control
+        - en: Every project
+          vi: Mọi dự án
+        - en: Review, history, rollback
+          vi: Review, lịch sử, rollback
+        - en: Long-lived branches and big PRs hurt
+          vi: Branch sống lâu và PR lớn gây hại
+        - en: Git is free; hosting is plan-based
+          vi: Git miễn phí; hosting tính theo gói
+      - - GitHub Actions / GitLab CI
+        - CI/CD
+        - en: Automated tests and deploys next to the code
+          vi: Test và deploy tự động ngay cạnh code
+        - en: Tight pull-request integration; large action ecosystem
+          vi: Tích hợp chặt với pull request; hệ sinh thái action lớn
+        - en: Vendor-specific YAML; secrets and minutes need care
+          vi: YAML riêng của từng vendor; secret và số phút chạy cần chú ý
+        - en: Free tiers plus usage-based minutes
+          vi: Gói miễn phí cộng số phút tính theo mức sử dụng
+      - - Terraform / OpenTofu / Pulumi
+        - Infrastructure as code
+        - en: Reproducible warehouses, roles, storage and networks
+          vi: Warehouse, role, storage và network tái lập được
+        - en: Declarative, reviewable; Pulumi uses general-purpose languages
+          vi: Khai báo, dễ review; Pulumi dùng ngôn ngữ đa dụng
+        - en: State management; drift; learning curve
+          vi: Quản lý state; drift; đường cong học tập
+        - en: Terraform is source-available; OpenTofu is open source; Pulumi has open source plus paid cloud
+          vi: Terraform là source-available; OpenTofu là mã nguồn mở; Pulumi có bản mã nguồn mở cộng cloud trả phí
+      - - Docker
+        - en: Containers
+          vi: Container
+        - en: Same environment locally, in CI and in production
+          vi: Cùng một môi trường ở local, trong CI và production
+        - en: Reproducible; portable
+          vi: Tái lập được; di động
+        - en: Image hygiene, build times and secrets handling
+          vi: Vệ sinh image, thời gian build và xử lý secret
+        - en: Open-source engine; desktop tooling has paid tiers for larger organizations
+          vi: Engine mã nguồn mở; công cụ desktop có gói trả phí cho tổ chức lớn
+      - - en: Kubernetes (basics)
+          vi: Kubernetes (cơ bản)
+        - en: Container orchestration
+          vi: Điều phối container
+        - en: Long-lived services such as orchestrators and apps
+          vi: Các service sống lâu như orchestrator và ứng dụng
+        - en: Scalable and portable
+          vi: Mở rộng được và di động
+        - en: High operational complexity; often unnecessary for small teams
+          vi: Độ phức tạp vận hành cao; thường không cần cho team nhỏ
+        - en: Open source; managed control planes billed by the cloud
+          vi: Mã nguồn mở; control plane managed do cloud tính phí
+      - - AWS / GCP / Azure
+        - en: Cloud platforms
+          vi: Nền tảng cloud
+        - en: All underlying infrastructure
+          vi: Toàn bộ hạ tầng bên dưới
+        - en: Managed services; IAM; global reach
+          vi: Managed service; IAM; phủ sóng toàn cầu
+        - en: Cost sprawl and complexity
+          vi: Chi phí phình to và phức tạp
+        - en: Pay as you go
+          vi: Trả theo mức dùng
+      - - pre-commit + SQLFluff
+        - en: Local quality gates
+          vi: Quality gate cục bộ
+        - en: Style and basic checks before commit
+          vi: Style và kiểm tra cơ bản trước khi commit
+        - en: Fast feedback; consistent style
+          vi: Phản hồi nhanh; style nhất quán
+        - en: Template-aware linting with dbt can be slow; rules need tuning
+          vi: Linting nhận biết template với dbt có thể chậm; cần tinh chỉnh rule
+        - en: Open source
+          vi: Mã nguồn mở
+    cap:
+      en: Prefer managed services over running Kubernetes yourself, until a concrete need says otherwise.
+      vi: Ưu tiên managed service hơn là tự chạy Kubernetes, cho đến khi có nhu cầu cụ thể khác.
+    n:
+      en: Most of these are not data-specific, which is the point. Borrow mature software practice instead of inventing data-only versions.
+      vi: Hầu hết những thứ này không riêng cho dữ liệu, và đã chính là điểm mấu chốt. Hãy mượn thực hành phần mềm trưởng thành thay vì tự phát minh phiên bản chỉ dành cho dữ liệu.
+  - id: deep-dive-a-ci-pipeline-for-a-dbt-project
+    k: code
+    t:
+      en: "Deep dive: a CI pipeline for a dbt project"
+      vi: "Đào sâu: pipeline CI cho dự án dbt"
+    lead:
+      en: Lint, build only what changed (Slim CI), run in an isolated schema, and clean up after.
+      vi: Lint, chỉ build phần thay đổi (Slim CI), chạy trong schema cô lập, và dọn dẹp sau đó.
+    blocks:
+      - lang: yaml
+        title: .github/workflows/dbt-ci.yml
+        code: |-
+          name: dbt-ci
+
+          on:
+            pull_request:
+              paths:
+                - "dbt/**"
+                - ".github/workflows/dbt-ci.yml"
+
+          concurrency:
+            group: dbt-ci-${{ github.head_ref }}
+            cancel-in-progress: true
+
+          permissions:
+            contents: read
+            id-token: write   # for OIDC to AWS
+
+          jobs:
+            build:
+              runs-on: ubuntu-latest
+              timeout-minutes: 45
+              env:
+                DBT_PROFILES_DIR: ./dbt
+                DBT_SCHEMA: ci_pr_${{ github.event.number }}
+                SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+                SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_CI_USER }}
+                SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_CI_PASSWORD }}
+              steps:
+                - uses: actions/checkout@v4
+
+                - uses: actions/setup-python@v5
+                  with:
+                    python-version: "3.12"
+                    cache: pip
+
+                - name: Install dependencies
+                  run: pip install -r requirements.txt
+
+                - name: Lint SQL
+                  run: sqlfluff lint dbt/models --dialect snowflake
+
+                - uses: aws-actions/configure-aws-credentials@v4
+                  with:
+                    role-to-assume: ${{ secrets.AWS_CI_ROLE_ARN }}
+                    aws-region: ap-southeast-1
+
+                - name: Fetch production manifest
+                  run: aws s3 cp s3://example-dbt-artifacts/prod/manifest.json ./prod-artifacts/manifest.json
+
+                - name: Install dbt packages
+                  run: dbt deps --project-dir dbt
+
+                - name: Build modified models and their children
+                  run: >
+                    dbt build --project-dir dbt
+                    --select state:modified+
+                    --defer --state ./prod-artifacts
+
+                - name: Drop CI schema
+                  if: always()
+                  run: dbt run-operation drop_ci_schema --project-dir dbt
+    points:
+      - h:
+          en: Isolated schema per PR
+          vi: Schema cô lập cho mỗi PR
+        p:
+          en: Each pull request builds into its own schema, so reviewers can inspect results and runs never collide.
+          vi: Mỗi pull request build vào schema riêng, để reviewer kiểm tra kết quả và các lần chạy không bao giờ đụng nhau.
+      - h: Slim CI
+        tag: senior
+        p:
+          en: "`state:modified+` with `--defer` builds only changed models and their children, reading unchanged parents from production."
+          vi: "`state:modified+` với `--defer` chỉ build các model đã đổi và model con của chúng, đọc các parent không đổi từ production."
+      - h:
+          en: No long-lived keys
+          vi: Không có key sống lâu
+        tag: senior
+        p:
+          en: OIDC lets the workflow assume a cloud role without stored cloud credentials. Warehouse credentials should be scoped to a CI role.
+          vi: OIDC cho phép workflow assume một cloud role mà không cần lưu cloud credential. Credential warehouse nên được giới hạn cho một CI role.
+      - h:
+          en: Cleanup always runs
+          vi: Cleanup luôn chạy
+        p:
+          en: "`if: always()` drops the schema even when the build fails. `drop_ci_schema` is a macro in your project."
+          vi: "`if: always()` drop schema ngay cả khi build lỗi. `drop_ci_schema` là một macro trong project của bạn."
+    n:
+      en: "Walk through in order: trigger and concurrency, permissions, lint, fetch production state, Slim CI build, cleanup. The secret names and bucket are placeholders. The same structure works in GitLab CI."
+      vi: "Đi qua theo thứ tự: trigger và concurrency, permission, lint, lấy state production, build Slim CI, cleanup. Tên secret và bucket chỉ là placeholder. Cấu trúc tương tự dùng được trong GitLab CI."
+  - id: deep-dive-infrastructure-as-code-and-local-quality-gates
+    k: code
+    t:
+      en: "Deep dive: infrastructure as code and local quality gates"
+      vi: "Đào sâu: infrastructure as code và cổng chất lượng cục bộ"
+    lead:
+      en: Define the platform in code, and catch style problems before they reach review.
+      vi: Định nghĩa platform bằng code và bắt lỗi style trước khi đến bước review.
+    blocks:
+      - lang: hcl
+        title: main.tf (GCP example)
+        code: |-
+          terraform {
+            required_version = ">= 1.6"
+            required_providers {
+              google = { source = "hashicorp/google", version = "~> 6.0" }
+            }
+          }
+
+          variable "project_id" { type = string }
+
+          provider "google" {
+            project = var.project_id
+            region  = "asia-southeast1"
+          }
+
+          resource "google_bigquery_dataset" "marts" {
+            dataset_id                 = "marts"
+            location                   = "asia-southeast1"
+            delete_contents_on_destroy = false
+            labels = {
+              env   = "prod"
+              owner = "analytics-eng"
+            }
+          }
+
+          resource "google_service_account" "dbt_runner" {
+            account_id   = "dbt-runner"
+            display_name = "dbt production runner"
+          }
+
+          resource "google_bigquery_dataset_iam_member" "dbt_editor" {
+            dataset_id = google_bigquery_dataset.marts.dataset_id
+            role       = "roles/bigquery.dataEditor"
+            member     = "serviceAccount:${google_service_account.dbt_runner.email}"
+          }
+      - lang: yaml
+        title: .pre-commit-config.yaml
+        code: |-
+          repos:
+            - repo: https://github.com/sqlfluff/sqlfluff
+              rev: 3.2.5            # pin a release you have tested
+              hooks:
+                - id: sqlfluff-lint
+            - repo: https://github.com/pre-commit/pre-commit-hooks
+              rev: v5.0.0
+              hooks:
+                - id: end-of-file-fixer
+                - id: trailing-whitespace
+                - id: check-yaml
+      - lang: ini
+        title: .sqlfluff
+        code: |-
+          [sqlfluff]
+          dialect = snowflake
+          max_line_length = 120
+          exclude_rules = ambiguous.column_count
+
+          [sqlfluff:rules:capitalisation.keywords]
+          capitalisation_policy = lower
+    points:
+      - h:
+          en: Least-privilege IAM
+          vi: IAM theo nguyên tắc đặc quyền tối thiểu
+        tag: senior
+        p:
+          en: Grant the runner only the dataset-level role it needs, not project-wide editor.
+          vi: Chỉ cấp cho runner role ở cấp dataset mà nó cần, không phải editor toàn project.
+      - h:
+          en: Protect data on destroy
+          vi: Bảo vệ dữ liệu khi destroy
+        p:
+          en: "`delete_contents_on_destroy = false` turns an accidental destroy into an error."
+          vi: "`delete_contents_on_destroy = false` biến một lần destroy nhầm thành lỗi."
+      - h: Remote state
+        p:
+          en: Use a remote, locked state backend for teams. It is omitted here for brevity.
+          vi: Dùng state backend từ xa có khóa cho làm việc nhóm. Ở đây bỏ qua cho gọn.
+      - h:
+          en: Cost control
+          vi: Kiểm soát chi phí
+        tag: senior
+        p:
+          en: Use budgets and alerts, labels for cost attribution, and expiry on scratch resources.
+          vi: Dùng budget và alert, label để phân bổ chi phí, và đặt thời hạn hết hạn cho tài nguyên tạm.
+    n:
+      en: "Infrastructure as code gives you review, history and repeatability for things that used to be console clicks. The pre-commit and SQLFluff files give a fast local loop. Provider and hook versions are examples: pin whatever you have tested."
+      vi: "Infrastructure as code mang lại review, lịch sử và khả năng lặp lại cho những việc trước đây là click trên console. File pre-commit và SQLFluff tạo vòng lặp local nhanh. Phiên bản provider và hook chỉ là ví dụ: hãy pin phiên bản bạn đã test."
+  - id: design-patterns-and-best-practices
+    k: cards
+    t:
+      en: Design patterns and best practices
+      vi: Mẫu thiết kế và thực hành tốt
+    cols: 3
+    cards:
+      - h:
+          en: Trunk-based, small PRs
+          vi: Trunk-based, PR nhỏ
+        p:
+          en: Merge small changes often. Large, long-lived branches create merge pain and risky releases.
+          vi: Merge thay đổi nhỏ thường xuyên. Branch lớn, sống lâu gây đau đầu khi merge và release rủi ro.
+      - h:
+          en: Environments
+          vi: Môi trường
+        p:
+          en: Dev, CI and prod with the same code and different configuration. Developers never write to prod by hand.
+          vi: Dev, CI và prod dùng cùng code nhưng khác cấu hình. Developer không bao giờ ghi vào prod thủ công.
+      - h:
+          en: Everything as code
+          vi: Mọi thứ dưới dạng code
+        p:
+          en: Infrastructure, roles, jobs and dashboards-as-code where possible, so change is reviewable.
+          vi: Hạ tầng, role, job và dashboard dưới dạng code khi có thể, để thay đổi có thể review.
+      - h:
+          en: Secrets management
+          vi: Quản lý secret
+        p:
+          en: Secrets live in a vault or CI secret store, never in the repository. Prefer short-lived credentials.
+          vi: Secret nằm trong vault hoặc secret store của CI, không bao giờ nằm trong repository. Ưu tiên credential ngắn hạn.
+      - h:
+          en: Least privilege IAM
+          vi: IAM đặc quyền tối thiểu
+        p:
+          en: Separate roles for humans, CI and production runners, each with minimum access.
+          vi: Role riêng cho con người, CI và production runner, mỗi loại chỉ có quyền truy cập tối thiểu.
+      - h:
+          en: Cost hygiene
+          vi: Vệ sinh chi phí
+        p:
+          en: Budgets, alerts, labels, scratch-data expiry and regular review of the top spenders.
+          vi: Budget, alert, label, hết hạn dữ liệu tạm và review định kỳ các khoản chi lớn nhất.
+    n:
+      en: These are the safety rails that let a team move quickly. Cost hygiene belongs here because cloud bills are an engineering output, not just a finance topic.
+      vi: Đây là các rào an toàn giúp team di chuyển nhanh. Vệ sinh chi phí thuộc về đây vì hóa đơn cloud là đầu ra của kỹ thuật, không chỉ là chủ đề tài chính.
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Editing production in the console.
+          vi: Sửa production trực tiếp trên console.
+        why:
+          en: Changes are untracked and unrepeatable.
+          vi: Thay đổi không được theo dõi và không lặp lại được.
+        fix:
+          en: Infrastructure as code and reviewed pull requests.
+          vi: Infrastructure as code và pull request được review.
+      - bad:
+          en: Secrets in the repo or a shared password.
+          vi: Secret nằm trong repo hoặc dùng chung một mật khẩu.
+        why:
+          en: Leaks and no accountability.
+          vi: Rò rỉ và không có trách nhiệm giải trình.
+        fix:
+          en: Secret manager, OIDC and per-purpose accounts.
+          vi: Secret manager, OIDC và tài khoản theo từng mục đích.
+      - bad:
+          en: CI that rebuilds the whole project.
+          vi: CI build lại toàn bộ project.
+        why:
+          en: Slow feedback and high cost.
+          vi: Phản hồi chậm và chi phí cao.
+        fix:
+          en: Slim CI with deferral to production state.
+          vi: Slim CI với deferral sang trạng thái production.
+      - bad:
+          en: Kubernetes by default.
+          vi: Mặc định dùng Kubernetes.
+        why:
+          en: High operational cost for small teams.
+          vi: Chi phí vận hành cao cho team nhỏ.
+        fix:
+          en: Use managed services until a clear need appears.
+          vi: Dùng managed service cho đến khi xuất hiện nhu cầu rõ ràng.
+      - bad:
+          en: Shared dev environment.
+          vi: Môi trường dev dùng chung.
+        why:
+          en: Developers overwrite each other’s work.
+          vi: Developer ghi đè công việc của nhau.
+        fix:
+          en: Per-developer or per-PR schemas.
+          vi: Schema riêng cho từng developer hoặc từng PR.
+      - bad:
+          en: No cost visibility.
+          vi: Không nhìn thấy chi phí.
+        why:
+          en: Surprise bills and no accountability.
+          vi: Hóa đơn bất ngờ và không có trách nhiệm giải trình.
+        fix:
+          en: Budgets, labels and team-level cost reports.
+          vi: Budget, label và báo cáo chi phí theo team.
+    n:
+      en: The most frequent real-world incident in this area is a credential or an unreviewed console change. Both are cheap to prevent.
+      vi: Sự cố thực tế thường gặp nhất ở mảng này là lộ credential hoặc thay đổi console chưa được review. Cả hai đều rẻ để ngăn chặn.
+  - id: what-senior-looks-like-engineering-practices
+    k: cards
+    t:
+      en: "What senior looks like: engineering practices"
+      vi: "Senior trông như thế nào: thực hành kỹ thuật"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: Branching and release strategy
+            vi: Chiến lược branching và release
+          - en: Which environments exist and who deploys
+            vi: Có những môi trường nào và ai deploy
+          - en: Managed service or self-hosted
+            vi: Managed service hay self-hosted
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Process safety versus delivery speed
+            vi: An toàn quy trình so với tốc độ delivery
+          - en: Standardization versus team autonomy
+            vi: Chuẩn hóa so với tự chủ của team
+          - en: Build time and cost versus test coverage
+            vi: Thời gian và chi phí build so với độ phủ test
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Own CI health and deploy reliability
+            vi: Chịu trách nhiệm sức khỏe CI và độ tin cậy deploy
+          - en: Set IAM and secrets standards
+            vi: Đặt chuẩn IAM và secret
+          - en: Run cost reviews
+            vi: Chạy các buổi review chi phí
+          - en: Onboard others to the workflow
+            vi: Hướng dẫn người khác làm quen workflow
+    n:
+      en: Seniors keep the pipeline fast. A slow CI process gets bypassed, and a bypassed process gives no protection.
+      vi: Senior giữ cho pipeline nhanh. Quy trình CI chậm sẽ bị bỏ qua, và quy trình bị bỏ qua thì không bảo vệ được gì.
+  - id: devops-lab-ci-cd-with-terraform-and-rollback
+    k: lab
+    t:
+      en: "DevOps lab: CI/CD with Terraform and rollback"
+      vi: "Lab DevOps: CI/CD với Terraform và rollback"
+    lead:
+      en: Change infrastructure and data models through a pipeline, then undo a bad release.
+      vi: Thay đổi hạ tầng và model dữ liệu qua pipeline, rồi hoàn tác một bản phát hành lỗi.
+    scenario:
+      en: A team still deploys by hand and cannot say what changed last Friday.
+      vi: Một đội vẫn deploy bằng tay và không nói được thứ thay đổi hôm thứ Sáu là gì.
+    input:
+      en: A Git repository, a cloud account or local stand-in, Terraform, dbt and a CI service.
+      vi: Một Git repository, tài khoản cloud hoặc môi trường giả lập cục bộ, Terraform, dbt và một dịch vụ CI.
+    tasks:
+      - en: Define a schema, role and storage bucket in Terraform with remote state.
+        vi: Định nghĩa schema, role và storage bucket bằng Terraform với remote state.
+      - en: Run plan on pull requests and apply on merge with an approval.
+        vi: Chạy plan trên pull request và apply khi merge có phê duyệt.
+      - en: Add dbt Slim CI with a per-PR schema.
+        vi: Thêm dbt Slim CI với schema riêng cho mỗi PR.
+      - en: Deploy a bad model, then roll back and time the recovery.
+        vi: Deploy một model lỗi, rồi rollback và đo thời gian khôi phục.
+    expected:
+      en: Pipeline logs for each stage, a rollback demonstration and a measured recovery time.
+      vi: Log pipeline cho từng giai đoạn, một lần trình diễn rollback và thời gian khôi phục đã đo.
+    rubric:
+      - en: No manual production changes
+        vi: Không có thay đổi production thủ công
+      - en: Plan reviewed before apply
+        vi: Plan được review trước khi apply
+      - en: Rollback covers code and data
+        vi: Rollback bao gồm cả code và dữ liệu
+    design:
+      en: Design environments, approvals and drift detection for five teams sharing one platform.
+      vi: Thiết kế môi trường, phê duyệt và phát hiện drift cho năm đội dùng chung một nền tảng.
+    n:
+      en: Ask learners to show the pipeline run that applied the change, not a screenshot of the result.
+      vi: Yêu cầu người học cho xem lần chạy pipeline đã áp dụng thay đổi, không phải ảnh chụp kết quả.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: Main is protected; changes arrive through reviewed PRs
+          vi: Main được bảo vệ; thay đổi vào qua PR đã review
+        - en: CI lints and builds only what changed
+          vi: CI chỉ lint và build phần thay đổi
+        - en: Infrastructure is defined in code
+          vi: Hạ tầng được định nghĩa bằng code
+        - en: No secrets in the repository
+          vi: Không có secret trong repository
+        - en: Each developer or PR has an isolated environment
+          vi: Mỗi developer hoặc PR có môi trường cô lập
+        - en: There are budgets and alerts on spend
+          vi: Có budget và alert cho chi tiêu
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Design CI/CD for a dbt project with 15 contributors.
+          vi: Thiết kế CI/CD cho dự án dbt với 15 contributor.
+        - en: How would you roll back a bad production deployment?
+          vi: Bạn sẽ rollback một lần deploy production lỗi như thế nào?
+        - en: How do you manage secrets for CI and production?
+          vi: Bạn quản lý secret cho CI và production ra sao?
+        - en: When is Kubernetes justified for a data team?
+          vi: Khi nào Kubernetes là hợp lý cho một data team?
+        - en: How do you stop a developer from running a $5,000 query?
+          vi: Làm sao ngăn developer chạy một query tốn 5.000 USD?
+    n:
+      en: For the last question, look for guardrails (budgets, query limits, roles) rather than “tell them to be careful”.
+      vi: Với câu hỏi cuối, hãy tìm guardrail (budget, giới hạn query, role) thay vì “bảo họ cẩn thận”.

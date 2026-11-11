@@ -1,0 +1,76 @@
+tech:
+  id: iceberg
+  name: Iceberg
+  color: "#7C3AED"
+slides:
+  - id: configuration-partitioning-and-properties
+    k: code
+    mod: [config]
+    t: {en: "Iceberg configuration: partitioning and table properties", vi: "Cau hinh Iceberg: partitioning va table properties"}
+    lead: {en: "Configure for the query workload and file layout you actually have; hidden partitioning is a contract, not a substitute for observability.", vi: "Cau hinh theo workload query va layout file thuc te; hidden partitioning la mot contract, khong thay the observability."}
+    blocks:
+      - lang: sql
+        title: create_table.sql
+        code: |-
+          CREATE TABLE lake.orders (
+            order_id BIGINT, customer_id BIGINT, ordered_at TIMESTAMP,
+            status STRING, amount DECIMAL(18, 2)
+          ) USING iceberg
+          PARTITIONED BY (days(ordered_at), bucket(32, customer_id))
+          TBLPROPERTIES (
+            'format-version' = '2',
+            'write.target-file-size-bytes' = '536870912',
+            'write.distribution-mode' = 'hash'
+          );
+          ALTER TABLE lake.orders ADD PARTITION FIELD years(ordered_at);
+    points:
+      - h: {en: Choose transforms from predicates, vi: Chon transform tu predicate}
+        p: {en: "Partition by the time grain and keys that queries filter on. Avoid raw identity partitions that create millions of directories.", vi: "Partition theo grain thoi gian va key ma query dung de filter. Tranh partition identity tao hang trieu thu muc."}
+      - h: {en: Treat properties as workload decisions, vi: Xem properties la quyet dinh workload}
+        p: {en: "File size, distribution mode and merge mode affect both write cost and read planning. Record the reason for each non-default setting.", vi: "Kich thuoc file, distribution mode va merge mode anh huong ca chi phi ghi lan planning khi doc. Ghi lai ly do cho moi setting."}
+    n: {en: "Validate partition evolution against representative queries and file counts before applying it to a large table.", vi: "Kiem tra partition evolution bang query dien hinh va so luong file truoc khi ap dung cho table lon."}
+  - id: implementation-safe-cdc-upsert
+    k: code
+    mod: [implementation]
+    t: {en: "Iceberg implementation: a safe CDC upsert", vi: "Trien khai Iceberg: CDC upsert an toan"}
+    lead: {en: "A reliable upsert separates deduplication, ordering and the table merge; each step needs a measurable invariant.", vi: "Upsert dang tin cay tach dedup, ordering va merge table; moi buoc can mot invariant do duoc."}
+    blocks:
+      - lang: sql
+        title: cdc_merge.sql
+        code: |-
+          CREATE OR REPLACE TEMP VIEW latest_change AS
+          SELECT * FROM (
+            SELECT cdc.*, ROW_NUMBER() OVER (
+              PARTITION BY order_id ORDER BY source_lsn DESC, event_at DESC
+            ) AS rn
+            FROM bronze.orders_cdc cdc
+          ) WHERE rn = 1;
+          MERGE INTO lake.orders AS target
+          USING latest_change AS source
+          ON target.order_id = source.order_id
+          WHEN MATCHED AND source.op = 'D' THEN DELETE
+          WHEN MATCHED THEN UPDATE SET *
+          WHEN NOT MATCHED AND source.op <> 'D' THEN INSERT *;
+    points:
+      - h: {en: Deduplicate before merge, vi: Dedup truoc merge}
+        p: {en: "The source must contain one winning event per key. Replaying the same batch should be idempotent.", vi: "Source phai chi co mot event chien thang cho moi key. Chay lai cung batch phai idempotent."}
+      - h: {en: Bound late data, vi: Gioi han du lieu den muon}
+        p: {en: "Define how far back a change may update the table and route older events to a repair workflow.", vi: "Dinh nghia event duoc phep cap nhat lui bao xa va dua event cu hon vao workflow sua."}
+    n: {en: "Test duplicates, out-of-order events, deletes and retrying the same input before calling this production-ready.", vi: "Test duplicate, event sai thu tu, delete va retry cung input truoc khi coi la production-ready."}
+  - id: operations-maintenance-and-alerts
+    k: table
+    mod: [operations]
+    t: {en: "Iceberg operations: maintenance and alerts", vi: "Van hanh Iceberg: maintenance va alert"}
+    lead: {en: "Operational health is visible in metadata and file distributions before it becomes a query outage.", vi: "Suc khoe van hanh hien trong metadata va phan bo file truoc khi thanh outage query."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Meaning, vi: Y nghia}, {en: Action, vi: Hanh dong}]
+    rows:
+      - - {en: Small-file ratio, vi: Ti le file nho}
+        - {en: "Too many files below target size increase planning and open costs.", vi: "Qua nhieu file nho hon target lam tang chi phi planning va open."}
+        - {en: "Schedule rewrite_data_files; fix write batching upstream.", vi: "Len lich rewrite_data_files; sua batching o upstream."}
+      - - {en: Snapshot age and count, vi: Tuoi va so snapshot}
+        - {en: "Long retention grows metadata and keeps old data files referenced.", vi: "Retention dai lam metadata phinh va giu file du lieu cu con duoc tham chieu."}
+        - {en: "Expire snapshots only after checking active readers and recovery policy.", vi: "Expire snapshot sau khi kiem tra reader dang chay va policy recovery."}
+      - - {en: Manifest count and planning time, vi: So manifest va planning time}
+        - {en: "Metadata growth can make a healthy data volume feel slow.", vi: "Metadata tang co the lam volume du lieu binh thuong tro nen cham."}
+        - {en: "Rewrite manifests and alert on a sustained trend, not one spike.", vi: "Rewrite manifest va alert theo xu huong keo dai, khong phai mot spike."}
+    n: {en: "Maintenance is a controlled data operation: measure its duration, output file count and failure recovery like any other production job.", vi: "Maintenance la data operation co kiem soat: do duration, so file output va recovery khi fail nhu mot production job."}

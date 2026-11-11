@@ -1,0 +1,455 @@
+layer: 18
+slides:
+  - id: distributed-systems-and-reliability-why-things-fail-and
+    k: cards
+    t:
+      en: "Distributed systems and reliability: why things fail and how to survive it"
+      vi: "Hệ thống phân tán và độ tin cậy: vì sao hỏng và cách sống sót"
+    lead:
+      en: Kafka, Spark, Flink, Iceberg and warehouses are all distributed systems. Their behaviour under failure follows a small set of ideas worth learning once.
+      vi: Kafka, Spark, Flink, Iceberg và warehouse đều là hệ thống phân tán. Hành vi của chúng khi lỗi theo một tập ý tưởng nhỏ, đúng học một lần cho chắc.
+    cols: 3
+    cards:
+      - h:
+          en: CAP and consistency
+          vi: CAP và tính nhất quán
+        tag: must
+        p:
+          en: During a network partition you choose consistency or availability. Consistency models range from strong to eventual.
+          vi: Khi mạng bị chia cắt, bạn chọn nhất quán hoặc sẵn sàng. Mô hình nhất quán trải từ mạnh đến cuối cùng.
+      - h:
+          en: Replication and quorum
+          vi: Replication và quorum
+        tag: must
+        p:
+          en: Copies survive failures. Quorums and a single leader keep the copies in agreement.
+          vi: Các bản sao sống sót qua lỗi. Quorum và một leader giữ các bản sao thống nhất.
+      - h:
+          en: Delivery semantics
+          vi: Ngữ nghĩa giao nhận
+        tag: must
+        p:
+          en: At-most-once, at-least-once and exactly-once. Idempotency turns at-least-once into effectively once.
+          vi: At-most-once, at-least-once và exactly-once. Idempotency biến at-least-once thành gần như một lần.
+      - h:
+          en: Failure handling
+          vi: Xử lý lỗi
+        tag: must
+        p:
+          en: Timeouts, retries with backoff, circuit breakers, bulkheads, backpressure and dead-letter queues.
+          vi: Timeout, retry có backoff, circuit breaker, bulkhead, backpressure và dead-letter queue.
+      - h:
+          en: HA and DR
+          vi: HA và DR
+        tag: senior
+        p:
+          en: High availability handles component failure; disaster recovery handles loss of a site. Define RPO and RTO.
+          vi: High availability xử lý lỗi thành phần; disaster recovery xử lý mất cả site. Định nghĩa RPO và RTO.
+      - h:
+          en: Time and ordering
+          vi: Thời gian và thứ tự
+        tag: senior
+        p:
+          en: Clocks drift, events arrive late and out of order. Use event time, watermarks and monotonic offsets.
+          vi: Đồng hồ lệch, sự kiện đến muộn và sai thứ tự. Dùng event time, watermark và offset đơn điệu.
+    n:
+      en: This layer is the one that explains why a pipeline duplicated rows after a retry, or why a consumer processed an event twice after a rebalance.
+      vi: Lớp này giải thích vì sao pipeline nhân ??i dòng sau retry, hoặc vì sao consumer xử lý một sự kiện hai lần sau rebalance.
+  - id: cap-and-consistency-in-the-data-stack
+    k: table
+    t:
+      en: CAP and consistency in the data stack
+      vi: CAP và tính nhất quán trong data stack
+    lead:
+      en: "CAP is a simplification (see also PACELC), but it frames the right question: what happens to reads and writes when parts of the system cannot talk?"
+      vi: "CAP là sự đơn giản hóa (xem thêm PACELC), nhưng nó đặt đúng câu hỏi: đọc và ghi sẽ ra sao khi các phần của hệ thống không nói chuyện được với nhau?"
+    head:
+      - en: System
+        vi: Hệ thống
+      - en: Typical leaning
+        vi: Thiên hướng điển hình
+      - en: Behaviour under partition
+        vi: Hành vi khi bị chia cắt
+      - en: What you control
+        vi: Bạn điều khiển được gì
+    rows:
+      - - etcd / ZooKeeper / Raft-based metadata
+        - en: Consistency first
+          vi: Ưu tiên nhất quán
+        - en: The minority side stops accepting writes
+          vi: Phía thiểu số ngừng nhận ghi
+        - en: Cluster size (odd numbers) and timeouts
+          vi: Kích thước cluster (số lẻ) và timeout
+      - - Kafka
+        - en: Tunable
+          vi: Tinh chỉnh được
+        - en: With `acks=all` and `min.insync.replicas`, writes fail rather than lose data
+          vi: Với `acks=all` và `min.insync.replicas`, ghi thất bại thay vì mất dữ liệu
+        - acks, min.insync.replicas, unclean leader election
+      - - en: Cassandra-style stores
+          vi: Store kiểu Cassandra
+        - en: Availability first, tunable
+          vi: Ưu tiên sẵn sàng, tinh chỉnh được
+        - en: Both sides accept writes; conflicts are reconciled later
+          vi: Cả hai phía nhận ghi; xung đột được hòa giải sau
+        - en: Consistency level per query
+          vi: Mức nhất quán theo từng query
+      - - en: Object storage (S3-style)
+          vi: Object storage (kiểu S3)
+        - en: Strong read-after-write for objects
+          vi: Đọc sau ghi nhất quán mạnh cho object
+        - en: Operations either succeed or fail; listing semantics vary by provider
+          vi: Thao tác thành công hoặc thất bại; ngữ nghĩa liệt kê khác nhau theo nhà cung cấp
+        - en: Table formats add atomic commits on top
+          vi: Table format thêm commit nguyên tử ở trên
+      - - en: Iceberg / Delta commits
+          vi: Commit của Iceberg / Delta
+        - en: Consistency first
+          vi: Ưu tiên nhất quán
+        - en: "Concurrent writers: one commit wins, the other retries"
+          vi: "Nhiều writer đồng thời: một commit thắng, cái còn lại retry"
+        - en: Isolation level, retry and conflict policy
+          vi: Mức isolation, chính sách retry và xung đột
+      - - en: Managed warehouses
+          vi: Warehouse managed
+        - en: ACID transactions inside the service
+          vi: Giao dịch ACID bên trong dịch vụ
+        - en: Provider handles replication and failover
+          vi: Nhà cung cấp lo replication và failover
+        - en: Region and failover configuration
+          vi: Cấu hình vùng và failover
+    cap:
+      en: Eventual consistency is acceptable for analytics counters and unacceptable for balances. Decide per data set.
+      vi: Nhất quán cuối cùng chấp nhận được cho bộ đếm analytics và không chấp nhận được cho số dư. Hãy quyết định theo từng tập dữ liệu.
+    n:
+      en: Emphasize that most modern data systems are tunable, so the engineer’s job is to choose settings that match the business requirement. Storage-provider guarantees evolve, so confirm them in current documentation.
+      vi: Nhấn mạnh rằng hầu hết hệ thống dữ liệu hiện đại đều tinh chỉnh được, nên việc của engineer là chọn cấu hình khớp yêu cầu nghiệp vụ. Bảo đảm của nhà cung cấp lưu trữ thay đổi theo thời gian, hãy xác nhận trong tài liệu hiện hành.
+  - id: replication-quorum-and-leader-election
+    k: svg
+    t:
+      en: Replication, quorum and leader election
+      vi: Replication, quorum và bầu leader
+    lead:
+      en: Replication gives durability; a single leader or a quorum gives agreement; elections replace a failed leader.
+      vi: Replication cho độ bền; một leader hoặc một quorum cho sự đồng thuận; bầu cử thay thế leader bị hỏng.
+    svg: quorumSVG
+    cap:
+      en: "Why odd cluster sizes: 3 nodes tolerate 1 failure and 4 nodes still tolerate only 1, so the fourth node adds cost, not safety."
+      vi: "Vì sao cluster cỡ lẻ: 3 node chịu 1 lỗi và 4 node vẫn chỉ chịu 1, nên node thứ tư tăng chi phí chứ không tăng an toàn."
+    n:
+      en: Kafka (ISR and KRaft), Flink (JobManager HA), Iceberg catalogs and etcd all rely on these ideas. The formula R + W > N is the cleanest way to explain why a quorum read sees the latest quorum write.
+      vi: Kafka (ISR và KRaft), Flink (JobManager HA), catalog Iceberg và etcd đều dựa trên các ý này. Công thức R + W > N là cách giải thích gọn nhất vì sao đọc quorum thấy lần ghi quorum mới nhất.
+  - id: retries-idempotency-and-delivery-semantics
+    k: code
+    t:
+      en: Retries, idempotency and delivery semantics
+      vi: Retry, idempotency và ngữ nghĩa giao nhận
+    lead:
+      en: Retries make a system reliable and also create duplicates. Idempotent writes make retries safe.
+      vi: Retry làm hệ thống tin cậy và cũng tạo ra bản trùng. Ghi idempotent làm retry an toàn.
+    blocks:
+      - lang: python
+        title: retry.py (exponential backoff with jitter)
+        code: |-
+          import random
+          import time
+
+
+          class TransientError(Exception):
+              """Timeouts, 429s and 5xx responses: safe to retry."""
+
+
+          def with_retries(fn, attempts=5, base=0.5, cap=30.0):
+              for n in range(attempts):
+                  try:
+                      return fn()
+                  except TransientError:
+                      if n == attempts - 1:
+                          raise
+                      delay = min(cap, base * 2 ** n)
+                      time.sleep(delay * random.uniform(0.5, 1.0))  # jitter avoids retry storms
+      - lang: sql
+        title: idempotent_insert.sql (PostgreSQL)
+        code: |-
+          -- Safe to run twice: duplicate event_ids are ignored
+          insert into fct_events (event_id, user_id, event_name, event_ts)
+          values (:event_id, :user_id, :event_name, :event_ts)
+          on conflict (event_id) do nothing;
+    points:
+      - h: At-most-once
+        p:
+          en: Send once, never retry. Data can be lost. Acceptable for lossy metrics only.
+          vi: Gửi một lần, không retry. Có thể mất dữ liệu. Chỉ chấp nhận cho metric cho phép mất.
+      - h: At-least-once
+        tag: must
+        p:
+          en: Retry until acknowledged. Nothing is lost, but duplicates happen. The common default.
+          vi: Retry đến khi được xác nhận. Không mất gì nhưng có thể trùng. Mặc định phổ biến.
+      - h: Exactly-once
+        tag: senior
+        p:
+          en: At-least-once delivery plus idempotent or transactional processing. It is an end-to-end property, not a switch.
+          vi: Giao ít nhất một lần cộng xử lý idempotent hoặc giao dịch. Đã là thuộc tính đầu-cuối, không phải công tắc bật tắt.
+      - h:
+          en: Dedupe key
+          vi: Khóa chống trùng
+        tag: senior
+        p:
+          en: A stable business or event ID makes duplicates detectable anywhere in the pipeline.
+          vi: Một ID nghiệp vụ hoặc sự kiện ổn định giúp phát hiện bản trùng ở bất kỳ đâu trong pipeline.
+    n:
+      en: "Jitter matters: without it all clients retry at the same instant and overload a recovering service. The SQL upsert is the simplest idempotent sink; Kafka transactions and Flink two-phase commits are the heavy-duty versions."
+      vi: "Jitter quan trọng: không có nó mọi client retry cùng lúc và làm quá tải dịch vụ đang hồi phục. Upsert SQL là sink idempotent đơn giản nhất; transaction của Kafka và two-phase commit của Flink là phiên bản hạng nặng."
+  - id: resilience-patterns-for-data-pipelines
+    k: cards
+    t:
+      en: Resilience patterns for data pipelines
+      vi: Các mẫu chịu lỗi cho data pipeline
+    cols: 3
+    cards:
+      - h:
+          en: Timeouts and retries
+          vi: Timeout và retry
+        p:
+          en: Every network call has a timeout. Retry only transient errors, with backoff, jitter and a cap.
+          vi: Mọi lời gọi mạng đều có timeout. Chỉ retry lỗi tạm thời, có backoff, jitter và giới hạn.
+      - h: Circuit breaker
+        p:
+          en: After repeated failures stop calling the dependency (open), probe occasionally (half-open), then resume (closed).
+          vi: Sau nhiều lần lỗi liên tiếp thì ngừng gọi phụ thuộc (open), thỉnh thoảng thử (half-open), rồi tiếp tục (closed).
+      - h:
+          en: Bulkheads
+          vi: Bulkhead
+        p:
+          en: Isolate pools, queues and warehouses per workload so one failure cannot consume everything.
+          vi: Cô lập pool, queue và warehouse theo workload để một lỗi không nuốt hết mọi thứ.
+      - h: Backpressure
+        p:
+          en: Slow producers or buffer boundedly when consumers cannot keep up, instead of growing queues without limit.
+          vi: Làm chậm producer hoặc đệm có giới hạn khi consumer không theo kịp, thay vì để hàng đợi phình vô hạn.
+      - h:
+          en: Dead-letter queues
+          vi: Dead-letter queue
+        p:
+          en: Park records that fail repeatedly with the reason, so the stream keeps moving and humans can inspect them.
+          vi: Đưa các bản ghi lỗi lặp lại sang nơi riêng kèm lý do, để luồng chạy tiếp và con người kiểm tra sau.
+      - h:
+          en: Graceful degradation
+          vi: Giảm cấp có kiểm soát
+        p:
+          en: Serve stale but labelled data rather than nothing when a source is late. Show freshness to users.
+          vi: Phục vụ dữ liệu cũ nhưng có gắn nhãn thay vì không gì cả khi nguồn đến trễ. Hiển thị độ mới cho người dùng.
+    n:
+      en: These patterns come from service engineering and apply directly to Kafka consumers, API ingestion and reverse ETL syncs.
+      vi: Các mẫu này đến từ kỹ thuật dịch vụ và áp dụng trực tiếp cho Kafka consumer, ingestion qua API và sync của reverse ETL.
+  - id: high-availability-and-disaster-recovery-strategies
+    k: table
+    t:
+      en: High availability and disaster recovery strategies
+      vi: Chiến lược high availability và disaster recovery
+    lead:
+      en: RPO is how much data you can lose; RTO is how long you can be down. Stronger targets cost more.
+      vi: RPO là lượng dữ liệu bạn có thể mất; RTO là thời gian bạn có thể ngừng. Mục tiêu càng chặt càng tốn kém.
+    head:
+      - en: Strategy
+        vi: Chiến lược
+      - en: Typical RPO
+        vi: RPO điển hình
+      - en: Typical RTO
+        vi: RTO điển hình
+      - en: Relative cost
+        vi: Chi phí tương đối
+      - en: Example
+        vi: Ví dụ
+    rows:
+      - - en: Backup and restore
+          vi: Backup và restore
+        - en: Hours
+          vi: Hàng giờ
+        - en: Hours to days
+          vi: Giờ đến ngày
+        - en: Lowest
+          vi: Thấp nhất
+        - en: Snapshots to another region; restore on demand
+          vi: Snapshot sang vùng khác; restore khi cần
+      - - Pilot light
+        - en: Minutes to hours
+          vi: Phút đến giờ
+        - en: Hours
+          vi: Hàng giờ
+        - en: Low
+          vi: Thấp
+        - en: Data replicated; compute started only during a disaster
+          vi: Dữ liệu được replicate; compute chỉ bật khi có thảm họa
+      - - Warm standby
+        - en: Minutes
+          vi: Phút
+        - en: Minutes to an hour
+          vi: Phút đến một giờ
+        - en: Medium
+          vi: Trung bình
+        - en: Scaled-down copy kept running in another region
+          vi: Bản thu nhỏ luôn chạy ở vùng khác
+      - - Active-active
+        - en: Near zero
+          vi: Gần bằng không
+        - en: Near zero
+          vi: Gần bằng không
+        - en: Highest
+          vi: Cao nhất
+        - en: Multi-region writes with conflict handling
+          vi: Ghi đa vùng có xử lý xung đột
+    cap:
+      en: A backup that has never been restored is a hope, not a backup. Schedule restore tests and measure the real RTO.
+      vi: Backup chưa từng được restore chỉ là hy vọng, không phải backup. Lên lịch test restore và đo RTO thật.
+    n:
+      en: The ranges are qualitative on purpose. Real numbers depend on data size, tooling and rehearsal. Also separate HA (survive a node or zone failure) from DR (survive losing a whole region or a bad deployment).
+      vi: Các khoảng này cố ý mang tính định tính. Con số thật phụ thuộc kích thước dữ liệu, công cụ và diễn tập. Cũng cần tách HA (sống sót khi mất node hoặc zone) khỏi DR (sống sót khi mất cả vùng hoặc deploy hỏng).
+  - id: failure-scenarios-and-recovery-drills
+    k: table
+    t:
+      en: Failure scenarios and recovery drills
+      vi: Kịch bản lỗi và diễn tập khôi phục
+    head:
+      - en: Failure
+        vi: Sự cố
+      - en: Symptom
+        vi: Triệu chứng
+      - en: First checks
+        vi: Kiểm tra đầu tiên
+      - en: Recovery
+        vi: Khôi phục
+    rows:
+      - - en: Kafka broker lost
+          vi: Mất một Kafka broker
+        - en: Under-replicated partitions, producer errors
+          vi: Partition thiếu bản sao, producer lỗi
+        - en: Broker health, ISR, disk and network
+          vi: Sức khỏe broker, ISR, đĩa và mạng
+        - en: Restart or replace the broker; let replicas catch up
+          vi: Khởi động lại hoặc thay broker; để replica bắt kịp
+      - - en: Consumer lag grows
+          vi: Consumer lag tăng
+        - en: Dashboards go stale
+          vi: Dashboard cũ dần
+        - en: Slow handler, hot partition, rebalance loops
+          vi: Handler chậm, partition nóng, vòng lặp rebalance
+        - en: Scale consumers up to partition count; fix the slow step
+          vi: Tăng consumer đến số partition; sửa bước chậm
+      - - en: Bad deploy corrupts a table
+          vi: Deploy lỗi làm hỏng bảng
+        - en: Wrong numbers, failed tests
+          vi: Số liệu sai, test fail
+        - en: Which commit and which run changed it
+          vi: Commit nào và lần chạy nào đã đổi nó
+        - en: Time travel or snapshot rollback; revert and rerun
+          vi: Time travel hoặc rollback snapshot; revert rồi chạy lại
+      - - en: Upstream schema change
+          vi: Nguồn đổi schema
+        - en: Load fails or silently drops a column
+          vi: Load lỗi hoặc âm thầm mất cột
+        - en: Schema diff, contract checks
+          vi: So sánh schema, kiểm tra contract
+        - en: Quarantine batch, update mapping, backfill
+          vi: Cách ly batch, cập nhật mapping, backfill
+      - - en: Credential expired
+          vi: Credential hết hạn
+        - en: Authentication errors at a fixed time
+          vi: Lỗi xác thực vào giờ cố định
+        - en: Secret expiry and rotation logs
+          vi: Hạn secret và log xoay vòng
+        - en: Rotate, redeploy, add expiry alerts
+          vi: Xoay secret, deploy lại, thêm cảnh báo hết hạn
+      - - en: Region outage
+          vi: Sự cố cả vùng
+        - en: Provider status shows a regional failure
+          vi: Trang trạng thái nhà cung cấp báo lỗi vùng
+        - en: DR runbook and replication state
+          vi: Runbook DR và trạng thái replication
+        - en: Fail over per the documented plan, then reconcile
+          vi: Failover theo kế hoạch đã ghi, sau đó đối soát
+    cap:
+      en: Rehearse these as game days. The first time you read the runbook should not be during the incident.
+      vi: Hãy diễn tập như game day. Lần đầu bạn đọc runbook không nên là trong lúc xảy ra sự cố.
+    n:
+      en: Pick two scenarios and walk the audience through detection, diagnosis and recovery. Link each to the monitoring that would have caught it.
+      vi: Chọn hai kịch bản và dẫn khán giả đi qua phát hiện, chẩn đoán và khôi phục. Gắn mỗi kịch bản với giám sát lẽ ra phải bắt được nó.
+  - id: reliability-lab-simulate-failures-and-recover
+    k: lab
+    t:
+      en: "Reliability lab: simulate failures and recover"
+      vi: "Lab độ tin cậy: mô phỏng sự cố và khôi phục"
+    lead:
+      en: Break a pipeline on purpose and measure how fast it recovers.
+      vi: Cố tình làm hỏng một pipeline và đo tốc độ nó hồi phục.
+    scenario:
+      en: A pipeline claims 15-minute recovery but has never been tested.
+      vi: Một pipeline tuyên bố khôi phục trong 15 phút nhưng chưa từng được test.
+    input:
+      en: Any working pipeline from an earlier lab, a fault-injection method (stop containers, drop network, expire a credential) and monitoring.
+      vi: Một pipeline đang chạy từ lab trước, một cách chèn lỗi (dừng container, ngắt mạng, làm hết hạn credential) và giám sát.
+    tasks:
+      - en: Define RPO and RTO targets and the detection signals.
+        vi: Định nghĩa mục tiêu RPO và RTO cùng các tín hiệu phát hiện.
+      - en: Inject five failures one at a time.
+        vi: Chèn năm sự cố, mỗi lần một cái.
+      - en: Record detection time, recovery time and data loss for each.
+        vi: Ghi thời gian phát hiện, thời gian khôi phục và mất dữ liệu cho từng cái.
+      - en: Write or fix the runbook for each.
+        vi: Viết hoặc sửa runbook cho từng cái.
+    expected:
+      en: A table of failure, detection time, recovery time and data lost, compared with the targets.
+      vi: Bảng sự cố, thời gian phát hiện, thời gian khôi phục và dữ liệu mất, so với mục tiêu.
+    rubric:
+      - en: Measured, not estimated
+        vi: Được đo, không ước đoán
+      - en: At least one target missed and analyzed
+        vi: Ít nhất một mục tiêu không đạt và được phân tích
+      - en: Runbooks usable by someone else
+        vi: Runbook người khác dùng được
+    design:
+      en: Propose a DR design that would meet a stricter RPO and RTO and state the extra cost.
+      vi: Đề xuất thiết kế DR đạt RPO và RTO chặt hơn và nêu chi phí tăng thêm.
+    n:
+      en: Missing a target is a good result if it is measured and explained.
+      vi: Không đạt mục tiêu vẫn là kết quả tốt nếu được đo và giải thích.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Senior self-check
+        vi: Tự kiểm tra cấp senior
+      items:
+        - en: I can explain quorum and R + W > N
+          vi: Tôi giải thích được quorum và R + W > N
+        - en: Every write path is idempotent or deduplicated
+          vi: Mọi đường ghi đều idempotent hoặc có chống trùng
+        - en: Retries have backoff, jitter and caps
+          vi: Retry có backoff, jitter và giới hạn
+        - en: Each critical data set has an RPO and RTO
+          vi: Mỗi tập dữ liệu quan trọng có RPO và RTO
+        - en: Restores are tested, not assumed
+          vi: Restore được test, không chỉ giả định
+        - en: I have run a failure drill
+          vi: Tôi đã chạy một buổi diễn tập sự cố
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Explain how Kafka avoids losing acknowledged writes.
+          vi: Giải thích Kafka tránh mất các lần ghi đè xác nhận thế nào.
+        - en: A consumer processed the same event twice. Why, and how do you make it harmless?
+          vi: Một consumer xử lý cùng một sự kiện hai lần. Vì sao, và làm sao để vô hại?
+        - en: Why is “exactly-once” an end-to-end property?
+          vi: Vì sao “exactly-once” là thuộc tính đầu-cuối?
+        - en: Design DR for a warehouse with RPO 15 minutes and RTO 1 hour.
+          vi: Thiết kế DR cho warehouse với RPO 15 phút và RTO 1 giờ.
+        - en: What does a circuit breaker protect, and what can go wrong with it?
+          vi: Circuit breaker bảo vệ cái gì, và nó có thể sai ở đâu?
+    n:
+      en: "Senior expectation: reason about failure before it happens. Staff expectation: define reliability targets and error budgets across the platform."
+      vi: "Kỳ vọng senior: suy luận về lỗi trước khi nó xảy ra. Kỳ vọng staff: định nghĩa mục tiêu độ tin cậy và error budget cho cả nền tảng."

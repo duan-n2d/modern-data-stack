@@ -1,0 +1,108 @@
+tech:
+  id: azure-data-stack
+  name:
+    en: Azure data stack
+    vi: Data stack của Azure
+  color: "#0078D4"
+  refs:
+    - [Azure, https://learn.microsoft.com/azure/]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "Azure data stack: architecture"
+      vi: "Azure data stack: kiến trúc"
+    lead:
+      en: ADLS Gen2 is the lake. Data Factory moves data, Databricks or Synapse transform it, Purview governs it, Power BI serves it.
+      vi: ADLS Gen2 là lake. Data Factory di chuyển dữ liệu, Databricks hoặc Synapse biến đổi, Purview quản trị, Power BI phục vụ.
+    svg:
+      fn: cloudSVG
+      args:
+        - - - en: Sources
+              vi: Nguồn
+            - en: SQL Server, SaaS|files, IoT
+              vi: SQL Server, SaaS|file, IoT
+            - "#7A869F"
+          - - en: Ingest
+              vi: Nạp
+            - Data Factory|Event Hubs|Azure Database Migration
+          - [ADLS Gen2 raw, {en: hierarchical|namespace, vi: namespace|phân cấp}]
+          - - en: Transform
+              vi: Biến đổi
+            - en: Azure Databricks|Synapse Spark and SQL|Fabric
+              vi: Azure Databricks|Synapse Spark và SQL|Fabric
+          - [ADLS curated, {en: Delta or Parquet, vi: Delta hoặc Parquet}]
+          - - en: Serve
+              vi: Phục vụ
+            - Power BI|Synapse SQL|Azure SQL
+        - - [Microsoft Purview, {en: "catalog, lineage, classification, policies", vi: "catalog, lineage, phân loại, chính sách"}]
+          - ["Entra ID, Key Vault, Private Link", {en: "identity, secrets, private networking, managed identities", vi: "định danh, secret, mạng riêng, managed identity"}]
+          - [{en: "Data Factory, Databricks Workflows, Fabric pipelines", vi: "Data Factory, Databricks Workflows, Fabric pipeline"}, orchestration]
+          - ["Azure Monitor, Cost Management", {en: observability and spend control, vi: observability và kiểm soát chi tiêu}]
+        - en: Azure data platform architecture from sources to serving with cross-cutting services
+          vi: Kiến trúc data platform Azure từ nguồn đến serving với các dịch vụ xuyên suốt
+        - "#0078D4"
+    cap:
+      en: Microsoft’s strategic direction is Fabric. Many estates still run Databricks and Synapse, so know how they fit together.
+      vi: Hướng chiến lược của Microsoft là Fabric. Nhiều hệ thống vẫn chạy Databricks và Synapse, nên hãy biết chúng khớp với nhau thế nào.
+    n:
+      en: Azure resembles AWS conceptually (object storage, catalog, many engines). The differentiators are tight integration with Power BI, Entra ID and the move toward Fabric.
+      vi: Azure về mặt khái niệm giống AWS (object storage, catalog, nhiều engine). Điểm khác biệt là tích hợp chặt với Power BI, Entra ID và việc chuyển dần sang Fabric.
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "Azure data stack: components and workflow"
+      vi: "Azure data stack: thành phần và quy trình"
+    comps:
+      - - ADLS Gen2
+        - en: Blob storage with hierarchical namespace and ACLs; the lake
+          vi: Blob storage với hierarchical namespace và ACL; chính là lake
+      - - Event Hubs
+        - en: Streaming ingest with a Kafka-compatible endpoint
+          vi: Streaming ingest với endpoint tương thích Kafka
+      - - Data Factory
+        - en: Pipelines and copy activities for ELT orchestration
+          vi: Pipeline và copy activity cho điều phối ELT
+      - - Synapse Analytics
+        - en: Dedicated and serverless SQL plus Spark pools; Fabric is the successor direction
+          vi: SQL dedicated và serverless cùng Spark pool; Fabric là hướng kế nhiệm
+      - - Azure Databricks
+        - en: Databricks lakehouse as a first-party Azure service
+          vi: Databricks lakehouse như một dịch vụ Azure first-party
+      - - Purview
+        - en: Catalog, lineage and classification
+          vi: Catalog, lineage và phân loại
+      - - Entra ID, Key Vault, Private Link
+        - en: Identity, secrets and private networking
+          vi: Danh tính, secret và private networking
+      - - Power BI
+        - en: Semantic models, reports and dashboards
+          vi: Semantic model, report và dashboard
+      - - Azure Monitor, Cost Management
+        - en: Telemetry and cost control
+          vi: Telemetry và kiểm soát chi phí
+    flow:
+      - en: Ingest with Data Factory copy activities or Event Hubs into ADLS raw.
+        vi: Ingest bằng copy activity của Data Factory hoặc Event Hubs vào ADLS raw.
+      - en: Transform with Databricks, Synapse Spark or Fabric notebooks into curated Delta tables.
+        vi: Biến đổi bằng Databricks, Synapse Spark hoặc Fabric notebook thành các table Delta đã curated.
+      - en: Purview scans and catalogs assets and tracks lineage.
+        vi: Purview quét và catalog các asset và theo dõi lineage.
+      - en: Power BI and SQL endpoints serve the curated data.
+        vi: Power BI và SQL endpoint phục vụ dữ liệu đã curated.
+      - en: Data Factory or workflow tools orchestrate; Monitor alerts.
+        vi: Data Factory hoặc công cụ workflow điều phối; Monitor cảnh báo.
+    ops:
+      - en: Choose one primary lakehouse engine (Databricks or Fabric) to avoid duplicated logic.
+        vi: Chọn một lakehouse engine chính (Databricks hoặc Fabric) để tránh trùng lặp logic.
+      - en: Use managed identities instead of keys or connection strings.
+        vi: Dùng managed identity thay vì key hoặc connection string.
+      - en: Hierarchical namespace enables folder-level ACLs and better rename performance.
+        vi: Hierarchical namespace cho phép ACL ở mức thư mục và hiệu năng rename tốt hơn.
+      - en: "Check the roadmap: Synapse and Data Factory features are moving into Fabric."
+        vi: "Kiểm tra roadmap: các tính năng của Synapse và Data Factory đang chuyển sang Fabric."
+    n:
+      en: Walk the five steps and then explain the Fabric transition. Make clear that service names and boundaries change, so verify with current Microsoft documentation.
+      vi: Đi qua năm bước rồi giải thích quá trình chuyển sang Fabric. Nói rõ rằng tên dịch vụ và ranh giới thay đổi, nên hãy kiểm chứng với tài liệu Microsoft hiện hành.

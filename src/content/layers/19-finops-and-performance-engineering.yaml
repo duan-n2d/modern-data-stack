@@ -1,0 +1,522 @@
+layer: 19
+slides:
+  - id: finops-and-performance-engineering-make-the-platform
+    k: cards
+    t:
+      en: "FinOps and performance engineering: make the platform fast and affordable"
+      vi: "FinOps và kỹ thuật hiệu năng: làm nền tảng nhanh và hợp túi tiền"
+    lead:
+      en: "Cost and performance are two views of the same thing: work done per unit of resource. Seniors measure them, attribute them and design for them."
+      vi: "Chi phí và hiệu năng là hai góc nhìn của cùng một thứ: lượng việc làm được trên mỗi đơn vị tài nguyên. Senior đo, quy gán và thiết kế cho chúng."
+    cols: 3
+    cards:
+      - h:
+          en: Cost model
+          vi: Mô hình chi phí
+        tag: must
+        p:
+          en: Compute, storage, network and egress, and managed-service fees. Know which dominates your bill.
+          vi: Compute, storage, network và egress, cùng phí dịch vụ managed. Biết khoản nào chiếm nhiều nhất trong hóa đơn.
+      - h:
+          en: Attribution
+          vi: Quy gán chi phí
+        tag: must
+        p:
+          en: Tags and labels per team, product and environment, so cost has an owner.
+          vi: Tag và label theo đội, sản phẩm và môi trường để chi phí có người chịu trách nhiệm.
+      - h:
+          en: Guardrails
+          vi: Hàng rào bảo vệ
+        tag: must
+        p:
+          en: Budgets, alerts, quotas, timeouts and auto-suspend stop runaway spend.
+          vi: Ngân sách, cảnh báo, quota, timeout và auto-suspend chặn chi tiêu mất kiểm soát.
+      - h:
+          en: Query and job tuning
+          vi: Tối ưu query và job
+        tag: must
+        p:
+          en: Scan less, shuffle less, spill less. Measure before and after.
+          vi: Quét ít hơn, shuffle ít hơn, spill ít hơn. Đo trước và sau.
+      - h:
+          en: Streaming performance
+          vi: Hiệu năng streaming
+        tag: senior
+        p:
+          en: Kafka throughput and latency, batching, partitions and consumer lag.
+          vi: Throughput và độ trễ của Kafka, batching, partition và consumer lag.
+      - h:
+          en: Capacity planning
+          vi: Hoạch định năng lực
+        tag: senior
+        p:
+          en: Forecast growth, keep headroom, isolate workloads and test before the peak.
+          vi: Dự báo tăng trưởng, giữ dư địa, cô lập workload và test trước đỉnh tải.
+    n:
+      en: "Introduce unit economics early: cost per query, per pipeline run, per customer or per gigabyte. Absolute spend alone says little about efficiency."
+      vi: "Giới thiệu unit economics sớm: chi phí mỗi query, mỗi lần chạy pipeline, mỗi khách hàng hoặc mỗi gigabyte. Chỉ riêng tổng chi tiêu không nói nhiều về hiệu quả."
+  - id: where-the-money-goes-cost-drivers-and-levers
+    k: table
+    t:
+      en: "Where the money goes: cost drivers and levers"
+      vi: "Tiền đi đâu: nguồn chi phí và đãn bẩy"
+    head:
+      - en: Cost driver
+        vi: Nguồn chi phí
+      - en: What drives it
+        vi: Điều gì quyết định
+      - en: Levers
+        vi: Đãn bẩy
+      - en: Warning sign
+        vi: Dấu hiệu cảnh báo
+    rows:
+      - - Compute
+        - en: Cluster or warehouse size times running time, or bytes scanned
+          vi: Kích thước cluster hoặc warehouse nhân thời gian chạy, hoặc số byte quét
+        - en: Right-size, auto-suspend, partition pruning, incremental models
+          vi: Chọn cỡ hợp lý, auto-suspend, partition pruning, model incremental
+        - en: Warehouses idle but running; full-table scans
+          vi: Warehouse rảnh nhưng vẫn chạy; quét toàn bảng
+      - - Storage
+        - en: Data volume, retention, copies, small files
+          vi: Khối lượng dữ liệu, thời gian lưu, số bản sao, file nhỏ
+        - en: Retention policies, compression, compaction, tiering
+          vi: Chính sách lưu giữ, nén, compaction, phân tầng
+        - en: Every table kept forever; many scratch copies
+          vi: Mọi bảng đều giữ mãi; nhiều bản sao nháp
+      - - en: Network and egress
+          vi: Network và egress
+        - en: Cross-region and cross-cloud transfer, NAT gateways
+          vi: Truyền liên vùng và liên cloud, NAT gateway
+        - en: Co-locate compute and data, private endpoints, cache
+          vi: Đặt compute gần dữ liệu, private endpoint, cache
+        - en: Data pulled out to another cloud for each query
+          vi: Dữ liệu bị kéo sang cloud khác cho mỗi query
+      - - en: Managed service fees
+          vi: Phí dịch vụ managed
+        - en: Per row, event, seat or credit
+          vi: Theo dòng, sự kiện, seat hoặc credit
+        - en: Choose plans by usage shape; negotiate commitments
+          vi: Chọn gói theo hình dạng sử dụng; thương lượng cam kết
+        - en: Usage grows faster than value
+          vi: Mức dùng tăng nhanh hơn giá trị
+      - - en: Idle and orphaned resources
+          vi: Tài nguyên rảnh và bị bỏ rơi
+        - en: Dev clusters, old snapshots, unused dashboards
+          vi: Cluster dev, snapshot cũ, dashboard không dùng
+        - en: Schedules, TTLs, owner tags, cleanup jobs
+          vi: Lịch tắt, TTL, tag chủ sở hữu, job dọn dẹp
+        - en: Resources with no owner tag
+          vi: Tài nguyên không có tag chủ sở hữu
+    cap:
+      en: Track unit costs (for example cost per pipeline run) and review the top ten spenders monthly.
+      vi: Theo dõi chi phí đơn vị (ví dụ chi phí mỗi lần chạy pipeline) và review mười khoản chi lớn nhất hằng tháng.
+    n:
+      en: "Prices change, so this table deliberately lists drivers rather than numbers. The habit to teach: find the top spenders first, then decide which lever applies."
+      vi: "Giá thay đổi, nên bảng cố ý liệt kê nguồn chi phí thay vì con số. Thói quen cần dạy: tìm các khoản chi lớn nhất trước, rồi chọn đãn bẩy phù hợp."
+  - id: find-the-expensive-queries-first
+    k: code
+    t:
+      en: Find the expensive queries first
+      vi: Tìm các query đắt tiền trước tiên
+    lead:
+      en: Every warehouse exposes query history. Rank by cost drivers, then fix the top few.
+      vi: Warehouse nào cũng có lịch sử query. Xếp hạng theo nguồn chi phí rồi sửa vài cái đứng đầu.
+    blocks:
+      - lang: sql
+        title: snowflake_top_scans.sql
+        code: |-
+          select
+              query_id,
+              user_name,
+              warehouse_name,
+              total_elapsed_time / 1000 as seconds,
+              bytes_scanned,
+              partitions_scanned,
+              partitions_total
+          from snowflake.account_usage.query_history
+          where start_time >= dateadd(day, -7, current_timestamp())
+          order by bytes_scanned desc
+          limit 20;
+      - lang: sql
+        title: bigquery_top_jobs.sql
+        code: |-
+          select
+              user_email,
+              job_id,
+              total_bytes_billed / pow(1024, 4) as tib_billed,
+              total_slot_ms / 1000 as slot_seconds
+          from `region-us`.INFORMATION_SCHEMA.JOBS_BY_PROJECT
+          where creation_time >= timestamp_sub(current_timestamp(), interval 7 day)
+            and job_type = 'QUERY'
+          order by total_bytes_billed desc
+          limit 20;
+    points:
+      - h:
+          en: Partitions scanned versus total
+          vi: Partition quét so với tổng
+        p:
+          en: A high ratio means pruning is failing. Check filters on the partition or clustering columns.
+          vi: Tỷ lệ cao nghĩa là pruning đang thất bại. Kiểm tra bộ lọc trên cột partition hoặc clustering.
+      - h:
+          en: Bytes billed
+          vi: Byte bị tính phí
+        p:
+          en: On bytes-billed engines, select fewer columns and filter by partition.
+          vi: Với engine tính theo byte, chọn ít cột hơn và lọc theo partition.
+      - h:
+          en: Attribute to an owner
+          vi: Gán cho người chịu trách nhiệm
+        tag: senior
+        p:
+          en: Join with user, role or tag so each expensive query has someone who can fix it.
+          vi: Join với người dùng, role hoặc tag để mỗi query đắt có người sửa được.
+      - h:
+          en: Change, then re-measure
+          vi: Đổi rồi đo lại
+        tag: senior
+        p:
+          en: Verify the saving with the same query history, not with a guess.
+          vi: Xác minh khoản tiết kiệm bằng chính lịch sử query đã, không phải phỏng đoán.
+    n:
+      en: "View names and region qualifiers vary by account and platform. The pattern is the same everywhere: rank by bytes, time or slots, then drill into the plan."
+      vi: "Tên view và vùng thay đổi theo tài khoản và nền tảng. Mô hình thì giống nhau: xếp hạng theo byte, thời gian hoặc slot, rồi đào vào plan."
+  - id: spark-and-kafka-performance-symptoms-causes-fixes
+    k: table
+    t:
+      en: "Spark and Kafka performance: symptoms, causes, fixes"
+      vi: "Hiệu năng Spark và Kafka: triệu chứng, nguyên nhân, cách sửa"
+    head:
+      - en: Symptom
+        vi: Triệu chứng
+      - en: Likely cause
+        vi: Nguyên nhân có thể
+      - en: Where to look
+        vi: Nhìn ở đâu
+      - en: Fix
+        vi: Cách sửa
+    rows:
+      - - en: One Spark task runs far longer
+          vi: Một task Spark chạy lâu hơn hẳn
+        - en: Data skew on a key
+          vi: Lệch dữ liệu theo một khóa
+        - en: Spark UI stage task-time distribution
+          vi: Phân phối thời gian task của stage trong Spark UI
+        - en: Adaptive skew join, salting, different key
+          vi: Adaptive skew join, salting, khóa khác
+      - - en: Huge shuffle read and write
+          vi: Shuffle đọc và ghi rất lớn
+        - en: Large join or wide aggregation
+          vi: Join lớn hoặc aggregation rộng
+        - en: Stage shuffle metrics, query plan
+          vi: Số liệu shuffle của stage, query plan
+        - en: Broadcast small side, filter earlier, pre-aggregate
+          vi: Broadcast bảng nhỏ, lọc sớm hơn, tổng hợp trước
+      - - en: Disk spill and executor OOM
+          vi: Spill ra đĩa và executor OOM
+        - en: Partitions too large for memory
+          vi: Partition quá lớn so với bộ nhớ
+        - en: Spill metrics, GC time
+          vi: Số liệu spill, thời gian GC
+        - en: More partitions, more memory per task, fewer cores per executor
+          vi: Nhiều partition hơn, nhiều bộ nhớ mỗi task, ít core hơn mỗi executor
+      - - en: Thousands of tiny files
+          vi: Hàng nghìn file nhỏ
+        - en: Over-partitioning or frequent small writes
+          vi: Chia partition quá mức hoặc ghi nhỏ thường xuyên
+        - en: File counts and sizes per partition
+          vi: Số lượng và kích thước file mỗi partition
+        - en: Compaction, coalesce before write, target file size
+          vi: Compaction, coalesce trước khi ghi, kích thước file mục tiêu
+      - - en: Kafka consumer lag grows
+          vi: Consumer lag của Kafka tăng
+        - en: Slow processing or too few partitions or consumers
+          vi: Xử lý chậm hoặc quá ít partition hay consumer
+        - en: Lag per partition, handler time, rebalances
+          vi: Lag theo partition, thời gian handler, rebalance
+        - en: Speed up the handler, add consumers up to partition count, raise partitions
+          vi: Tăng tốc handler, thêm consumer đến số partition, tăng partition
+      - - en: Producer throughput is low
+          vi: Throughput của producer thấp
+        - en: Tiny batches, no compression, sync sends
+          vi: Batch quá nhỏ, không nén, gửi đồng bộ
+        - en: "Producer metrics: batch size, request rate"
+          vi: "Số liệu producer: kích thước batch, tốc độ request"
+        - en: Increase `linger.ms` and `batch.size`, enable compression
+          vi: Tăng `linger.ms` và `batch.size`, bật nén
+    cap:
+      en: Always change one thing at a time and keep the before and after metrics.
+      vi: Luôn chỉ đổi một thứ mỗi lần và giữ số liệu trước và sau.
+    n:
+      en: "This is a diagnostic cheat sheet: start from the symptom, not from a favorite setting. Connect it to the Spark and Kafka internals in the appendix."
+      vi: "Đây là bảng chẩn đoán nhanh: bắt đầu từ triệu chứng, không phải từ cấu hình yêu thích. Nối với nội bộ Spark và Kafka trong phụ lục."
+  - id: attribution-budgets-and-spark-tuning-in-code
+    k: code
+    t:
+      en: Attribution, budgets and Spark tuning in code
+      vi: Quy gán, ngân sách và tinh chỉnh Spark bằng code
+    lead:
+      en: Make cost visible to owners and make the common tuning decisions explicit.
+      vi: Làm chi phí hiển thị với người chịu trách nhiệm và làm rõ các quyết định tinh chỉnh phổ biến.
+    blocks:
+      - lang: hcl
+        title: budget.tf (AWS monthly budget with alert)
+        code: |-
+          resource "aws_budgets_budget" "data_platform" {
+            name         = "data-platform-monthly"
+            budget_type  = "COST"
+            limit_amount = "5000"
+            limit_unit   = "USD"
+            time_unit    = "MONTHLY"
+
+            cost_filter {
+              name   = "TagKeyValue"
+              values = ["user:team$analytics"]
+            }
+
+            notification {
+              comparison_operator        = "GREATER_THAN"
+              threshold                  = 80
+              threshold_type             = "PERCENTAGE"
+              notification_type          = "ACTUAL"
+              subscriber_email_addresses = ["data-platform@example.com"]
+            }
+          }
+      - lang: python
+        title: spark_tuning.py
+        code: |-
+          from pyspark.sql import functions as F
+
+          spark.conf.set("spark.sql.adaptive.enabled", "true")            # re-plan at runtime
+          spark.conf.set("spark.sql.adaptive.skewJoin.enabled", "true")   # split skewed partitions
+          spark.conf.set("spark.sql.shuffle.partitions", "400")           # size to your data; AQE can coalesce
+
+          orders = spark.table("curated.orders")
+          customers = spark.table("curated.dim_customers")               # small dimension
+
+          joined = orders.join(F.broadcast(customers), "customer_id")    # avoid shuffling the big side
+          joined.write.mode("overwrite").partitionBy("order_date").parquet("s3://example-lake/marts/orders/")
+    points:
+      - h:
+          en: Tag first, then budget
+          vi: Gắn tag trước, rồi đặt ngân sách
+        p:
+          en: A budget filtered by a team tag gives each owner a number they can act on.
+          vi: Ngân sách lọc theo tag của đội cho mỗi chủ sở hữu một con số họ hành động được.
+      - h:
+          en: Showback, then chargeback
+          vi: Showback, rồi chargeback
+        tag: senior
+        p:
+          en: Report cost to teams first. Charge it back only when the attribution is trusted.
+          vi: Báo cáo chi phí cho các đội trước. Chỉ tính phí ngược khi việc quy gán đã đáng tin.
+      - h:
+          en: Broadcast small tables
+          vi: Broadcast bảng nhỏ
+        p:
+          en: It replaces a shuffle with a copy of the small table to each executor.
+          vi: Nó thay shuffle bằng việc gửi bản sao bảng nhỏ tới từng executor.
+      - h:
+          en: Numbers are starting points
+          vi: Con số chỉ là điểm xuất phát
+        tag: senior
+        p:
+          en: Budget and partition values are placeholders. Size them from your own data and spend.
+          vi: Giá trị ngân sách và partition chỉ là chỗ giữ chỗ. Hãy định cỡ từ dữ liệu và chi tiêu của bạn.
+    n:
+      en: "Show how both snippets tie to ownership: tags identify the team, budgets notify it, and tuning reduces the bill. The AWS provider schema can change between versions, so check the provider documentation."
+      vi: "Cho thấy cả hai đoạn code gắn với quyền sở hữu: tag xác định đội, ngân sách thông báo cho đội, và tinh chỉnh giảm hóa đơn. Schema của provider AWS có thể đổi giữa các phiên bản, hãy xem tài liệu provider."
+  - id: capacity-planning-and-workload-isolation
+    k: cards
+    t:
+      en: Capacity planning and workload isolation
+      vi: Hoạch định năng lực và cô lập workload
+    cols: 3
+    cards:
+      - h:
+          en: Measure the workload
+          vi: Đo workload
+        tag: must
+        p:
+          en: Peak concurrency, data growth per month, job durations and spikes such as month-end close.
+          vi: Đỉnh đồng thời, tăng trưởng dữ liệu mỗi tháng, thời lượng job và các đỉnh như chốt sổ cuối tháng.
+      - h:
+          en: Forecast and keep headroom
+          vi: Dự báo và giữ dư địa
+        tag: must
+        p:
+          en: Project growth and keep margin for spikes and failures. Plan for N−1 capacity.
+          vi: Dự phóng tăng trưởng và giữ biên cho đỉnh tải và lỗi. Hoạch định cho năng lực N−1.
+      - h:
+          en: Load test
+          vi: Test tải
+        tag: senior
+        p:
+          en: Replay realistic traffic or data volume in a staging environment before a launch or migration.
+          vi: Phát lại lưu lượng hoặc khối lượng dữ liệu thực tế ở staging trước khi ra mắt hoặc di chuyển.
+      - h:
+          en: Isolate workloads
+          vi: Cô lập workload
+        tag: must
+        p:
+          en: Separate ELT, BI and ad hoc compute so a heavy job cannot starve dashboards.
+          vi: Tách compute cho ELT, BI và ad hoc để job nặng không làm đòi dashboard.
+      - h:
+          en: Autoscale with limits
+          vi: Autoscale có giới hạn
+        tag: senior
+        p:
+          en: Scale on real signals and cap maximums so a bug cannot create a huge bill.
+          vi: Co giãn theo tín hiệu thật và đặt mức tối đa để một lỗi không tạo hóa đơn khổng lồ.
+      - h:
+          en: Size Kafka deliberately
+          vi: Định cỡ Kafka có chủ đích
+        tag: senior
+        p:
+          en: Partitions ≥ target throughput ÷ per-partition throughput, for both producers and consumers. Disk ≈ ingest rate × retention × replication factor.
+          vi: Partition ≥ throughput mục tiêu ÷ throughput mỗi partition, cho cả producer và consumer. Đĩa ≈ tốc độ nạp × thời gian lưu × hệ số replication.
+    n:
+      en: The Kafka sizing rules are standard back-of-the-envelope formulas. Validate them with a benchmark on your own hardware and message sizes.
+      vi: Quy tắc định cỡ Kafka là các công thức ước lượng tiêu chuẩn. Hãy kiểm chứng bằng benchmark trên phần cứng và kích thước message của bạn.
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Optimizing without measuring.
+          vi: Tối ưu mà không đo.
+        why:
+          en: Effort goes to the wrong queries.
+          vi: Công sức dồn vào sai query.
+        fix:
+          en: Rank by cost or time from query history first.
+          vi: Xếp hạng theo chi phí hoặc thời gian từ lịch sử query trước.
+      - bad:
+          en: No tags, so no owner.
+          vi: Không có tag nên không có chủ.
+        why:
+          en: Nobody feels responsible for the bill.
+          vi: Không ai thấy mình chịu trách nhiệm về hóa đơn.
+        fix:
+          en: Enforce tags in IaC and CI.
+          vi: Bắt buộc tag trong IaC và CI.
+      - bad:
+          en: One big shared cluster.
+          vi: Một cluster chung khổng lồ.
+        why:
+          en: Noisy neighbours and unclear costs.
+          vi: Hàng xóm ồn ào và chi phí không rõ.
+        fix:
+          en: Isolate by workload and team.
+          vi: Cô lập theo workload và đội.
+      - bad:
+          en: Scaling up to hide a bad query.
+          vi: Tăng cỡ để che một query tồi.
+        why:
+          en: Cost doubles and the cause remains.
+          vi: Chi phí gấp ??i và nguyên nhân vẫn còn.
+        fix:
+          en: Read the plan and fix scans, joins and skew first.
+          vi: Đọc plan và sửa quét, join và lệch trước.
+      - bad:
+          en: Ignoring egress.
+          vi: Bỏ qua egress.
+        why:
+          en: Cross-region and cross-cloud transfer surprises the bill.
+          vi: Truyền liên vùng và liên cloud làm hóa đơn bất ngờ.
+        fix:
+          en: Co-locate compute and data; watch transfer cost.
+          vi: Đặt compute gần dữ liệu; theo dõi chi phí truyền.
+      - bad:
+          en: One-off savings with no guardrails.
+          vi: Tiết kiệm một lần không có hàng rào.
+        why:
+          en: Spend creeps back within months.
+          vi: Chi tiêu quay lại trong vài tháng.
+        fix:
+          en: Budgets, alerts, quotas and a monthly review.
+          vi: Ngân sách, cảnh báo, quota và review hằng tháng.
+    n:
+      en: The strongest habit is a monthly top-spenders review with owners present.
+      vi: Thói quen mạnh nhất là buổi review các khoản chi lớn nhất hằng tháng với sự có mặt của các chủ sở hữu.
+  - id: finops-lab-cost-per-million-processed-records
+    k: lab
+    t:
+      en: "FinOps lab: cost per million processed records"
+      vi: "Lab FinOps: chi phí cho mỗi triệu bản ghi được xử lý"
+    lead:
+      en: Turn a bill into a unit cost and then reduce it.
+      vi: Biến hóa đơn thành chi phí đơn vị rồi giảm nó.
+    scenario:
+      en: Leadership asks what it costs to process a million records and whether the platform is getting more efficient.
+      vi: Lãnh đạo hỏi xử lý một triệu bản ghi tốn bao nhiêu và nền tảng có đang hiệu quả hơn không.
+    input:
+      en: A batch pipeline from an earlier lab, resource tags, billing or usage data, and datasets of three sizes.
+      vi: Một pipeline batch từ lab trước, tag tài nguyên, dữ liệu hóa đơn hoặc mức dùng và ba bộ dữ liệu có kích thước khác nhau.
+    tasks:
+      - en: Tag all resources and attribute compute, storage and network cost to the pipeline.
+        vi: Gắn tag mọi tài nguyên và quy gán chi phí compute, storage và network cho pipeline.
+      - en: Run the three data sizes and compute cost per million records.
+        vi: Chạy ba kích thước dữ liệu và tính chi phí mỗi triệu bản ghi.
+      - en: Identify the top two cost levers and apply them.
+        vi: Xác định hai đãn bẩy chi phí hàng đầu và áp dụng.
+      - en: Re-measure and report the change.
+        vi: Đo lại và báo cáo thay đổi.
+    expected:
+      en: A chart of unit cost against data size, before and after optimization, with the method documented.
+      vi: Biểu đồ chi phí đơn vị theo kích thước dữ liệu, trước và sau tối ưu, kèm phương pháp được ghi lại.
+    rubric:
+      - en: Includes storage and network, not only compute
+        vi: Gồm cả storage và network, không chỉ compute
+      - en: Method is reproducible
+        vi: Phương pháp tái lập được
+      - en: Savings are verified, not assumed
+        vi: Khoản tiết kiệm được kiểm chứng, không giả định
+    design:
+      en: Propose a monthly unit-cost report and a budget alert policy for the whole platform.
+      vi: Đề xuất báo cáo chi phí đơn vị hằng tháng và chính sách cảnh báo ngân sách cho cả nền tảng.
+    n:
+      en: Prices change, so ask learners to record the date and source of the prices they used.
+      vi: Giá thay đổi, nên yêu cầu người học ghi lại ngày và nguồn của giá họ dùng.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Senior self-check
+        vi: Tự kiểm tra cấp senior
+      items:
+        - en: I know our top cost drivers and their owners
+          vi: Tôi biết các nguồn chi phí lớn nhất và chủ sở hữu của chúng
+        - en: Every resource carries owner and environment tags
+          vi: Mọi tài nguyên đều mang tag chủ sở hữu và môi trường
+        - en: Budgets and alerts exist for each team
+          vi: Mỗi đội đều có ngân sách và cảnh báo
+        - en: I can diagnose skew, spill and small files
+          vi: Tôi chẩn đoán được lệch dữ liệu, spill và file nhỏ
+        - en: I can size Kafka partitions and disk
+          vi: Tôi định cỡ được partition và đĩa của Kafka
+        - en: Workloads are isolated
+          vi: Các workload được cô lập
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Cut a warehouse bill by 30 percent without hurting users. What are your first three moves?
+          vi: Cắt 30 phần trăm hóa đơn warehouse mà không hại người dùng. Ba bước đầu của bạn là gì?
+        - en: A Spark job has one task that runs 20 times longer. Diagnose it.
+          vi: Một job Spark có một task chạy lâu gấp 20 lần. Hãy chẩn đoán.
+        - en: Consumer lag keeps growing. What do you check and in what order?
+          vi: Consumer lag cứ tăng. Bạn kiểm tra gì và theo thứ tự nào?
+        - en: How would you attribute shared platform cost to teams?
+          vi: Bạn quy gán chi phí nền tảng dùng chung cho các đội thế nào?
+        - en: How do you plan capacity for a month-end peak?
+          vi: Bạn hoạch định năng lực cho đỉnh tải cuối tháng thế nào?
+    n:
+      en: "Senior expectation: tie every optimization to a measurement and an owner. Staff expectation: build the cost and performance feedback loop for the whole platform."
+      vi: "Kỳ vọng senior: gắn mỗi tối ưu với một phép đo và một chủ sở hữu. Kỳ vọng staff: xây vòng phản hồi chi phí và hiệu năng cho cả nền tảng."

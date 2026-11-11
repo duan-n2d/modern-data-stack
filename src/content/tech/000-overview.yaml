@@ -1,0 +1,206 @@
+tech:
+  id: overview
+  name:
+    en: Overview
+    vi: Tổng quan
+  color: "#334155"
+slides:
+  - id: appendix-how-the-tools-work-inside
+    k: table
+    t:
+      en: "Appendix: how the tools work inside"
+      vi: "Phụ lục: công cụ hoạt động bên trong như thế nào"
+    lead:
+      en: Every tool has its own components, state and failure modes. Knowing them is what lets you size, debug and choose, instead of copying configuration.
+      vi: Mỗi công cụ có thành phần, trạng thái và kiểu hỏng riêng. Hiểu chúng giúp bạn định cỡ, debug và lựa chọn, thay vì sao chép cấu hình.
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Layer
+        vi: Lớp
+      - en: Mental model in one line
+        vi: Mô hình tư duy trong một dòng
+      - en: Core pieces
+        vi: Thành phần chính
+    rows:
+      - - Kafka
+        - Streaming
+        - en: A replicated, partitioned commit log that consumers read at their own pace
+          vi: Commit log được replicate và partition, consumer đọc theo tốc độ riêng
+        - en: Brokers, topics, partitions, consumer groups, KRaft
+          vi: Broker, topic, partition, consumer group, KRaft
+      - - Flink
+        - en: Stream processing
+          vi: Xử lý stream
+        - en: Stateful, event-time dataflows with periodic distributed snapshots
+          vi: Dataflow có trạng thái, theo event-time, với snapshot phân tán định kỳ
+        - en: JobManager, TaskManagers, slots, state, checkpoints
+          vi: JobManager, TaskManagers, slot, state, checkpoint
+      - - Spark
+        - en: Batch and micro-batch
+          vi: Batch và micro-batch
+        - en: A driver that turns a lazy plan into stages and tasks run by executors
+          vi: Một driver biến kế hoạch lazy thành các stage và task do executor chạy
+        - en: Driver, cluster manager, executors, shuffle
+          vi: Driver, cluster manager, executor, shuffle
+      - - Hadoop
+        - en: Legacy big data
+          vi: Big data kiểu cũ
+        - en: Storage (HDFS) plus resource manager (YARN) plus batch engines on the same nodes
+          vi: Lưu trữ (HDFS) cộng trình quản lý tài nguyên (YARN) cộng các engine batch trên cùng các node
+        - NameNode, DataNodes, YARN, MapReduce, Hive Metastore
+      - - Iceberg
+        - Table format
+        - en: A tree of metadata files that turns Parquet files into transactional tables
+          vi: Một cây các file metadata biến file Parquet thành bảng có giao dịch
+        - en: Catalog, metadata, manifests, data and delete files
+          vi: Catalog, metadata, manifest, file dữ liệu và file delete
+      - - Airflow
+        - en: Orchestration
+          vi: Điều phối
+        - en: A scheduler that turns DAG files into runs, queues tasks and tracks state in a database
+          vi: Một scheduler biến các file DAG thành các run, xếp hàng task và theo dõi trạng thái trong database
+        - en: Scheduler, executor, workers, metadata DB
+          vi: Scheduler, executor, worker, metadata DB
+      - - dbt
+        - en: Transformation
+          vi: Biến đổi
+        - en: A compiler that turns SQL and Jinja into a dependency graph executed in the warehouse
+          vi: Một compiler biến SQL và Jinja thành đồ thị phụ thuộc được thực thi trong warehouse
+        - en: Project, manifest, adapter, materializations
+          vi: Project, manifest, adapter, materialization
+      - - Snowflake
+        - Warehouse
+        - en: Shared storage, independent compute clusters, and a metadata brain
+          vi: Lưu trữ dùng chung, cluster compute độc lập và một bộ não metadata
+        - en: Cloud services, virtual warehouses, micro-partitions
+          vi: Cloud services, virtual warehouse, micro-partition
+      - - BigQuery
+        - Warehouse
+        - en: Serverless slots reading columnar storage through a shuffle tier
+          vi: Các slot serverless đọc lưu trữ dạng cột qua một tầng shuffle
+        - en: Dremel, slots, Colossus, Capacitor
+          vi: Dremel, slot, Colossus, Capacitor
+      - - Databricks
+        - Lakehouse
+        - en: A managed control plane launching compute over Delta tables in your storage
+          vi: Một control plane được quản lý khởi chạy compute trên các bảng Delta trong storage của bạn
+        - Control plane, compute plane, Delta, Unity Catalog
+      - - en: AWS data stack
+          vi: Data stack của AWS
+        - Cloud
+        - en: S3 as the lake, a catalog, and many engines that read it
+          vi: S3 làm lake, một catalog và nhiều engine đọc từ đó
+        - S3, Glue, Athena, Redshift, EMR, Lake Formation
+      - - en: Azure data stack
+          vi: Data stack của Azure
+        - Cloud
+        - en: ADLS as the lake with Data Factory, Databricks or Synapse, and Purview governing
+          vi: ADLS làm lake cùng Data Factory, Databricks hoặc Synapse, và Purview đảm nhiệm governance
+        - ADLS Gen2, Event Hubs, Data Factory, Synapse, Purview
+      - - Microsoft Fabric
+        - Cloud SaaS
+        - en: One capacity, one lake, several workloads on the same Delta files
+          vi: Một capacity, một lake, nhiều workload trên cùng các file Delta
+        - en: Capacity, OneLake, workloads, Direct Lake
+          vi: Capacity, OneLake, workload, Direct Lake
+      - - Kubernetes
+        - en: Infrastructure
+          vi: Hạ tầng
+        - en: A control loop that keeps declared state and actual state equal
+          vi: Một control loop giữ trạng thái khai báo và trạng thái thực tế luôn khớp nhau
+        - en: API server, etcd, scheduler, kubelet, pods
+          vi: API server, etcd, scheduler, kubelet, pod
+      - - Terraform
+        - Infrastructure as code
+        - en: A planner that diffs declared config against recorded state and calls provider APIs
+          vi: Một planner so sánh config khai báo với state đã ghi và gọi API của provider
+        - en: Core, providers, state, backends, modules
+          vi: Core, provider, state, backend, module
+    cap:
+      en: "Each tool below has an architecture diagram, a fundamentals and workflow overview, and deeper modules for internals, configuration, implementation, operations, troubleshooting, performance and a practical lab."
+      vi: "Mỗi công cụ bên dưới có hai slide: sơ đồ kiến trúc, rồi thành phần, quy trình điển hình và lưu ý vận hành."
+    n:
+      en: "This appendix answers the question “what is actually inside each tool?”. For each one, look for three things: where state lives, what coordinates work, and what happens when a node fails."
+      vi: "Phụ lục này trả lời câu hỏi “bên trong mỗi công cụ thực sự có gì?”. Với từng công cụ, hãy tìm ba điều: trạng thái nằm ở đâu, cái gì điều phối công việc, và chuyện gì xảy ra khi một node lỗi."
+  - id: technology-module-template-10-modules-3-levels
+    k: table
+    t:
+      en: "Technology module template: 10 modules, 3 levels"
+      vi: "Template module cho từng công nghệ: 10 module, 3 level"
+    lead:
+      en: Every core technology is taught with the same ten modules. Not every technology needs the same number of slides, but none should skip internals, troubleshooting or a lab.
+      vi: Mỗi công nghệ lõi được dạy bằng cùng mười module. Không cần cùng số slide, nhưng không công nghệ nào được bỏ qua cơ chế bên trong, troubleshooting hay lab.
+    head:
+      - Module
+      - en: Required content
+        vi: Nội dung bắt buộc
+      - en: Where in this deck
+        vi: Ở đâu trong bộ slide
+    rows:
+      - - en: 01 Overview
+          vi: 01 Tổng quan
+        - en: Purpose, use cases, alternatives, limits
+          vi: Mục đích, trường hợp dùng, lựa chọn thay thế, giới hạn
+        - en: Layer sections and tool landscape tables
+          vi: Các phần layer và bảng bức tranh công cụ
+      - - en: 02 Fundamentals
+          vi: 02 Kiến thức nền tảng
+        - en: Concepts, terminology, core principles
+          vi: Khái niệm, thuật ngữ, nguyên lý cốt lõi
+        - en: Layer overview slides
+          vi: Slide tổng quan của layer
+      - - en: 03 Internal architecture
+          vi: 03 Kiến trúc bên trong
+        - en: Components, diagram, control and data flow
+          vi: Thành phần, sơ đồ, luồng điều khiển và dữ liệu
+        - en: "Appendix: architecture slide"
+          vi: "Phụ lục: slide kiến trúc"
+      - - en: 04 Internal mechanisms
+          vi: 04 Cơ chế bên trong
+        - en: Algorithms, lifecycle, state, metadata
+          vi: Thuật toán, vòng đời, trạng thái, metadata
+        - en: "Appendix: internals slide"
+          vi: "Phụ lục: slide cơ chế bên trong"
+      - - en: 05 Configuration
+          vi: 05 Cấu hình
+        - en: Key parameters, defaults, tuning, security
+          vi: Tham số chính, mặc định, tuning, bảo mật
+        - en: Internals and hands-on slides
+          vi: Slide cơ chế và thực hành
+      - - en: 06 Implementation
+          vi: 06 Triển khai
+        - en: Install, code, API, CLI, integration
+          vi: Cài đặt, code, API, CLI, tích hợp
+        - en: Code slides in layers and appendix
+          vi: Slide code trong layer và phụ lục
+      - - en: 07 Production operations
+          vi: 07 Vận hành production
+        - en: Deploy, scale, HA, monitor, backup, recover
+          vi: Triển khai, mở rộng, HA, giám sát, backup, khôi phục
+        - en: Layers 17 to 19 and operating notes
+          vi: Layer 17 đến 19 và lưu ý vận hành
+      - - en: 08 Troubleshooting
+          vi: 08 Xử lý sự cố
+        - en: Errors, logs, root cause, recovery
+          vi: Lỗi, log, nguyên nhân gốc, khôi phục
+        - en: Troubleshooting tables per technology
+          vi: Bảng troubleshooting cho từng công nghệ
+      - - en: 09 Performance and design
+          vi: 09 Hiệu năng và thiết kế
+        - en: Bottlenecks, tuning, trade-offs
+          vi: Nút thắt, tuning, đánh đổi
+        - en: Troubleshooting and performance slides
+          vi: Slide troubleshooting và hiệu năng
+      - - en: 10 Hands-on and assessment
+          vi: 10 Thực hành và đánh giá
+        - en: Labs, projects, design exercises, interviews
+          vi: Lab, dự án, bài tập thiết kế, phỏng vấn
+        - en: Lab slides with rubrics
+          vi: Slide lab có tiêu chí chấm
+    cap:
+      en: "Deepened so far: Kafka (with a full Partitioning lesson), Spark, Flink, Iceberg, Airflow, dbt, SQL and Python. Other technologies still have the shorter two-slide form."
+      vi: "Đã đào sâu: Kafka (kèm bài Partitioning đầy đủ), Spark, Flink, Iceberg, Airflow, dbt, SQL và Python. Các công nghệ khác vẫn ở dạng hai slide ngắn hơn."
+    n:
+      en: Use this as the contract for new content. When a module is missing, the technology is not finished, whatever its slide count.
+      vi: Dùng làm hợp đồng cho nội dung mới. Khi thiếu một module, công nghệ đã chưa hoàn thành, bất kể số slide.

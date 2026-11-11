@@ -1,0 +1,912 @@
+layer: 1
+slides:
+  - id: core-languages-the-tools-you-think-in
+    k: cards
+    t:
+      en: "Core languages: the tools you think in"
+      vi: "Ngôn ngữ nền tảng: công cụ bạn dùng để tư duy"
+    lead:
+      en: Everything else in the stack is configuration around a handful of languages. Seniors write SQL that stays fast and readable at 100x the data, and reach for Python only where SQL stops being the right tool.
+      vi: Mọi thứ khác trong stack chỉ là cấu hình xoay quanh vài ngôn ngữ. Senior viết SQL vẫn nhanh và dễ đọc khi dữ liệu gấp 100 lần, và chỉ dùng Python khi SQL không còn là công cụ phù hợp.
+    cols: 3
+    cards:
+      - h: SQL
+        tag: must
+        p:
+          en: "The main interface to the warehouse: window functions, CTEs, recursive queries, reading query plans."
+          vi: "Giao diện chính với warehouse: window function, CTE, recursive query, đọc query plan."
+      - h: Python
+        tag: must
+        p:
+          en: "Glue, ingestion, tests and anything procedural: pandas, polars, DuckDB, PySpark, pytest."
+          vi: "Glue, ingestion, test và mọi việc mang tính thủ tục: pandas, polars, DuckDB, PySpark, pytest."
+      - h: Jinja
+        tag: must
+        p:
+          en: Templating in dbt and Airflow. Turns repeated SQL into macros, and can also make code unreadable.
+          vi: Templating trong dbt và Airflow. Biến SQL lặp lại thành macro, nhưng cũng có thể khiến code khó đọc.
+      - h: YAML
+        tag: must
+        p:
+          en: Configuration for dbt, CI and orchestrators. Indentation is meaning, so lint it.
+          vi: Cấu hình cho dbt, CI và orchestrator. Thụt lề mang ý nghĩa, nên hãy lint nó.
+      - h: Bash
+        tag: nice
+        p:
+          en: Glue for CI jobs, containers and local tooling. Keep scripts short and fail fast with `set -euo pipefail`.
+          vi: Glue cho CI job, container và công cụ local. Giữ script ngắn và fail fast với `set -euo pipefail`.
+      - h:
+          en: Why it matters
+          vi: Vì sao quan trọng
+        tag: senior
+        p:
+          en: Language choice decides who can maintain the code. Prefer the simplest tool the whole team can read.
+          vi: Lựa chọn ngôn ngữ quyết định ai có thể bảo trì code. Ưu tiên công cụ đơn giản nhất mà cả team đọc được.
+    n:
+      en: "Frame the layer: these are the languages every other layer is written in. The senior signal is not knowing more syntax, it is choosing the simplest tool that the whole team can maintain, and keeping SQL performant as data grows."
+      vi: "Đặt khung cho layer: đây là các ngôn ngữ mà mọi layer khác được viết bằng. Dấu hiệu của người senior không phải là biết nhiều cú pháp hơn, mà là chọn công cụ đơn giản nhất cả team có thể bảo trì, và giữ SQL hiệu năng tốt khi dữ liệu tăng."
+  - id: language-and-library-landscape
+    k: table
+    t:
+      en: Language and library landscape
+      vi: Bức tranh ngôn ngữ và thư viện
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - SQL
+        - en: Query language
+          vi: Ngôn ngữ truy vấn
+        - en: Set-based transforms in the warehouse
+          vi: Biến đổi theo tập hợp (set-based) trong warehouse
+        - en: Declarative, optimizer does the work, universal skill
+          vi: Khai báo, optimizer lo phần việc, kỹ năng phổ quát
+        - en: Dialect differences; awkward for procedural logic
+          vi: Khác biệt giữa các dialect; khó viết logic thủ tục
+        - en: Free; you pay for compute
+          vi: Miễn phí; bạn trả tiền cho compute
+      - - pandas
+        - en: Python dataframe library
+          vi: Thư viện dataframe của Python
+        - en: Small to medium in-memory analysis
+          vi: Phân tích in-memory quy mô nhỏ đến trung bình
+        - en: Huge ecosystem, familiar API
+          vi: Hệ sinh thái khổng lồ, API quen thuộc
+        - en: Memory-bound, mostly single-threaded
+          vi: Giới hạn bởi bộ nhớ, chủ yếu đơn luồng
+        - en: Open source
+          vi: Mã nguồn mở
+      - - polars
+        - en: Python/Rust dataframe library
+          vi: Thư viện dataframe Python/Rust
+        - en: Fast single-machine ETL with lazy evaluation
+          vi: ETL nhanh trên một máy với lazy evaluation
+        - en: Multi-threaded, query optimizer, low memory use
+          vi: Đa luồng, query optimizer, dùng ít bộ nhớ
+        - en: Younger ecosystem; API still evolving
+          vi: Hệ sinh thái còn non trẻ; API vẫn đang thay đổi
+        - en: Open source
+          vi: Mã nguồn mở
+      - - DuckDB
+        - en: In-process OLAP engine
+          vi: Engine OLAP chạy in-process
+        - en: Local analytics on Parquet/CSV; testing SQL
+          vi: Phân tích local trên Parquet/CSV; test SQL
+        - en: Fast columnar SQL, no server, reads files directly
+          vi: SQL dạng cột nhanh, không cần server, đọc file trực tiếp
+        - en: Single node; limited concurrent writers
+          vi: Một node; số writer đồng thời bị hạn chế
+        - en: Open source
+          vi: Mã nguồn mở
+      - - PySpark
+        - en: Distributed dataframe API
+          vi: API dataframe phân tán
+        - en: Data too large for one machine
+          vi: Dữ liệu quá lớn cho một máy
+        - en: Scales out, mature ecosystem
+          vi: Scale out được, hệ sinh thái trưởng thành
+        - en: Cluster overhead; tuning skills needed
+          vi: Overhead của cluster; cần kỹ năng tuning
+        - en: Pay for cluster (open-source engine)
+          vi: Trả tiền cho cluster (engine mã nguồn mở)
+      - - pytest
+        - en: Test framework
+          vi: Framework test
+        - en: Unit tests for Python and SQL logic
+          vi: Unit test cho logic Python và SQL
+        - en: Fixtures, parametrization, plugins
+          vi: Fixture, parametrization, plugin
+        - en: Does not test production data by itself
+          vi: Tự nó không test dữ liệu production
+        - en: Open source
+          vi: Mã nguồn mở
+      - - Jinja
+        - en: Templating language
+          vi: Ngôn ngữ templating
+        - en: Macros in dbt; Airflow templates
+          vi: Macro trong dbt; template của Airflow
+        - en: Reuse, conditionals, loops
+          vi: Tái sử dụng, điều kiện, vòng lặp
+        - en: Overuse hurts readability; errors appear at compile time
+          vi: Lạm dụng làm giảm khả năng đọc; lỗi xuất hiện ở thời điểm compile
+        - en: Open source
+          vi: Mã nguồn mở
+      - - en: YAML and Bash
+          vi: YAML và Bash
+        - en: Config and shell
+          vi: Config và shell
+        - en: CI pipelines, dbt config, glue
+          vi: CI pipeline, config dbt, glue
+        - en: Available everywhere
+          vi: Có sẵn ở mọi nơi
+        - en: Whitespace bugs; Bash portability
+          vi: Lỗi khoảng trắng; tính portable của Bash
+        - en: Free
+          vi: Miễn phí
+    cap:
+      en: "Rule of thumb: SQL first, DuckDB or polars for local and medium data, PySpark only when one machine is genuinely not enough."
+      vi: "Quy tắc ngón tay cái: SQL trước, DuckDB hoặc polars cho dữ liệu local và cỡ vừa, PySpark chỉ khi một máy thực sự không đủ."
+    n:
+      en: "Do not read the table row by row. Make one point: most analytics engineering work should be SQL; the Python options differ mainly by data size and by how much infrastructure they need."
+      vi: "Đừng đọc bảng từng dòng. Chỉ nêu một ý: phần lớn công việc analytics engineering nên là SQL; các lựa chọn Python khác nhau chủ yếu ở kích thước dữ liệu và mức hạ tầng cần có."
+  - id: deep-dive-window-functions-ctes-and-recursion
+    k: code
+    t:
+      en: "Deep dive: window functions, CTEs and recursion"
+      vi: "Đào sâu: window function, CTE và đệ quy"
+    lead:
+      en: The three SQL features that separate mid-level from senior query writing.
+      vi: Ba tính năng SQL phân biệt người viết query mid-level và senior.
+    blocks:
+      - lang: sql
+        title: latest_order_per_customer.sql
+        code: |-
+          with orders_ranked as (
+              select
+                  customer_id,
+                  order_id,
+                  order_date,
+                  row_number() over (
+                      partition by customer_id
+                      order by order_date desc, order_id desc   -- deterministic tiebreaker
+                  ) as rn,
+                  sum(amount) over (
+                      partition by customer_id
+                      order by order_date, order_id
+                      rows between unbounded preceding and current row
+                  ) as running_amount
+              from analytics.marts.fct_orders
+          )
+          select customer_id, order_id, order_date, running_amount
+          from orders_ranked
+          where rn = 1;
+      - lang: sql
+        title: org_hierarchy.sql (recursive CTE)
+        code: |-
+          with recursive org as (
+              select employee_id, manager_id, name, 1 as depth
+              from hr.employees
+              where manager_id is null
+              union all
+              select e.employee_id, e.manager_id, e.name, o.depth + 1
+              from hr.employees e
+              join org o on e.manager_id = o.employee_id
+              where o.depth < 20                              -- guard against cycles
+          )
+          select * from org order by depth, name;
+    points:
+      - h:
+          en: Pick the right ranking function
+          vi: Chọn đúng ranking function
+        p:
+          en: "`row_number` never ties, `rank` leaves gaps, `dense_rank` does not. Decide by how ties should behave."
+          vi: "`row_number` không bao giờ hòa, `rank` để lại khoảng trống, `dense_rank` thì không. Quyết định theo cách xử lý các giá trị hòa."
+      - h:
+          en: Frame clauses matter
+          vi: Frame clause quan trọng
+        p:
+          en: "`rows between` is physical; `range between` groups ties. Default frames surprise people."
+          vi: "`rows between` là vật lý; `range between` gom các giá trị hòa. Frame mặc định thường gây bất ngờ."
+      - h: QUALIFY
+        tag: nice
+        p:
+          en: Several warehouses let you filter on window results directly, removing the wrapper CTE.
+          vi: Một số warehouse cho phép lọc trực tiếp trên kết quả window, loại bỏ CTE bao ngoài.
+      - h:
+          en: Recursion needs a stop
+          vi: Đệ quy cần điểm dừng
+        p:
+          en: Bound depth or detect cycles, or one bad row burns your compute budget.
+          vi: Giới hạn độ sâu hoặc phát hiện vòng lặp, nếu không một dòng lỗi có thể đốt hết ngân sách compute.
+    n:
+      en: "Walk through the first query: the CTE computes two window functions in one pass, and the outer query filters to rn = 1. Highlight the tiebreaker in order by: without it the result is non-deterministic. For recursion, stress the depth guard."
+      vi: "Đi qua query đầu tiên: CTE tính hai window function trong một lượt, và query ngoài lọc `rn = 1`. Nhấn mạnh tiebreaker trong order by: thiếu nó thì kết quả không xác định (non-deterministic). Với đệ quy, nhấn mạnh depth guard."
+  - id: deep-dive-optimized-versus-unoptimized-query
+    k: code
+    t:
+      en: "Deep dive: optimized versus unoptimized query"
+      vi: "Đào sâu: query tối ưu và chưa tối ưu"
+    lead:
+      en: Same result, very different cost. Both queries return events that happened after the user’s latest order, on one day.
+      vi: Cùng kết quả, chi phí rất khác nhau. Cả hai query đều trả về các event xảy ra sau đơn hàng mới nhất của user, trong một ngày.
+    blocks:
+      - lang: sql
+        title: unoptimized.sql
+        code: |-
+          -- Slow: SELECT *, function wraps the partition column,
+          -- correlated subquery re-evaluated per event row
+          select *
+          from events e
+          where date(e.event_ts) = '2026-03-01'
+            and e.event_ts > (
+                  select max(o.created_at)
+                  from orders o
+                  where o.user_id = e.user_id
+            );
+      - lang: sql
+        title: optimized.sql
+        code: |-
+          -- Faster: prune partitions, project columns, aggregate once
+          with last_order as (
+              select user_id, max(created_at) as last_order_at
+              from orders
+              group by user_id
+          )
+          select e.user_id, e.event_name, e.event_ts
+          from events e
+          join last_order lo on lo.user_id = e.user_id
+          where e.event_ts >= '2026-03-01'     -- sargable range on the
+            and e.event_ts <  '2026-03-02'     -- partition / cluster column
+            and e.event_ts > lo.last_order_at;
+    after:
+      - cols: 3
+        cards:
+          - h:
+              en: 1. Project columns
+              vi: 1. Chỉ chọn cột cần dùng
+            p:
+              en: Columnar engines read only the columns you name. `select *` reads everything.
+              vi: Engine dạng cột chỉ đọc những cột bạn nêu tên. `select *` đọc tất cả.
+          - h:
+              en: 2. Make filters sargable
+              vi: 2. Viết filter sargable
+            p:
+              en: Compare the raw column to a range. Wrapping it in a function can disable partition pruning.
+              vi: So sánh cột gốc với một khoảng giá trị. Bọc cột trong hàm có thể vô hiệu hóa partition pruning.
+          - h:
+              en: 3. Decorrelate, then verify
+              vi: 3. Bỏ tương quan, rồi kiểm chứng
+            p:
+              en: "Aggregate once and join. Confirm with the query plan: bytes scanned, partitions pruned, spills."
+              vi: "Tổng hợp một lần rồi join. Xác nhận bằng query plan: số byte quét, partition được loại, spill."
+    n:
+      en: "Make the point that the optimized version is not clever, it is simply honest about what the engine can optimize. Then show where to look to confirm: the query profile or EXPLAIN output. Never claim an optimization without measuring bytes scanned or runtime before and after."
+      vi: "Nhấn mạnh rằng bản tối ưu không phải là khôn khéo, mà chỉ là trung thực về những gì engine có thể tối ưu. Sau đó chỉ ra nơi để xác nhận: query profile hoặc output của EXPLAIN. Không bao giờ khẳng định đã tối ưu mà không đo bytes scanned hoặc thời gian chạy trước và sau."
+  - id: deep-dive-python-for-analytics-engineers
+    k: code
+    t:
+      en: "Deep dive: Python for analytics engineers"
+      vi: "Đào sâu: Python cho analytics engineer"
+    lead:
+      en: DuckDB for SQL over files, polars for dataframe work, pytest to keep transformations honest.
+      vi: DuckDB cho SQL trên file, polars cho công việc dataframe, pytest để giữ các phép biến đổi trung thực.
+    blocks:
+      - lang: python
+        title: daily_events.py
+        code: |-
+          import duckdb
+          import polars as pl
+
+          con = duckdb.connect()  # in-memory database
+          daily = con.sql("""
+              select date_trunc('day', event_ts) as day, count(*) as events
+              from read_parquet('events/*.parquet')
+              group by 1
+              order by 1
+          """).pl()  # DuckDB relation -> polars DataFrame
+
+          smoothed = daily.with_columns(
+              pl.col("events").rolling_mean(window_size=7).alias("events_7d_avg")
+          )
+          print(smoothed.tail(3))
+      - lang: python
+        title: test_transforms.py
+        code: |-
+          import polars as pl
+          import pytest
+
+
+          def dedupe_latest(df: pl.DataFrame) -> pl.DataFrame:
+              return df.sort("updated_at").unique(
+                  subset="id", keep="last", maintain_order=True
+              )
+
+
+          def test_keeps_most_recent_row():
+              df = pl.DataFrame(
+                  {"id": [1, 1, 2], "updated_at": [1, 2, 1], "v": ["old", "new", "x"]}
+              )
+              out = dedupe_latest(df)
+              assert out.filter(pl.col("id") == 1)["v"].to_list() == ["new"]
+              assert out.height == 2
+
+
+          @pytest.mark.parametrize("n", [1, 2, 5])
+          def test_unique_input_is_unchanged(n):
+              df = pl.DataFrame(
+                  {"id": list(range(n)), "updated_at": list(range(n)), "v": ["a"] * n}
+              )
+              assert dedupe_latest(df).height == n
+    points:
+      - h:
+          en: Scale ladder
+          vi: Nấc thang quy mô
+        p:
+          en: pandas for convenience, polars or DuckDB when data stops fitting comfortably, PySpark only when one machine is truly not enough.
+          vi: pandas cho tiện lợi, polars hoặc DuckDB khi dữ liệu không còn vừa thoải mái, PySpark chỉ khi một máy thực sự không đủ.
+      - h:
+          en: Test pure functions
+          vi: Test các pure function
+        p:
+          en: pytest for transformation logic and edge cases; dbt tests for properties of the data itself.
+          vi: pytest cho logic biến đổi và edge case; dbt test cho các thuộc tính của chính dữ liệu.
+      - h:
+          en: Local-first loop
+          vi: Vòng lặp ưu tiên local
+        tag: senior
+        p:
+          en: DuckDB on a sample of Parquet gives a seconds-long feedback loop before touching the warehouse.
+          vi: DuckDB trên một mẫu Parquet cho vòng phản hồi chỉ vài giây trước khi chạm vào warehouse.
+    n:
+      en: "The left example shows the modern local stack: DuckDB reads Parquet directly, and the result drops into polars. The right shows that transformation logic is just functions, so it is unit testable. Contrast with dbt tests, which test the data, not the logic."
+      vi: "Ví dụ bên trái cho thấy local stack hiện đại: DuckDB đọc Parquet trực tiếp, và kết quả chuyển thẳng vào polars. Bên phải cho thấy logic biến đổi chỉ là các hàm, nên có thể unit test. Đối chiếu với dbt test, vốn test dữ liệu chứ không test logic."
+  - id: design-patterns-and-best-practices
+    k: cards
+    t:
+      en: Design patterns and best practices
+      vi: Mẫu thiết kế và thực hành tốt
+    cols: 3
+    cards:
+      - h:
+          en: Readable first
+          vi: Dễ đọc trước tiên
+        p:
+          en: CTEs named by intent, one transformation per CTE, explicit column lists at layer boundaries.
+          vi: CTE đặt tên theo mục đích, mỗi CTE một phép biến đổi, liệt kê cột tường minh ở ranh giới giữa các layer.
+      - h:
+          en: Set-based over row-based
+          vi: Set-based thay vì row-based
+        p:
+          en: Avoid loops and per-row UDFs. Let the optimizer see the whole problem.
+          vi: Tránh vòng lặp và UDF theo từng dòng. Để optimizer nhìn thấy toàn bộ bài toán.
+      - h:
+          en: Filter early, join late
+          vi: Filter sớm, join muộn
+        p:
+          en: Reduce rows and columns before expensive joins and aggregations.
+          vi: Giảm số dòng và cột trước các join và aggregation tốn kém.
+      - h:
+          en: Sargable predicates
+          vi: Predicate sargable
+        p:
+          en: Compare raw columns to ranges so partition pruning and clustering can work.
+          vi: So sánh cột gốc với khoảng giá trị để partition pruning và clustering hoạt động được.
+      - h:
+          en: Deterministic by default
+          vi: Mặc định mang tính xác định
+        p:
+          en: Tiebreakers in windows, explicit casts and explicit time zones. Same input, same output.
+          vi: Tiebreaker trong window, cast tường minh và time zone tường minh. Cùng input, cùng output.
+      - h:
+          en: Read the plan
+          vi: Đọc plan
+        p:
+          en: Use EXPLAIN or the query profile. Check bytes scanned, join order, skew and spills before tuning.
+          vi: Dùng EXPLAIN hoặc query profile. Kiểm tra bytes scanned, thứ tự join, skew và spill trước khi tuning.
+    n:
+      en: "These six habits cover most day-to-day SQL quality. The last one is the senior habit: measure before and after, using the engine’s own tools."
+      vi: "Sáu thói quen này bao phủ phần lớn chất lượng SQL hằng ngày. Thói quen cuối là của người senior: đo trước và sau, bằng chính công cụ của engine."
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: "`select *` in models and views."
+          vi: "`select *` trong model và view."
+        why:
+          en: Breaks on schema drift and reads every column.
+          vi: Vỡ khi schema drift và đọc mọi cột.
+        fix:
+          en: List columns explicitly at staging and mart boundaries.
+          vi: Liệt kê cột tường minh ở ranh giới staging và mart.
+      - bad:
+          en: Functions on filter columns, like `date(ts) = ...`.
+          vi: Dùng hàm trên cột filter, như `date(ts) = ...`.
+        why:
+          en: Can defeat partition pruning.
+          vi: Có thể vô hiệu hóa partition pruning.
+        fix:
+          en: Use half-open range predicates on the raw column.
+          vi: Dùng range predicate nửa mở trên cột gốc.
+      - bad:
+          en: "`distinct` to hide duplicate rows."
+          vi: "`distinct` để che các dòng trùng lặp."
+        why:
+          en: Masks join fan-out and adds a sort.
+          vi: Che giấu join fan-out và thêm một bước sort.
+        fix:
+          en: Fix the grain of the join and test uniqueness.
+          vi: Sửa grain của join và test tính duy nhất.
+      - bad:
+          en: Implicit casts and local time zones.
+          vi: Cast ngầm định và time zone local.
+        why:
+          en: Silently wrong when data or locale changes.
+          vi: Sai âm thầm khi dữ liệu hoặc locale thay đổi.
+        fix:
+          en: Cast explicitly and store timestamps in UTC.
+          vi: Cast tường minh và lưu timestamp theo UTC.
+      - bad:
+          en: Jinja everywhere.
+          vi: Jinja ở mọi nơi.
+        why:
+          en: Nobody can read or debug the compiled result.
+          vi: Không ai đọc hay debug được kết quả đã compile.
+        fix:
+          en: Macros only for real repetition; review compiled SQL.
+          vi: Chỉ dùng macro cho phần lặp lại thật sự; review SQL đã compile.
+      - bad:
+          en: pandas for every job.
+          vi: pandas cho mọi job.
+        why:
+          en: Memory blow-ups and slow loops.
+          vi: Tràn bộ nhớ và vòng lặp chậm.
+        fix:
+          en: Push work into SQL, DuckDB or polars.
+          vi: Đẩy công việc sang SQL, DuckDB hoặc polars.
+    n:
+      en: "Pick two that the audience has probably seen in their own code. The common thread: each trades a little convenience now for cost, ambiguity or fragility later."
+      vi: "Chọn hai điều mà khán giả có lẽ đã gặp trong code của chính họ. Điểm chung: mỗi cái đánh đổi một chút tiện lợi hiện tại lấy chi phí, sự mơ hồ hoặc tính mong manh về sau."
+  - id: what-senior-looks-like-core-languages
+    k: cards
+    t:
+      en: "What senior looks like: core languages"
+      vi: "Senior trông như thế nào: ngôn ngữ nền tảng"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: SQL or Python for each task
+            vi: SQL hay Python cho từng tác vụ
+          - en: "Where logic lives: warehouse, dbt or application"
+            vi: "Logic nằm ở đâu: warehouse, dbt hay application"
+          - en: Which dialect-specific features to rely on
+            vi: Nên dựa vào tính năng riêng của dialect nào
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Clever versus readable
+            vi: Thông minh so với dễ đọc
+          - en: Portable SQL versus warehouse-specific speed
+            vi: SQL portable so với tốc độ đặc thù của warehouse
+          - en: Local iteration speed versus production parity
+            vi: Tốc độ lặp local so với tính tương đương với production
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Own the SQL style guide and linting
+            vi: Làm chủ SQL style guide và linting
+          - en: Review for correctness and performance
+            vi: Review về tính đúng đắn và hiệu năng
+          - en: Teach query-plan reading
+            vi: Dạy cách đọc query plan
+          - en: Own the cost of the heaviest queries
+            vi: Chịu trách nhiệm chi phí của các query nặng nhất
+    n:
+      en: Seniority here is judgment, not syntax. The question is always “what will the next engineer, or the next ten times of data, do to this code?”
+      vi: Ở đây, mức senior là phán đoán, không phải cú pháp. Câu hỏi luôn là “kỹ sư kế tiếp, hoặc lượng dữ liệu gấp mười lần, sẽ làm gì với đoạn code này?”
+  - id: sql-internals-how-an-engine-runs-your-query
+    k: stack
+    t:
+      en: "SQL internals: how an engine runs your query"
+      vi: "Nội bộ SQL: engine chạy query của bạn thế nào"
+    lead:
+      en: Knowing the lifecycle explains why one query is fast and another, logically identical, is slow.
+      vi: Hiểu vòng đời giải thích vì sao query này nhanh còn query kia, tương đương về logic, lại chậm.
+    parts:
+      - table:
+          head:
+            - en: Stage
+              vi: Giai đoạn
+            - en: What happens
+              vi: Điều gì xảy ra
+            - en: Where to observe
+              vi: Quan sát ở đâu
+          rows:
+            - - en: Parse and bind
+                vi: Parse và bind
+              - en: Text becomes a syntax tree; names and types are resolved
+                vi: Văn bản thành cây cú pháp; tên và kiểu được phân giải
+              - en: Syntax and unknown-column errors
+                vi: Lỗi cú pháp và cột không tồn tại
+            - - en: Logical optimization
+                vi: Tối ưu logic
+              - en: "Rewrites: push filters down, prune columns, simplify expressions, unnest subqueries"
+                vi: "Viết lại: đẩy filter xuống, cắt cột, đơn giản hóa biểu thức, mở subquery"
+              - "`EXPLAIN`"
+            - - en: Cost-based planning
+                vi: Lập kế hoạch dựa trên chi phí
+              - en: Uses table statistics to choose join order and join algorithm (nested loop, hash, merge)
+                vi: Dùng thống kê bảng để chọn thứ tự join và thuật toán join (nested loop, hash, merge)
+              - en: Estimated versus actual rows in the plan
+                vi: Số dòng ước lượng so với thực tế trong plan
+            - - en: Execution
+                vi: Thực thi
+              - en: Operators read data (using indexes, partition pruning or column statistics), join, aggregate and sort, spilling to disk if memory runs out
+                vi: Các operator đọc dữ liệu (dùng index, partition pruning hoặc thống kê cột), join, aggregate và sort, spill ra đĩa nếu hết bộ nhớ
+              - "`EXPLAIN ANALYZE`"
+      - code:
+          lang: sql
+          title: read_a_plan.sql (DuckDB or PostgreSQL)
+          code: |-
+            EXPLAIN ANALYZE
+            SELECT c.country, SUM(o.amount) AS revenue
+            FROM orders o
+            JOIN customers c ON c.customer_id = o.customer_id
+            WHERE o.order_date >= DATE '2026-10-01'
+            GROUP BY c.country;
+            -- Look for: estimated vs actual rows, the join type, scans without filter pushdown, sorts that spill
+    n:
+      en: "The most useful skill is comparing estimated and actual row counts: a large gap usually means stale statistics or a predicate the optimizer cannot estimate."
+      vi: "Kỹ năng hữu ích nhất là so sánh số dòng ước lượng và thực tế: chênh lệch lớn thường nghĩa là thống kê cũ hoặc một điều kiện mà optimizer không ước lượng nổi."
+  - id: sql-troubleshooting-and-performance
+    k: table
+    t:
+      en: SQL troubleshooting and performance
+      vi: Troubleshooting và hiệu năng SQL
+    head:
+      - en: Symptom
+        vi: Triệu chứng
+      - en: Likely cause
+        vi: Nguyên nhân có thể
+      - en: Diagnose
+        vi: Chẩn đoán
+      - en: Fix
+        vi: Cách sửa
+    rows:
+      - - en: Query slow on a big table
+          vi: Query chậm trên bảng lớn
+        - en: "Full scan: filter on a function or no pruning"
+          vi: "Quét toàn bảng: lọc trên hàm hoặc không pruning được"
+        - en: "Plan: rows scanned versus returned"
+          vi: "Plan: số dòng quét so với trả về"
+        - en: Sargable range filters; partition or cluster keys
+          vi: Filter dạng khoảng sargable; khóa partition hoặc cluster
+      - - en: Result row count too high
+          vi: Số dòng kết quả quá nhiều
+        - en: Join fan-out from a non-unique key
+          vi: Join nở dòng do khóa không duy nhất
+        - en: Count before and after each join; test key uniqueness
+          vi: Đếm trước và sau từng join; test tính duy nhất của khóa
+        - en: Join at the right grain; aggregate before joining
+          vi: Join đúng grain; tổng hợp trước khi join
+      - - en: Slow aggregation or sort
+          vi: Aggregation hoặc sort chậm
+        - en: Spilling to disk or high-cardinality grouping
+          vi: Spill ra đĩa hoặc group theo cardinality cao
+        - en: Spill and memory metrics in the plan
+          vi: Metric spill và bộ nhớ trong plan
+        - en: Pre-aggregate, reduce columns, increase memory or warehouse size last
+          vi: Tổng hợp trước, giảm cột, tăng bộ nhớ hoặc cỡ warehouse sau cùng
+      - - en: Plan changes after data grows
+          vi: Plan đổi sau khi dữ liệu lớn lên
+        - en: Stale statistics; a different join strategy chosen
+          vi: Thống kê cũ; chọn chiến lược join khác
+        - en: Estimated versus actual rows
+          vi: Dòng ước lượng so với thực tế
+        - en: Refresh statistics; hint only when necessary
+          vi: Làm mới thống kê; chỉ dùng hint khi cần
+      - - en: Wrong numbers with NULLs
+          vi: Số sai do NULL
+        - en: "`NOT IN`, `<>` and joins treat NULL specially"
+          vi: "`NOT IN`, `<>` và join xử lý NULL đặc biệt"
+        - en: Count NULLs in key and filter columns
+          vi: Đếm NULL ở cột khóa và cột lọc
+        - en: Use `NOT EXISTS`, `IS DISTINCT FROM`, explicit NULL handling
+          vi: Dùng `NOT EXISTS`, `IS DISTINCT FROM`, xử lý NULL rõ ràng
+      - - en: Report differs by timezone
+          vi: Báo cáo lệch theo múi giờ
+        - en: Timestamp stored or cast in different zones
+          vi: Timestamp lưu hoặc cast ở múi giờ khác nhau
+        - en: Check column types and session timezone
+          vi: Kiểm tra kiểu cột và múi giờ của session
+        - en: Store UTC; convert once at the edge
+          vi: Lưu UTC; chuyển đổi một lần ở lớp ngoài cùng
+    cap:
+      en: Correctness bugs (fan-out, NULLs, timezones) are more dangerous than slow queries because they look fine.
+      vi: Lỗi về tính đúng (nở dòng, NULL, múi giờ) nguy hiểm hơn query chậm vì chúng trông có vẻ ổn.
+    n:
+      en: Teach the habit of reconciling counts after every join. It catches fan-out before anyone sees a wrong dashboard.
+      vi: Dạy thói quen đối soát số dòng sau mỗi join. Nó bắt lỗi nở dòng trước khi ai đã nhìn thấy dashboard sai.
+  - id: sql-lab-make-a-5-minute-query-run-in-seconds
+    k: lab
+    t:
+      en: "SQL lab: make a 5-minute query run in seconds"
+      vi: "Lab SQL: đưa query 5 phút xuống còn vài giây"
+    lead:
+      en: Measure first, change one thing at a time, and prove the result is identical.
+      vi: Đo trước, mỗi lần đổi một thứ, và chứng minh kết quả giống hệt.
+    scenario:
+      en: A revenue-by-country report on 10 million orders is slow and some numbers look inflated.
+      vi: Báo cáo doanh thu theo quốc gia trên 10 triệu đơn hàng chạy chậm và một số con số trông bị thổi phồng.
+    input:
+      en: DuckDB. Generate data with `CREATE TABLE orders AS SELECT i AS order_id, (random()*1000000)::INT AS customer_id, DATE '2026-01-01' + (random()*300)::INT AS order_date, (random()*500)::DECIMAL(10,2) AS amount FROM range(10000000) t(i);` and a customers table with a few duplicated customer_ids.
+      vi: DuckDB. Sinh dữ liệu bằng `CREATE TABLE orders AS SELECT i AS order_id, (random()*1000000)::INT AS customer_id, DATE '2026-01-01' + (random()*300)::INT AS order_date, (random()*500)::DECIMAL(10,2) AS amount FROM range(10000000) t(i);` và bảng customers có vài customer_id trùng.
+    tasks:
+      - en: Run the report with `EXPLAIN ANALYZE` and record time and rows.
+        vi: Chạy báo cáo với `EXPLAIN ANALYZE` và ghi lại thời gian và số dòng.
+      - en: Find and fix the fan-out caused by duplicate customers.
+        vi: Tìm và sửa lỗi nở dòng do khách hàng trùng.
+      - en: Remove `SELECT *`, filter early and pre-aggregate before the join.
+        vi: Bỏ `SELECT *`, lọc sớm và tổng hợp trước khi join.
+      - en: Verify the final result equals a trusted reference query.
+        vi: Xác minh kết quả cuối bằng một query tham chiếu đáng tin.
+    expected:
+      en: A table of runtime and rows per step, a corrected total, and a one-line proof of equality with the reference.
+      vi: Bảng thời gian và số dòng theo từng bước, tổng đã sửa, và một dòng chứng minh bằng với tham chiếu.
+    rubric:
+      - en: Correctness bug found, not only speed
+        vi: Tìm ra lỗi về tính đúng, không chỉ tốc độ
+      - en: One change per measurement
+        vi: Mỗi lần đo chỉ một thay đổi
+      - en: Plan evidence for each improvement
+        vi: Có bằng chứng từ plan cho mỗi cải thiện
+      - en: Result verified against a reference
+        vi: Kết quả được kiểm chứng với tham chiếu
+    design:
+      en: Explain how you would prevent this class of bug permanently using tests and data modeling.
+      vi: Giải thích cách bạn ngăn loại lỗi này vĩnh viễn bằng test và mô hình hóa dữ liệu.
+    n:
+      en: "The planted duplicate keys are the point: a fast wrong answer must fail the lab."
+      vi: "Các khóa trùng được gài sẵn chính là mấu chốt: câu trả lời nhanh nhưng sai phải bị trượt lab."
+  - id: python-internals-gil-concurrency-models-and-profiling
+    k: code
+    t:
+      en: "Python internals: GIL, concurrency models and profiling"
+      vi: "Nội bộ Python: GIL, mô hình đồng thời và profiling"
+    lead:
+      en: "Choose the concurrency model by the bottleneck: waiting on IO, burning CPU, or moving data."
+      vi: "Chọn mô hình đồng thời theo nút thắt: chờ IO, đốt CPU hay di chuyển dữ liệu."
+    blocks:
+      - lang: python
+        title: async_fetch.py (many IO waits)
+        code: |-
+          import asyncio
+
+          import httpx
+
+
+          async def fetch_all(urls: list[str], limit: int = 10) -> list[dict]:
+              sem = asyncio.Semaphore(limit)  # bounded concurrency protects the API
+
+              async with httpx.AsyncClient(timeout=30) as client:
+                  async def one(url: str) -> dict:
+                      async with sem:
+                          r = await client.get(url)
+                          r.raise_for_status()
+                          return r.json()
+
+                  return await asyncio.gather(*(one(u) for u in urls))
+      - lang: python
+        title: profile.py (find the real bottleneck)
+        code: |-
+          import cProfile
+          import pstats
+          import tracemalloc
+
+          tracemalloc.start()
+          with cProfile.Profile() as pr:
+              result = transform(df)                     # your function
+
+          pstats.Stats(pr).sort_stats("cumtime").print_stats(10)   # top 10 by cumulative time
+          current, peak = tracemalloc.get_traced_memory()
+          print(f"peak memory: {peak / 1e6:.1f} MB")
+    points:
+      - h:
+          en: The GIL
+          vi: GIL
+        p:
+          en: In standard CPython only one thread runs Python bytecode at a time. Threads help IO-bound work but not pure-Python CPU work. Newer free-threaded builds are changing this, so check your version.
+          vi: Trong CPython chuẩn chỉ một thread chạy bytecode Python tại một thời điểm. Thread giúp việc nặng IO nhưng không giúp việc CPU thuần Python. Bản free-threaded mới đang thay đổi điều này, hãy kiểm tra phiên bản của bạn.
+      - h:
+          en: Pick by bottleneck
+          vi: Chọn theo nút thắt
+        tag: senior
+        p:
+          en: Asyncio or threads for IO; processes for CPU-bound Python; vectorized libraries (polars, DuckDB, NumPy) to avoid Python loops entirely.
+          vi: Asyncio hoặc thread cho IO; process cho Python nặng CPU; thư viện vector hóa (polars, DuckDB, NumPy) để tránh hẳn vòng lặp Python.
+      - h:
+          en: Memory
+          vi: Bộ nhớ
+        p:
+          en: Dataframes can need several times their file size. Stream, chunk or use columnar engines for large data.
+          vi: Dataframe có thể cần gấp vài lần kích thước file. Hãy stream, chia chunk hoặc dùng engine cột cho dữ liệu lớn.
+      - h:
+          en: Packaging
+          vi: Đúng gói
+        tag: senior
+        p:
+          en: Pin dependencies in a lock file, use virtual environments or containers, and keep one environment per project.
+          vi: Cố định phụ thuộc trong lock file, dùng môi trường ảo hoặc container, và mỗi dự án một môi trường.
+    n:
+      en: "Profile before optimizing: developers are poor at guessing the bottleneck. The async example shows the semaphore pattern that prevents overwhelming an API."
+      vi: "Profile trước khi tối ưu: lập trình viên đoán nút thắt rất tệ. Ví dụ async cho thấy mẫu semaphore ngăn làm quá tải một API."
+  - id: python-troubleshooting-and-performance
+    k: table
+    t:
+      en: Python troubleshooting and performance
+      vi: Troubleshooting và hiệu năng Python
+    head:
+      - en: Symptom
+        vi: Triệu chứng
+      - en: Likely cause
+        vi: Nguyên nhân có thể
+      - en: Diagnose
+        vi: Chẩn đoán
+      - en: Fix
+        vi: Cách sửa
+    rows:
+      - - en: Process killed or `MemoryError`
+          vi: Process bị giết hoặc `MemoryError`
+        - en: Whole dataset loaded into memory
+          vi: Toàn bộ dữ liệu nạp vào bộ nhớ
+        - en: "`tracemalloc`, resident memory over time"
+          vi: "`tracemalloc`, bộ nhớ thường trú theo thời gian"
+        - en: Chunk or stream; use polars lazy or DuckDB; select needed columns early
+          vi: Chia chunk hoặc stream; dùng polars lazy hoặc DuckDB; chọn cột cần dùng sớm
+      - - en: Loop over rows is very slow
+          vi: Vòng lặp qua từng dòng rất chậm
+        - en: Python-level iteration over a dataframe
+          vi: Lặp cấp Python trên dataframe
+        - en: "`cProfile` shows time in the loop body"
+          vi: "`cProfile` cho thấy thời gian nằm trong thân vòng lặp"
+        - en: Vectorize or push the logic into SQL
+          vi: Vector hóa hoặc đẩy logic vào SQL
+      - - en: Threads give no speedup
+          vi: Thread không nhanh hơn
+        - en: CPU-bound work under the GIL
+          vi: Việc nặng CPU dưới GIL
+        - en: CPU usage stays near one core
+          vi: CPU chỉ quanh một core
+        - en: Use processes or native vectorized code
+          vi: Dùng process hoặc code vector hóa native
+      - - en: "`PicklingError` in multiprocessing"
+          vi: "`PicklingError` trong multiprocessing"
+        - en: Lambdas, closures or open handles passed to workers
+          vi: Truyền lambda, closure hoặc handle đang mở cho worker
+        - en: Traceback names the unpicklable object
+          vi: Traceback nêu đối tượng không pickle được
+        - en: Use top-level functions and pass plain data
+          vi: Dùng hàm cấp module và truyền dữ liệu thuần
+      - - en: Works locally, fails in CI
+          vi: Chạy được local, lỗi ở CI
+        - en: Unpinned or conflicting dependencies, different Python version
+          vi: Phụ thuộc không cố định hoặc xung đột, khác phiên bản Python
+        - en: Compare `pip freeze` and Python versions
+          vi: So sánh `pip freeze` và phiên bản Python
+        - en: Lock file, constraints, containerize the environment
+          vi: Lock file, ràng buộc, container hóa môi trường
+      - - en: Wrong dates or duplicate rows
+          vi: Ngày sai hoặc dòng trùng
+        - en: Naive timestamps and timezone conversions
+          vi: Timestamp không có múi giờ và chuyển đổi múi giờ
+        - en: Inspect `tzinfo`; compare against source values
+          vi: Kiểm tra `tzinfo`; so sánh với giá trị nguồn
+        - en: Use timezone-aware UTC internally
+          vi: Dùng UTC có múi giờ ở bên trong
+    cap:
+      en: Measure with a profiler and a memory tracer before changing code.
+      vi: Đo bằng profiler và công cụ theo dõi bộ nhớ trước khi đổi code.
+    n:
+      en: Most data engineering Python problems are memory, packaging or timezone problems rather than algorithm problems.
+      vi: Phần lớn vấn đề Python trong data engineering là bộ nhớ, đúng gói hoặc múi giờ, không phải vấn đề thuật toán.
+  - id: python-lab-a-reliable-bounded-ingestion-script
+    k: lab
+    t:
+      en: "Python lab: a reliable, bounded ingestion script"
+      vi: "Lab Python: script ingestion tin cậy và có giới hạn"
+    lead:
+      en: Fetch from a flaky API concurrently, stay within memory, and test the logic.
+      vi: Lấy dữ liệu từ API chập chờn một cách đồng thời, giữ trong giới hạn bộ nhớ và test logic.
+    scenario:
+      en: Download 5,000 pages from an API that rate-limits and fails randomly, then load them into Parquet without exhausting memory.
+      vi: Tải 5.000 trang từ một API có giới hạn tốc độ và lỗi ngẫu nhiên, rồi nạp vào Parquet mà không cạn bộ nhớ.
+    input:
+      en: A small local mock API (FastAPI) that returns 429 and 500 randomly. Python 3.11 or newer with httpx, polars or DuckDB and pytest.
+      vi: Một API giả cục bộ nhỏ (FastAPI) trả 429 và 500 ngẫu nhiên. Python 3.11 trở lên với httpx, polars hoặc DuckDB và pytest.
+    tasks:
+      - en: Write an async fetcher with a semaphore, retries with jitter and a timeout.
+        vi: Viết bộ lấy dữ liệu async với semaphore, retry có jitter và timeout.
+      - en: Stream results into Parquet files in chunks.
+        vi: Stream kết quả ra các file Parquet theo từng chunk.
+      - en: Profile time and peak memory.
+        vi: Profile thời gian và bộ nhớ đỉnh.
+      - en: Write pytest tests for the retry and chunk logic, including a failure test.
+        vi: Viết test pytest cho logic retry và chunk, gồm một test lỗi.
+    expected:
+      en: All pages loaded once, peak memory below a stated limit, and passing tests.
+      vi: Mọi trang được nạp một lần, bộ nhớ đỉnh dưới giới hạn đã nêu và test đều pass.
+    rubric:
+      - en: Concurrency is bounded and retries are safe
+        vi: Đồng thời có giới hạn và retry an toàn
+      - en: Memory stays flat as pages grow
+        vi: Bộ nhớ ổn định khi số trang tăng
+      - en: Tests cover the failure paths
+        vi: Test bao phủ các nhánh lỗi
+      - en: Profiling evidence is included
+        vi: Có bằng chứng từ profiling
+    design:
+      en: Extend the design to run daily on a schedule with idempotent output and alerting.
+      vi: Mở rộng thiết kế để chạy hằng ngày theo lịch với đầu ra idempotent và cảnh báo.
+    n:
+      en: Check that the semaphore actually limits concurrent requests, for example by logging the active count.
+      vi: Kiểm tra semaphore thực sự giới hạn số request đồng thời, ví dụ bằng cách log số request đang hoạt động.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: I can read a query plan and spot a full scan
+          vi: Tôi đọc được query plan và phát hiện full scan
+        - en: I use window functions and recursive CTEs fluently
+          vi: Tôi dùng thành thạo window function và recursive CTE
+        - en: My SQL is linted (for example with SQLFluff) and reviewed
+          vi: SQL của tôi được lint (ví dụ với SQLFluff) và review
+        - en: I can write a pytest for a transformation
+          vi: Tôi viết được pytest cho một phép biến đổi
+        - en: I know when DuckDB or polars beats pandas
+          vi: Tôi biết khi nào DuckDB hoặc polars vượt trội hơn pandas
+        - en: I can use Jinja without hurting readability
+          vi: Tôi dùng được Jinja mà không làm giảm khả năng đọc
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: What is the difference between `rank`, `dense_rank` and `row_number`, and when does each bite?
+          vi: Khác biệt giữa `rank`, `dense_rank` và `row_number` là gì, và mỗi cái gây vấn đề khi nào?
+        - en: A query became 10x slower as data grew. How do you diagnose it?
+          vi: Một query chậm đi 10x khi dữ liệu tăng. Bạn chẩn đoán thế nào?
+        - en: Why can `where date(ts) = x` be slower than a range filter?
+          vi: Vì sao `where date(ts) = x` có thể chậm hơn range filter?
+        - en: When would you choose polars or DuckDB over PySpark?
+          vi: Khi nào bạn chọn polars hoặc DuckDB thay vì PySpark?
+        - en: How do you test a SQL transformation?
+          vi: Bạn test một phép biến đổi SQL như thế nào?
+    n:
+      en: Use the right-hand questions as a mock interview. Good answers name a measurement (bytes scanned, runtime) rather than a hunch.
+      vi: Dùng các câu hỏi bên phải như một buổi phỏng vấn thử. Câu trả lời tốt nêu một phép đo (bytes scanned, thời gian chạy) thay vì linh cảm.

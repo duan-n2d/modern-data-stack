@@ -1,0 +1,345 @@
+tech:
+  id: airflow
+  name: Airflow
+  color: "#16A34A"
+  refs:
+    - [Apache Airflow, https://airflow.apache.org/docs/]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "Airflow: architecture"
+      vi: "Airflow: kiến trúc"
+    lead:
+      en: The scheduler and the metadata database are the core. Everything else (workers, triggerer, UI) reads or writes the same state.
+      vi: Scheduler và metadata database là phần cốt lõi. Mọi thứ khác (worker, triggerer, UI) đều đọc hoặc ghi cùng một state.
+    svg: airflowSVG
+    cap:
+      en: Airflow 3 adds an API server and task SDK, so workers no longer need direct metadata database access.
+      vi: Airflow 3 bổ sung API server và task SDK, nên worker không còn cần truy cập trực tiếp metadata database.
+    n:
+      en: "Trace one task: file to processor to database, scheduler queues it, executor hands it to a worker, state returns to the database. Everything is coordinated through that database, which is why it matters operationally."
+      vi: "Lần theo một task: file tới processor tới database, scheduler xếp hàng nó, executor giao cho worker, state quay về database. Mọi thứ được điều phối qua database đã, nên nó quan trọng về mặt vận hành."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "Airflow: components and workflow"
+      vi: "Airflow: thành phần và quy trình"
+    comps:
+      - - en: DAG file
+          vi: File DAG
+        - en: Python that declares tasks and dependencies
+          vi: Python khai báo task và dependency
+      - - DAG processor
+        - en: Parses DAG files and stores serialized DAGs (a separate component in newer versions)
+          vi: Parse file DAG và lưu DAG đã serialize (là một component riêng ở các phiên bản mới)
+      - - Scheduler
+        - en: Creates DAG runs on schedule or events, resolves dependencies, queues ready tasks
+          vi: Tạo DAG run theo lịch hoặc event, giải quyết dependency, xếp hàng các task sẵn sàng
+      - - Executor
+        - en: "Decides where tasks run: Local, Celery workers, or a Kubernetes pod per task"
+          vi: "Quyết định task chạy ở đâu: Local, Celery worker, hoặc một Kubernetes pod cho mỗi task"
+      - - Worker
+        - en: Process or pod that executes task code and reports state
+          vi: Process hoặc pod thực thi code của task và báo cáo trạng thái
+      - - Metadata database
+        - en: State of DAG runs, task instances, connections and variables
+          vi: Trạng thái của DAG run, task instance, connection và variable
+      - - Triggerer
+        - en: Runs async triggers so deferrable operators do not hold worker slots
+          vi: Chạy các async trigger để deferrable operator không giữ worker slot
+      - - Webserver / API server
+        - en: UI and REST API
+          vi: UI và REST API
+      - - en: Operators, hooks, providers
+          vi: Operator, hook, provider
+        - en: Reusable integrations to external systems
+          vi: Các tích hợp tái sử dụng với hệ thống bên ngoài
+    flow:
+      - en: DAG files arrive on the scheduler and processor (usually via Git sync).
+        vi: File DAG đến scheduler và processor (thường qua Git sync).
+      - en: They are parsed and serialized into the metadata database.
+        vi: Chúng được parse và serialize vào metadata database.
+      - en: The scheduler creates a DAG run at the scheduled time (or when an asset or event fires).
+        vi: Scheduler tạo DAG run vào giờ đã lên lịch (hoặc khi một asset hay event kích hoạt).
+      - en: Task instances whose dependencies are met are queued to the executor.
+        vi: Các task instance đã đủ dependency được xếp hàng tới executor.
+      - en: A worker runs the task, then writes state, logs and any XCom value.
+        vi: Một worker chạy task, rồi ghi state, log và mọi giá trị XCom.
+      - en: On failure the scheduler applies retry rules while downstream tasks wait.
+        vi: Khi lỗi, scheduler áp dụng quy tắc retry trong lúc các task downstream chờ.
+    ops:
+      - en: Top-level code in DAG files runs on every parse. Keep it light.
+        vi: Code cấp cao nhất trong file DAG chạy ở mỗi lần parse. Giữ cho nhẹ.
+      - en: The metadata database is the contention point. Size it and clean old data.
+        vi: Metadata database là điểm tranh chấp. Hãy định cỡ nó và dọn dữ liệu cũ.
+      - en: XCom is for small values. Pass references to data, not the data.
+        vi: XCom dành cho giá trị nhỏ. Truyền tham chiếu tới dữ liệu, không truyền dữ liệu.
+      - en: Celery gives warm workers; Kubernetes gives isolation per task. Choose by workload.
+        vi: Celery cho worker luôn sẵn sàng; Kubernetes cho cô lập theo từng task. Chọn theo workload.
+      - en: Pools and concurrency limits protect downstream systems.
+        vi: Pool và giới hạn concurrency bảo vệ các hệ thống downstream.
+    n:
+      en: Go through the workflow, then the notes. The slow-parse problem and an overloaded metadata database are the two most common causes of a sluggish Airflow. Check version-specific component names in the docs.
+      vi: Đi qua workflow, rồi tới các ghi chú. Vấn đề parse chậm và metadata database quá tải là hai nguyên nhân phổ biến nhất khiến Airflow ì ạch. Kiểm tra tên component theo từng phiên bản trong tài liệu.
+  - id: airflow-internals-scheduler-loop-task-states-and
+    k: stack
+    mod: [internals]
+    t:
+      en: "Airflow internals: scheduler loop, task states and executors"
+      vi: "Nội bộ Airflow: vòng lặp scheduler, trạng thái task và executor"
+    lead:
+      en: Every Airflow behaviour is a state transition recorded in the metadata database.
+      vi: Mọi hành vi của Airflow đều là một chuyển trạng thái được ghi trong metadata database.
+    parts:
+      - table:
+          head:
+            - en: State
+              vi: Trạng thái
+            - en: Meaning
+              vi: Ý nghĩa
+            - en: Next
+              vi: Tiếp theo
+          rows:
+            - - scheduled
+              - en: Dependencies are met and the scheduler has decided the task should run
+                vi: Phụ thuộc đã thỏa và scheduler quyết định task nên chạy
+              - queued
+            - - queued
+              - en: Handed to the executor; waiting for a worker or pool slot
+                vi: Đã giao cho executor; chờ worker hoặc slot trong pool
+              - running
+            - - running
+              - en: A worker is executing the task
+                vi: Một worker đang thực thi task
+              - "`success`, `failed`, `up_for_retry`, `deferred`"
+            - - up_for_retry
+              - en: Failed but retries remain; waits for the retry delay
+                vi: Thất bại nhưng còn retry; chờ độ trễ retry
+              - scheduled
+            - - deferred
+              - en: Waiting on a trigger in the triggerer without holding a worker
+                vi: Chờ một trigger trong triggerer mà không giữ worker
+              - scheduled
+            - - upstream_failed
+              - en: An upstream task failed, so this one will not run
+                vi: Task phía trước thất bại nên task này sẽ không chạy
+              - en: terminal
+                vi: kết thúc
+      - table:
+          head:
+            - Executor
+            - en: How it runs tasks
+              vi: Cách chạy task
+            - en: Isolation
+              vi: Cô lập
+            - en: Best for
+              vi: Phù hợp nhất
+          rows:
+            - - LocalExecutor
+              - en: Subprocesses on the scheduler machine
+                vi: Tiến trình con trên máy scheduler
+              - en: Low
+                vi: Thấp
+              - en: Small setups and development
+                vi: Cấu hình nhỏ và phát triển
+            - - CeleryExecutor
+              - en: Tasks sent through a broker to long-lived workers
+                vi: Task gửi qua broker tới worker chạy lâu dài
+              - en: "Medium: shared worker environment"
+                vi: "Trung bình: môi trường worker dùng chung"
+              - en: Steady high task volume, fast start
+                vi: Số task cao ổn định, khởi động nhanh
+            - - KubernetesExecutor
+              - en: One pod per task
+                vi: Mỗi task một pod
+              - en: "High: per-task image and resources"
+                vi: "Cao: image và tài nguyên riêng mỗi task"
+              - en: Varied dependencies, bursty load
+                vi: Phụ thuộc đa dạng, tải bùng phát
+      - code:
+          lang: python
+          title: concurrency_controls.py
+          code: |-
+            import pendulum
+            from airflow.decorators import dag, task
+
+
+            @dag(
+                dag_id="warehouse_loads",
+                schedule="@hourly",
+                start_date=pendulum.datetime(2026, 1, 1, tz="UTC"),
+                catchup=False,
+                max_active_runs=1,    # one run at a time
+                max_active_tasks=8,   # tasks running in parallel within this DAG
+            )
+            def warehouse_loads():
+                @task(pool="warehouse_pool", retries=3, retry_delay=pendulum.duration(minutes=5))
+                def load_table(name: str) -> None:
+                    ...  # the pool caps how many of these hit the warehouse at once
+
+                for table in ["orders", "customers", "payments"]:
+                    load_table.override(task_id=f"load_{table}")(table)
+
+
+            warehouse_loads()
+    n:
+      en: "The scheduler loop: parse DAGs, create runs, evaluate task dependencies, queue tasks, check on running ones. Pools, parallelism and max_active settings are the dials that prevent overload. Executor behaviour and some settings differ in Airflow 3, so check the docs."
+      vi: "Vòng lặp scheduler: parse DAG, tạo run, đánh giá phụ thuộc task, đưa task vào hàng đợi, kiểm tra task đang chạy. Pool, parallelism và các cấu hình max_active là các núm chặn quá tải. Hành vi executor và một số cấu hình khác ở Airflow 3, hãy xem tài liệu."
+  - id: airflow-troubleshooting-symptoms-to-fixes
+    k: table
+    mod: [troubleshooting]
+    t:
+      en: "Airflow troubleshooting: symptoms to fixes"
+      vi: "Troubleshooting Airflow: từ triệu chứng đến cách sửa"
+    head:
+      - en: Symptom
+        vi: Triệu chứng
+      - en: Likely cause
+        vi: Nguyên nhân có thể
+      - en: Diagnose
+        vi: Chẩn đoán
+      - en: Fix
+        vi: Cách sửa
+    rows:
+      - - en: Tasks stuck in queued
+          vi: Task kẹt ở queued
+        - en: Pool full, worker slots exhausted, executor not picking up
+          vi: Pool đầy, hết slot worker, executor không nhận việc
+        - en: Pool usage; worker and executor logs
+          vi: Mức dùng pool; log worker và executor
+        - en: Raise pool or parallelism; add workers; fix the executor connection
+          vi: Tăng pool hoặc parallelism; thêm worker; sửa kết nối executor
+      - - en: DAG missing from the UI
+          vi: DAG không hiện trong UI
+        - en: Import error or slow parsing
+          vi: Lỗi import hoặc parse chậm
+        - en: Import errors page; DAG processor logs
+          vi: Trang import error; log DAG processor
+        - en: Fix the import; keep top-level code light
+          vi: Sửa import; giữ code cấp cao nhẹ
+      - - en: Scheduler lag or stalled runs
+          vi: Scheduler trễ hoặc run bị đứng
+        - en: Heavy parsing, slow metadata database
+          vi: Parse nặng, metadata database chậm
+        - en: Scheduler heartbeat; database CPU and locks
+          vi: Heartbeat scheduler; CPU và khóa của database
+        - en: Reduce DAG count and top-level work; tune and clean the database
+          vi: Giảm số DAG và việc cấp cao; tinh chỉnh và dọn database
+      - - en: Task marked failed with no logs (zombie)
+          vi: Task bị đánh dấu failed không có log (zombie)
+        - en: Worker died or lost heartbeat
+          vi: Worker chết hoặc mất heartbeat
+        - en: Worker and node logs; OOM kills
+          vi: Log worker và node; bị OOM kill
+        - en: Raise memory; use deferrable operators for long waits
+          vi: Tăng bộ nhớ; dùng deferrable operator cho các lần chờ dài
+      - - en: Backfill duplicates data
+          vi: Backfill làm trùng dữ liệu
+        - en: Tasks are not idempotent
+          vi: Task không idempotent
+        - en: Compare row counts per partition
+          vi: So sánh số dòng mỗi partition
+        - en: Key outputs by logical date; overwrite partitions or merge
+          vi: Khóa đầu ra theo logical date; ghi đè partition hoặc merge
+      - - en: Too many runs fired at once
+          vi: Quá nhiều run chạy cùng lúc
+        - en: "`catchup=True` on an old start date"
+          vi: "`catchup=True` với start date cũ"
+        - en: Run list and start date
+          vi: Danh sách run và start date
+        - en: Set `catchup=False`; backfill deliberately in bounded ranges
+          vi: Đặt `catchup=False`; backfill có chủ đích theo khoảng giới hạn
+    cap:
+      en: Read task logs first, then scheduler logs, then the metadata database.
+      vi: Đọc log task trước, rồi log scheduler, rồi metadata database.
+    n:
+      en: "Most incidents trace back to one of three things: non-idempotent tasks, resource limits (pools and workers), or heavy DAG files."
+      vi: "Phần lớn sự cố quy về một trong ba điều: task không idempotent, giới hạn tài nguyên (pool và worker), hoặc file DAG nặng."
+  - id: airflow-lab-a-resilient-backfillable-pipeline
+    k: lab
+    mod: [lab]
+    t:
+      en: "Airflow lab: a resilient, backfillable pipeline"
+      vi: "Lab Airflow: pipeline bền bỉ và backfill được"
+    lead:
+      en: Build a daily pipeline, break it on purpose, and recover without duplicates.
+      vi: Xây pipeline hằng ngày, cố tình làm hỏng nó và khôi phục mà không trùng dữ liệu.
+    scenario:
+      en: A daily extract-load-transform pipeline must survive failures, run 30 days of history safely, and not overload the warehouse.
+      vi: Pipeline extract-load-transform hằng ngày phải sống sót qua lỗi, chạy an toàn 30 ngày lịch sử và không làm quá tải warehouse.
+    input:
+      en: Airflow in Docker Compose. A fake API returning data per date and failing 20 percent of calls. DuckDB or Postgres as the warehouse.
+      vi: Airflow trong Docker Compose. Một API giả trả dữ liệu theo ngày và lỗi 20 phần trăm số lần gọi. DuckDB hoặc Postgres làm warehouse.
+    tasks:
+      - en: Write the DAG with retries, backoff, a row-count check and idempotent loads keyed by logical date.
+        vi: Viết DAG có retry, backoff, kiểm tra số dòng và load idempotent khóa theo logical date.
+      - en: Backfill 30 days with limited concurrency using a pool.
+        vi: Backfill 30 ngày với đồng thời giới hạn bằng pool.
+      - en: Kill a worker mid-run and rerun failed tasks.
+        vi: Tắt một worker giữa chừng và chạy lại task lỗi.
+      - en: Add an alert for a missed freshness target.
+        vi: Thêm cảnh báo khi trễ mục tiêu freshness.
+    expected:
+      en: 30 partitions loaded exactly once, matching row counts against the source, and an alert fired in a failure drill.
+      vi: 30 partition được nạp đúng một lần, số dòng khớp nguồn và một cảnh báo được kích hoạt trong bài diễn tập lỗi.
+    rubric:
+      - en: Reruns create no duplicates
+        vi: Chạy lại không tạo trùng
+      - en: Concurrency is bounded
+        vi: Đồng thời có giới hạn
+      - en: Failure handling is visible and tested
+        vi: Xử lý lỗi nhìn thấy được và đã test
+      - en: DAG file is light to parse
+        vi: File DAG nhẹ khi parse
+    design:
+      en: Choose an executor and sizing for 2,000 daily tasks with mixed Python dependencies, and justify the choice.
+      vi: Chọn executor và định cỡ cho 2.000 task mỗi ngày với phụ thuộc Python hỗn hợp, và biện minh lựa chọn.
+    n:
+      en: Check that learners actually compared row counts after the backfill instead of trusting green task states.
+      vi: Kiểm tra xem người học có thật sự so sánh số dòng sau backfill thay vì tin vào trạng thái xanh của task.
+  - id: airflow-lifecycle-from-file-to-finished-task
+    k: lifecycle
+    mod: [internals]
+    t:
+      en: "Airflow lifecycle: from file to finished task"
+      vi: "Vòng đời Airflow: từ file đến task hoàn tất"
+    lead:
+      en: Every step is recorded as state in the metadata database.
+      vi: Mọi bước đều được ghi thành trạng thái trong metadata database.
+    steps:
+      - - en: Parse the DAG file
+          vi: Parse file DAG
+        - en: The DAG processor parses and serializes the DAG.
+          vi: DAG processor parse và serialize DAG.
+        - airflow dags list-import-errors
+      - - en: Create a DAG run
+          vi: Tạo DAG run
+        - en: The scheduler creates a run for the schedule or event.
+          vi: Scheduler tạo run theo lịch hoặc sự kiện.
+        - DAG runs in the UI
+      - - en: Evaluate dependencies
+          vi: Đánh giá phụ thuộc
+        - en: Tasks whose upstream is complete become scheduled.
+          vi: Task có upstream đã xong chuyển sang scheduled.
+        - "task state: scheduled"
+      - - en: Queue to the executor
+          vi: Đưa vào hàng đợi executor
+        - en: Pool and concurrency limits decide when a task is queued.
+          vi: Giới hạn pool và đồng thời quyết định khi nào task được đưa vào hàng đợi.
+        - executor queued tasks, pool usage
+      - - en: Run on a worker
+          vi: Chạy trên worker
+        - en: A worker or pod runs the task code.
+          vi: Worker hoặc pod chạy code của task.
+        - task logs
+      - - en: Record and continue
+          vi: Ghi nhận và tiếp tục
+        - en: Success, retry or failure is stored and downstream is decided.
+          vi: Thành công, retry hoặc thất bại được lưu và quyết định task phía sau.
+        - "`airflow tasks states-for-dag-run`"
+    n:
+      en: Commands shown are Airflow 2.x CLI names; verify them for your version.
+      vi: Các lệnh là tên CLI của Airflow 2.x; hãy xác minh theo phiên bản của bạn.

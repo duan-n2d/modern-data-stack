@@ -1,0 +1,510 @@
+layer: 2
+slides:
+  - id: ingestion-and-elt-getting-data-in-reliably
+    k: cards
+    t:
+      en: "Ingestion and ELT: getting data in, reliably"
+      vi: "Nạp dữ liệu và ELT: đưa dữ liệu vào một cách đáng tin"
+    lead:
+      en: Everything downstream trusts what lands here. Raw data should be replayable, auditable and safe to load twice.
+      vi: Mọi thứ phía sau đều tin vào dữ liệu đổ vào đây. Dữ liệu thô phải replay được, kiểm toán được và an toàn khi nạp hai lần.
+    cols: 3
+    cards:
+      - h:
+          en: Batch versus streaming
+          vi: Batch và streaming
+        tag: must
+        p:
+          en: Batch is simple and cheap, with minutes to hours of latency. Streaming and CDC give seconds, with many more moving parts.
+          vi: Batch đơn giản và rẻ, với độ trễ từ vài phút đến vài giờ. Streaming và CDC cho độ trễ vài giây, nhưng nhiều thành phần chuyển động hơn hẳn.
+      - h:
+          en: Full versus incremental
+          vi: Full và incremental
+        tag: must
+        p:
+          en: Full reloads are safe for small tables. Incremental needs a trustworthy cursor or a change log.
+          vi: Full reload an toàn cho bảng nhỏ. Incremental cần một cursor đáng tin hoặc một change log.
+      - h: Schema drift
+        tag: must
+        p:
+          en: "Sources add, rename and retype columns without warning. Decide in advance: evolve, quarantine or fail."
+          vi: "Nguồn thêm, đổi tên và đổi kiểu cột mà không báo trước. Quyết định từ trước: evolve, quarantine hay fail."
+      - h:
+          en: Backfills
+          vi: Backfill
+        tag: must
+        p:
+          en: Reloading history after a bug or a new field must not create duplicates.
+          vi: Nạp lại lịch sử sau một bug hoặc một field mới không được tạo ra dữ liệu trùng lặp.
+      - h: Idempotency
+        tag: must
+        p:
+          en: Running a load twice gives the same result. This is what makes retries safe.
+          vi: Chạy một lần load hai lần cho cùng kết quả. Đây là điều giúp retry an toàn.
+      - h:
+          en: ELT, not ETL
+          vi: ELT, không phải ETL
+        tag: senior
+        p:
+          en: Land raw data first, transform in the warehouse. You can reprocess without re-extracting.
+          vi: Đưa dữ liệu thô vào trước, biến đổi trong warehouse. Bạn có thể xử lý lại mà không cần extract lại.
+    n:
+      en: Five concepts carry this whole layer. If the audience remembers only idempotency, they will already avoid most duplicate-data incidents.
+      vi: Năm khái niệm gánh cả layer này. Nếu khán giả chỉ nhớ idempotency, họ đã tránh được phần lớn sự cố dữ liệu trùng lặp.
+  - id: tool-landscape-elt-and-ingestion-platforms
+    k: table
+    t:
+      en: "Tool landscape: ELT and ingestion platforms"
+      vi: "Bức tranh công cụ: nền tảng ELT và ingestion"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - Fivetran
+        - en: Managed ELT
+          vi: ELT được quản lý (managed)
+        - en: Teams that want low-maintenance connectors
+          vi: Team muốn connector ít phải bảo trì
+        - en: Large connector catalog; automatic schema handling
+          vi: Catalog connector lớn; xử lý schema tự động
+        - en: Cost grows with volume; limited custom logic
+          vi: Chi phí tăng theo khối lượng; logic tùy biến hạn chế
+        - en: Usage-based (monthly active rows)
+          vi: Tính theo mức sử dụng (monthly active rows)
+      - - Airbyte
+        - en: Open-source and managed ELT
+          vi: ELT mã nguồn mở và managed
+        - en: Long-tail connectors; self-hosting; control
+          vi: Connector long-tail; tự host; quyền kiểm soát
+        - en: Open-source core; connector builder; broad catalog
+          vi: Core mã nguồn mở; connector builder; catalog rộng
+        - en: Connector quality varies; self-hosting needs operations
+          vi: Chất lượng connector không đồng đều; tự host cần vận hành
+        - en: Open source is free; cloud is usage-based (check current plans)
+          vi: Mã nguồn mở miễn phí; cloud tính theo mức sử dụng (xem gói hiện hành)
+      - - Stitch
+        - en: Managed ELT (Singer-based)
+          vi: ELT managed (dựa trên Singer)
+        - en: Small teams with common sources
+          vi: Team nhỏ với các nguồn phổ biến
+        - en: Simple setup; predictable tiers
+          vi: Thiết lập đơn giản; các tier dễ dự đoán
+        - en: Smaller feature set; less control
+          vi: Bộ tính năng nhỏ hơn; ít kiểm soát hơn
+        - en: Row-volume tiers
+          vi: Tier theo số dòng
+      - - Hevo
+        - en: Managed data pipelines
+          vi: Data pipeline managed
+        - en: Mid-size teams wanting a UI-driven managed service
+          vi: Team cỡ vừa muốn dịch vụ managed điều khiển qua UI
+        - en: Easy setup; light in-flight transforms
+          vi: Thiết lập dễ; transform nhẹ trong luồng
+        - en: Smaller community; fewer custom hooks
+          vi: Cộng đồng nhỏ hơn; ít custom hook hơn
+        - en: Event-volume plans
+          vi: Gói theo số event
+      - - dlt
+        - en: Python library (open source)
+          vi: Thư viện Python (mã nguồn mở)
+        - en: Custom APIs and code-first teams
+          vi: API tùy biến và team ưu tiên code
+        - en: Schema inference and evolution; runs anywhere Python runs
+          vi: Schema inference và evolution; chạy ở bất cứ đâu Python chạy được
+        - en: You own scheduling, monitoring and operations
+          vi: Bạn tự lo scheduling, monitoring và vận hành
+        - en: Open source
+          vi: Mã nguồn mở
+      - - Meltano / Singer
+        - en: Open-source framework / spec
+          vi: Framework / spec mã nguồn mở
+        - en: Teams standardizing on Singer taps and targets
+          vi: Team chuẩn hóa trên Singer tap và target
+        - en: Composable; config in version control
+          vi: Có thể ghép nối; config nằm trong version control
+        - en: Tap quality is uneven; operational overhead
+          vi: Chất lượng tap không đồng đều; overhead vận hành
+        - en: Open source
+          vi: Mã nguồn mở
+    cap:
+      en: Choosing between them is mostly a buy-versus-build question; see section 14.
+      vi: Chọn giữa chúng chủ yếu là câu hỏi mua hay tự xây; xem mục 14.
+    n:
+      en: "Group the tools: Fivetran, Stitch and Hevo are managed; Airbyte is both; dlt and Meltano are code-first. The decision is about who operates the connectors and how the cost scales."
+      vi: "Nhóm các công cụ: Fivetran, Stitch và Hevo là managed; Airbyte là cả hai; dlt và Meltano ưu tiên code. Quyết định xoay quanh ai vận hành connector và chi phí tăng thế nào."
+  - id: tool-landscape-streaming-and-change-data-capture
+    k: table
+    t:
+      en: "Tool landscape: streaming and change data capture"
+      vi: "Bức tranh công cụ: streaming và change data capture"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - Apache Kafka
+        - en: Distributed event log
+          vi: Event log phân tán
+        - en: Durable, high-throughput event backbone
+          vi: Xương sống event bền vững, throughput cao
+        - en: Replayable log; large ecosystem (Connect, Streams)
+          vi: Log có thể replay; hệ sinh thái lớn (Connect, Streams)
+        - en: Operationally heavy when self-managed; partition design matters
+          vi: Vận hành nặng khi tự quản lý; thiết kế partition rất quan trọng
+        - en: Open source; managed offerings are usage or capacity based
+          vi: Mã nguồn mở; dịch vụ managed tính theo mức sử dụng hoặc dung lượng
+      - - Debezium
+        - en: Open-source CDC connectors
+          vi: Connector CDC mã nguồn mở
+        - en: Streaming row-level changes from database logs
+          vi: Streaming các thay đổi mức dòng từ log của database
+        - en: Captures deletes; reads the log, so low load on the source
+          vi: Bắt được delete; đọc log nên tải lên nguồn thấp
+        - en: Needs Kafka Connect or Debezium Server; snapshots and schema changes need care
+          vi: Cần Kafka Connect hoặc Debezium Server; snapshot và thay đổi schema cần cẩn trọng
+        - en: Open source
+          vi: Mã nguồn mở
+      - - Redpanda
+        - en: Kafka-API-compatible platform
+          vi: Nền tảng tương thích Kafka API
+        - en: Kafka protocol with simpler operations
+          vi: Giao thức Kafka với vận hành đơn giản hơn
+        - en: Single binary; Kafka client compatibility
+          vi: Một binary duy nhất; tương thích Kafka client
+        - en: Smaller ecosystem; core is source-available, not fully open source
+          vi: Hệ sinh thái nhỏ hơn; core là source-available, không phải mã nguồn mở hoàn toàn
+        - en: Source-available plus managed cloud
+          vi: Source-available cộng với cloud managed
+      - - Amazon Kinesis
+        - en: AWS managed stream
+          vi: Stream managed của AWS
+        - en: AWS-native pipelines (Lambda, Firehose)
+          vi: Pipeline native trên AWS (Lambda, Firehose)
+        - en: Fully managed; scales with shards or on-demand
+          vi: Fully managed; scale theo shard hoặc on-demand
+        - en: AWS lock-in; limits differ from Kafka
+          vi: Lock-in AWS; giới hạn khác với Kafka
+        - en: Per shard-hour or per throughput
+          vi: Theo shard-hour hoặc theo throughput
+      - - Google Pub/Sub
+        - en: GCP managed messaging
+          vi: Messaging managed của GCP
+        - en: GCP-native ingestion into BigQuery and Dataflow
+          vi: Ingestion native GCP vào BigQuery và Dataflow
+        - en: Serverless; simple to operate
+          vi: Serverless; vận hành đơn giản
+        - en: Semantics differ from a Kafka log; GCP lock-in
+          vi: Ngữ nghĩa khác với Kafka log; lock-in GCP
+        - en: Per data volume
+          vi: Theo khối lượng dữ liệu
+    cap:
+      en: Most analytics teams need CDC for a few operational databases, not a company-wide streaming platform.
+      vi: Hầu hết team analytics cần CDC cho vài database vận hành, chứ không cần một nền tảng streaming toàn công ty.
+    n:
+      en: "Be clear that these are different categories: Kafka, Redpanda, Kinesis and Pub/Sub transport events; Debezium produces change events from databases. A common design is Debezium into Kafka into the warehouse."
+      vi: "Nói rõ đây là các nhóm khác nhau: Kafka, Redpanda, Kinesis và Pub/Sub vận chuyển event; Debezium tạo ra change event từ database. Một thiết kế phổ biến là Debezium vào Kafka rồi vào warehouse."
+  - id: deep-dive-incremental-idempotent-loading
+    k: code
+    t:
+      en: "Deep dive: incremental, idempotent loading"
+      vi: "Đào sâu: nạp incremental và idempotent"
+    lead:
+      en: A cursor plus a primary key gives you incremental loads that are safe to retry.
+      vi: Cursor cộng primary key cho bạn các incremental load an toàn khi retry.
+    blocks:
+      - lang: python
+        title: shop_orders.py (dlt)
+        code: |-
+          import dlt
+          from dlt.sources.helpers import requests
+
+
+          @dlt.resource(name="orders", primary_key="id", write_disposition="merge")
+          def orders(
+              updated_at=dlt.sources.incremental(
+                  "updated_at", initial_value="2026-01-01T00:00:00Z"
+              ),
+          ):
+              page = 1
+              while True:
+                  resp = requests.get(
+                      "https://api.example.com/v1/orders",
+                      params={
+                          "updated_since": updated_at.last_value,
+                          "page": page,
+                          "per_page": 500,
+                      },
+                      timeout=30,
+                  )
+                  resp.raise_for_status()
+                  rows = resp.json()["data"]
+                  if not rows:
+                      break
+                  yield rows
+                  page += 1
+
+
+          pipeline = dlt.pipeline(
+              pipeline_name="shop",
+              destination="snowflake",
+              dataset_name="raw_shop",
+          )
+
+          if __name__ == "__main__":
+              print(pipeline.run(orders()))
+      - lang: sql
+        title: merge_orders.sql (batch-to-raw upsert)
+        code: |-
+          merge into raw.orders as t
+          using (
+              select *
+              from landing.orders_batch
+              qualify row_number() over (partition by id order by updated_at desc) = 1
+          ) as s
+          on t.id = s.id
+          when matched and s.updated_at > t.updated_at then update set
+              status = s.status, amount = s.amount, updated_at = s.updated_at
+          when not matched then insert (id, status, amount, updated_at)
+              values (s.id, s.status, s.amount, s.updated_at);
+    points:
+      - h:
+          en: Cursor plus key
+          vi: Cursor cộng key
+        p:
+          en: The cursor limits what you read; the key lets the write replace instead of duplicate.
+          vi: Cursor giới hạn phần bạn đọc; key cho phép thao tác ghi thay thế thay vì tạo trùng lặp.
+      - h:
+          en: Overlap the window
+          vi: Chồng lấn cửa sổ
+        p:
+          en: Re-read a little history (for example the last hour) and dedupe. It tolerates late-arriving updates.
+          vi: Đọc lại một chút lịch sử (ví dụ giờ vừa qua) và dedupe. Cách này chịu được các cập nhật đến muộn.
+      - h:
+          en: Deletes are invisible
+          vi: Delete không nhìn thấy được
+        p:
+          en: Cursor loads cannot see hard deletes. Use CDC, soft-delete flags or a periodic key comparison.
+          vi: Cursor load không thấy được hard delete. Dùng CDC, cờ soft-delete hoặc so sánh key định kỳ.
+      - h:
+          en: Never edit raw by hand
+          vi: Không bao giờ sửa raw bằng tay
+        tag: senior
+        p:
+          en: Fix problems in transformation, or re-load from the source. Raw stays an audit trail.
+          vi: Sửa vấn đề ở bước biến đổi, hoặc load lại từ nguồn. Raw giữ vai trò audit trail.
+    n:
+      en: "The dlt resource declares a primary key and merge disposition, so re-running the pipeline updates rows rather than duplicating them. The SQL on the right is the same idea expressed manually. The senior point is about deletes: any design that ignores them drifts from the source."
+      vi: "Resource dlt khai báo primary key và merge disposition, nên chạy lại pipeline sẽ cập nhật các dòng thay vì tạo trùng. SQL bên phải là cùng ý tưởng được viết thủ công. Điểm senior nằm ở delete: mọi thiết kế bỏ qua chúng sẽ lệch dần khỏi nguồn."
+  - id: design-patterns-and-best-practices
+    k: cards
+    t:
+      en: Design patterns and best practices
+      vi: Mẫu thiết kế và thực hành tốt
+    cols: 3
+    cards:
+      - h:
+          en: Land raw, transform later
+          vi: Đưa raw vào trước, biến đổi sau
+        p:
+          en: Keep an untouched copy so you can reprocess without calling the source again.
+          vi: Giữ một bản sao nguyên vẹn để có thể xử lý lại mà không gọi lại nguồn.
+      - h:
+          en: Incremental by default
+          vi: Mặc định là incremental
+        p:
+          en: Support a full refresh and ranged backfills as explicit, parameterized operations.
+          vi: Hỗ trợ full refresh và backfill theo khoảng như các thao tác tường minh, có tham số.
+      - h:
+          en: Idempotent writes
+          vi: Ghi idempotent
+        p:
+          en: Merge by key or replace a partition, so retries and reruns are harmless.
+          vi: Merge theo key hoặc thay thế một partition, để retry và chạy lại đều vô hại.
+      - h:
+          en: Schema-drift policy
+          vi: Chính sách schema-drift
+        p:
+          en: Evolve additive changes, alert on type changes and removals, quarantine breaking batches.
+          vi: Evolve các thay đổi additive, cảnh báo khi đổi kiểu và xóa cột, quarantine các batch gây vỡ.
+      - h:
+          en: Load metadata
+          vi: Metadata của load
+        p:
+          en: Add `_loaded_at`, `_batch_id` and source name. They make audits and dedupes possible.
+          vi: Thêm `_loaded_at`, `_batch_id` và tên nguồn. Chúng giúp audit và dedupe khả thi.
+      - h:
+          en: Log-based CDC for databases
+          vi: CDC dựa trên log cho database
+        p:
+          en: Captures deletes with low source impact. Plan for the initial snapshot and ordering.
+          vi: Bắt được delete với tác động lên nguồn thấp. Lên kế hoạch cho snapshot ban đầu và thứ tự.
+    n:
+      en: "Each pattern removes one failure class: reprocessing, duplicate loads, silent drift, untraceable rows. CDC is the one with real operational cost, so reserve it for sources that need it."
+      vi: "Mỗi pattern loại bỏ một lớp lỗi: xử lý lại, load trùng, drift âm thầm, dòng không truy vết được. CDC là cái có chi phí vận hành thực sự, nên chỉ dành cho các nguồn cần đến."
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Cursor on `created_at` only.
+          vi: Cursor chỉ trên `created_at`.
+        why:
+          en: Misses updates to existing rows.
+          vi: Bỏ sót các cập nhật của dòng đã có.
+        fix:
+          en: Use `updated_at` with an overlap window, or use CDC.
+          vi: Dùng `updated_at` với cửa sổ chồng lấn, hoặc dùng CDC.
+      - bad:
+          en: Trusting local-time source timestamps.
+          vi: Tin vào timestamp giờ local của nguồn.
+        why:
+          en: Causes silent gaps and duplicates around time changes.
+          vi: Gây thiếu và trùng dữ liệu âm thầm quanh thời điểm đổi giờ.
+        fix:
+          en: Store UTC and record the source time zone.
+          vi: Lưu UTC và ghi lại time zone của nguồn.
+      - bad:
+          en: Full-refreshing huge tables nightly.
+          vi: Full refresh các bảng khổng lồ mỗi đêm.
+        why:
+          en: High cost and long load windows.
+          vi: Chi phí cao và cửa sổ load dài.
+        fix:
+          en: Load incrementally and reconcile periodically.
+          vi: Load incremental và đối soát định kỳ.
+      - bad:
+          en: Pipelines that cannot backfill.
+          vi: Pipeline không thể backfill.
+        why:
+          en: Every bug becomes a manual repair.
+          vi: Mỗi bug trở thành một lần sửa thủ công.
+        fix:
+          en: Parameterize by date range with idempotent writes.
+          vi: Tham số hóa theo khoảng ngày với ghi idempotent.
+      - bad:
+          en: Ignoring deletes.
+          vi: Bỏ qua delete.
+        why:
+          en: The warehouse slowly diverges from the source.
+          vi: Warehouse dần lệch khỏi nguồn.
+        fix:
+          en: CDC, soft deletes or a periodic key diff.
+          vi: CDC, soft delete hoặc key diff định kỳ.
+      - bad:
+          en: Alerting only on failure.
+          vi: Chỉ cảnh báo khi thất bại.
+        why:
+          en: An empty “successful” load looks healthy.
+          vi: Một lần load “thành công” nhưng rỗng trông vẫn khỏe mạnh.
+        fix:
+          en: Add freshness and row-count anomaly checks.
+          vi: Thêm kiểm tra freshness và bất thường về số dòng.
+    n:
+      en: "The last row connects to section 8: green pipelines can still deliver wrong data. Silence is a failure mode."
+      vi: "Dòng cuối nối với mục 8: pipeline xanh vẫn có thể giao dữ liệu sai. Im lặng cũng là một failure mode."
+  - id: what-senior-looks-like-ingestion
+    k: cards
+    t:
+      en: "What senior looks like: ingestion"
+      vi: "Senior trông như thế nào: nạp dữ liệu"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: Buy a connector or build one
+            vi: Mua connector hay tự xây
+          - en: Batch or streaming, justified by business value
+            vi: Batch hay streaming, được biện minh bằng giá trị kinh doanh
+          - en: CDC or API polling per source
+            vi: CDC hay API polling theo từng nguồn
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Managed convenience versus usage-based cost growth
+            vi: Tiện lợi của managed so với chi phí tăng theo mức sử dụng
+          - en: Low latency versus complexity
+            vi: Độ trễ thấp so với độ phức tạp
+          - en: Auto schema evolution versus stable contracts
+            vi: Auto schema evolution so với contract ổn định
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Set and monitor freshness SLAs
+            vi: Đặt và giám sát freshness SLA
+          - en: Own ingestion cost
+            vi: Chịu trách nhiệm chi phí ingestion
+          - en: Write replay and backfill runbooks
+            vi: Viết runbook cho replay và backfill
+          - en: Agree source-change expectations with application teams
+            vi: Thống nhất kỳ vọng về thay đổi nguồn với các team application
+    n:
+      en: The key senior question is “what latency does the business actually pay for?” Most “real-time” requests dissolve when the cost is explained.
+      vi: Câu hỏi senior then chốt là “doanh nghiệp thực sự trả tiền cho độ trễ nào?” Hầu hết yêu cầu “real-time” tan biến khi chi phí được giải thích.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: Every load is idempotent
+          vi: Mọi load đều idempotent
+        - en: I can backfill a date range without duplicates
+          vi: Tôi backfill được một khoảng ngày mà không trùng lặp
+        - en: I have a written policy for schema drift
+          vi: Tôi có chính sách bằng văn bản cho schema drift
+        - en: Deletes are handled, not ignored
+          vi: Delete được xử lý, không bị bỏ qua
+        - en: Raw data is append-only or merge-by-key
+          vi: Dữ liệu raw là append-only hoặc merge-by-key
+        - en: Freshness is monitored, not just job success
+          vi: Freshness được giám sát, không chỉ trạng thái job thành công
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Design ingestion for a table with hard deletes and no `updated_at`.
+          vi: Thiết kế ingestion cho một bảng có hard delete và không có `updated_at`.
+        - en: How do you make a load idempotent?
+          vi: Bạn làm một load idempotent bằng cách nào?
+        - en: When is streaming not worth it?
+          vi: Khi nào streaming không đúng?
+        - en: A source adds a column and changes another’s type. What happens in your stack?
+          vi: Một nguồn thêm một cột và đổi kiểu của cột khác. Chuyện gì xảy ra trong stack của bạn?
+        - en: How would you backfill 90 days without double counting?
+          vi: Bạn sẽ backfill 90 ngày mà không đếm trùng như thế nào?
+    n:
+      en: Good answers to the first question mention log-based CDC or periodic key comparison, and name the trade-off of each.
+      vi: Câu trả lời tốt cho câu hỏi đầu tiên nhắc đến CDC dựa trên log hoặc so sánh key định kỳ, và nêu trade-off của từng cách.

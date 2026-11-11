@@ -1,0 +1,330 @@
+layer: 20
+slides:
+  - id: engineering-foundations-what-every-tool-sits-on
+    k: cards
+    t:
+      en: "Engineering foundations: what every tool sits on"
+      vi: "Nền tảng kỹ thuật: thứ mà mọi công cụ đứng trên"
+    lead:
+      en: "Kafka, Spark and Airflow all fail in the same few places: the network, the operating system, the release process and the database transaction. If you cannot diagnose those, you cannot diagnose the tools."
+      vi: "Kafka, Spark và Airflow đều hỏng ở cùng vài chỗ: mạng, hệ điều hành, quy trình phát hành và transaction của database. Nếu không chẩn đoán được những thứ đã thì không chẩn đoán được công cụ."
+    cols: 3
+    cards:
+      - h:
+          en: Networking
+          vi: Mạng
+        tag: must
+        p:
+          en: DNS, TCP, TLS, HTTP, proxies, load balancers and connection pooling. Most “the job hangs” incidents are network incidents.
+          vi: DNS, TCP, TLS, HTTP, proxy, load balancer và connection pooling. Phần lớn sự cố “job bị treo” là sự cố mạng.
+      - h:
+          en: Linux and the OS
+          vi: Linux và hệ điều hành
+        tag: must
+        p:
+          en: Processes, threads, memory, file descriptors, disk I/O and signals explain OOM kills, “too many open files” and slow disks.
+          vi: Process, thread, bộ nhớ, file descriptor, I/O đĩa và signal giải thích OOM kill, “too many open files” và đĩa chậm.
+      - h:
+          en: Git and CI/CD
+          vi: Git và CI/CD
+        tag: must
+        p:
+          en: Branching, review, test strategy, release management and rollback turn changes into safe, reversible events.
+          vi: Branching, review, chiến lược test, quản lý phát hành và rollback biến thay đổi thành sự kiện an toàn, hoàn tác được.
+      - h:
+          en: Transactions and isolation
+          vi: Transaction và isolation
+        tag: must
+        p:
+          en: What concurrent readers and writers see. Explains lost updates, duplicate keys and inconsistent reports.
+          vi: Reader và writer đồng thời thấy gì. Giải thích lost update, trùng khóa và báo cáo không nhất quán.
+      - h:
+          en: Indexing and plans
+          vi: Index và plan
+        tag: senior
+        p:
+          en: How a database finds rows, and how to read an execution plan to know why it was slow.
+          vi: Database tìm dòng thế nào, và cách đọc execution plan để biết vì sao nó chậm.
+      - h:
+          en: Observe, then fix
+          vi: Quan sát rồi mới sửa
+        tag: senior
+        p:
+          en: For each concept learn what happens inside, why, how to observe it and how to fix it.
+          vi: Với mỗi khái niệm, học điều gì xảy ra bên trong, vì sao, cách quan sát và cách sửa.
+    n:
+      en: This layer is deliberately tool-free. Each slide pairs a concept with the command that makes it visible.
+      vi: Layer này cố ý không gắn với công cụ. Mỗi slide ghép một khái niệm với lệnh làm nó hiện ra.
+  - id: networking-you-must-be-able-to-diagnose
+    k: table
+    t:
+      en: Networking you must be able to diagnose
+      vi: Mạng bạn phải chẩn đoán được
+    head:
+      - en: Concept
+        vi: Khái niệm
+      - en: What goes wrong in a data platform
+        vi: Chuyện gì sai trong data platform
+      - en: Observe
+        vi: Quan sát
+      - en: Typical fix
+        vi: Cách sửa điển hình
+    rows:
+      - - DNS
+        - en: Name resolves to a public IP instead of a private endpoint, or a stale cached record
+          vi: Tên phân giải ra IP công khai thay vì private endpoint, hoặc bản ghi cache cũ
+        - "`dig host`, `nslookup host`"
+        - en: Fix the private DNS zone and TTLs; clear caches
+          vi: Sửa private DNS zone và TTL; xóa cache
+      - - TCP
+        - en: Connection timeouts, resets, or exhausted ports
+          vi: Timeout kết nối, bị reset, hoặc cạn port
+        - "`nc -zv host 5432`, `ss -tan`"
+        - en: Check security groups and routes; tune keepalive and timeouts
+          vi: Kiểm tra security group và route; chỉnh keepalive và timeout
+      - - TLS
+        - en: Certificate expired, wrong hostname, missing CA, handshake failures
+          vi: Chứng chỉ hết hạn, sai hostname, thiếu CA, lỗi handshake
+        - "`openssl s_client -connect host:443 -servername host`"
+        - en: Renew or fix the chain; trust the right CA
+          vi: Gia hạn hoặc sửa chuỗi; tin đúng CA
+      - - HTTP
+        - en: 429 rate limits, 5xx, slow responses, redirects
+          vi: Giới hạn 429, 5xx, phản hồi chậm, redirect
+        - "`curl -v https://api.example.com/health`"
+        - en: Backoff with jitter, pagination, timeouts
+          vi: Backoff có jitter, phân trang, timeout
+      - - en: Proxy and firewall
+          vi: Proxy và firewall
+        - en: Egress blocked; only some hosts reachable
+          vi: Egress bị chặn; chỉ vài host truy cập được
+        - "`traceroute host`, `curl -v --proxy`"
+        - en: Allow-list required endpoints; configure proxy variables
+          vi: Cho phép các endpoint cần thiết; cấu hình biến proxy
+      - - en: Load balancing and pooling
+          vi: Load balancing và pooling
+        - en: Idle connections dropped by the balancer; “too many connections” on the database
+          vi: Kết nối rảnh bị load balancer cắt; “too many connections” trên database
+        - en: Database connection count; balancer idle timeout
+          vi: Số kết nối database; idle timeout của load balancer
+        - en: Connection pooler, keepalives shorter than the idle timeout
+          vi: Connection pooler, keepalive ngắn hơn idle timeout
+    cap:
+      en: "When something “hangs”, test layer by layer: name, route, port, TLS, then the application protocol."
+      vi: "Khi thứ gì đã “treo”, hãy kiểm tra từng tầng: tên, đường đi, cổng, TLS, rồi giao thức ứng dụng."
+    n:
+      en: "Teach the layered method: DNS, then TCP, then TLS, then HTTP. It localizes most problems in minutes."
+      vi: "Dạy phương pháp theo tầng: DNS, rồi TCP, rồi TLS, rồi HTTP. Nó khoanh vùng hầu hết vấn đề trong vài phút."
+  - id: linux-and-os-resources-behind-data-tool-failures
+    k: table
+    t:
+      en: Linux and OS resources behind data-tool failures
+      vi: Tài nguyên Linux và OS đứng sau lỗi công cụ dữ liệu
+    head:
+      - en: Resource
+        vi: Tài nguyên
+      - en: Failure you see
+        vi: Lỗi bạn thấy
+      - en: Observe
+        vi: Quan sát
+      - en: Fix
+        vi: Cách sửa
+    rows:
+      - - en: Memory
+          vi: Bộ nhớ
+        - en: Process killed with no error; container OOMKilled
+          vi: Process bị giết không có lỗi; container OOMKilled
+        - "`free -m`, `dmesg | grep -i oom`"
+        - en: Right-size memory; reduce data per task; fix leaks
+          vi: Chọn lại cỡ bộ nhớ; giảm dữ liệu mỗi task; sửa rò rỉ
+      - - CPU
+        - en: High load, throttling in containers
+          vi: Tải cao, bị throttle trong container
+        - "`top`, `pidstat 1`"
+        - en: Profile; raise limits; scale out
+          vi: Profile; tăng giới hạn; mở rộng ngang
+      - - en: Disk I/O
+          vi: I/O đĩa
+        - en: Slow writes, high iowait, spill slowness
+          vi: Ghi chậm, iowait cao, spill chậm
+        - "`iostat -x 1`"
+        - en: Faster volumes; fewer small writes; separate spill disks
+          vi: Volume nhanh hơn; ít ghi nhỏ hơn; đĩa spill riêng
+      - - en: Disk space and inodes
+          vi: Dung lượng đĩa và inode
+        - en: “No space left on device” while df shows free space
+          vi: “No space left on device” dù df báo còn chỗ
+        - "`df -h`, `df -i`"
+        - en: Clean temp and logs; fix retention; lower file counts
+          vi: Dọn tạm và log; sửa retention; giảm số file
+      - - en: File descriptors
+          vi: File descriptor
+        - “Too many open files”
+        - "`ulimit -n`, `lsof -p <pid> | wc -l`"
+        - en: Raise limits; close handles; reduce connections
+          vi: Tăng giới hạn; đúng handle; giảm kết nối
+      - - en: Signals and shutdown
+          vi: Signal và tắt máy
+        - en: Jobs lose work when a container stops
+          vi: Job mất việc khi container dừng
+        - "`docker stop`, `kill -TERM`"
+        - en: "Handle SIGTERM: finish or checkpoint, then exit"
+          vi: "Xử lý SIGTERM: hoàn tất hoặc checkpoint rồi thoát"
+    cap:
+      en: "`strace -p <pid>` and `/proc/<pid>/` show what a stuck process is actually doing."
+      vi: "`strace -p <pid>` và `/proc/<pid>/` cho thấy process bị kẹt đang thật sự làm gì."
+    n:
+      en: "Connect each row to a tool: Spark executors die from memory, Kafka brokers from disk and file descriptors, Airflow workers from SIGTERM handling."
+      vi: "Nối mỗi hàng với một công cụ: executor Spark chết vì bộ nhớ, broker Kafka vì đĩa và file descriptor, worker Airflow vì xử lý SIGTERM."
+  - id: git-and-ci-cd-safe-changes-and-fast-rollback
+    k: code
+    t:
+      en: "Git and CI/CD: safe changes and fast rollback"
+      vi: "Git và CI/CD: thay đổi an toàn và rollback nhanh"
+    lead:
+      en: Every production change should be small, reviewed, tested and reversible.
+      vi: Mọi thay đổi production nên nhỏ, được review, được test và hoàn tác được.
+    blocks:
+      - lang: bash
+        title: rollback_and_bisect.sh
+        code: |-
+          # Undo a merged pull request with a new commit (history stays intact)
+          git revert -m 1 <merge_commit_sha>
+
+          # Find the commit that introduced a bug
+          git bisect start
+          git bisect bad HEAD
+          git bisect good v2026.10.1
+          # run your test at each step, then mark: git bisect good | git bisect bad
+          git bisect reset
+
+          # Tag a release so a deploy is reproducible
+          git tag -a v2026.11.0 -m "Release 2026.11.0"
+          git push origin v2026.11.0
+    points:
+      - h:
+          en: Trunk-based, small PRs
+          vi: Trunk-based, PR nhỏ
+        p:
+          en: Merge small changes often behind tests. Long-lived branches turn into risky releases.
+          vi: Merge thay đổi nhỏ thường xuyên sau các test. Nhánh sống lâu biến thành bản phát hành rủi ro.
+      - h:
+          en: Test pyramid
+          vi: Kim tự tháp test
+        tag: senior
+        p:
+          en: Many fast unit tests, fewer integration tests, a few end-to-end checks, plus data tests in the pipeline.
+          vi: Nhiều unit test nhanh, ít integration test hơn, vài kiểm tra end-to-end, cộng test dữ liệu trong pipeline.
+      - h:
+          en: Release management
+          vi: Quản lý phát hành
+        p:
+          en: Tag releases, keep a changelog, and promote the same artifact from staging to production.
+          vi: Gắn tag phát hành, giữ changelog và đưa cùng một artifact từ staging lên production.
+      - h:
+          en: Rollback options
+          vi: Các cách rollback
+        tag: senior
+        p:
+          en: "Code: `git revert`. Data: time travel, snapshots or a schema swap. Behaviour: feature flags. Know which one applies before you deploy."
+          vi: "Code: `git revert`. Dữ liệu: time travel, snapshot hoặc hoán đổi schema. Hành vi: feature flag. Biết cái nào áp dụng trước khi deploy."
+    n:
+      en: Rolling back code does not roll back data. Pair every deployment that changes data with a data-level rollback plan.
+      vi: Rollback code không rollback dữ liệu. Với mỗi lần deploy làm đổi dữ liệu, hãy kèm kế hoạch rollback ở mức dữ liệu.
+  - id: transactions-isolation-levels-and-indexes
+    k: stack
+    t:
+      en: Transactions, isolation levels and indexes
+      vi: Transaction, isolation level và index
+    lead:
+      en: Isolation decides what concurrent work can see. Indexes decide how fast a row is found.
+      vi: Isolation quyết định công việc đồng thời thấy gì. Index quyết định tìm một dòng nhanh đến đâu.
+    parts:
+      - table:
+          head:
+            - en: Isolation level
+              vi: Mức isolation
+            - en: Prevents
+              vi: Ngăn chặn
+            - en: Still allows
+              vi: Vẫn cho phép
+            - en: Notes
+              vi: Ghi chú
+          rows:
+            - - READ COMMITTED
+              - en: Dirty reads
+                vi: Dirty read
+              - en: Non-repeatable reads, phantoms, lost updates
+                vi: Non-repeatable read, phantom, lost update
+              - en: Common default in PostgreSQL
+                vi: Mặc định phổ biến trong PostgreSQL
+            - - REPEATABLE READ / SNAPSHOT
+              - en: Dirty and non-repeatable reads; usually phantoms
+                vi: Dirty read và non-repeatable read; thường cả phantom
+              - en: Write skew in some systems
+                vi: Write skew ở một số hệ thống
+              - en: Each transaction sees a consistent snapshot
+                vi: Mỗi transaction thấy một snapshot nhất quán
+            - - SERIALIZABLE
+              - en: All of the above anomalies
+                vi: Mọi bất thường trên
+              - en: Transactions may abort and need retry
+                vi: Transaction có thể bị hủy và cần retry
+              - en: Strongest and costliest
+                vi: Mạnh nhất và tốn nhất
+      - note:
+          en: Warehouses usually offer snapshot-style isolation inside the service; check your platform’s documentation for exact guarantees.
+          vi: Warehouse thường cung cấp isolation kiểu snapshot trong dịch vụ; hãy xem tài liệu nền tảng của bạn để biết bảo đảm chính xác.
+      - code:
+          lang: sql
+          title: transactions_and_indexes.sql (PostgreSQL)
+          code: |-
+            -- Prevent a lost update by locking the row you will change
+            BEGIN;
+            SELECT balance FROM accounts WHERE id = 1 FOR UPDATE;
+            UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+            COMMIT;
+
+            -- Add an index without blocking writes, then confirm the plan uses it
+            CREATE INDEX CONCURRENTLY idx_orders_customer ON orders (customer_id);
+            EXPLAIN (ANALYZE, BUFFERS)
+            SELECT * FROM orders WHERE customer_id = 42;
+    n:
+      en: "Tie this to data work: concurrent loads into the same table, a report running during a load, and CDC consumers all depend on these rules. Indexes help point lookups; analytical engines rely on partition pruning and column statistics instead."
+      vi: "Gắn với công việc dữ liệu: các lần load đồng thời vào cùng một bảng, báo cáo chạy trong lúc load và consumer CDC đều phụ thuộc các quy tắc này. Index giúp tra cứu điểm; engine phân tích dựa vào partition pruning và thống kê cột."
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: I can localize a network problem by layer
+          vi: Tôi khoanh vùng được sự cố mạng theo tầng
+        - en: I can find why a process was killed
+          vi: Tôi tìm được lý do một process bị giết
+        - en: I can roll back code and data separately
+          vi: Tôi rollback được code và dữ liệu một cách riêng biệt
+        - en: I can name the anomalies each isolation level allows
+          vi: Tôi nêu được các bất thường mà mỗi isolation level cho phép
+        - en: I can read an execution plan and justify an index
+          vi: Tôi đọc được execution plan và biện minh cho một index
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: A job connects fine from your laptop but times out in production. What do you check, in order?
+          vi: Job kết nối tốt từ laptop nhưng timeout ở production. Bạn kiểm tra gì, theo thứ tự?
+        - en: A container disappears with no error in its logs. What happened?
+          vi: Một container biến mất mà log không có lỗi. Chuyện gì đã xảy ra?
+        - en: How do you roll back a deployment that already changed a warehouse table?
+          vi: Bạn rollback thế nào một lần deploy đã làm đổi bảng warehouse?
+        - en: Two jobs update the same row at once. What can go wrong and how do you prevent it?
+          vi: Hai job cập nhật cùng một dòng cùng lúc. Có thể sai gì và ngăn thế nào?
+    n:
+      en: Strong answers name the observation tool before proposing a fix.
+      vi: Câu trả lời tốt nêu công cụ quan sát trước khi đề xuất cách sửa.

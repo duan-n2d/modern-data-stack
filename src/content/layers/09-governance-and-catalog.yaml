@@ -1,0 +1,538 @@
+layer: 9
+slides:
+  - id: governance-and-catalog-who-can-use-what-and-what-it
+    k: cards
+    t:
+      en: "Governance and catalog: who can use what, and what it means"
+      vi: "Quản trị và catalog: ai dùng được gì, và nó nghĩa là gì"
+    lead:
+      en: Governance is not paperwork. It is making data findable, understandable, safe and accountable, with as little friction as possible.
+      vi: Quản trị không phải giấy tờ. Đã là làm cho dữ liệu dễ tìm, dễ hiểu, an toàn và có người chịu trách nhiệm, với ít ma sát nhất.
+    cols: 3
+    cards:
+      - h:
+          en: Catalog and discovery
+          vi: Catalog và discovery
+        tag: must
+        p:
+          en: A searchable inventory of datasets, owners, descriptions and usage.
+          vi: Kho kiểm kê có thể tìm kiếm gồm dataset, owner, mô tả và mức sử dụng.
+      - h: Lineage
+        tag: must
+        p:
+          en: Where data came from and what depends on it. Essential for impact analysis and debugging.
+          vi: Dữ liệu đến từ đâu và cái gì phụ thuộc vào nó. Thiết yếu cho phân tích tác động và debug.
+      - h:
+          en: Access control
+          vi: Kiểm soát truy cập
+        tag: must
+        p:
+          en: Role-based access, least privilege, plus column masking and row-level security for sensitive data.
+          vi: Truy cập theo vai trò, least privilege, cộng với column masking và row-level security cho dữ liệu nhạy cảm.
+      - h:
+          en: Data contracts
+          vi: Data contract
+        tag: senior
+        p:
+          en: An explicit agreement between producer and consumer about schema, quality and change policy.
+          vi: Thỏa thuận tường minh giữa producer và consumer về schema, chất lượng và chính sách thay đổi.
+      - h:
+          en: PII handling
+          vi: Xử lý PII
+        tag: must
+        p:
+          en: Classify, minimize, mask and retain data deliberately, with an audit trail.
+          vi: Phân loại, tối thiểu hóa, mask và lưu giữ dữ liệu có chủ đích, kèm audit trail.
+      - h:
+          en: Compliance basics
+          vi: Kiến thức cơ bản về compliance
+        tag: senior
+        p:
+          en: Know the rules that apply to your data (privacy, financial, health) and how the stack evidences them.
+          vi: Biết các quy định áp dụng cho dữ liệu của bạn (quyền riêng tư, tài chính, y tế) và cách stack chứng minh việc tuân thủ.
+    n:
+      en: Position governance as an enabler. Without a catalog and lineage, nobody finds or trusts data; without access control, nobody dares to share it.
+      vi: Hãy định vị governance là yếu tố thúc đẩy. Không có catalog và lineage thì không ai tìm được hay tin dữ liệu; không có kiểm soát truy cập thì không ai dám chia sẻ nó.
+  - id: tool-landscape-catalogs-lineage-and-governance
+    k: table
+    t:
+      en: "Tool landscape: catalogs, lineage and governance"
+      vi: "Bức tranh công cụ: catalog, lineage và quản trị"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - DataHub
+        - en: Open-source metadata platform
+          vi: Nền tảng metadata mã nguồn mở
+        - en: Teams wanting a flexible, open catalog with lineage
+          vi: Nhóm muốn một catalog mở, linh hoạt, có lineage
+        - en: Active community; extensible; good integrations
+          vi: Cộng đồng sôi động; dễ mở rộng; tích hợp tốt
+        - en: Needs engineering effort to deploy and curate
+          vi: Cần nỗ lực kỹ thuật để deploy và curate
+        - en: Open source plus managed offering
+          vi: Mã nguồn mở cộng với bản managed
+      - - OpenMetadata
+        - en: Open-source metadata platform
+          vi: Nền tảng metadata mã nguồn mở
+        - en: Teams wanting catalog, lineage and quality in one open tool
+          vi: Các team muốn catalog, lineage và chất lượng dữ liệu trong một công cụ mở
+        - en: Unified UI; broad connectors; built-in quality features
+          vi: UI thống nhất; nhiều connector; tính năng chất lượng dữ liệu tích hợp sẵn
+        - en: Younger than some alternatives; operational effort
+          vi: Còn non hơn một số lựa chọn khác; tốn công vận hành
+        - en: Open source plus managed offering
+          vi: Mã nguồn mở cộng với bản managed
+      - - Atlan
+        - en: Commercial active-metadata catalog
+          vi: Catalog active-metadata thương mại
+        - en: Modern data teams wanting collaboration and automation
+          vi: Các team dữ liệu hiện đại muốn cộng tác và tự động hóa
+        - en: Strong UX and integrations; embeds in daily tools
+          vi: UX và tích hợp mạnh; nhúng vào các công cụ hằng ngày
+        - en: Subscription cost
+          vi: Chi phí subscription
+        - Subscription
+      - - Collibra
+        - en: Enterprise data governance
+          vi: Quản trị dữ liệu doanh nghiệp
+        - en: Large regulated enterprises with formal stewardship
+          vi: Doanh nghiệp lớn chịu quy định chặt với stewardship chính thức
+        - en: Mature workflows, policy and stewardship features
+          vi: Workflow, policy và tính năng stewardship trưởng thành
+        - en: Heavy implementation; high cost
+          vi: Triển khai nặng nề; chi phí cao
+        - en: Enterprise license
+          vi: Giấy phép enterprise
+      - - Alation
+        - en: Enterprise data catalog
+          vi: Data catalog doanh nghiệp
+        - en: Large organizations focused on data search and trust
+          vi: Tổ chức lớn tập trung vào tìm kiếm dữ liệu và độ tin cậy
+        - en: Mature catalog and behavioural insights
+          vi: Catalog trưởng thành và insight về hành vi sử dụng
+        - en: Cost and rollout effort
+          vi: Chi phí và công sức rollout
+        - en: Enterprise license
+          vi: Giấy phép enterprise
+      - - Unity Catalog
+        - en: Platform-native governance (Databricks)
+          vi: Quản trị gốc theo nền tảng (Databricks)
+        - en: Databricks-centered lakehouses
+          vi: Lakehouse xoay quanh Databricks
+        - en: Unified access control, lineage and auditing for lakehouse assets
+          vi: Kiểm soát truy cập, lineage và audit thống nhất cho tài sản lakehouse
+        - en: Best inside Databricks; open-source version has a narrower scope
+          vi: Tốt nhất trong Databricks; phiên bản mã nguồn mở có phạm vi hẹp hơn
+        - en: Part of Databricks platform
+          vi: Là một phần của nền tảng Databricks
+      - - OpenLineage / Marquez
+        - en: Lineage standard and reference service
+          vi: Chuẩn lineage và dịch vụ tham chiếu
+        - en: Collecting lineage from many tools in one open format
+          vi: Thu thập lineage từ nhiều công cụ theo một định dạng mở
+        - en: Vendor-neutral spec; integrations with orchestrators and engines
+          vi: Spec trung lập với vendor; tích hợp với orchestrator và engine
+        - en: A standard, not a full catalog; Marquez is a reference backend
+          vi: Là một chuẩn, không phải catalog đầy đủ; Marquez là backend tham chiếu
+        - en: Open source
+          vi: Mã nguồn mở
+    cap:
+      en: Native tools (Unity Catalog, warehouse-native governance) often cover access control, while catalogs cover discovery and stewardship.
+      vi: Công cụ gốc (Unity Catalog, quản trị gốc của warehouse) thường lo kiểm soát truy cập, còn catalog lo khám phá và stewardship.
+    n:
+      en: "Separate the concerns: a catalog for discovery and stewardship, lineage for impact, and access control for security. Some tools do all three well enough; most stacks combine a few."
+      vi: "Tách bạch các mối quan tâm: catalog cho khám phá và stewardship, lineage cho đánh giá tác động, kiểm soát truy cập cho bảo mật. Một số công cụ làm đủ tốt cả ba; hầu hết stack kết hợp một vài công cụ."
+  - id: deep-dive-contracts-rbac-masking-and-row-level-security
+    k: code
+    t:
+      en: "Deep dive: contracts, RBAC, masking and row-level security"
+      vi: "Đào sâu: contract, RBAC, masking và row-level security"
+    lead:
+      en: The goal is to move rules out of wiki pages and into code that is reviewed and enforced.
+      vi: Mục tiêu là chuyển các quy tắc ra khỏi trang wiki và đưa vào code được review và thực thi.
+    blocks:
+      - lang: yaml
+        title: contracts/orders.contract.yml (illustrative format)
+        code: |-
+          contract:
+            name: shop.orders
+            version: 1.2.0
+            owner: team-checkout@example.com
+            description: One row per customer order.
+            schema:
+              - name: order_id
+                type: bigint
+                required: true
+                unique: true
+              - name: customer_email
+                type: varchar
+                pii: true
+                classification: confidential
+              - name: order_amount
+                type: numeric(18,2)
+                checks: ["value >= 0"]
+            sla:
+              freshness: 6h
+            change_policy:
+              breaking_changes: "30 days notice and a new major version"
+              additive_changes: "allowed with a changelog entry"
+      - lang: sql
+        title: governance.sql (Snowflake syntax)
+        code: |-
+          -- Least-privilege role for analysts
+          create role if not exists analyst_marts_read;
+          grant usage on database analytics to role analyst_marts_read;
+          grant usage on schema analytics.marts to role analyst_marts_read;
+          grant select on all tables in schema analytics.marts to role analyst_marts_read;
+          grant select on future tables in schema analytics.marts to role analyst_marts_read;
+
+          -- Column masking for PII
+          create or replace masking policy governance.pii_email_mask as (val string)
+          returns string ->
+              case
+                  when current_role() in ('PII_READER', 'DATA_ENGINEER') then val
+                  else regexp_replace(val, '.+@', '*****@')
+              end;
+
+          alter table analytics.marts.dim_customers
+              modify column email set masking policy governance.pii_email_mask;
+
+          -- Row-level security by region
+          create or replace row access policy governance.region_policy as (region string)
+          returns boolean ->
+              current_role() = 'GLOBAL_ANALYST'
+              or exists (
+                  select 1
+                  from governance.role_region_map m
+                  where m.role_name = current_role() and m.region = region
+              );
+
+          alter table analytics.marts.fct_orders
+              add row access policy governance.region_policy on (region);
+    points:
+      - h:
+          en: Contract, not wishful thinking
+          vi: Contract, không phải mong đợi suông
+        p:
+          en: The contract names the owner, the schema, the SLA and the change policy. Producers can be held to it in CI.
+          vi: Contract nêu rõ owner, schema, SLA và chính sách thay đổi. Producer có thể bị ràng buộc theo contract trong CI.
+      - h:
+          en: Roles, not people
+          vi: Role, không phải cá nhân
+        p:
+          en: Grant privileges to roles and assign roles to people or groups. Audit roles, not individuals.
+          vi: Cấp quyền cho role và gán role cho người hoặc nhóm. Audit role, không audit từng cá nhân.
+      - h:
+          en: Mask at the source
+          vi: Che dữ liệu tại nguồn
+        tag: senior
+        p:
+          en: Policies attached to columns apply in every tool, so you do not rely on each dashboard to hide data.
+          vi: Policy gắn vào cột áp dụng ở mọi công cụ, nên bạn không phải trông cậy vào từng dashboard để ẩn dữ liệu.
+      - h:
+          en: Adapt to your platform
+          vi: Thích ứng với nền tảng của bạn
+        p:
+          en: Every warehouse has its own policy syntax and limits. The pattern carries over; the SQL does not.
+          vi: Mỗi warehouse có cú pháp policy và giới hạn riêng. Pattern áp dụng được ở mọi nơi; SQL thì không.
+    n:
+      en: The contract format here is illustrative; real standards exist, such as the Open Data Contract Standard, and dbt model contracts cover schema enforcement. The SQL is Snowflake syntax; equivalents exist in BigQuery (policy tags, row access policies), Databricks (Unity Catalog) and others.
+      vi: Định dạng contract ở đây chỉ mang tính minh họa; có các chuẩn thực tế như Open Data Contract Standard, và model contract của dbt đảm bảo thực thi schema. SQL ở đây là cú pháp Snowflake; có tương đương trong BigQuery (policy tag, row access policy), Databricks (Unity Catalog) và các nền tảng khác.
+  - id: design-patterns-and-best-practices
+    k: cards
+    t:
+      en: Design patterns and best practices
+      vi: Mẫu thiết kế và thực hành tốt
+    cols: 3
+    cards:
+      - h:
+          en: Classify at ingestion
+          vi: Phân loại ngay khi ingest
+        p:
+          en: Tag PII and sensitive columns as soon as data lands, so downstream models inherit the tags.
+          vi: Gắn tag cho PII và các cột nhạy cảm ngay khi dữ liệu về, để các model downstream kế thừa tag.
+      - h:
+          en: Contracts at team boundaries
+          vi: Contract tại ranh giới giữa các team
+        p:
+          en: "Put contracts where one team’s output is another team’s input: source databases and public marts."
+          vi: "Đặt contract ở nơi output của team này là input của team khác: database nguồn và mart công khai."
+      - h:
+          en: Automated lineage
+          vi: Lineage tự động
+        p:
+          en: Collect lineage from the orchestrator, transformation and BI tools. Manual lineage rots.
+          vi: Thu thập lineage từ orchestrator, công cụ biến đổi dữ liệu và BI. Lineage thủ công sẽ mục nát.
+      - h:
+          en: Owners and descriptions
+          vi: Owner và mô tả
+        p:
+          en: No public dataset without an owner and a description. Make it a CI check.
+          vi: Không có dataset công khai nào thiếu owner và mô tả. Biến nó thành một check trong CI.
+      - h:
+          en: Access by role and purpose
+          vi: Truy cập theo role và mục đích
+        p:
+          en: Roles map to jobs. Time-bound elevated access, with audit logs.
+          vi: Role gắn với công việc. Quyền nâng cao có thời hạn, kèm audit log.
+      - h:
+          en: Minimize and expire
+          vi: Tối thiểu hóa và hết hạn
+        p:
+          en: Keep only the data and fields you need, for as long as you need them. Retention policies are code.
+          vi: Chỉ giữ dữ liệu và trường bạn cần, trong thời gian bạn cần. Retention policy là code.
+    n:
+      en: Governance programs fail when they depend on people filling in forms. These patterns automate the boring parts and enforce them in CI.
+      vi: Chương trình governance thất bại khi phụ thuộc vào việc con người điền form. Các pattern này tự động hóa phần nhàm chán và thực thi chúng trong CI.
+  - id: compliance-basics-every-analytics-engineer-should-know
+    k: cards
+    t:
+      en: Compliance basics every analytics engineer should know
+      vi: Kiến thức tuân thủ cơ bản mà analytics engineer nên biết
+    lead:
+      en: This is orientation, not legal advice. Work with your legal and security teams for specifics.
+      vi: Đây là định hướng, không phải tư vấn pháp lý. Hãy làm việc với team pháp lý và bảo mật để biết chi tiết cụ thể.
+    cols: 3
+    cards:
+      - h:
+          en: Know your data classes
+          vi: Hiểu các loại dữ liệu của bạn
+        tag: must
+        p:
+          en: Personal data, financial data, health data and credentials each have different rules.
+          vi: Dữ liệu cá nhân, dữ liệu tài chính, dữ liệu sức khỏe và credential mỗi loại có quy tắc khác nhau.
+      - h:
+          en: Data subject requests
+          vi: Yêu cầu từ chủ thể dữ liệu
+        tag: must
+        p:
+          en: Privacy laws such as GDPR and CCPA can require access and deletion. Plan how you find and delete a person across the stack, including backups.
+          vi: Luật quyền riêng tư như GDPR và CCPA có thể yêu cầu truy cập và xóa dữ liệu. Lên kế hoạch cách tìm và xóa một người trên toàn stack, bao gồm cả backup.
+      - h:
+          en: Purpose and minimization
+          vi: Mục đích và tối thiểu hóa
+        tag: must
+        p:
+          en: Collect and use data for a stated purpose, and avoid copying sensitive fields into new places.
+          vi: Thu thập và sử dụng dữ liệu cho mục đích đã nêu, và tránh sao chép các trường nhạy cảm sang nơi mới.
+      - h:
+          en: Auditability
+          vi: Khả năng audit
+        tag: senior
+        p:
+          en: Be able to show who accessed what, and when. Query history and access logs are evidence.
+          vi: Có thể chỉ ra ai đã truy cập cái gì, và khi nào. Query history và access log là bằng chứng.
+      - h: Pseudonymization
+        tag: senior
+        p:
+          en: Hashing or tokenizing identifiers reduces exposure, though it does not always make data anonymous.
+          vi: Hash hoặc tokenize định danh giúp giảm mức độ phơi lộ, dù không phải lúc nào cũng làm dữ liệu ẩn danh hoàn toàn.
+      - h:
+          en: Region and residency
+          vi: Region và data residency
+        tag: senior
+        p:
+          en: Some data must stay in a region. Choose warehouse regions and replication deliberately.
+          vi: Một số dữ liệu phải ở trong một region. Chọn region warehouse và replication một cách có chủ đích.
+    n:
+      en: "The point is awareness: engineers decide where data is copied and who can see it, which are exactly the things regulators ask about. Encourage involving legal early."
+      vi: "Điểm mấu chốt là nhận thức: engineer quyết định dữ liệu được sao chép đi đâu và ai xem được, chính là những điều cơ quan quản lý hỏi. Khuyến khích mời pháp lý tham gia sớm."
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: A catalog nobody curates.
+          vi: Catalog không ai curate.
+        why:
+          en: It fills with stale, undocumented assets.
+          vi: Nó đầy các asset cũ, không có tài liệu.
+        fix:
+          en: Owners, certification and automated sync from your tools.
+          vi: Owner, certification và đồng bộ tự động từ các công cụ của bạn.
+      - bad:
+          en: Granting access to individuals.
+          vi: Cấp quyền truy cập cho từng cá nhân.
+        why:
+          en: Impossible to audit and revoke.
+          vi: Không thể audit và thu hồi.
+        fix:
+          en: Role-based access via groups.
+          vi: Truy cập dựa trên role qua group.
+      - bad:
+          en: Copying PII into every sandbox.
+          vi: Sao chép PII vào mọi sandbox.
+        why:
+          en: Larger attack surface and compliance exposure.
+          vi: Bề mặt tấn công lớn hơn và rủi ro tuân thủ.
+        fix:
+          en: Masked or synthetic data for development.
+          vi: Dữ liệu masked hoặc synthetic cho development.
+      - bad:
+          en: Governance as a gate at the end.
+          vi: Governance như một cổng chặn ở cuối.
+        why:
+          en: Teams route around it.
+          vi: Các team tìm cách lách qua.
+        fix:
+          en: Embed policies in CI and defaults.
+          vi: Nhúng policy vào CI và các giá trị mặc định.
+      - bad:
+          en: Manual lineage diagrams.
+          vi: Sơ đồ lineage vẽ thủ công.
+        why:
+          en: Out of date within weeks.
+          vi: Lỗi thời chỉ sau vài tuần.
+        fix:
+          en: Collect lineage automatically (for example with OpenLineage).
+          vi: Thu thập lineage tự động (ví dụ với OpenLineage).
+      - bad:
+          en: No deletion path.
+          vi: Không có đường xóa dữ liệu.
+        why:
+          en: Cannot honour deletion requests.
+          vi: Không thể đáp ứng yêu cầu xóa.
+        fix:
+          en: Design for keyed deletion and retention from the start.
+          vi: Thiết kế cho việc xóa theo key và retention ngay từ đầu.
+    n:
+      en: Every pitfall here comes from governance being separate from the engineering workflow. Embed it and it mostly takes care of itself.
+      vi: Mọi pitfall ở đây đều đến từ việc governance tách rời khỏi workflow kỹ thuật. Nhúng nó vào và phần lớn sẽ tự vận hành.
+  - id: what-senior-looks-like-governance
+    k: cards
+    t:
+      en: "What senior looks like: governance"
+      vi: "Senior trông như thế nào: quản trị"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: Which data is sensitive, and how it is protected
+            vi: Dữ liệu nào nhạy cảm, và được bảo vệ ra sao
+          - en: Where contracts are required
+            vi: Nơi nào bắt buộc có contract
+          - en: "Catalog: build, adopt open source or buy"
+            vi: "Catalog: tự build, dùng mã nguồn mở hay mua"
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Safety versus speed of access
+            vi: An toàn so với tốc độ truy cập
+          - en: Central control versus domain ownership
+            vi: Kiểm soát tập trung so với domain tự sở hữu
+          - en: Tool breadth versus adoption
+            vi: Độ rộng của công cụ so với mức độ được dùng
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Partner with security and legal
+            vi: Phối hợp với bảo mật và pháp lý
+          - en: Make secure defaults the easy path
+            vi: Biến mặc định an toàn thành con đường dễ đi
+          - en: Keep audit evidence available
+            vi: Luôn sẵn sàng bằng chứng audit
+          - en: Run access reviews on a schedule
+            vi: Rà soát quyền truy cập theo lịch
+    n:
+      en: Seniors make the secure path the easy path. If governance slows people down, they will bypass it.
+      vi: Senior biến con đường an toàn thành con đường dễ đi. Nếu governance làm mọi người chậm lại, họ sẽ lách qua.
+  - id: governance-lab-rbac-masking-and-lineage
+    k: lab
+    t:
+      en: "Governance lab: RBAC, masking and lineage"
+      vi: "Lab quản trị: RBAC, masking và lineage"
+    lead:
+      en: Give each role exactly the data it should see, and prove it.
+      vi: Cho mỗi role đúng dữ liệu nó nên thấy, và chứng minh điều đó.
+    scenario:
+      en: Analysts need customer metrics but must not see raw emails; an auditor asks where a column came from.
+      vi: Analyst cần chỉ số khách hàng nhưng không được thấy email gốc; kiểm toán viên hỏi một cột đến từ đâu.
+    input:
+      en: A warehouse or Postgres with roles, a customers table containing PII, and an OpenLineage-capable orchestrator or dbt.
+      vi: Một warehouse hoặc Postgres có role, bảng customers chứa PII và orchestrator hoặc dbt hỗ trợ OpenLineage.
+    tasks:
+      - en: Create analyst, engineer and pii_reader roles with least privilege.
+        vi: Tạo role analyst, engineer và pii_reader với quyền tối thiểu.
+      - en: Apply a masking policy and a row-level policy.
+        vi: Áp dụng masking policy và row-level policy.
+      - en: Collect lineage and trace one column end to end.
+        vi: Thu lineage và truy vết một cột từ đầu đến cuối.
+      - en: Pull the audit log for access to the PII column.
+        vi: Lấy audit log về truy cập cột PII.
+    expected:
+      en: A role-by-data visibility matrix, a lineage graph for one column and audit evidence.
+      vi: Ma trận role theo dữ liệu, graph lineage cho một cột và bằng chứng audit.
+    rubric:
+      - en: Masked and unmasked results shown per role
+        vi: Có kết quả bị che và không che theo từng role
+      - en: Lineage reaches the dashboard
+        vi: Lineage đi tới dashboard
+      - en: Audit proves who read what
+        vi: Audit chứng minh ai đã đọc gì
+    design:
+      en: Design how classification tags propagate through lineage and drive policies automatically.
+      vi: Thiết kế cách tag phân loại lan truyền qua lineage và tự động điều khiển policy.
+    n:
+      en: Test with denied attempts as well as allowed ones.
+      vi: Test cả các lần bị từ chối chứ không chỉ các lần được phép.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: Every public dataset has an owner and description
+          vi: Mọi dataset công khai đều có owner và mô tả
+        - en: PII columns are classified and masked by policy
+          vi: Cột PII được phân loại và che bằng policy
+        - en: Access is granted to roles, not individuals
+          vi: Quyền truy cập được cấp cho role, không phải cá nhân
+        - en: Lineage is collected automatically
+          vi: Lineage được thu thập tự động
+        - en: Contracts exist at key team boundaries
+          vi: Contract tồn tại ở các ranh giới team quan trọng
+        - en: I know how a deletion request would work
+          vi: Tôi biết một yêu cầu xóa dữ liệu sẽ vận hành thế nào
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: How would you protect email addresses in a warehouse shared by 200 analysts?
+          vi: Bạn sẽ bảo vệ địa chỉ email thế nào trong một warehouse được 200 analyst dùng chung?
+        - en: What is a data contract and when is it worth the effort?
+          vi: Data contract là gì và khi nào đúng bỏ công sức?
+        - en: How do you handle a right-to-erasure request?
+          vi: Bạn xử lý yêu cầu right-to-erasure thế nào?
+        - en: "Catalog: build, open source or buy?"
+          vi: "Catalog: tự build, mã nguồn mở hay mua?"
+        - en: How do you give developers realistic data without exposing PII?
+          vi: Làm sao cung cấp dữ liệu thực tế cho developer mà không lộ PII?
+    n:
+      en: Strong answers combine masking, role design and process, and acknowledge that backups and copies need handling.
+      vi: Câu trả lời tốt kết hợp masking, thiết kế role và quy trình, đồng thời thừa nhận backup và các bản sao cũng cần được xử lý.

@@ -1,0 +1,86 @@
+tech:
+  id: microsoft-fabric
+  name: Microsoft Fabric
+  color: "#0078D4"
+  refs:
+    - [Microsoft Fabric, https://learn.microsoft.com/fabric/]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "Microsoft Fabric: architecture"
+      vi: "Microsoft Fabric: kiến trúc"
+    lead:
+      en: "Fabric is a SaaS platform: one capacity, one lake (OneLake) and several workloads that share the same Delta files."
+      vi: "Fabric là nền tảng SaaS: một capacity, một lake (OneLake) và nhiều workload dùng chung các file Delta."
+    svg: fabricSVG
+    cap:
+      en: Direct Lake lets Power BI read Delta files in OneLake without importing a copy.
+      vi: Direct Lake cho phép Power BI đọc file Delta trong OneLake mà không cần import một bản sao.
+    n:
+      en: "The key idea: unify storage (OneLake) and billing (capacity) so the workloads become interchangeable views over the same Delta data. The cost is a shared-capacity noisy-neighbour risk."
+      vi: "Ý chính: hợp nhất storage (OneLake) và billing (capacity) để các workload trở thành những góc nhìn có thể hoán đổi trên cùng dữ liệu Delta. Cái giá là rủi ro noisy neighbour do dùng chung capacity."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "Microsoft Fabric: components and workflow"
+      vi: "Microsoft Fabric: thành phần và quy trình"
+    comps:
+      - - en: Capacity (F SKUs)
+          vi: Capacity (F SKU)
+        - en: Shared pool of compute for all workloads. Overuse is smoothed, then throttled
+          vi: Pool compute dùng chung cho mọi workload. Việc dùng quá mức được làm mượt, sau đó bị throttle
+      - - OneLake
+        - en: Single logical lake per tenant storing Delta Parquet
+          vi: Một lake logic duy nhất cho mỗi tenant, lưu Delta Parquet
+      - - en: Shortcuts
+          vi: Shortcut
+        - en: Virtual links to data in ADLS, S3 or other lakehouses without copying
+          vi: Liên kết ảo tới dữ liệu trong ADLS, S3 hoặc lakehouse khác mà không cần copy
+      - - Mirroring
+        - en: Replicates operational databases into OneLake as Delta tables
+          vi: Sao chép các database vận hành vào OneLake dưới dạng table Delta
+      - - Lakehouse
+        - en: Tables and files with Spark; automatic SQL analytics endpoint
+          vi: Table và file với Spark; SQL analytics endpoint tự động
+      - - Warehouse
+        - en: T-SQL engine storing Delta tables in OneLake
+          vi: Engine T-SQL lưu các table Delta trong OneLake
+      - - Data Factory
+        - en: Pipelines and Dataflows Gen2 for ingestion
+          vi: Pipeline và Dataflows Gen2 cho ingestion
+      - - Real-Time Intelligence
+        - en: Eventstream and Eventhouse (KQL) for streaming data
+          vi: Eventstream và Eventhouse (KQL) cho dữ liệu streaming
+      - - Power BI Direct Lake
+        - en: Semantic models that read Delta directly
+          vi: Semantic model đọc trực tiếp Delta
+      - - en: Workspace and Purview
+          vi: Workspace và Purview
+        - en: Boundary for items and access; governance integration
+          vi: Ranh giới cho item và quyền truy cập; tích hợp governance
+    flow:
+      - en: Create a workspace attached to a capacity.
+        vi: Tạo một workspace gắn với một capacity.
+      - en: Ingest with pipelines, dataflows, mirroring or shortcuts into a lakehouse (Delta in OneLake).
+        vi: Ingest bằng pipeline, dataflow, mirroring hoặc shortcut vào một lakehouse (Delta trong OneLake).
+      - en: Transform with Spark notebooks or warehouse T-SQL; dbt is available through adapters.
+        vi: Biến đổi bằng Spark notebook hoặc T-SQL của warehouse; dbt có sẵn qua các adapter.
+      - en: Build a semantic model over the Delta tables using Direct Lake.
+        vi: Xây dựng semantic model trên các table Delta bằng Direct Lake.
+      - en: Publish reports. All engines read the same underlying files.
+        vi: Publish report. Mọi engine đều đọc cùng các file nền tảng.
+    ops:
+      - en: One shared capacity means a heavy job can throttle everyone. Separate production from development capacities.
+        vi: Một capacity dùng chung nghĩa là một job nặng có thể throttle tất cả mọi người. Hãy tách capacity production khỏi development.
+      - en: Use the capacity metrics app to see which items consume units.
+        vi: Dùng capacity metrics app để xem item nào tiêu thụ units.
+      - en: Apply sensitivity labels and workspace roles early.
+        vi: Áp dụng sensitivity label và workspace role từ sớm.
+      - en: The product evolves quickly. Verify feature availability before committing.
+        vi: Sản phẩm phát triển nhanh. Hãy kiểm tra tính khả dụng của tính năng trước khi cam kết.
+    n:
+      en: Walk the five steps, then stress capacity planning. In interviews, the strong answer covers OneLake, Direct Lake and how capacity sharing affects isolation.
+      vi: Đi qua năm bước, rồi nhấn mạnh capacity planning. Trong phỏng vấn, câu trả lời tốt đề cập OneLake, Direct Lake và việc chia sẻ capacity ảnh hưởng đến tính cô lập thế nào.

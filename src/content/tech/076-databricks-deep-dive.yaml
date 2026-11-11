@@ -1,0 +1,130 @@
+tech: {id: databricks, name: Databricks, color: "#EA580C"}
+slides:
+  - id: overview-lakehouse-workspaces-and-compute
+    k: components
+    mod: [overview]
+    t: {en: "Databricks overview: lakehouse, workspace and compute", vi: "Databricks tong quan: lakehouse, workspace va compute"}
+    lead: {en: "Databricks combines lake storage and table governance with managed compute, jobs and collaborative workspaces.", vi: "Databricks ket hop lake storage va table governance voi compute managed, job va workspace collaboration."}
+    comps:
+      - - Delta tables
+        - {en: "Transactional table metadata over cloud object storage.", vi: "Metadata table transactional tren cloud object storage."}
+      - - Compute
+        - {en: "Interactive or job clusters sized for workload.", vi: "Cluster interactive hoac job duoc sizing theo workload."}
+      - - Unity Catalog
+        - {en: "Centralized object permissions, lineage and discovery.", vi: "Permission object, lineage va discovery tap trung."}
+      - - Jobs
+        - {en: "Schedules and retries multi-task workloads.", vi: "Schedule va retry workload nhieu task."}
+    flow: [{en: "Govern data and code", vi: "Govern data va code"}, {en: "Run on selected compute", vi: "Chay tren compute da chon"}, {en: "Commit governed table output", vi: "Commit output table co governance"}]
+    ops: [{en: "Separate human, job and service identities and govern cluster policies.", vi: "Tach identity human, job, service va govern cluster policy."}]
+    n: {en: "A lakehouse still requires file maintenance, workload isolation, access design and recovery testing.", vi: "Lakehouse van can file maintenance, isolation workload, access design va recovery test."}
+  - id: internals-delta-log-and-unity-catalog
+    k: table
+    mod: [internals]
+    t: {en: "Databricks internals: Delta log and Unity Catalog", vi: "Noi bo Databricks: Delta log va Unity Catalog"}
+    lead: {en: "Delta commits table versions through a transaction log; Unity Catalog governs securable objects and identity paths.", vi: "Delta commit version table qua transaction log; Unity Catalog govern securable object va duong identity."}
+    head: [{en: Mechanism, vi: Co che}, {en: Responsibility, vi: Trach nhiem}, {en: Operational check, vi: Kiem tra van hanh}]
+    rows:
+      - - {en: Delta transaction log, vi: Delta transaction log}
+        - {en: "Defines active files and table version.", vi: "Dinh nghia file active va version table."}
+        - {en: "Inspect history, concurrent writes and retention before cleanup.", vi: "Inspect history, write dong thoi va retention truoc cleanup."}
+      - - {en: Unity Catalog grants, vi: Unity Catalog grant}
+        - {en: "Controls catalog, schema, table and volume access.", vi: "Kiem soat access catalog, schema, table va volume."}
+        - {en: "Trace principal, inherited grants and external location permissions.", vi: "Trace principal, grant ke thua va quyen external location."}
+      - - {en: Compute plane, vi: Compute plane}
+        - {en: "Runs queries and jobs in selected account or service mode.", vi: "Chay query va job trong account hoac service mode da chon."}
+        - {en: "Verify network, identity and data plane placement.", vi: "Verify network, identity va vi tri data plane."}
+    n: {en: "Table metadata correctness and cloud object permissions are separate concerns; validate both for external locations.", vi: "Correctness metadata table va quyen cloud object la hai viec rieng; validate ca hai voi external location."}
+  - id: configuration-cluster-policy-and-access-mode
+    k: code
+    mod: [config]
+    t: {en: "Databricks configuration: cluster policy and access mode", vi: "Cau hinh Databricks: cluster policy va access mode"}
+    lead: {en: "Policies make compute configuration repeatable and constrain unsafe or unbounded clusters.", vi: "Policy lam compute config lap lai duoc va gioi han cluster khong an toan hoac khong gioi han."}
+    blocks:
+      - lang: json
+        title: cluster_policy.json
+        code: |-
+          {
+            "spark_version": {"type": "fixed", "value": "14.3.x-scala2.12"},
+            "autotermination_minutes": {"type": "range", "minValue": 10, "maxValue": 120},
+            "num_workers": {"type": "range", "minValue": 1, "maxValue": 20},
+            "data_security_mode": {"type": "fixed", "value": "SINGLE_USER"},
+            "custom_tags.owner": {"type": "required"}
+          }
+    points:
+      - {h: {en: Match policy to workload, vi: Khop policy voi workload}, p: {en: "Interactive development and production jobs may need distinct policies, identities and termination behavior.", vi: "Development interactive va production job co the can policy, identity va termination behavior rieng."}}
+    n: {en: "Runtime names and access modes change; verify supported values in the target workspace and cloud before rollout.", vi: "Runtime name va access mode thay doi; verify gia tri ho tro trong workspace va cloud dich truoc rollout."}
+  - id: implementation-job-with-delta-merge
+    k: code
+    mod: [implementation]
+    t: {en: "Databricks implementation: job and Delta merge", vi: "Trien khai Databricks: job va Delta merge"}
+    lead: {en: "Make job parameters, identity, retries and table merge conditions explicit for reproducibility.", vi: "Lam ro tham so job, identity, retry va dieu kien merge table de tai lap duoc."}
+    blocks:
+      - lang: python
+        title: merge_job.py
+        code: |-
+          from delta.tables import DeltaTable
+          from pyspark.sql import functions as F, Window
+          w = Window.partitionBy("order_id").orderBy(F.col("source_lsn").desc())
+          changes = (spark.read.table("bronze.order_changes")
+                     .withColumn("rn", F.row_number().over(w))
+                     .where("rn = 1").drop("rn"))
+          target = DeltaTable.forName(spark, "silver.orders")
+          (target.alias("t").merge(changes.alias("s"), "t.order_id = s.order_id")
+           .whenMatchedUpdateAll().whenNotMatchedInsertAll().execute())
+    points:
+      - {h: {en: Control retries and duplicates, vi: Kiem soat retry va duplicate}, p: {en: "Use a deterministic source range and handle deletes and late updates explicitly; repeated job execution must have a defined outcome.", vi: "Dung source range deterministic, xu ly delete va update muon ro rang; chay job lap lai phai co ket qua da dinh."}}
+    n: {en: "Record job run ID, code version, input range and target table version for incident replay.", vi: "Ghi job run ID, code version, input range va target table version de replay incident."}
+  - id: operations-jobs-delta-maintenance-and-cost
+    k: table
+    mod: [operations]
+    t: {en: "Databricks operations: jobs, Delta maintenance and cost", vi: "Van hanh Databricks: job, Delta maintenance va cost"}
+    lead: {en: "Operate job reliability, small-file health, cluster utilization and governance changes together.", vi: "Van hanh do tin cay job, suc khoe small-file, utilization cluster va thay doi governance cung nhau."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Inspect, vi: Kiem tra}, {en: Action, vi: Hanh dong}]
+    rows:
+      - - {en: Job retries rise, vi: Job retry tang}
+        - {en: "Task output, cluster events, dependency status and retry reason.", vi: "Task output, event cluster, dependency status va ly do retry."}
+        - {en: "Fix the first failing task and make side effects idempotent.", vi: "Sua task fail dau tien va lam side effect idempotent."}
+      - - {en: Table scan slows, vi: Scan table cham}
+        - {en: "File count, file size, query profile and table history.", vi: "So file, kich thuoc file, query profile va table history."}
+        - {en: "Schedule compaction or clustering from measured query patterns.", vi: "Schedule compaction hoac clustering tu pattern query do duoc."}
+    n: {en: "Retention cleanup affects time travel and recovery; align it with audit, legal and rollback requirements.", vi: "Cleanup retention anh huong time travel va recovery; can chinh voi audit, legal va rollback requirement."}
+  - id: troubleshooting-cluster-startup-and-permission
+    k: table
+    mod: [troubleshooting]
+    t: {en: "Databricks troubleshooting: cluster startup and permissions", vi: "Xu ly Databricks: cluster startup va permission"}
+    lead: {en: "Separate workspace authorization, cloud identity, network startup and data object access.", vi: "Tach authorization workspace, cloud identity, network startup va object access data."}
+    head: [{en: Symptom, vi: Trieu chung}, {en: Check, vi: Kiem tra}, {en: Response, vi: Phan hoi}]
+    rows:
+      - - {en: Cluster fails to start, vi: Cluster khong start}
+        - {en: "Policy, quota, subnet IP, instance capacity and init-script logs.", vi: "Policy, quota, IP subnet, capacity instance va log init script."}
+        - {en: "Identify control-plane versus cloud provisioning failure.", vi: "Xac dinh loi control plane hay cloud provisioning."}
+      - - {en: Table permission denied, vi: Bi tu choi quyen table}
+        - {en: "Unity Catalog grants, principal, catalog binding and external location.", vi: "Grant Unity Catalog, principal, catalog binding va external location."}
+        - {en: "Test as the job identity and grant the narrow missing privilege.", vi: "Test bang job identity va cap privilege hep dang thieu."}
+    n: {en: "Keep cluster event logs, job run IDs and audit events for the same time window during diagnosis.", vi: "Giu log event cluster, job run ID va audit event cung time window khi chan doan."}
+  - id: performance-shuffle-file-size-and-autoscaling
+    k: table
+    mod: [performance]
+    t: {en: "Databricks performance: shuffle, file size and autoscaling", vi: "Hieu nang Databricks: shuffle, file size va autoscaling"}
+    lead: {en: "Tune partitioning and file layout before scaling compute; autoscaling cannot remove skew or excess shuffle.", vi: "Tune partition va layout file truoc khi scale compute; autoscaling khong loai skew hay shuffle du thua."}
+    head: [{en: Lever, vi: Don bay}, {en: Evidence, vi: Bang chung}, {en: Trade-off, vi: Danh doi}]
+    rows:
+      - - {en: Shuffle partitioning, vi: Shuffle partitioning}
+        - {en: "Stage task size, skew and spill.", vi: "Task size stage, skew va spill."}
+        - {en: "More partitions add scheduling overhead; fewer can create stragglers.", vi: "Nhieu partition tang scheduling overhead; it partition tao straggler."}
+      - - {en: File compaction, vi: File compaction}
+        - {en: "Small-file count and scan planning time.", vi: "So small-file va planning scan time."}
+        - {en: "Compaction consumes compute and can conflict with concurrent writes.", vi: "Compaction ton compute va co the xung dot write dong thoi."}
+    n: {en: "Benchmark realistic skew and concurrent readers; report DBU or cloud cost alongside runtime.", vi: "Benchmark skew thuc va reader dong thoi; bao cao DBU hoac cloud cost cung runtime."}
+  - id: lab-debug-a-databricks-job-and-delta-incident
+    k: lab
+    mod: [lab]
+    t: {en: "Databricks lab: debug a job and Delta incident", vi: "Lab Databricks: debug job va su co Delta"}
+    lead: {en: "Recover a failed CDC job while preventing duplicate updates and unnecessary cluster spend.", vi: "Khoi phuc CDC job fail, ngan update duplicate va chi phi cluster khong can."}
+    scenario: {en: "A retrying job reports success but the Delta target has duplicate keys and growing small files.", vi: "Job retry bao thanh cong nhung Delta target trung key va small-file tang."}
+    input: {en: "Job run history, source offsets, Delta history, table files and cluster policy.", vi: "Job run history, source offset, Delta history, file table va cluster policy."}
+    tasks: [{en: "Find how retries produced duplicate effects.", vi: "Tim cach retry tao side effect duplicate."}, {en: "Design an idempotent repair and file maintenance plan.", vi: "Thiet ke repair idempotent va ke hoach file maintenance."}, {en: "Add monitoring and cost guardrails.", vi: "Them monitoring va cost guardrail."}]
+    expected: {en: "A bounded replay, validated unique keys and scheduled maintenance with an owner.", vi: "Replay co gioi han, unique key da validate va maintenance co owner."}
+    rubric: [{en: "Uses source and target version evidence.", vi: "Dung bang chung version source va target."}, {en: "Preserves an auditable recovery path.", vi: "Giu recovery path audit duoc."}]
+    design: {en: "State job identity, replay range, retention and rollback conditions.", vi: "Neu identity job, replay range, retention va dieu kien rollback."}
+    n: {en: "Require the learner to prove key correctness and estimate compute cost before replaying production data.", vi: "Yeu cau hoc vien chung minh key dung va uoc tinh compute cost truoc replay production data."}

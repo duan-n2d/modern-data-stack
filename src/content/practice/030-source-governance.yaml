@@ -1,0 +1,206 @@
+practice:
+  id: source-governance
+  name:
+    en: Version and source governance
+    vi: Quản trị phiên bản và nguồn
+  color: "#475569"
+slides:
+  - id: version-and-source-governance-for-a-long-lived-handbook
+    k: code
+    t:
+      en: Version and source governance for a long-lived handbook
+      vi: Quản trị phiên bản và nguồn cho một handbook sống lâu
+    lead:
+      en: Technical content rots. Every topic should state which version it describes, where the claim comes from, and when it was last checked.
+      vi: Nội dung kỹ thuật bị lỗi thời. Mỗi chủ đề nên nêu mô tả phiên bản nào, thông tin đến từ đâu và kiểm tra lần cuối khi nào.
+    blocks:
+      - lang: yaml
+        title: topic-metadata.yaml (one record per topic)
+        code: |-
+          topic: kafka-consumer-rebalancing
+          technology: Apache Kafka
+          applies_to: ">= 3.x (verify KRaft and protocol details for your version)"
+          official_docs: https://kafka.apache.org/documentation/
+          last_verified: YYYY-MM-DD        # date someone checked the claims against the docs
+          verified_by: "reviewer name"
+          source_confidence: official-docs   # official-docs | engineering-experience | community
+          deprecations:
+            - "Eager rebalance protocol is superseded by cooperative protocols"
+          migration_notes: "See the upgrade notes for your target version"
+          adr: ADR-0012                      # decision record explaining platform choices
+    points:
+      - h:
+          en: Source confidence
+          vi: Độ tin cậy của nguồn
+        p:
+          en: Official documentation, engineering experience, or community reference. Say which one a claim rests on.
+          vi: Tài liệu chính thức, kinh nghiệm kỹ thuật, hoặc tham chiếu cộng đồng. Nêu rõ một tuyên bố dựa trên loại nào.
+      - h:
+          en: Last verified date
+          vi: Ngày xác minh gần nhất
+        tag: senior
+        p:
+          en: A date and a name. Unverified content should be visibly marked, not silently trusted.
+          vi: Một ngày và một cái tên. Nội dung chưa xác minh phải được đánh dấu rõ, không được tin ngầm.
+      - h:
+          en: Version-specific examples
+          vi: Ví dụ theo phiên bản
+        p:
+          en: Keep code examples next to the versions they were tested on, and add migration notes when behaviour changes.
+          vi: Giữ ví dụ code cạnh các phiên bản đã test, và thêm ghi chú migration khi hành vi thay đổi.
+      - h:
+          en: Review cadence
+          vi: Chu kỳ rà soát
+        tag: senior
+        p:
+          en: Re-verify fast-moving technologies (Kafka, Spark, Flink, Iceberg, Airflow, dbt, AI tooling) at least quarterly.
+          vi: Xác minh lại các công nghệ thay đổi nhanh (Kafka, Spark, Flink, Iceberg, Airflow, dbt, công cụ AI) ít nhất mỗi quý.
+    n:
+      en: This deck does not yet carry per-slide metadata. The record format above is the proposed standard; the next slide lists what needs verification first.
+      vi: Bộ slide này chưa có metadata cho từng slide. Định dạng bản ghi ở trên là chuẩn đề xuất; slide kế tiếp liệt kê những thứ cần xác minh trước.
+  - id: version-sensitive-topics-in-this-deck-and-where-to
+    k: table
+    t:
+      en: Version-sensitive topics in this deck, and where to verify them
+      vi: Các chủ đề nhạy cảm với phiên bản trong deck này và nơi xác minh
+    lead:
+      en: "Honest status: these claims come from general engineering knowledge and have not been re-verified against current releases in this revision."
+      vi: "Tình trạng trung thực: các tuyên bố này đến từ kiến thức kỹ thuật chung và chưa được xác minh lại với các bản phát hành hiện tại trong lần sửa này."
+    head:
+      - en: Technology
+        vi: Công nghệ
+      - en: Version-sensitive topic
+        vi: Chủ đề nhạy cảm với phiên bản
+      - en: Official documentation
+        vi: Tài liệu chính thức
+      - en: Confidence in this deck
+        vi: Độ tin cậy trong deck
+    rows:
+      - - Kafka
+        - en: KRaft versus ZooKeeper, client defaults, rebalance protocols
+          vi: KRaft so với ZooKeeper, mặc định của client, giao thức rebalance
+        - kafka.apache.org/documentation
+        - en: Engineering knowledge; verify
+          vi: Kiến thức kỹ thuật; cần xác minh
+      - - Debezium
+        - en: Property names (`topic.prefix` versus `database.server.name`), snapshot modes
+          vi: Tên thuộc tính (`topic.prefix` so với `database.server.name`), chế độ snapshot
+        - debezium.io/documentation
+        - en: Engineering knowledge; verify
+          vi: Kiến thức kỹ thuật; cần xác minh
+      - - Spark
+        - en: AQE defaults, shuffle and memory settings, Structured Streaming options
+          vi: Mặc định AQE, cấu hình shuffle và bộ nhớ, tùy chọn Structured Streaming
+        - spark.apache.org/docs/latest
+        - en: Engineering knowledge; verify
+          vi: Kiến thức kỹ thuật; cần xác minh
+      - - Flink
+        - en: Option names, Kafka and Iceberg connector options, idleness settings
+          vi: Tên tùy chọn, tùy chọn connector Kafka và Iceberg, cấu hình idle
+        - nightlies.apache.org/flink
+        - en: Engineering knowledge; verify
+          vi: Kiến thức kỹ thuật; cần xác minh
+      - - Iceberg / Polaris
+        - en: Format versions, Spark procedures, REST catalog options
+          vi: Phiên bản format, Spark procedure, tùy chọn REST catalog
+        - iceberg.apache.org/docs/latest, polaris.apache.org
+        - en: Engineering knowledge; verify
+          vi: Kiến thức kỹ thuật; cần xác minh
+      - - Airflow
+        - en: Airflow 3 imports, SDK, API server, backfill CLI, SLA features
+          vi: Import Airflow 3, SDK, API server, CLI backfill, tính năng SLA
+        - airflow.apache.org/docs
+        - en: Engineering knowledge; verify
+          vi: Kiến thức kỹ thuật; cần xác minh
+      - - dbt
+        - en: "`data_tests` key, MetricFlow spec, microbatch, new engine status"
+          vi: Khóa `data_tests`, đặc tả MetricFlow, microbatch, tình trạng engine mới
+        - docs.getdbt.com
+        - en: Engineering knowledge; verify
+          vi: Kiến thức kỹ thuật; cần xác minh
+      - - Terraform / Kubernetes
+        - en: Provider schemas, licensing, API versions
+          vi: Schema provider, giấy phép, phiên bản API
+        - developer.hashicorp.com/terraform, kubernetes.io/docs
+        - en: Engineering knowledge; verify
+          vi: Kiến thức kỹ thuật; cần xác minh
+      - - en: AI tooling (MCP, LLM APIs)
+          vi: Công cụ AI (MCP, API LLM)
+        - en: Specification and auth, SDK signatures, model names
+          vi: Đặc tả và xác thực, chữ ký SDK, tên model
+        - en: Each vendor’s current docs
+          vi: Tài liệu hiện hành của từng nhà cung cấp
+        - en: Changes fastest; verify before use
+          vi: Thay đổi nhanh nhất; xác minh trước khi dùng
+    cap:
+      en: Before relying on a configuration or command from this deck, check it against the documentation for your exact version.
+      vi: Trước khi dựa vào một cấu hình hoặc lệnh trong deck này, hãy đối chiếu với tài liệu của đúng phiên bản bạn dùng.
+    n:
+      en: This table is a work list. Closing each row with a verified date and a version range is the next governance step.
+      vi: Bảng này là một danh sách việc cần làm. Đúng từng hàng bằng ngày xác minh và dải phiên bản là bước quản trị tiếp theo.
+  - id: official-documentation-links-and-evidence-levels
+    k: stack
+    t:
+      en: Official documentation links and evidence levels
+      vi: Liên kết tài liệu chính thức và mức bằng chứng
+    lead:
+      en: Every claim in this deck falls into one of four evidence levels. Use the links below to confirm anything before relying on it.
+      vi: Mọi tuyên bố trong deck này thuộc một trong bốn mức bằng chứng. Dùng các liên kết bên dưới để xác nhận trước khi dựa vào.
+    parts:
+      - cols: 2
+        cards:
+          - h:
+              en: Official
+              vi: Chính thức
+            p:
+              en: Stated in the technology’s documentation.
+              vi: Được nêu trong tài liệu của công nghệ.
+          - h:
+              en: Lab-verified
+              vi: Đã kiểm chứng bằng lab
+            p:
+              en: Reproduced in a practical lab. No content in this revision carries this level yet.
+              vi: Đã tái hiện trong một lab thực hành. Chưa nội dung nào trong bản này đạt mức này.
+          - h:
+              en: Conceptual
+              vi: Khái niệm
+            p:
+              en: A simplified explanation of how something works.
+              vi: Giải thích đơn giản hóa về cách một thứ hoạt động.
+          - h:
+              en: Illustrative
+              vi: Minh họa
+            p:
+              en: Sample code and configuration. Not executed in this revision; adapt and test before use.
+              vi: Code và cấu hình mẫu. Chưa được chạy trong bản này; hãy điều chỉnh và test trước khi dùng.
+      - links:
+          - [Apache Kafka, https://kafka.apache.org/documentation/]
+          - [Debezium, https://debezium.io/documentation/]
+          - [Apache Spark, https://spark.apache.org/docs/latest/]
+          - [Apache Flink, https://nightlies.apache.org/flink/flink-docs-stable/]
+          - [Apache Iceberg, https://iceberg.apache.org/docs/latest/]
+          - [Apache Polaris, https://polaris.apache.org/]
+          - [Trino, https://trino.io/docs/current/]
+          - [Apache Airflow, https://airflow.apache.org/docs/]
+          - [dbt, https://docs.getdbt.com/]
+          - [Dagster, https://docs.dagster.io/]
+          - [Snowflake, https://docs.snowflake.com/]
+          - [BigQuery, https://cloud.google.com/bigquery/docs]
+          - [Databricks, https://docs.databricks.com/]
+          - [DuckDB, https://duckdb.org/docs/]
+          - [PostgreSQL, https://www.postgresql.org/docs/]
+          - [Kubernetes, https://kubernetes.io/docs/]
+          - [Terraform, https://developer.hashicorp.com/terraform/docs]
+          - [AWS, https://docs.aws.amazon.com/]
+          - [Azure, https://learn.microsoft.com/azure/]
+          - [Microsoft Fabric, https://learn.microsoft.com/fabric/]
+          - [Model Context Protocol, https://modelcontextprotocol.io/]
+          - [Claude API, https://docs.claude.com/]
+          - [PyTorch, https://pytorch.org/docs/stable/]
+          - [scikit-learn, https://scikit-learn.org/stable/]
+          - [OpenLineage, https://openlineage.io/docs/]
+          - [Great Expectations, https://docs.greatexpectations.io/]
+          - [Soda, https://docs.soda.io/]
+    n:
+      en: Links point to official documentation home pages. Check the version selector on each site, since the page you land on may describe a different release than the one you run.
+      vi: Các liên kết trỏ tới trang chủ tài liệu chính thức. Hãy kiểm tra bộ chọn phiên bản trên mỗi trang, vì trang bạn vào có thể mô tả bản phát hành khác với bản bạn chạy.

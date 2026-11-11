@@ -1,0 +1,137 @@
+tech: {id: snowflake, name: Snowflake, color: "#0284C7"}
+slides:
+  - id: overview-virtual-warehouse-and-cloud-services
+    k: components
+    mod: [overview]
+    t: {en: "Snowflake overview: warehouses and cloud services", vi: "Snowflake tong quan: warehouse va cloud services"}
+    lead: {en: "Snowflake separates persistent table storage, virtual warehouse compute and shared cloud services.", vi: "Snowflake tach storage table ben vung, compute virtual warehouse va cloud services dung chung."}
+    comps:
+      - - Storage
+        - {en: "Micro-partitioned columnar data managed by the platform.", vi: "Du lieu columnar micro-partition do platform quan ly."}
+      - - Virtual warehouse
+        - {en: "Independent compute cluster for query workloads.", vi: "Compute cluster doc lap cho workload query."}
+      - - Cloud services
+        - {en: "Authentication, metadata, optimization and coordination.", vi: "Authentication, metadata, optimization va coordination."}
+      - - Governance
+        - {en: "Roles, grants, masking policies and secure data sharing.", vi: "Role, grant, masking policy va chia se data an toan."}
+    flow: [{en: "Authenticate and compile", vi: "Xac thuc va compile"}, {en: "Schedule on a warehouse", vi: "Schedule tren warehouse"}, {en: "Read micro-partitions", vi: "Doc micro-partition"}]
+    ops: [{en: "Separate warehouses by workload priority and use resource monitors for spend control.", vi: "Tach warehouse theo uu tien workload va dung resource monitor de kiem soat chi phi."}]
+    n: {en: "Warehouse isolation improves workload control but does not eliminate shared cloud-services limits or data contention patterns.", vi: "Cach ly warehouse tang kiem soat workload nhung khong loai bo gioi han cloud services hoac tranh chap data."}
+  - id: internals-micro-partitions-pruning-and-caching
+    k: table
+    mod: [internals]
+    t: {en: "Snowflake internals: micro-partitions, pruning and cache", vi: "Noi bo Snowflake: micro-partition, pruning va cache"}
+    lead: {en: "Metadata about micro-partition value ranges helps the optimizer skip data before scanning columnar storage.", vi: "Metadata ve range gia tri micro-partition giup optimizer bo qua data truoc khi scan columnar storage."}
+    head: [{en: Mechanism, vi: Co che}, {en: What it does, vi: Tac dung}, {en: Limit, vi: Gioi han}]
+    rows:
+      - - {en: Micro-partition metadata, vi: Metadata micro-partition}
+        - {en: "Stores column ranges and statistics for pruning.", vi: "Luu range cot va statistic de pruning."}
+        - {en: "Poorly correlated ingest order reduces pruning.", vi: "Thu tu ingest tuong quan kem lam giam pruning."}
+      - - {en: Result cache, vi: Result cache}
+        - {en: "Reuses eligible prior query results.", vi: "Tai su dung ket qua query truoc neu du dieu kien."}
+        - {en: "Data changes, session context or query differences can invalidate reuse.", vi: "Data thay doi, session context hoac query khac co the invalid reuse."}
+      - - {en: Warehouse cache, vi: Warehouse cache}
+        - {en: "Keeps scanned data available to a running warehouse.", vi: "Giu data da scan san sang tren warehouse dang chay."}
+        - {en: "Suspending a warehouse discards its local cache.", vi: "Suspend warehouse se bo cache local."}
+    n: {en: "Use query profile partitions scanned versus total and bytes spilled to distinguish pruning, warehouse size and memory pressure.", vi: "Dung query profile so partition scan voi tong va byte spill de tach pruning, warehouse size va ap luc memory."}
+  - id: configuration-warehouses-roles-and-resource-monitors
+    k: code
+    mod: [config]
+    t: {en: "Snowflake configuration: warehouses, roles and monitors", vi: "Cau hinh Snowflake: warehouse, role va monitor"}
+    lead: {en: "Configure workload isolation and spending guardrails alongside least-privilege role grants.", vi: "Cau hinh isolation workload va guardrail chi phi cung voi role grant least-privilege."}
+    blocks:
+      - lang: sql
+        title: warehouse_policy.sql
+        code: |-
+          CREATE WAREHOUSE TRANSFORM_WH
+            WAREHOUSE_SIZE = 'MEDIUM'
+            AUTO_SUSPEND = 60
+            AUTO_RESUME = TRUE
+            INITIALLY_SUSPENDED = TRUE;
+          CREATE RESOURCE MONITOR TRANSFORM_BUDGET
+            WITH CREDIT_QUOTA = 500
+            TRIGGERS ON 80 PERCENT DO NOTIFY
+                     ON 100 PERCENT DO SUSPEND;
+          ALTER WAREHOUSE TRANSFORM_WH SET RESOURCE_MONITOR = TRANSFORM_BUDGET;
+          GRANT USAGE ON WAREHOUSE TRANSFORM_WH TO ROLE TRANSFORMER;
+    points:
+      - {h: {en: Separate ownership from usage, vi: Tach ownership khoi usage}, p: {en: "Grant warehouse usage to workload roles and keep object creation and grant administration with platform owners.", vi: "Cap warehouse usage cho role workload; giu quyen tao object va grant admin cho platform owner."}}
+    n: {en: "Validate suspend thresholds against task duration and queue behavior; frequent cold starts can cost more than a modestly longer suspend window.", vi: "Validate nguong suspend theo duration task va queue; cold start thuong xuyen co the ton hon suspend window dai hon chut."}
+  - id: implementation-incremental-merge-and-stream
+    k: code
+    mod: [implementation]
+    t: {en: "Snowflake implementation: incremental merge", vi: "Trien khai Snowflake: incremental merge"}
+    lead: {en: "Deduplicate source changes and merge by a stable business key; monitor stream offsets and task failures.", vi: "Dedup source change va merge theo business key on dinh; monitor stream offset va task failure."}
+    blocks:
+      - lang: sql
+        title: cdc_merge.sql
+        code: |-
+          MERGE INTO MART.ORDERS AS t
+          USING (
+            SELECT * FROM RAW.ORDER_CHANGES
+            QUALIFY ROW_NUMBER() OVER (
+              PARTITION BY ORDER_ID ORDER BY SOURCE_LSN DESC
+            ) = 1
+          ) AS s
+          ON t.ORDER_ID = s.ORDER_ID
+          WHEN MATCHED AND s.OP = 'D' THEN DELETE
+          WHEN MATCHED THEN UPDATE SET STATUS = s.STATUS, AMOUNT = s.AMOUNT
+          WHEN NOT MATCHED AND s.OP <> 'D' THEN
+            INSERT (ORDER_ID, STATUS, AMOUNT) VALUES (s.ORDER_ID, s.STATUS, s.AMOUNT);
+    points:
+      - {h: {en: Define replay behavior, vi: Dinh nghia replay behavior}, p: {en: "Make the merge idempotent for a source range and retain a source LSN or batch ID for audit.", vi: "Lam merge idempotent cho source range va giu source LSN hoac batch ID de audit."}}
+    n: {en: "Test duplicate keys, deletes, late changes and task retry; inspect query history and stream staleness after deployment.", vi: "Test key trung, delete, change muon va task retry; inspect query history va stream staleness sau deploy."}
+  - id: operations-cost-freshness-and-access
+    k: table
+    mod: [operations]
+    t: {en: "Snowflake operations: cost, freshness and access", vi: "Van hanh Snowflake: chi phi, freshness va access"}
+    lead: {en: "Warehouse credits, task freshness and role grants need distinct owners and alerts.", vi: "Credit warehouse, freshness task va role grant can owner va alert rieng."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Inspect, vi: Kiem tra}, {en: Action, vi: Hanh dong}]
+    rows:
+      - - {en: Credit spike, vi: Credit tang dot bien}
+        - {en: "Warehouse metering, query history, auto-resume and retries.", vi: "Metering warehouse, query history, auto-resume va retry."}
+        - {en: "Attribute spend by workload and set a resource monitor threshold.", vi: "Gan chi phi theo workload va dat threshold resource monitor."}
+      - - {en: Stale output, vi: Output cu}
+        - {en: "Task history, stream staleness and upstream arrival time.", vi: "Task history, stream staleness va thoi gian upstream den."}
+        - {en: "Repair the failed dependency and define a bounded replay.", vi: "Sua dependency fail va dinh nghia replay co gioi han."}
+    n: {en: "Review grants and masking policies as part of data product releases; compute isolation does not imply access isolation.", vi: "Review grant va masking policy trong release data product; isolation compute khong dong nghia isolation access."}
+  - id: troubleshooting-spill-queue-and-task-failures
+    k: table
+    mod: [troubleshooting]
+    t: {en: "Snowflake troubleshooting: spills, queues and task failures", vi: "Xu ly Snowflake: spill, queue va task failure"}
+    lead: {en: "Use query profile and history to tell insufficient compute from poor pruning or concurrency contention.", vi: "Dung query profile va history de phan biet thieu compute, pruning kem hay tranh chap concurrency."}
+    head: [{en: Symptom, vi: Trieu chung}, {en: Evidence, vi: Bang chung}, {en: Response, vi: Phan hoi}]
+    rows:
+      - - {en: Large remote spill, vi: Remote spill lon}
+        - {en: "Query profile operators and bytes spilled.", vi: "Operator query profile va byte spill."}
+        - {en: "Reduce join cardinality or increase warehouse size after verifying plan.", vi: "Giam cardinality join hoac tang warehouse size sau khi verify plan."}
+      - - {en: Queued queries, vi: Query queued}
+        - {en: "Warehouse load, multi-cluster behavior and concurrency.", vi: "Tai warehouse, multi-cluster behavior va concurrency."}
+        - {en: "Separate workloads or adjust cluster policy based on queue SLO.", vi: "Tach workload hoac chinh policy cluster theo queue SLO."}
+    n: {en: "Capture query ID, warehouse, role and query profile before changing size or grants.", vi: "Luu query ID, warehouse, role va query profile truoc khi doi size hoac grant."}
+  - id: performance-pruning-warehouse-and-clustering
+    k: table
+    mod: [performance]
+    t: {en: "Snowflake performance: pruning and warehouse sizing", vi: "Hieu nang Snowflake: pruning va warehouse sizing"}
+    lead: {en: "Improve scan reduction and plan shape before paying for a larger warehouse.", vi: "Cai thien scan reduction va plan shape truoc khi tra tien warehouse lon hon."}
+    head: [{en: Lever, vi: Don bay}, {en: Evidence, vi: Bang chung}, {en: Cost, vi: Chi phi}]
+    rows:
+      - - {en: Predicate pruning, vi: Predicate pruning}
+        - {en: "Partitions scanned versus total in profile.", vi: "Partition scan so voi tong trong profile."}
+        - {en: "May require data layout or clustering maintenance.", vi: "Co the can maintenance layout data hoac clustering."}
+      - - {en: Warehouse size, vi: Warehouse size}
+        - {en: "Spill, elapsed time and concurrent query queue.", vi: "Spill, elapsed time va queue query dong thoi."}
+        - {en: "Larger compute raises credits and may not fix poor scans.", vi: "Compute lon tang credit va khong chac sua scan kem."}
+    n: {en: "Benchmark cold and warm runs separately and include concurrency; cache can otherwise mask the true scan cost.", vi: "Benchmark run cold va warm tach rieng, gom concurrency; cache co the che chi phi scan that."}
+  - id: lab-debug-a-snowflake-credit-spike
+    k: lab
+    mod: [lab]
+    t: {en: "Snowflake lab: debug a credit spike", vi: "Lab Snowflake: debug credit tang dot bien"}
+    lead: {en: "Attribute an unexpected warehouse credit increase and restore cost controls without missing the data freshness target.", vi: "Truy nguyen credit warehouse tang bat ngo va khoi phuc cost control ma khong miss freshness target."}
+    scenario: {en: "A retrying task and a reporting peak overlap after an auto-resume change.", vi: "Task retry va reporting peak trung nhau sau thay doi auto-resume."}
+    input: {en: "Query history, warehouse metering, task history, resource monitors and freshness SLO.", vi: "Query history, warehouse metering, task history, resource monitor va freshness SLO."}
+    tasks: [{en: "Separate query volume, warehouse size and retry causes.", vi: "Tach query volume, warehouse size va nguyen nhan retry."}, {en: "Propose workload and monitor changes.", vi: "De xuat thay doi workload va monitor."}, {en: "Verify freshness and cost after remediation.", vi: "Verify freshness va chi phi sau khac phuc."}]
+    expected: {en: "A cost attribution and bounded remediation with an owner and rollback.", vi: "Truy nguyen chi phi va khac phuc co gioi han, owner va rollback."}
+    rubric: [{en: "Uses query and metering evidence.", vi: "Dung bang chung query va metering."}, {en: "Preserves critical refresh SLO.", vi: "Giu refresh SLO quan trong."}]
+    design: {en: "State alert thresholds, workload separation and replay policy.", vi: "Neu nguong alert, tach workload va replay policy."}
+    n: {en: "Do not accept warehouse downsizing as the only fix; require evidence for query and concurrency contributors.", vi: "Khong chap nhan chi giam warehouse size; can bang chung query va concurrency contributor."}

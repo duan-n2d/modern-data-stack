@@ -1,0 +1,207 @@
+practice:
+  id: incidents
+  name:
+    en: Incident knowledge base
+    vi: Kho tri thức sự cố
+  color: "#DC2626"
+slides:
+  - id: incident-categories-and-first-evidence-to-collect
+    k: table
+    t:
+      en: Incident categories and first evidence to collect
+      vi: Các nhóm sự cố và bằng chứng cần thu thập đầu tiên
+    head:
+      - en: Category
+        vi: Nhóm
+      - en: Example problem
+        vi: Vấn đề ví dụ
+      - en: First evidence
+        vi: Bằng chứng đầu tiên
+      - en: Usual owner
+        vi: Chủ sở hữu thường gặp
+    rows:
+      - - en: Data correctness
+          vi: Tính đúng dữ liệu
+        - en: Duplicate or missing records, wrong aggregation
+          vi: Bản ghi trùng hoặc thiếu, tổng hợp sai
+        - en: Row counts per stage, key uniqueness, source comparison
+          vi: Số dòng theo từng giai đoạn, tính duy nhất của khóa, so với nguồn
+        - en: Pipeline owner
+          vi: Chủ pipeline
+      - - en: Performance
+          vi: Hiệu năng
+        - en: Slow queries, Spark skew, Kafka lag
+          vi: Query chậm, Spark lệch, Kafka lag
+        - en: Query plan, Spark UI, lag per partition
+          vi: Query plan, Spark UI, lag theo partition
+        - en: Platform team
+          vi: Đội platform
+      - - en: Reliability
+          vi: Độ tin cậy
+        - en: Failed jobs, retries, checkpoint failures
+          vi: Job lỗi, retry, checkpoint thất bại
+        - en: Task logs, retry history, checkpoint metrics
+          vi: Log task, lịch sử retry, metric checkpoint
+        - en: Pipeline owner
+          vi: Chủ pipeline
+      - - en: Infrastructure
+          vi: Hạ tầng
+        - en: Disk full, OOM, network timeout
+          vi: Đầy đĩa, OOM, timeout mạng
+        - en: Host metrics, kernel and container logs
+          vi: Metric máy chủ, log kernel và container
+        - en: Platform team
+          vi: Đội platform
+      - - en: Orchestration
+          vi: Điều phối
+        - en: DAG deadlocks, scheduler delays
+          vi: Deadlock DAG, scheduler trễ
+        - en: Scheduler logs, pool usage, metadata database load
+          vi: Log scheduler, mức dùng pool, tải của metadata database
+        - en: Platform team
+          vi: Đội platform
+      - - Lakehouse
+        - en: Small files, metadata growth, concurrent write conflicts
+          vi: File nhỏ, metadata phình, xung đột ghi đồng thời
+        - en: File sizes, manifest counts, commit logs
+          vi: Kích thước file, số manifest, log commit
+        - Data platform
+      - - en: Security
+          vi: Bảo mật
+        - en: Expired credentials, permission errors
+          vi: Credential hết hạn, lỗi quyền
+        - en: Audit logs, secret expiry, policy changes
+          vi: Audit log, hạn secret, thay đổi policy
+        - en: Security and platform
+          vi: Bảo mật và platform
+      - - en: Cost
+          vi: Chi phí
+        - en: Excess compute, inefficient storage, unnecessary scans
+          vi: Compute thừa, storage kém hiệu quả, quét không cần thiết
+        - en: Cost by tag, top queries, storage growth
+          vi: Chi phí theo tag, query tốn nhất, tăng trưởng dung lượng
+        - en: FinOps owner
+          vi: Chủ FinOps
+    cap:
+      en: Classify first. The category decides which evidence you collect and who gets paged.
+      vi: Phân loại trước. Nhóm sự cố quyết định bạn thu thập bằng chứng gì và gọi ai.
+    n:
+      en: "A shared taxonomy speeds up triage: everyone uses the same words for what is broken."
+      vi: "Một bảng phân loại chung giúp phân loại nhanh hơn: mọi người dùng cùng từ ngữ cho thứ đang hỏng."
+  - id: the-incident-format-eight-steps
+    k: cards
+    t:
+      en: "The incident format: eight steps"
+      vi: "Định dạng sự cố: tám bước"
+    lead:
+      en: Use the same eight sections for every incident and every runbook. The format is what turns an incident into learning.
+      vi: Dùng cùng tám mục cho mọi sự cố và mọi runbook. Định dạng là thứ biến sự cố thành bài học.
+    cols: 2
+    cards:
+      - h:
+          en: 1. Symptoms and 2. Business impact
+          vi: 1. Triệu chứng và 2. Tác động nghiệp vụ
+        p:
+          en: What was observed, by whom, since when, and which reports, customers or decisions were affected.
+          vi: Quan sát được gì, bởi ai, từ khi nào, và báo cáo, khách hàng hay quyết định nào bị ảnh hưởng.
+      - h:
+          en: 3. Possible root causes and 4. Evidence
+          vi: 3. Nguyên nhân gốc có thể và 4. Bằng chứng
+        p:
+          en: "List hypotheses, and for each the evidence that would confirm or reject it: logs, metrics, queries, recent changes."
+          vi: "Liệt kê các giả thuyết, và với mỗi giả thuyết là bằng chứng xác nhận hoặc bác bỏ: log, metric, query, thay đổi gần đây."
+      - h:
+          en: 5. Diagnostic procedure
+          vi: 5. Quy trình chẩn đoán
+        p:
+          en: Ordered steps from cheapest to most expensive, each with the command or dashboard to use.
+          vi: Các bước theo thứ tự từ rẻ nhất đến đắt nhất, mỗi bước kèm lệnh hoặc dashboard cần dùng.
+      - h:
+          en: 6. Resolution options and trade-offs
+          vi: 6. Phương án xử lý và đánh đổi
+        p:
+          en: Mitigate first (stop the bleeding), then fix the cause. State what each option costs and risks.
+          vi: Giảm nhẹ trước (cầm máu), rồi sửa nguyên nhân. Nêu mỗi phương án tốn gì và rủi ro gì.
+      - h:
+          en: 7. Prevention
+          vi: 7. Phòng ngừa
+        p:
+          en: The test, monitor, contract or process change that would have caught it earlier, with an owner and a date.
+          vi: Test, monitor, contract hoặc thay đổi quy trình lẽ ra đã bắt được sớm hơn, kèm người chịu trách nhiệm và ngày hạn.
+      - h: 8. Postmortem
+        p:
+          en: "Blameless review: timeline, what worked, what did not, and the follow-up actions that are tracked to completion."
+          vi: "Review không đổ lỗi: dòng thời gian, cái gì tốt, cái gì chưa tốt, và các hành động tiếp theo được theo dõi đến khi hoàn tất."
+    n:
+      en: Insist that prevention and postmortem are not optional. An incident without a prevention action will happen again.
+      vi: Nhấn mạnh phòng ngừa và postmortem không phải tùy chọn. Sự cố không có hành động phòng ngừa sẽ xảy ra lại.
+  - id: incident-example-1-data-correctness-duplicated-revenue
+    k: incident
+    t:
+      en: "Incident example 1 (data correctness): duplicated revenue after a backfill"
+      vi: "Ví dụ sự cố 1 (tính đúng dữ liệu): doanh thu bị nhân ??i sau backfill"
+    lead:
+      en: A composite teaching example, not a report of a real company incident.
+      vi: Ví dụ giảng dạy tổng hợp, không phải báo cáo sự cố của một công ty thật.
+    sym:
+      en: Monthly revenue is 18 percent higher than finance’s ledger. It appeared the morning after a 30-day backfill.
+      vi: Doanh thu tháng cao hơn sổ cái của tài chính 18 phần trăm. Nó xuất hiện vào sáng sau một lần backfill 30 ngày.
+    impact:
+      en: Finance and sales leaders saw inflated numbers for a day; one forecast was shared externally.
+      vi: Lãnh đạo tài chính và kinh doanh thấy số liệu thổi phồng trong một ngày; một dự báo đã được gửi ra ngoài.
+    causes:
+      en: Backfill appended instead of overwriting partitions; a join fan-out; a duplicated source extract.
+      vi: Backfill ghi thêm thay vì ghi đè partition; join nở dòng; extract nguồn bị trùng.
+    evidence:
+      en: Row counts per partition before and after; distinct versus total order IDs; backfill run history; the SQL of the load step.
+      vi: Số dòng theo partition trước và sau; số order ID khác nhau so với tổng; lịch sử các lần chạy backfill; SQL của bước load.
+    diag:
+      en: 1) Compare totals by day with the source. 2) Check key uniqueness. 3) Find the first day where counts diverge. 4) Read the load step for append versus overwrite.
+      vi: 1) So tổng theo ngày với nguồn. 2) Kiểm tra tính duy nhất của khóa. 3) Tìm ngày đầu tiên số dòng bắt đầu lệch. 4) Đọc bước load để biết ghi thêm hay ghi đè.
+    fix:
+      en: "Option A: restore the affected partitions from a snapshot (fast, needs snapshots). Option B: rebuild from the source (slower, always possible). Notify consumers either way."
+      vi: "Phương án A: khôi phục các partition bị ảnh hưởng từ snapshot (nhanh, cần có snapshot). Phương án B: dựng lại từ nguồn (chậm hơn, luôn làm được). Dù cách nào cũng thông báo cho consumer."
+    prev:
+      en: Make loads idempotent by logical date, add a uniqueness test on order_id and a reconciliation test against the ledger.
+      vi: Làm load idempotent theo logical date, thêm test tính duy nhất cho order_id và test đối soát với sổ cái.
+    post:
+      en: "Timeline, the missing test, and tracked actions: idempotent load, reconciliation gate, backfill runbook."
+      vi: "Dòng thời gian, test còn thiếu và các hành động được theo dõi: load idempotent, cổng đối soát, runbook backfill."
+    n:
+      en: "Note the order: confirm and contain, then explain, then prevent. The reconciliation test would have turned this into a failed run instead of a wrong dashboard."
+      vi: "Lưu ý thứ tự: xác nhận và khoanh vùng, rồi giải thích, rồi phòng ngừa. Test đối soát lẽ ra đã biến sự cố này thành một lần chạy thất bại thay vì dashboard sai."
+  - id: incident-example-2-performance-kafka-consumer-lag-and
+    k: incident
+    t:
+      en: "Incident example 2 (performance): Kafka consumer lag and rebalance storm"
+      vi: "Ví dụ sự cố 2 (hiệu năng): Kafka consumer lag và bão rebalance"
+    lead:
+      en: A composite teaching example, not a report of a real company incident.
+      vi: Ví dụ giảng dạy tổng hợp, không phải báo cáo sự cố của một công ty thật.
+    sym:
+      en: Lag on the orders topic grows from seconds to 40 minutes. Consumer logs show repeated rebalances every few minutes.
+      vi: Lag trên topic orders tăng từ vài giây lên 40 phút. Log consumer cho thấy rebalance lặp lại mỗi vài phút.
+    impact:
+      en: Near-real-time dashboards and fraud checks are stale; downstream SLAs are at risk.
+      vi: Dashboard gần thời gian thực và kiểm tra gian lận bị cũ; SLA phía sau bị đe dọa.
+    causes:
+      en: Handler exceeds `max.poll.interval.ms` after a slow downstream call; a consumer pod is repeatedly OOM-killed; deployments restart members; eager assignment pauses everyone.
+      vi: Handler vượt `max.poll.interval.ms` sau một lời gọi phía sau chậm; một pod consumer liên tục bị OOM kill; lần deploy khởi động lại các thành viên; gán eager làm mọi người tạm dừng.
+    evidence:
+      en: Group state and member list; rebalance count over time; poll duration; container restarts; lag per partition.
+      vi: Trạng thái group và danh sách thành viên; số lần rebalance theo thời gian; thời gian poll; số lần container khởi động lại; lag theo partition.
+    diag:
+      en: 1) Describe the group and check members. 2) Correlate rebalances with deployments or restarts. 3) Measure handler time per batch. 4) Check broker health and ISR.
+      vi: 1) Describe group và kiểm tra thành viên. 2) Đối chiếu rebalance với deploy hoặc khởi động lại. 3) Đo thời gian handler mỗi batch. 4) Kiểm tra sức khỏe broker và ISR.
+    fix:
+      en: "Mitigate: reduce `max.poll.records`, pause deployments. Fix: speed up or isolate the slow call, raise memory, use cooperative-sticky assignment and static membership. Trade-off: slower failure detection with a longer timeout."
+      vi: "Giảm nhẹ: giảm `max.poll.records`, dừng deploy. Sửa: tăng tốc hoặc cô lập lời gọi chậm, tăng bộ nhớ, dùng gán cooperative-sticky và static membership. Đánh đổi: timeout dài hơn thì phát hiện lỗi chậm hơn."
+    prev:
+      en: Alert on rebalance rate and lag growth; load-test handlers; set memory from measurement; use rolling deploys with static membership.
+      vi: Cảnh báo theo tốc độ rebalance và tăng lag; test tải handler; đặt bộ nhớ theo số đo; deploy cuốn chiếu với static membership.
+    post:
+      en: Timeline and metrics, why the alert did not fire early, and actions for handler isolation and rebalance alerts.
+      vi: Dòng thời gian và metric, vì sao cảnh báo không kích hoạt sớm và các hành động về cô lập handler và cảnh báo rebalance.
+    n:
+      en: This answers the question of what triggers a rebalance, how it shows up in metrics and logs, what it costs, and which remedies exist. Setting names should be verified for your Kafka version.
+      vi: Đây là câu trả lời cho câu hỏi điều gì kích hoạt rebalance, nó hiện ra thế nào trong metric và log, giá phải trả là gì và có những cách xử lý nào. Tên cấu hình nên được kiểm tra theo phiên bản Kafka của bạn.

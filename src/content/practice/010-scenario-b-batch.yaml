@@ -1,0 +1,240 @@
+practice:
+  id: scenario-b-batch
+  name:
+    en: "Scenario B: batch analytics platform"
+    vi: "Kịch bản B: nền tảng analytics batch"
+  color: "#EA580C"
+slides:
+  - id: scenario-b-source-database-airflow-dbt-warehouse-bi
+    k: stack
+    t:
+      en: "Scenario B: source database → Airflow → dbt → warehouse → BI"
+      vi: "Kịch bản B: database nguồn → Airflow → dbt → warehouse → BI"
+    lead:
+      en: Airflow schedules, dbt transforms and tests, the warehouse stores, BI and ML consume. The craft is in backfills, reconciliation, history and safe deployment.
+      vi: Airflow lên lịch, dbt biến đổi và test, warehouse lưu trữ, BI và ML sử dụng. Tay nghề nằm ở backfill, đối soát, lịch sử và triển khai an toàn.
+    parts:
+      - svg: scenBSVG
+      - cols: 3
+        cards:
+          - h:
+              en: Incremental and backfill
+              vi: Incremental và backfill
+            p:
+              en: Loads are keyed by logical date and idempotent, so thirty days of history can be rerun without duplicates.
+              vi: Các lần load khóa theo logical date và idempotent, nên có thể chạy lại ba mươi ngày lịch sử mà không trùng.
+          - h:
+              en: History and reconciliation
+              vi: Lịch sử và đối soát
+            p:
+              en: Dimensions keep history with SCD Type 2. Counts and totals are compared with the source after every load.
+              vi: Dimension giữ lịch sử bằng SCD Type 2. Số dòng và tổng được so với nguồn sau mỗi lần load.
+          - h:
+              en: Deploy and roll back
+              vi: Triển khai và rollback
+            p:
+              en: Slim CI builds only what changed. A cloned schema makes the previous version one swap away.
+              vi: Slim CI chỉ build thứ đã đổi. Schema được clone giúp phiên bản trước chỉ cách một lần hoán đổi.
+    n:
+      en: "This follows your Airflow, dbt and warehouse diagram: raw sources load into the warehouse, dbt transforms and tests, and consumers read marts. Orchestration sits above the whole flow."
+      vi: "Kịch bản này theo sơ đồ Airflow, dbt và warehouse của bạn: nguồn thô nạp vào warehouse, dbt biến đổi và test, nơi dùng đọc mart. Điều phối nằm phía trên toàn bộ luồng."
+  - id: scenario-b-implementation-dag-backfill-and-rollback
+    k: code
+    t:
+      en: "Scenario B implementation: DAG, backfill and rollback"
+      vi: "Kịch bản B triển khai: DAG, backfill và rollback"
+    lead:
+      en: A reconciliation gate before dbt, a bounded backfill, and a schema swap for rollback.
+      vi: Cổng đối soát trước dbt, backfill có giới hạn và hoán đổi schema để rollback.
+    blocks:
+      - lang: python
+        title: warehouse_daily.py
+        code: |-
+          import pendulum
+          from airflow.decorators import dag, task
+          from airflow.operators.bash import BashOperator
+
+
+          @dag(
+              dag_id="warehouse_daily",
+              schedule="0 2 * * *",
+              start_date=pendulum.datetime(2026, 1, 1, tz="UTC"),
+              catchup=False,
+              max_active_runs=2,
+          )
+          def warehouse_daily():
+              @task(retries=3)
+              def extract_load(ds=None) -> int:
+                  rows = load_partition_from_source(ds)         # idempotent: overwrite the partition for ds
+                  return rows
+
+              @task
+              def reconcile(ds=None, loaded_rows: int = 0) -> None:
+                  source_rows = count_source_rows(ds)
+                  if source_rows != loaded_rows:
+                      raise ValueError(f"{ds}: source {source_rows} != loaded {loaded_rows}")
+
+              dbt_build = BashOperator(
+                  task_id="dbt_build",
+                  bash_command="cd /opt/dbt && dbt build --target prod --vars \"{run_date: '{{ ds }}'}\"",
+              )
+
+              reconcile(loaded_rows=extract_load()) >> dbt_build
+
+
+          warehouse_daily()
+      - lang: bash
+        title: backfill.sh (Airflow 2.x CLI)
+        code: |-
+          # Rerun 30 days with limited concurrency (the DAG's max_active_runs applies)
+          airflow dags backfill -s 2026-10-01 -e 2026-10-30 warehouse_daily
+      - lang: sql
+        title: rollback.sql (Snowflake)
+        code: |-
+          -- Before deploying: keep the current version
+          CREATE OR REPLACE SCHEMA analytics_prev CLONE analytics;
+
+          -- ... deploy and validate ...
+
+          -- If the release is bad: swap the previous version back in
+          ALTER SCHEMA analytics SWAP WITH analytics_prev;
+    points:
+      - h:
+          en: Gate before transform
+          vi: Cổng trước biến đổi
+        p:
+          en: Fail the run when counts disagree, so bad data never reaches marts.
+          vi: Cho run thất bại khi số dòng không khớp, để dữ liệu xấu không bao giờ tới mart.
+      - h:
+          en: Idempotent partitions
+          vi: Partition idempotent
+        tag: senior
+        p:
+          en: Overwriting the partition for the logical date makes retries and backfills safe.
+          vi: Ghi đã partition của logical date làm retry và backfill an toàn.
+      - h:
+          en: Data rollback
+          vi: Rollback dữ liệu
+        tag: senior
+        p:
+          en: Code rollback is `git revert`. Data rollback needs clones, snapshots or time travel prepared in advance.
+          vi: Rollback code là `git revert`. Rollback dữ liệu cần clone, snapshot hoặc time travel chuẩn bị sẵn.
+      - h:
+          en: Version-specific CLI
+          vi: CLI theo phiên bản
+        p:
+          en: The backfill command differs in Airflow 3. Check the documentation for your version.
+          vi: Lệnh backfill khác ở Airflow 3. Hãy xem tài liệu của phiên bản bạn dùng.
+    n:
+      en: Helper functions such as load_partition_from_source are placeholders for your extract logic. The schema swap pattern is Snowflake syntax; other warehouses have equivalents such as table clones or snapshots.
+      vi: Các hàm trợ giúp như load_partition_from_source là chỗ giữ chỗ cho logic extract của bạn. Mẫu hoán đổi schema là cú pháp Snowflake; warehouse khác có tương đương như clone bảng hoặc snapshot.
+  - id: scenario-b-failure-simulations
+    k: table
+    t:
+      en: Scenario B failure simulations
+      vi: "Kịch bản B: mô phỏng sự cố"
+    head:
+      - en: Failure
+        vi: Sự cố
+      - en: How to simulate
+        vi: Cách mô phỏng
+      - en: Expected behaviour
+        vi: Hành vi mong đợi
+      - en: How to verify
+        vi: Cách kiểm chứng
+    rows:
+      - - en: Source arrives late
+          vi: Nguồn đến trễ
+        - en: Delay the extract by two hours
+          vi: Trễ bước extract hai giờ
+        - en: Freshness alert; dbt does not build on stale data
+          vi: Cảnh báo freshness; dbt không build trên dữ liệu cũ
+        - en: Alert fired; run state; marts untouched
+          vi: Cảnh báo được kích hoạt; trạng thái run; mart không bị đụng
+      - - en: Partial load
+          vi: Load dở dang
+        - en: Kill the loader halfway
+          vi: Tắt bộ nạp giữa chừng
+        - en: Reconcile gate fails; retry overwrites the partition
+          vi: Cổng đối soát thất bại; retry ghi đè partition
+        - en: Source versus loaded counts after retry
+          vi: Số dòng nguồn so với đã nạp sau retry
+      - - en: Schema drift
+          vi: Lệch schema
+        - en: Add and rename a source column
+          vi: Thêm và đổi tên một cột nguồn
+        - en: Detected by contract or tests before marts change
+          vi: Được contract hoặc test phát hiện trước khi mart đổi
+        - en: Failing test names the column
+          vi: Test thất bại nêu rõ cột
+      - - en: Backfill duplicates
+          vi: Backfill gây trùng
+        - en: Backfill 30 days twice
+          vi: Backfill 30 ngày hai lần
+        - en: Second run produces identical results
+          vi: Lần chạy thứ hai cho kết quả giống hệt
+        - en: Checksums per partition match
+          vi: Checksum theo partition khớp
+      - - en: Bad release
+          vi: Bản phát hành lỗi
+        - en: Deploy a model with a wrong join
+          vi: Deploy một model có join sai
+        - en: Rollback restores the previous marts quickly
+          vi: Rollback khôi phục mart trước đó nhanh chóng
+        - en: Totals match the pre-release snapshot
+          vi: Tổng khớp với snapshot trước phát hành
+      - - en: Credit spike
+          vi: Chi phí tăng vọt
+        - en: Run a full refresh of every model
+          vi: Chạy full refresh mọi model
+        - en: Budget alert and resource monitor trigger
+          vi: Cảnh báo ngân sách và resource monitor được kích hoạt
+        - en: Alert time versus spend
+          vi: Thời điểm cảnh báo so với chi tiêu
+    cap:
+      en: "Each simulation maps to a control: gates, idempotency, contracts, rollback, budgets."
+      vi: "Mỗi mô phỏng gắn với một kiểm soát: cổng, idempotency, contract, rollback, ngân sách."
+    n:
+      en: "Link every row to the layer that owns the control: orchestration, quality, modeling, DevOps, FinOps."
+      vi: "Nối từng hàng với layer sở hữu kiểm soát đã: điều phối, chất lượng, mô hình hóa, DevOps, FinOps."
+  - id: scenario-b-lab-performance-test-and-design-review
+    k: lab
+    t:
+      en: Scenario B lab, performance test and design review
+      vi: "Kịch bản B: lab, test hiệu năng và review thiết kế"
+    lead:
+      en: Operate a small warehouse platform through a month of change.
+      vi: Vận hành một nền tảng warehouse nhỏ qua một tháng thay đổi.
+    scenario:
+      en: Deliver daily marts for finance with full history of customer attributes, correct totals and a safe release process.
+      vi: Cung cấp mart hằng ngày cho tài chính với đầy đủ lịch sử thuộc tính khách hàng, tổng đúng và quy trình phát hành an toàn.
+    input:
+      en: Postgres as the source, DuckDB or a cloud warehouse as the target, Airflow, dbt, a generator that adds late updates and schema changes.
+      vi: Postgres làm nguồn, DuckDB hoặc cloud warehouse làm đích, Airflow, dbt, bộ sinh dữ liệu thêm cập nhật muộn và đổi schema.
+    tasks:
+      - en: Build the DAG, dbt project, SCD2 dimension and reconciliation gate.
+        vi: Xây DAG, dự án dbt, dimension SCD2 và cổng đối soát.
+      - en: Backfill 30 days, then rerun and show identical results.
+        vi: Backfill 30 ngày, rồi chạy lại và cho thấy kết quả giống hệt.
+      - en: Run all failure simulations.
+        vi: Chạy mọi mô phỏng sự cố.
+      - en: Deploy a bad change and roll back; measure time to recover.
+        vi: Deploy một thay đổi lỗi rồi rollback; đo thời gian khôi phục.
+    expected:
+      en: A passing CI pipeline, an identical-results proof for the backfill, and a rollback with a measured recovery time.
+      vi: Pipeline CI đạt, bằng chứng kết quả giống hệt cho backfill và một lần rollback có đo thời gian khôi phục.
+    rubric:
+      - en: Idempotency demonstrated, not claimed
+        vi: Idempotency được chứng minh, không chỉ tuyên bố
+      - en: History correct for changed attributes
+        vi: Lịch sử đúng với thuộc tính đã đổi
+      - en: Rollback tested
+        vi: Rollback đã được test
+      - en: Cost guardrails in place
+        vi: Có hàng rào chi phí
+    design:
+      en: "Design review: justify incremental strategies, how you would scale to 500 models, and the ownership model for marts."
+      vi: "Review thiết kế: biện minh chiến lược incremental, cách mở rộng lên 500 model và mô hình sở hữu mart."
+    n:
+      en: "A good submission shows evidence for each claim: queries, checksums and timings."
+      vi: "Bài nộp tốt cho thấy bằng chứng cho từng tuyên bố: query, checksum và thời gian."

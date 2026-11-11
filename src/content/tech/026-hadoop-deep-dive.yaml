@@ -1,0 +1,114 @@
+tech: {id: hadoop, name: Hadoop, color: "#B45309"}
+slides:
+  - id: overview-hdfs-yarn-and-mapreduce
+    k: components
+    mod: [overview]
+    t: {en: "Hadoop overview: HDFS, YARN and MapReduce", vi: "Hadoop tong quan: HDFS, YARN va MapReduce"}
+    lead: {en: "Hadoop separates distributed storage, cluster resource management and batch computation across a shared cluster.", vi: "Hadoop tach storage phan tan, quan ly resource cluster va batch computation tren cluster chung."}
+    comps:
+      - - HDFS
+        - {en: "Replicated blocks and a metadata namespace managed by NameNode.", vi: "Block replication va namespace metadata do NameNode quan ly."}
+      - - YARN
+        - {en: "Allocates containers through ResourceManager and NodeManagers.", vi: "Cap container qua ResourceManager va NodeManager."}
+      - - MapReduce
+        - {en: "Runs map and reduce tasks with intermediate shuffle on cluster storage.", vi: "Chay map va reduce task voi intermediate shuffle tren storage cluster."}
+    flow: [{en: "Write blocks to DataNodes", vi: "Ghi block vao DataNode"}, {en: "Request YARN containers", vi: "Xin container tu YARN"}, {en: "Run tasks near the data", vi: "Chay task gan du lieu"}]
+    ops: [{en: "Modern cloud deployments often replace HDFS while retaining distributed processing concepts.", vi: "Deployment cloud hien dai thuong thay HDFS nhung van giu concept xu ly phan tan."}]
+    n: {en: "Use Hadoop to teach data locality, replication and resource scheduling; explain where object storage changes those trade-offs.", vi: "Dung Hadoop de day data locality, replication va scheduling resource; giai thich object storage thay doi trade-off ra sao."}
+  - id: internals-hdfs-replication-and-yarn-scheduling
+    k: table
+    mod: [internals]
+    t: {en: "Hadoop internals: HDFS replication and YARN scheduling", vi: "Noi bo Hadoop: replication HDFS va scheduling YARN"}
+    lead: {en: "Metadata services coordinate placement while workers store blocks and execute containers.", vi: "Dich vu metadata dieu phoi placement trong khi worker luu block va chay container."}
+    head: [{en: Component, vi: Thanh phan}, {en: State or decision, vi: State hoac quyet dinh}, {en: Failure implication, vi: He qua khi loi}]
+    rows:
+      - - {en: NameNode, vi: NameNode}
+        - {en: "Namespace and block locations.", vi: "Namespace va vi tri block."}
+        - {en: "HA failover must fence the old active node.", vi: "HA failover phai fence node active cu."}
+      - - {en: DataNode, vi: DataNode}
+        - {en: "Block replicas and heartbeats.", vi: "Replica block va heartbeat."}
+        - {en: "Lost replicas trigger re-replication and capacity pressure.", vi: "Mat replica gay re-replication va ap luc capacity."}
+      - - {en: ResourceManager, vi: ResourceManager}
+        - {en: "Queue policy and container allocation.", vi: "Policy queue va cap container."}
+        - {en: "Scheduler delay can leave healthy workers idle.", vi: "Scheduler cham co the de worker khoe idle."}
+    n: {en: "Separate metadata availability from data durability: NameNode HA protects namespace service, while block replication protects stored bytes.", vi: "Tach availability metadata khoi durability du lieu: NameNode HA bao ve namespace service, replication block bao ve byte da luu."}
+  - id: configuration-capacity-and-replication
+    k: table
+    mod: [config]
+    t: {en: "Hadoop configuration: capacity and replication", vi: "Cau hinh Hadoop: capacity va replication"}
+    lead: {en: "Capacity planning starts with usable storage, replica factor, reserved headroom and expected recovery throughput.", vi: "Capacity planning bat dau tu storage su dung duoc, replica factor, headroom du tru va throughput recovery du kien."}
+    head: [{en: Setting, vi: Setting}, {en: Purpose, vi: Muc dich}, {en: Guardrail, vi: Guardrail}]
+    rows:
+      - - {en: dfs.replication, vi: dfs.replication}
+        - {en: "Durability and read locality.", vi: "Durability va locality khi doc."}
+        - {en: "Account for rack failure domains and storage multiplication.", vi: "Tinh den failure domain rack va storage bi nhan len."}
+      - - {en: YARN queue capacity, vi: Capacity queue YARN}
+        - {en: "Shares cluster resources between teams.", vi: "Chia resource cluster giua cac team."}
+        - {en: "Reserve capacity for critical recovery and service jobs.", vi: "Du tru capacity cho recovery va service job quan trong."}
+    n: {en: "Validate configuration against rack topology and actual disk failure domains; a replica count alone does not guarantee resilience.", vi: "Validate config theo topology rack va failure domain dia thuc; replica count don le khong dam bao resilience."}
+  - id: implementation-hdfs-yarn-batch-workflow
+    k: list
+    mod: [implementation]
+    t: {en: "Hadoop implementation: a reliable batch workflow", vi: "Trien khai Hadoop: batch workflow dang tin cay"}
+    lead: {en: "A production batch workflow stages input, validates output and publishes only complete partitions.", vi: "Batch workflow production stage input, validate output va chi publish partition hoan tat."}
+    items:
+      - {en: "Write immutable input under a run-specific staging path.", vi: "Ghi input bat bien vao staging path rieng cho run."}
+      - {en: "Run the job with an explicit queue, memory request and retry policy.", vi: "Chay job voi queue, memory request va retry policy ro rang."}
+      - {en: "Validate counts, schema and business keys before publication.", vi: "Validate count, schema va business key truoc khi publish."}
+      - {en: "Atomically rename or commit the completed output where the filesystem supports it.", vi: "Rename atomic hoac commit output hoan tat neu filesystem ho tro."}
+      - {en: "Record input version, application ID and output location for replay.", vi: "Ghi input version, application ID va output location de replay."}
+    n: {en: "Design the publish step so a retry cannot expose half-written output to downstream readers.", vi: "Thiet ke buoc publish de retry khong lo output moi ghi mot phan cho reader downstream."}
+  - id: operations-hdfs-health-and-recovery
+    k: table
+    mod: [operations]
+    t: {en: "Hadoop operations: HDFS health and recovery", vi: "Van hanh Hadoop: suc khoe HDFS va recovery"}
+    lead: {en: "Track under-replicated blocks, disk balance, queue wait and recovery time as separate signals.", vi: "Theo doi block thieu replica, can bang dia, queue wait va recovery time nhu cac tin hieu rieng."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Interpretation, vi: Dien giai}, {en: Response, vi: Phan hoi}]
+    rows:
+      - - {en: Under-replicated blocks, vi: Block thieu replica}
+        - {en: "Replica repair is behind or a failure domain is unavailable.", vi: "Sua replica cham hoac failure domain khong san sang."}
+        - {en: "Check DataNode health, rack placement and free capacity.", vi: "Kiem tra suc khoe DataNode, rack placement va capacity trong."}
+      - - {en: Long YARN queue wait, vi: YARN queue wait dai}
+        - {en: "Demand exceeds queue capacity or containers are fragmented.", vi: "Nhu cau vuot capacity queue hoac container bi phan manh."}
+        - {en: "Inspect queue usage and request sizes before changing limits.", vi: "Kiem tra muc dung queue va kich thuoc request truoc khi doi gioi han."}
+    n: {en: "Practice node loss and NameNode failover in a controlled environment and measure time to healthy replication.", vi: "Thuc hanh mat node va NameNode failover trong moi truong kiem soat, do thoi gian khoi phuc replication tot."}
+  - id: troubleshooting-hdfs-and-yarn-failures
+    k: table
+    mod: [troubleshooting]
+    t: {en: "Hadoop troubleshooting: HDFS and YARN failures", vi: "Xu ly su co Hadoop: loi HDFS va YARN"}
+    lead: {en: "Distinguish storage faults, metadata faults and scheduling starvation before restarting services.", vi: "Phan biet loi storage, metadata va scheduling starvation truoc khi restart service."}
+    head: [{en: Symptom, vi: Trieu chung}, {en: Check, vi: Kiem tra}, {en: Likely fix, vi: Cach sua}]
+    rows:
+      - - {en: Safe mode persists, vi: Safe mode keo dai}
+        - {en: "Missing block reports, unavailable DataNodes or metadata recovery state.", vi: "Thieu block report, DataNode khong san sang hoac metadata dang recovery."}
+        - {en: "Restore DataNode connectivity and verify block safety before leaving safe mode.", vi: "Khoi phuc ket noi DataNode va xac minh an toan block truoc khi thoat safe mode."}
+      - - {en: Containers pending, vi: Container pending}
+        - {en: "Queue limits, node labels, memory fragmentation or unhealthy NodeManagers.", vi: "Gioi han queue, node label, phan manh memory hoac NodeManager khong khoe."}
+        - {en: "Compare requested resources with allocatable capacity and queue policy.", vi: "So resource request voi capacity co the cap va policy queue."}
+    n: {en: "Capture NameNode, ResourceManager and affected worker logs with the same time window to reconstruct the failure sequence.", vi: "Thu log NameNode, ResourceManager va worker bi anh huong cung time window de dung lai trinh tu loi."}
+  - id: performance-data-locality-and-small-files
+    k: table
+    mod: [performance]
+    t: {en: "Hadoop performance: data locality and small files", vi: "Hieu nang Hadoop: data locality va small file"}
+    lead: {en: "Locality reduces network transfer; small files increase metadata and task startup overhead.", vi: "Locality giam truyen mang; small file tang overhead metadata va startup task."}
+    head: [{en: Pattern, vi: Mau hinh}, {en: Cost, vi: Chi phi}, {en: Remedy, vi: Cach xu ly}]
+    rows:
+      - - {en: Remote reads, vi: Doc tu xa}
+        - {en: "Network traffic and longer task duration.", vi: "Traffic mang va task duration dai hon."}
+        - {en: "Check block placement, rack bandwidth and split sizing.", vi: "Kiem tra block placement, bandwidth rack va kich thuoc split."}
+      - - {en: Small files, vi: Small file}
+        - {en: "NameNode memory and job planning overhead.", vi: "Memory NameNode va overhead planning job."}
+        - {en: "Compact data or use a container format with a catalog-aware reader.", vi: "Compact data hoac dung container format voi reader hieu catalog."}
+    n: {en: "Benchmark including metadata operations and recovery load; raw scan throughput hides control-plane limits.", vi: "Benchmark gom ca metadata operation va recovery load; throughput scan thuan che gioi han control plane."}
+  - id: lab-recover-a-degraded-hdfs-cluster
+    k: lab
+    mod: [lab]
+    t: {en: "Hadoop lab: recover a degraded HDFS cluster", vi: "Lab Hadoop: khoi phuc HDFS cluster suy giam"}
+    lead: {en: "Diagnose a simulated DataNode loss and restore safe replication without risking remaining copies.", vi: "Chan doan DataNode mat gia lap va khoi phuc replication an toan, khong de rui ro cac ban sao con lai."}
+    scenario: {en: "A rack is unreachable, under-replicated blocks rise and a batch queue is backing up.", vi: "Mot rack khong truy cap duoc, block thieu replica tang va batch queue dang un tac."}
+    input: {en: "HDFS reports, DataNode inventory, rack map, YARN queue metrics and job logs.", vi: "Bao cao HDFS, danh sach DataNode, rack map, metric queue YARN va log job."}
+    tasks: [{en: "Identify affected blocks and failure domain.", vi: "Xac dinh block bi anh huong va failure domain."}, {en: "Restore service and verify replication safety.", vi: "Khoi phuc service va xac minh replication an toan."}, {en: "Explain queue impact and a safe recovery order.", vi: "Giai thich tac dong queue va thu tu recovery an toan."}]
+    expected: {en: "A prioritized recovery plan with validation queries and no destructive force operation.", vi: "Ke hoach recovery co uu tien, query validation va khong co thao tac force pha huy."}
+    rubric: [{en: "Correctly separates storage and scheduler symptoms.", vi: "Phan biet dung trieu chung storage va scheduler."}, {en: "Protects the last healthy replicas.", vi: "Bao ve replica tot cuoi cung."}]
+    design: {en: "State assumptions about rack restoration, spare capacity and workload throttling.", vi: "Neu gia dinh ve khoi phuc rack, capacity du va throttle workload."}
+    n: {en: "Score the sequence and evidence, not whether the learner memorizes command names.", vi: "Cham trinh tu va bang chung, khong cham viec hoc thuoc ten lenh."}

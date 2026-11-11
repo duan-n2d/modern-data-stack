@@ -1,0 +1,233 @@
+practice:
+  id: scenario-c-lakehouse
+  name:
+    en: "Scenario C: lakehouse platform"
+    vi: "Kịch bản C: nền tảng lakehouse"
+  color: "#7C3AED"
+slides:
+  - id: scenario-c-kafka-spark-minio-iceberg-polaris-trino
+    k: stack
+    t:
+      en: "Scenario C: Kafka → Spark → MinIO → Iceberg → Polaris → Trino"
+      vi: "Kịch bản C: Kafka → Spark → MinIO → Iceberg → Polaris → Trino"
+    lead:
+      en: A lakehouse lives or dies by file layout, metadata health and safe concurrent writes.
+      vi: Một lakehouse sống hay chết nhờ cách bố trí file, sức khỏe metadata và ghi đồng thời an toàn.
+    parts:
+      - svg: scenCSVG
+      - cols: 3
+        cards:
+          - h:
+              en: Partition design
+              vi: Thiết kế partition
+            p:
+              en: Partition by event day, not by a high-cardinality key. Use sort order or clustering for the filters you query most.
+              vi: Partition theo ngày sự kiện, không theo khóa cardinality cao. Dùng sort order hoặc clustering cho bộ lọc bạn truy vấn nhiều nhất.
+          - h:
+              en: Compaction and snapshots
+              vi: Compaction và snapshot
+            p:
+              en: Streaming creates small files. Compact on a schedule, rewrite manifests and expire snapshots to bound metadata.
+              vi: Streaming tạo file nhỏ. Compaction theo lịch, viết lại manifest và hết hạn snapshot để giới hạn metadata.
+          - h:
+              en: Concurrency and optimization
+              vi: Đồng thời và tối ưu
+            p:
+              en: Streaming, compaction and backfills commit optimistically. Align their partitions and test conflict behaviour, then tune queries by pruning.
+              vi: Streaming, compaction và backfill commit lạc quan. Căn partition của chúng và test hành vi xung đột, rồi tối ưu query bằng pruning.
+    n:
+      en: "Compare with Scenario A: here the focus is the table layout and maintenance, not the change capture."
+      vi: "So với Kịch bản A: ở đây trọng tâm là bố cục bảng và bảo trì, không phải bắt thay đổi."
+  - id: scenario-c-implementation-catalog-table-and-streaming
+    k: code
+    t:
+      en: "Scenario C implementation: catalog, table and streaming write"
+      vi: "Kịch bản C triển khai: catalog, bảng và ghi streaming"
+    lead:
+      en: Configure the REST catalog on MinIO, create a hidden-partitioned table and stream into it.
+      vi: Cấu hình REST catalog trên MinIO, tạo bảng hidden partitioning và stream vào đó.
+    blocks:
+      - lang: bash
+        title: spark_submit_flags.sh
+        code: |-
+          --conf spark.sql.catalog.lake=org.apache.iceberg.spark.SparkCatalog
+          --conf spark.sql.catalog.lake.type=rest
+          --conf spark.sql.catalog.lake.uri=http://polaris:8181/api/catalog
+          --conf spark.sql.catalog.lake.warehouse=lake
+          --conf spark.sql.catalog.lake.io-impl=org.apache.iceberg.aws.s3.S3FileIO
+          --conf spark.sql.catalog.lake.s3.endpoint=http://minio:9000
+          --conf spark.sql.catalog.lake.s3.path-style-access=true
+          # plus the catalog credentials and S3 access settings your deployment requires
+      - lang: sql
+        title: create_events.sql (Spark SQL)
+        code: |-
+          CREATE TABLE IF NOT EXISTS lake.bronze.events (
+              event_id   STRING,
+              user_id    BIGINT,
+              event_name STRING,
+              event_ts   TIMESTAMP,
+              payload    STRING
+          ) USING iceberg
+          PARTITIONED BY (days(event_ts))
+          TBLPROPERTIES ('format-version' = '2', 'write.target-file-size-bytes' = '536870912');
+      - lang: python
+        title: stream_events.py
+        code: |-
+          from pyspark.sql import functions as F
+
+          events = (
+              spark.readStream.format("kafka")
+              .option("kafka.bootstrap.servers", "broker1:9092")
+              .option("subscribe", "events")
+              .option("startingOffsets", "earliest")
+              .load()
+              .select(F.from_json(F.col("value").cast("string"), schema).alias("e"))
+              .select("e.*")
+          )
+
+          query = (
+              events.writeStream.format("iceberg")
+              .outputMode("append")
+              .trigger(processingTime="1 minute")
+              .option("checkpointLocation", "s3a://lake/checkpoints/events")
+              .toTable("lake.bronze.events")
+          )
+          query.awaitTermination()
+    points:
+      - h: Hidden partitioning
+        p:
+          en: "`days(event_ts)` partitions by day while queries filter on `event_ts` directly."
+          vi: "`days(event_ts)` chia partition theo ngày trong khi query lọc trực tiếp trên `event_ts`."
+      - h:
+          en: Trigger interval
+          vi: Chu kỳ trigger
+        tag: senior
+        p:
+          en: A longer trigger produces fewer, larger files. Trade freshness for file health.
+          vi: Trigger dài hơn tạo ít file hơn và lớn hơn. Đánh đổi độ mới lấy sức khỏe file.
+      - h:
+          en: Checkpoint location
+          vi: Vị trí checkpoint
+        p:
+          en: Losing the checkpoint means losing the stream’s progress. Store it durably and back it up.
+          vi: Mất checkpoint là mất tiến độ của stream. Lưu bền vững và backup nó.
+      - h:
+          en: Verify properties
+          vi: Kiểm tra thuộc tính
+        tag: senior
+        p:
+          en: Catalog and S3 option names depend on Iceberg and catalog versions. Confirm them in the docs.
+          vi: Tên tùy chọn catalog và S3 phụ thuộc phiên bản Iceberg và catalog. Hãy xác nhận trong tài liệu.
+    n:
+      en: "Show the three layers of configuration: the catalog connection, the table design and the streaming job. Authentication to Polaris and MinIO is deliberately left as a placeholder."
+      vi: "Cho thấy ba lớp cấu hình: kết nối catalog, thiết kế bảng và job streaming. Xác thực tới Polaris và MinIO cố ý để chỗ giữ chỗ."
+  - id: scenario-c-failure-simulations
+    k: table
+    t:
+      en: Scenario C failure simulations
+      vi: "Kịch bản C: mô phỏng sự cố"
+    head:
+      - en: Failure
+        vi: Sự cố
+      - en: How to simulate
+        vi: Cách mô phỏng
+      - en: Expected behaviour
+        vi: Hành vi mong đợi
+      - en: How to verify
+        vi: Cách kiểm chứng
+    rows:
+      - - en: Small files explosion
+          vi: Bùng nổ file nhỏ
+        - en: Set a 5-second trigger for an hour
+          vi: Đặt trigger 5 giây trong một giờ
+        - en: Query time and planning time rise
+          vi: Thời gian query và planning tăng
+        - en: File count and size from `.files`; time before and after compaction
+          vi: Số file và kích thước từ `.files`; thời gian trước và sau compaction
+      - - en: Concurrent write conflict
+          vi: Xung đột ghi đồng thời
+        - en: Run compaction and a backfill on the same partitions
+          vi: Chạy compaction và backfill trên cùng partition
+        - en: One commit retries or fails cleanly; no data corruption
+          vi: Một commit retry hoặc thất bại gọn gàng; không hỏng dữ liệu
+        - en: Commit logs; row counts after both finish
+          vi: Log commit; số dòng sau khi cả hai xong
+      - - en: Catalog unavailable
+          vi: Catalog không sẵn sàng
+        - en: Stop Polaris for ten minutes
+          vi: Dừng Polaris mười phút
+        - en: Writes and new queries fail; the stream resumes after recovery
+          vi: Ghi và query mới thất bại; stream tiếp tục sau khi hồi phục
+        - en: No data loss; the stream catches up
+          vi: Không mất dữ liệu; stream bắt kịp
+      - - en: Object storage node loss
+          vi: Mất node object storage
+        - en: Stop one MinIO node
+          vi: Dừng một node MinIO
+        - en: Reads and writes continue if erasure coding allows
+          vi: Đọc và ghi tiếp tục nếu erasure coding cho phép
+        - en: Read checks; storage health status
+          vi: Kiểm tra đọc; trạng thái sức khỏe storage
+      - - en: Lost checkpoint
+          vi: Mất checkpoint
+        - en: Delete the streaming checkpoint
+          vi: Xóa checkpoint của streaming
+        - en: Stream reprocesses from the chosen start; duplicates appear
+          vi: Stream xử lý lại từ điểm bắt đầu đã chọn; xuất hiện bản trùng
+        - en: Dedupe step removes duplicates; counts reconcile
+          vi: Bước dedupe loại bỏ trùng; số dòng đối soát khớp
+      - - en: Bad overwrite
+          vi: Ghi đã sai
+        - en: Overwrite a partition by mistake
+          vi: Ghi đã nhầm một partition
+        - en: Recover with a snapshot rollback
+          vi: Khôi phục bằng rollback snapshot
+        - en: Row counts and checksums match before the mistake
+          vi: Số dòng và checksum khớp với trước khi nhầm
+    cap:
+      en: Maintenance procedures are part of the platform, so test them like production code.
+      vi: Các thủ tục bảo trì là một phần của nền tảng, nên hãy test như code production.
+    n:
+      en: "The memorable simulation is the small-files one: learners watch the cost of a seemingly harmless trigger setting."
+      vi: "Mô phỏng đúng nhớ là file nhỏ: người học thấy cái giá của một cấu hình trigger tưởng chừng vô hại."
+  - id: scenario-c-lab-performance-test-and-design-review
+    k: lab
+    t:
+      en: Scenario C lab, performance test and design review
+      vi: "Kịch bản C: lab, test hiệu năng và review thiết kế"
+    lead:
+      en: Design a layout, then prove it with measurements.
+      vi: Thiết kế bố cục, rồi chứng minh bằng số đo.
+    scenario:
+      en: Ingest 50 million events per day into Iceberg and keep interactive queries under a few seconds as history grows.
+      vi: Nạp 50 triệu sự kiện mỗi ngày vào Iceberg và giữ query tương tác dưới vài giây khi lịch sử lớn lên.
+    input:
+      en: Docker Compose with Kafka, Spark, MinIO, Polaris and Trino. A generator producing events with a skewed user distribution and a representative query set.
+      vi: Docker Compose với Kafka, Spark, MinIO, Polaris và Trino. Bộ sinh tạo sự kiện với phân phối người dùng lệch và một bộ query đại diện.
+    tasks:
+      - en: Compare two partition and sort strategies on file count, scan size and query time.
+        vi: So sánh hai chiến lược partition và sort theo số file, kích thước quét và thời gian query.
+      - en: Schedule compaction and snapshot expiry; measure their effect.
+        vi: Lên lịch compaction và hết hạn snapshot; đo tác động.
+      - en: Run all failure simulations.
+        vi: Chạy mọi mô phỏng sự cố.
+      - en: Load test with 10 concurrent queries while writes continue.
+        vi: Test tải với 10 query đồng thời trong khi ghi vẫn tiếp diễn.
+    expected:
+      en: A comparison table of layouts, a maintenance schedule with justification, and a load-test report.
+      vi: Bảng so sánh các bố cục, lịch bảo trì có biện minh và báo cáo test tải.
+    rubric:
+      - en: Decisions backed by measurements
+        vi: Quyết định có số đo hậu thuẫn
+      - en: Maintenance is automated and monitored
+        vi: Bảo trì được tự động hóa và giám sát
+      - en: Concurrency behaviour understood
+        vi: Hiểu hành vi đồng thời
+      - en: Cost and storage growth estimated
+        vi: Ước tính được chi phí và tăng trưởng dung lượng
+    design:
+      en: "Design review: how would you add multi-tenant access control, retention of 90 days with time travel for 7, and disaster recovery for object storage and the catalog?"
+      vi: "Review thiết kế: bạn sẽ thêm kiểm soát truy cập đa tenant, lưu 90 ngày với time travel 7 ngày và disaster recovery cho object storage và catalog thế nào?"
+    n:
+      en: The deliverable is a defended design backed by numbers, not a working demo alone.
+      vi: Sản phẩm là một thiết kế được bảo vệ bằng số liệu, không chỉ một bản demo chạy được.

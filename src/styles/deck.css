@@ -211,7 +211,7 @@ body.graph-on #graph{display:block}
 #graph-q{width:min(36vw,340px);min-width:180px;padding:8px 11px;font:inherit;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
 .graph-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;flex:1;min-height:0}
 .graph-canvas{min-width:0;min-height:0;overflow:auto;background:var(--bg)}
-#graph-svg{display:block;width:1440px;height:720px;max-width:none}
+#graph-svg{display:block;width:1440px;height:1040px;max-width:none}
 .graph-path-label{fill:var(--muted);font-family:var(--sans);font-size:13px;font-weight:700}
 .graph-edge{stroke:var(--muted);stroke-width:1.7;opacity:.38;fill:none;transition:opacity .15s,stroke .15s}
 .graph-edge.active{stroke:var(--accent);stroke-width:2.5;opacity:.9}
@@ -278,3 +278,8 @@ body.graph-on #graph{display:block}
   .tw{overflow:visible}
   .fig svg{min-width:0}
 }
+body.printing .slide{display:block!important;position:relative!important;opacity:1!important;visibility:visible!important;}
+
+/* composable slide parts (k: stack) */
+.stack > * + *{margin-top:14px}
+.stack .stack > * + *{margin-top:12px}

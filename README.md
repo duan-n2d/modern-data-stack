@@ -1,6 +1,8 @@
 # Modern Data Engineering Deck
 
-The editable source lives in `src/`. The generated standalone presentation is `modern-data-stack-deck.html`.
+Live site: https://duan-n2d.github.io/modern-data-stack/
+
+The editable source lives in `src/`. The build writes a standalone presentation to `dist/index.html` (and a copy at `dist/modern-data-stack-deck.html` so older links keep working). `dist/` is not committed; GitHub Actions builds and deploys it on every push to `main`.
 
 ## Build
 
@@ -10,8 +12,10 @@ Requires Node.js 20 or newer. From the repository root, run:
 node scripts/build.mjs
 ```
 
-The build inlines the stylesheet and ordered JavaScript source files into the standalone HTML. Edit files under `src/` and rebuild; do not make source changes only in the generated HTML.
+The build inlines the stylesheet and ordered JavaScript source files into the standalone HTML. Edit files under `src/` and rebuild; never edit the generated HTML. Open `dist/index.html` in a browser to preview.
 
 ## Interactive knowledge graph
 
-The graph data is in `src/js/knowledge-graph.js`, separate from the renderer. Add a node with a stable `id`, a zero-based `sec` matching its destination layer (`0` is layer 1), and bilingual `label` and `description` values using `L(en, vi)`. Add a relationship with `from`, `to`, and a bilingual `relation`. Both endpoints must match existing node IDs. The graph validates against the 23 learning layers at build/test time; no external RAG service is required.
+The graph data is in `src/content/graph.yaml`, separate from the renderer. Add a node with a stable `id`, a zero-based `sec` matching its destination layer (`0` is layer 1), and bilingual `label` and `description` values. Add a relationship with `from`, `to`, and a bilingual `relation`. Both endpoints must match existing node IDs. The graph validates against the 23 learning layers at build/test time; no external RAG service is required.
+
+Slides use stable hashes such as `#/l03/storage-formats` rather than numeric slide URLs. Content is loaded from YAML and rendered only when a slide is first opened; search and the built-in translation audit may intentionally render all slides when invoked.

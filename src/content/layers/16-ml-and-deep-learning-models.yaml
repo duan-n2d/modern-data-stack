@@ -1,0 +1,1220 @@
+layer: 16
+slides:
+  - id: ml-and-deep-learning-the-models-behind-the-tools
+    k: cards
+    t:
+      en: "ML and deep learning: the models behind the tools"
+      vi: "ML và deep learning: các model đứng sau công cụ"
+    lead:
+      en: You do not need to derive every algorithm, but you should know how each famous model works, what data format it expects, and which variables you control. That is what lets you choose, debug and explain.
+      vi: Bạn không cần tự suy ra mọi thuật toán, nhưng nên biết từng model nổi tiếng hoạt động thế nào, nhận dữ liệu định dạng gì và bạn điều khiển những biến nào. Đã là điều giúp bạn chọn, debug và giải thích.
+    cols: 3
+    cards:
+      - h:
+          en: Supervised, classical
+          vi: Có giám sát, cổ điển
+        tag: must
+        p:
+          en: Linear and logistic regression, trees, random forest, gradient boosting. Best default for tabular data.
+          vi: Hồi quy tuyến tính và logistic, cây, random forest, gradient boosting. Mặc định tốt nhất cho dữ liệu dạng bảng.
+      - h:
+          en: Unsupervised
+          vi: Không giám sát
+        tag: must
+        p:
+          en: k-means for clusters, PCA for compression and visualization. No labels needed.
+          vi: k-means để gom cụm, PCA để nén và trực quan. Không cần nhãn.
+      - h:
+          en: Neural networks
+          vi: Mạng nơ-ron
+        tag: must
+        p:
+          en: "MLP, CNN, RNN and LSTM: layers of learned transformations trained by gradient descent."
+          vi: "MLP, CNN, RNN và LSTM: các tầng biến đổi học được, huấn luyện bằng gradient descent."
+      - h:
+          en: Transformers and LLMs
+          vi: Transformer và LLM
+        tag: must
+        p:
+          en: "Attention-based models: BERT-style encoders and GPT-style decoders power search, chat and agents."
+          vi: "Model dựa trên attention: encoder kiểu BERT và decoder kiểu GPT chạy phía sau tìm kiếm, chat và agent."
+      - h:
+          en: Generative
+          vi: Sinh dữ liệu
+        tag: nice
+        p:
+          en: Autoencoders, VAEs, GANs and diffusion models create or reconstruct data.
+          vi: Autoencoder, VAE, GAN và diffusion tạo hoặc tái tạo dữ liệu.
+      - h:
+          en: Graph models
+          vi: Model trên graph
+        tag: nice
+        p:
+          en: "Graph neural networks learn from relationships: fraud rings, recommendations, lineage."
+          vi: "Graph neural network học từ quan hệ: vòng gian lận, gợi ý, lineage."
+    n:
+      en: "Each model slide that follows uses the same layout: how it works, input and output format, learned parameters versus hyperparameters, use and limits, and a short code sample. Notation: n samples, d features, B batch size, T sequence length."
+      vi: "Mỗi slide model phía sau dùng cùng bố cục: cách hoạt động, định dạng vào ra, tham số học được so với siêu tham số, khi dùng và giới hạn, và một đoạn code ngắn. Ký hiệu: n mẫu, d đặc trưng, B batch size, T độ dài chuỗi."
+  - id: model-families-at-a-glance
+    k: table
+    t:
+      en: Model families at a glance
+      vi: Các họ model trong một bảng
+    head:
+      - Model
+      - en: Task
+        vi: Bài toán
+      - en: Input format
+        vi: Định dạng đầu vào
+      - en: Strength
+        vi: Điểm mạnh
+      - en: Limit
+        vi: Hạn chế
+    rows:
+      - - en: Linear / logistic regression
+          vi: Hồi quy tuyến tính / logistic
+        - en: Regression, classification
+          vi: Hồi quy, phân loại
+        - en: (n, d) numeric matrix
+          vi: Ma trận số (n, d)
+        - en: Fast, interpretable baseline
+          vi: Nhanh, dễ giải thích, baseline tốt
+        - en: Only linear relations
+          vi: Chỉ quan hệ tuyến tính
+      - - en: Decision tree, random forest
+          vi: Cây quyết định, random forest
+        - en: Regression, classification
+          vi: Hồi quy, phân loại
+        - en: (n, d) mixed, no scaling
+          vi: (n, d) hỗn hợp, không cần chuẩn hóa
+        - en: Non-linear, robust
+          vi: Phi tuyến, bền vững
+        - en: Large forests are slow, weaker extrapolation
+          vi: Rừng lớn chậm, ngoại suy kém
+      - - Gradient boosting (XGBoost, LightGBM)
+        - en: Regression, classification, ranking
+          vi: Hồi quy, phân loại, xếp hạng
+        - en: (n, d) tabular, NaN allowed
+          vi: (n, d) dạng bảng, cho phép NaN
+        - en: Often best on tabular data
+          vi: Thường tốt nhất với dữ liệu bảng
+        - en: Needs tuning, can overfit
+          vi: Cần tinh chỉnh, dễ overfit
+      - - SVM, k-NN, Naive Bayes
+        - en: Classification
+          vi: Phân loại
+        - en: (n, d) scaled / text counts
+          vi: (n, d) đã chuẩn hóa / đếm từ
+        - en: Small data, simple ideas
+          vi: Dữ liệu nhỏ, ý tưởng đơn giản
+        - en: Scale poorly (SVM, k-NN)
+          vi: Mở rộng kém (SVM, k-NN)
+      - - k-means, PCA
+        - en: Clustering, compression
+          vi: Gom cụm, nén
+        - en: (n, d) scaled floats
+          vi: (n, d) số thực đã chuẩn hóa
+        - en: No labels, quick insight
+          vi: Không cần nhãn, thấy nhanh
+        - en: Assumes spherical / linear structure
+          vi: Giả định cấu trúc cầu / tuyến tính
+      - - MLP
+        - en: Any supervised task
+          vi: Mọi bài toán có giám sát
+        - (B, d) float32
+        - en: Flexible function approximator
+          vi: Xấp xỉ hàm linh hoạt
+        - en: Needs data and tuning; weak on plain tabular vs trees
+          vi: Cần dữ liệu và tinh chỉnh; yếu hơn cây trên dữ liệu bảng thường
+      - - CNN
+        - en: Images, signals
+          vi: Ảnh, tín hiệu
+        - (B, C, H, W)
+        - en: Spatial patterns, weight sharing
+          vi: Mẫu không gian, chia sẻ trọng số
+        - en: Fixed receptive field
+          vi: Trường nhìn cố định
+      - - RNN, LSTM, GRU
+        - en: Sequences, time series
+          vi: Chuỗi, chuỗi thời gian
+        - (B, T, d)
+        - en: Natural for ordered data
+          vi: Tự nhiên với dữ liệu có thứ tự
+        - en: Sequential, long-range memory is hard
+          vi: Tuần tự, khó nhớ xa
+      - - Transformer (BERT, GPT)
+        - en: Text, code, multimodal
+          vi: Văn bản, code, đa phương thức
+        - en: (B, T) token ids
+          vi: (B, T) id token
+        - en: Parallel, scales, long context
+          vi: Song song, mở rộng tốt, ngữ cảnh dài
+        - en: Cost grows with T squared
+          vi: Chi phí tăng theo T bình phương
+      - - Autoencoder, VAE, GAN, diffusion
+        - en: Generation, anomaly detection
+          vi: Sinh dữ liệu, phát hiện bất thường
+        - en: (B, d) or (B, C, H, W)
+          vi: (B, d) hoặc (B, C, H, W)
+        - en: Learn data distributions
+          vi: Học phân phối dữ liệu
+        - en: Hard to train and evaluate
+          vi: Khó huấn luyện và đánh giá
+      - - GNN
+        - en: Node, edge, graph tasks
+          vi: Bài toán node, edge, graph
+        - en: node features + edge_index
+          vi: đặc trưng node + edge_index
+        - en: Uses relations directly
+          vi: Dùng trực tiếp quan hệ
+        - en: Over-smoothing, scaling large graphs
+          vi: Over-smoothing, khó mở rộng graph lớn
+    cap:
+      en: "Starting point for tabular analytics data: a linear baseline, then gradient boosting. Reach for deep learning when the data is images, text, audio, sequences or graphs."
+      vi: "Điểm khởi đầu cho dữ liệu bảng: baseline tuyến tính, rồi gradient boosting. Dùng deep learning khi dữ liệu là ảnh, văn bản, âm thanh, chuỗi hoặc graph."
+    n:
+      en: Use this table as a map; the next slides open each family. The caption is the practical rule most analytics teams should internalize.
+      vi: Dùng bảng này như bản đồ; các slide sau mở từng họ. Dòng chú thích là quy tắc thực dụng mà hầu hết đội analytics nên thuộc.
+  - id: training-anatomy-the-variables-every-model-shares
+    k: table
+    t:
+      en: "Training anatomy: the variables every model shares"
+      vi: "Giải phẫu huấn luyện: các biến mọi model đều có"
+    lead:
+      en: "Whatever the model, training follows one loop: predict, measure the loss, update parameters, repeat."
+      vi: "Dù model nào, huấn luyện đều theo một vòng: dự đoán, đo loss, cập nhật tham số, lặp lại."
+    head:
+      - en: Term
+        vi: Thuật ngữ
+      - en: Meaning
+        vi: Ý nghĩa
+      - en: Example
+        vi: Ví dụ
+    rows:
+      - - en: Parameter
+          vi: Tham số
+        - en: Value learned from data during training
+          vi: Giá trị được học từ dữ liệu khi huấn luyện
+        - en: weights w and bias b
+          vi: trọng số w và bias b
+      - - en: Hyperparameter
+          vi: Siêu tham số
+        - en: Setting you choose before training; tuned on validation data
+          vi: Cài đặt bạn chọn trước khi huấn luyện; tinh chỉnh trên dữ liệu validation
+        - en: learning rate, tree depth, k
+          vi: learning rate, độ sâu cây, k
+      - - en: Loss function
+          vi: Hàm loss
+        - en: Number the training tries to minimize
+          vi: Con số mà huấn luyện cố gắng giảm
+        - MSE = mean((y − ŷ)²); log loss
+      - - Optimizer
+        - en: Rule that updates parameters from gradients
+          vi: Quy tắc cập nhật tham số từ gradient
+        - "SGD: w ← w − η·∇L; Adam"
+      - - Learning rate η
+        - en: Step size of each update
+          vi: Kích thước bước mỗi lần cập nhật
+        - en: 1e-3 is a common start for Adam
+          vi: 1e-3 là điểm bắt đầu phổ biến cho Adam
+      - - Batch, epoch
+        - en: Samples per update; one full pass over the data
+          vi: Số mẫu mỗi lần cập nhật; một lượt qua toàn bộ dữ liệu
+        - en: batch 64, 20 epochs
+          vi: batch 64, 20 epoch
+      - - Regularization
+        - en: Penalty or trick that limits complexity
+          vi: Phạt hoặc mẹo giới hạn độ phức tạp
+        - L2 weight decay, dropout, early stopping
+      - - Train / validation / test
+        - en: Fit, tune, and finally estimate real performance
+          vi: Khớp, tinh chỉnh, và cuối cùng ước lượng hiệu năng thật
+        - en: time-based split for time series
+          vi: chia theo thời gian cho chuỗi thời gian
+      - - Overfitting
+        - en: Great on train, poor on new data
+          vi: Tốt trên train, kém trên dữ liệu mới
+        - en: train loss falls while validation loss rises
+          vi: train loss giảm trong khi validation loss tăng
+      - - en: Metrics
+          vi: Chỉ số đánh giá
+        - en: Business-facing measures of quality
+          vi: Thước đo chất lượng hướng nghiệp vụ
+        - RMSE, AUC, precision, recall, F1
+    n:
+      en: "Fix this vocabulary first: every later slide separates learned parameters from hyperparameters. The loop of predict, loss, update is identical from linear regression to GPT."
+      vi: "Hãy cố định bộ từ vựng này trước: mọi slide sau đều tách tham số học được và siêu tham số. Vòng dự đoán, loss, cập nhật giống nhau từ hồi quy tuyến tính đến GPT."
+  - id: linear-and-logistic-regression
+    k: model
+    t:
+      en: Linear and logistic regression
+      vi: Hồi quy tuyến tính và logistic
+    lead:
+      en: "The simplest models and still the right first baseline: a weighted sum of the features."
+      vi: "Model đơn giản nhất và vẫn là baseline đầu tiên đúng đắn: tổng có trọng số của các đặc trưng."
+    how:
+      - en: "Linear: ŷ = w·x + b. Fit w and b by minimizing MSE (closed form: w = (XᵀX)⁻¹Xᵀy, or gradient descent)."
+        vi: "Tuyến tính: ŷ = w·x + b. Tìm w, b bằng cách giảm MSE (công thức đúng w = (XᵀX)⁻¹Xᵀy, hoặc gradient descent)."
+      - en: "Logistic: p = σ(w·x + b) with σ(z) = 1 / (1 + e^−z). Fit by minimizing log loss."
+        vi: "Logistic: p = σ(w·x + b) với σ(z) = 1 / (1 + e^−z). Tìm bằng cách giảm log loss."
+      - en: Predict class 1 when p exceeds a threshold (0.5 by default; choose by business cost).
+        vi: Dự đoán lớp 1 khi p vượt ngưỡng (mặc định 0.5; chọn theo chi phí nghiệp vụ).
+      - en: Ridge (L2) and Lasso (L1) add a penalty on w to fight overfitting; Lasso also zeroes weights.
+        vi: Ridge (L2) và Lasso (L1) thêm phạt lên w để chống overfitting; Lasso còn đưa một số trọng số về 0.
+    use:
+      en: Interpretable, fast, strong baseline. Assumes linear effects, independent errors; sensitive to outliers and correlated features.
+      vi: Dễ giải thích, nhanh, baseline mạnh. Giả định tác động tuyến tính, sai số độc lập; nhạy với outlier và đặc trưng tương quan.
+    input:
+      en: X of shape (n, d), numeric floats (encode categories, scale features); y of shape (n,).
+      vi: X dạng (n, d), số thực (mã hóa biến phân loại, chuẩn hóa đặc trưng); y dạng (n,).
+    output:
+      en: "Linear: continuous ŷ (n,). Logistic: probabilities (n,) or (n, k) with softmax."
+      vi: "Tuyến tính: ŷ liên tục (n,). Logistic: xác suất (n,) hoặc (n, k) với softmax."
+    learned:
+      en: w (d values) and b (1 value).
+      vi: w (d giá trị) và b (1 giá trị).
+    hyper:
+      en: regularization strength (alpha, or C = 1/alpha in scikit-learn), penalty type, class_weight, decision threshold.
+      vi: độ mạnh regularization (alpha, hoặc C = 1/alpha trong scikit-learn), loại penalty, class_weight, ngưỡng quyết định.
+    code:
+      lang: python
+      title: linear_models.py
+      code: |-
+        from sklearn.linear_model import LogisticRegression, Ridge
+        from sklearn.pipeline import make_pipeline
+        from sklearn.preprocessing import StandardScaler
+
+        reg = make_pipeline(StandardScaler(), Ridge(alpha=1.0))
+        reg.fit(X_train, y_train)                # X: (n, d) floats, y: (n,)
+        y_hat = reg.predict(X_test)              # (n,)
+
+        clf = make_pipeline(StandardScaler(), LogisticRegression(C=1.0, class_weight="balanced"))
+        clf.fit(X_train, y_class)
+        p = clf.predict_proba(X_test)[:, 1]      # P(class = 1), shape (n,)
+    n:
+      en: "Always start here. If a linear model is within a few points of a complex one, ship the linear model: it is cheaper to run, explain and monitor."
+      vi: "Luôn bắt đầu từ đây. Nếu model tuyến tính chỉ kém vài điểm so với model phức tạp, hãy phát hành model tuyến tính: rẻ hơn để chạy, giải thích và giám sát."
+  - id: decision-tree-and-random-forest
+    k: model
+    t:
+      en: Decision tree and random forest
+      vi: Cây quyết định và random forest
+    lead:
+      en: Trees split the data with yes/no questions. A forest averages many different trees to cancel their errors.
+      vi: Cây chia dữ liệu bằng các câu hỏi có/không. Rừng lấy trung bình nhiều cây khác nhau để triệt tiêu sai số của chúng.
+    how:
+      - en: "Tree: at each node pick the feature and threshold that most reduce impurity (Gini = 1 − Σp², or entropy; MSE for regression)."
+        vi: "Cây: ở mỗi node chọn đặc trưng và ngưỡng giảm impurity nhiều nhất (Gini = 1 − Σp², hoặc entropy; MSE cho hồi quy)."
+      - en: Recurse until a stopping rule (max depth, min samples per leaf). A leaf predicts the majority class or mean.
+        vi: Đệ quy đến khi gặp điều kiện dừng (độ sâu tối đa, số mẫu tối thiểu mỗi lá). Lá dự đoán lớp đa số hoặc trung bình.
+      - en: "Forest: train B trees on bootstrap samples, and consider only a random subset of features at each split."
+        vi: "Rừng: huấn luyện B cây trên các mẫu bootstrap, và mỗi lần chia chỉ xét một tập con ngẫu nhiên của đặc trưng."
+      - en: Predict by majority vote (classification) or average (regression). Out-of-bag samples give a free validation score.
+        vi: Dự đoán bằng bỏ phiếu đa số (phân loại) hoặc trung bình (hồi quy). Mẫu out-of-bag cho điểm validation miễn phí.
+    use:
+      en: A single deep tree overfits; the forest is robust and needs little tuning. It cannot extrapolate beyond the training range.
+      vi: Một cây sâu bị overfit; rừng bền vững và ít cần tinh chỉnh. Không ngoại suy được ngoài miền huấn luyện.
+    input:
+      en: X of shape (n, d); numeric or encoded categories; no scaling needed; y of shape (n,).
+      vi: X dạng (n, d); số hoặc phân loại đã mã hóa; không cần chuẩn hóa; y dạng (n,).
+    output:
+      en: Class labels or probabilities (n, k); or numeric predictions (n,). Feature importances (d,).
+      vi: Nhãn lớp hoặc xác suất (n, k); hoặc giá trị số (n,). Độ quan trọng đặc trưng (d,).
+    learned:
+      en: Split features and thresholds, leaf values (stored in the trees).
+      vi: Đặc trưng và ngưỡng chia, giá trị ở lá (lưu trong các cây).
+    hyper:
+      en: n_estimators, max_depth, min_samples_leaf, max_features (sqrt of d is a common default for classification), bootstrap.
+      vi: n_estimators, max_depth, min_samples_leaf, max_features (căn bậc hai của d là mặc định phổ biến cho phân loại), bootstrap.
+    code:
+      lang: python
+      title: random_forest.py
+      code: |-
+        from sklearn.ensemble import RandomForestClassifier
+
+        rf = RandomForestClassifier(
+            n_estimators=300, max_features="sqrt", min_samples_leaf=5,
+            oob_score=True, n_jobs=-1, random_state=42,
+        )
+        rf.fit(X_train, y_train)                 # X: (n, d), y: (n,)
+        print(rf.oob_score_)                     # validation estimate from out-of-bag rows
+        proba = rf.predict_proba(X_test)         # (n, n_classes)
+        importance = rf.feature_importances_     # (d,)
+    n:
+      en: "Contrast bagging (random forest: reduce variance with independent trees) with boosting on the next slide (reduce bias with sequential trees)."
+      vi: "So sánh bagging (random forest: giảm variance bằng các cây độc lập) với boosting ở slide sau (giảm bias bằng các cây nối tiếp)."
+  - id: gradient-boosting-xgboost-and-lightgbm
+    k: model
+    t:
+      en: "Gradient boosting: XGBoost and LightGBM"
+      vi: "Gradient boosting: XGBoost và LightGBM"
+    lead:
+      en: Build trees one after another, each correcting the errors of the sum so far. Usually the strongest default for tabular data.
+      vi: Xây các cây nối tiếp nhau, mỗi cây sửa sai số của tổng hiện tại. Thường là lựa chọn mạnh nhất cho dữ liệu dạng bảng.
+    how:
+      - en: Start with a constant prediction F₀.
+        vi: Bắt đầu với dự đoán hằng F₀.
+      - en: Each round compute the gradient of the loss for every row (for squared error this is the residual y − F).
+        vi: Mỗi vòng tính gradient của loss cho từng dòng (với bình phương sai số là phần dư y − F).
+      - en: Fit a small tree h_m to those gradients, then update F_m = F_(m−1) + η·h_m, where η is the learning rate.
+        vi: Khớp một cây nhỏ h_m với các gradient đã, rồi cập nhật F_m = F_(m−1) + η·h_m, với η là learning rate.
+      - en: XGBoost also uses second-order information and penalizes leaf weights (λ) and tree size (γ). LightGBM uses histograms and leaf-wise growth for speed.
+        vi: XGBoost còn dùng thông tin bậc hai và phạt trọng số lá (λ) và kích thước cây (γ). LightGBM dùng histogram và mọc cây theo lá để nhanh.
+    use:
+      en: Top accuracy on tabular data with modest tuning. Can overfit; use early stopping on a validation set. Not suited to raw images or text.
+      vi: Độ chính xác hàng đầu trên dữ liệu bảng với ít tinh chỉnh. Có thể overfit; dùng early stopping trên tập validation. Không hợp với ảnh hay văn bản thô.
+    input:
+      en: Tabular (n, d) as numpy, pandas or DMatrix; missing values allowed; categoricals via encoding or native support.
+      vi: Dạng bảng (n, d) kiểu numpy, pandas hoặc DMatrix; cho phép thiếu giá trị; biến phân loại qua mã hóa hoặc hỗ trợ sẵn.
+    output:
+      en: Predictions (n,) or class probabilities; feature importances and SHAP values.
+      vi: Dự đoán (n,) hoặc xác suất lớp; độ quan trọng đặc trưng và SHAP value.
+    learned:
+      en: "The trees: split features, thresholds and leaf weights."
+      vi: "Các cây: đặc trưng chia, ngưỡng và trọng số lá."
+    hyper:
+      en: n_estimators, learning_rate η, max_depth (or num_leaves), subsample, colsample_bytree, min_child_weight, reg_lambda, early_stopping_rounds.
+      vi: n_estimators, learning_rate η, max_depth (hoặc num_leaves), subsample, colsample_bytree, min_child_weight, reg_lambda, early_stopping_rounds.
+    code:
+      lang: python
+      title: xgboost_model.py
+      code: |-
+        import xgboost as xgb
+
+        model = xgb.XGBClassifier(
+            n_estimators=2000, learning_rate=0.03, max_depth=4,
+            subsample=0.8, colsample_bytree=0.8, reg_lambda=1.0,
+            eval_metric="auc", early_stopping_rounds=50,
+        )
+        model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
+        print(model.best_iteration)              # rounds actually needed
+        p = model.predict_proba(X_test)[:, 1]    # (n,)
+    n:
+      en: "Learning rate and number of trees trade off: a smaller η needs more trees. Early stopping on a validation set picks the number of trees automatically."
+      vi: "Learning rate và số cây đánh đổi nhau: η nhỏ cần nhiều cây hơn. Early stopping trên tập validation tự chọn số cây."
+  - id: k-means-clustering
+    k: model
+    t:
+      en: k-means clustering
+      vi: Gom cụm k-means
+    lead:
+      en: Group similar rows without labels by repeatedly moving k centers to the middle of their points.
+      vi: Gom các dòng giống nhau mà không cần nhãn bằng cách lặp lại việc dời k tâm về giữa các điểm của chúng.
+    how:
+      - en: Choose k and initialize centroids (k-means++ spreads them out).
+        vi: Chọn k và khởi tạo centroid (k-means++ rải chúng ra xa nhau).
+      - en: "Assignment: give every point to its nearest centroid (Euclidean distance)."
+        vi: "Gán: đưa mỗi điểm về centroid gần nhất (khoảng cách Euclid)."
+      - en: "Update: move each centroid to the mean of its assigned points."
+        vi: "Cập nhật: dời mỗi centroid về trung bình các điểm được gán."
+      - en: "Repeat until assignments stop changing. Objective: minimize inertia = Σ ‖x − μ_cluster‖²."
+        vi: "Lặp đến khi việc gán không đổi. Mục tiêu: giảm inertia = Σ ‖x − μ_cluster‖²."
+    use:
+      en: Customer segmentation, quick exploration. Assumes round, similar-size clusters; sensitive to outliers and to k.
+      vi: Phân khúc khách hàng, khám phá nhanh. Giả định cụm tròn, kích thước gần nhau; nhạy với outlier và k.
+    input:
+      en: X of shape (n, d), numeric and scaled (distance-based, so scale matters).
+      vi: X dạng (n, d), số và đã chuẩn hóa (dựa trên khoảng cách nên thang đo quan trọng).
+    output:
+      en: labels (n,) integers in 0..k−1; centers (k, d); inertia (a number).
+      vi: labels (n,) số nguyên 0..k−1; centers (k, d); inertia (một số).
+    learned:
+      en: The k centroids (k × d numbers).
+      vi: k centroid (k × d số).
+    hyper:
+      en: n_clusters k, init, n_init (restarts), max_iter. Pick k with the elbow method or the silhouette score.
+      vi: n_clusters k, init, n_init (số lần chạy lại), max_iter. Chọn k bằng elbow hoặc silhouette score.
+    code:
+      lang: python
+      title: kmeans.py
+      code: |-
+        from sklearn.cluster import KMeans
+        from sklearn.metrics import silhouette_score
+        from sklearn.preprocessing import StandardScaler
+
+        Xs = StandardScaler().fit_transform(X)            # (n, d), scaled
+        km = KMeans(n_clusters=5, n_init="auto", random_state=42).fit(Xs)
+        labels = km.labels_                               # (n,)
+        centers = km.cluster_centers_                     # (5, d)
+        print(km.inertia_, silhouette_score(Xs, labels))
+    n:
+      en: Always scale features first; otherwise the feature with the largest range decides the clusters. Profile each cluster afterwards, since the algorithm gives numbers, not meaning.
+      vi: Luôn chuẩn hóa đặc trưng trước; nếu không, đặc trưng có biên độ lớn nhất sẽ quyết định cụm. Sau đó mô tả từng cụm, vì thuật toán cho ra con số, không cho ra ý nghĩa.
+  - id: principal-component-analysis-pca
+    k: model
+    t:
+      en: Principal component analysis (PCA)
+      vi: Phân tích thành phần chính (PCA)
+    lead:
+      en: Rotate the data onto new axes ordered by how much variance they capture, then keep only the first few.
+      vi: Xoay dữ liệu sang các trục mới xếp theo lượng variance chúng giữ được, rồi chỉ giữ vài trục đầu.
+    how:
+      - en: Center each feature (subtract the mean) and usually scale it.
+        vi: Căn giữa từng đặc trưng (trừ trung bình) và thường chuẩn hóa.
+      - en: Compute the covariance matrix C = XᵀX / (n − 1) and its eigenvectors (in practice via SVD).
+        vi: Tính ma trận hiệp phương sai C = XᵀX / (n − 1) và các vector riêng (thực tế dùng SVD).
+      - en: Sort eigenvectors by eigenvalue. These are the principal components; eigenvalues are the variances.
+        vi: Sắp xếp vector riêng theo trị riêng. Đã là các thành phần chính; trị riêng là các variance.
+      - en: "Project: Z = X_centered · W_k, keeping k components that explain enough variance (for example 95 percent)."
+        vi: "Chiếu: Z = X_centered · W_k, giữ k thành phần giải thích đủ variance (ví dụ 95 phần trăm)."
+    use:
+      en: Compression, denoising, visualization, decorrelating features. Linear only; components are mixtures and hard to interpret.
+      vi: Nén, khử nhiễu, trực quan hóa, loại tương quan giữa đặc trưng. Chỉ tuyến tính; thành phần là hỗn hợp, khó giải thích.
+    input:
+      en: X of shape (n, d), numeric, centered and scaled.
+      vi: X dạng (n, d), số, đã căn giữa và chuẩn hóa.
+    output:
+      en: Z of shape (n, k); components_ (k, d); explained_variance_ratio_ (k,).
+      vi: Z dạng (n, k); components_ (k, d); explained_variance_ratio_ (k,).
+    learned:
+      en: The component matrix W (k × d) and the feature means (d).
+      vi: Ma trận thành phần W (k × d) và trung bình đặc trưng (d).
+    hyper:
+      en: n_components (an integer, or a variance fraction such as 0.95), whiten.
+      vi: n_components (số nguyên, hoặc tỷ lệ variance như 0.95), whiten.
+    code:
+      lang: python
+      title: pca.py
+      code: |-
+        from sklearn.decomposition import PCA
+        from sklearn.preprocessing import StandardScaler
+
+        Xs = StandardScaler().fit_transform(X)            # (n, d)
+        pca = PCA(n_components=0.95).fit(Xs)              # keep 95 percent of variance
+        Z = pca.transform(Xs)                             # (n, k)
+        print(pca.n_components_, pca.explained_variance_ratio_.cumsum())
+    n:
+      en: "Fit PCA on training data only and reuse the same transform on test data, otherwise information leaks. PCA is also the intuition behind embeddings: dense, low-dimensional representations."
+      vi: "Chỉ fit PCA trên dữ liệu train và dùng lại cùng phép biến đổi cho test, nếu không sẽ rò rỉ thông tin. PCA cũng là trực giác đằng sau embedding: biểu diễn dày, ít chiều."
+  - id: multilayer-perceptron-mlp-and-backpropagation
+    k: model
+    t:
+      en: Multilayer perceptron (MLP) and backpropagation
+      vi: Perceptron nhiều tầng (MLP) và backpropagation
+    lead:
+      en: Stacked layers of weighted sums and non-linear activations. The building block of nearly all deep learning.
+      vi: Các tầng chồng lên nhau gồm tổng có trọng số và hàm kích hoạt phi tuyến. Khối xây dựng của gần như mọi deep learning.
+    how:
+      - en: Each layer computes h = φ(W·x + b), where φ is an activation such as ReLU or GELU.
+        vi: Mỗi tầng tính h = φ(W·x + b), với φ là hàm kích hoạt như ReLU hoặc GELU.
+      - en: "Forward pass: pass a batch through all layers to get predictions (logits)."
+        vi: "Lan truyền tiến: đưa một batch qua mọi tầng để có dự đoán (logit)."
+      - en: Compute the loss (for example cross-entropy) against the labels.
+        vi: Tính loss (ví dụ cross-entropy) so với nhãn.
+      - en: Backpropagation applies the chain rule to get ∂loss/∂W for every layer; the optimizer updates W ← W − η·∇ (Adam adapts η per parameter).
+        vi: Backpropagation dùng quy tắc chuỗi để có ∂loss/∂W cho mọi tầng; optimizer cập nhật W ← W − η·∇ (Adam điều chỉnh η cho từng tham số).
+    use:
+      en: Flexible, but on plain tabular data it often loses to gradient boosting. Needs scaling, enough data and tuning.
+      vi: Linh hoạt, nhưng trên dữ liệu bảng thường thua gradient boosting. Cần chuẩn hóa, đủ dữ liệu và tinh chỉnh.
+    input:
+      en: Batch tensor (B, d_in) of float32; labels (B,) or (B, k).
+      vi: Tensor batch (B, d_in) float32; nhãn (B,) hoặc (B, k).
+    output:
+      en: Logits (B, d_out); apply softmax or sigmoid for probabilities.
+      vi: Logit (B, d_out); áp dụng softmax hoặc sigmoid để có xác suất.
+    learned:
+      en: W and b of every layer. A layer with i inputs and o outputs has i·o + o parameters.
+      vi: W và b của mọi tầng. Một tầng có i đầu vào và o đầu ra có i·o + o tham số.
+    hyper:
+      en: number of layers, hidden units, activation, learning rate, batch size, epochs, dropout, weight decay, optimizer.
+      vi: số tầng, số đơn vị ẩn, hàm kích hoạt, learning rate, batch size, epoch, dropout, weight decay, optimizer.
+    code:
+      lang: python
+      title: mlp.py (PyTorch)
+      code: |-
+        import torch
+        import torch.nn as nn
+
+        model = nn.Sequential(nn.Linear(32, 64), nn.ReLU(), nn.Dropout(0.2), nn.Linear(64, 1))
+        loss_fn = nn.BCEWithLogitsLoss()
+        opt = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-2)
+
+        for xb, yb in loader:             # xb: (B, 32) float32, yb: (B, 1) float32
+            opt.zero_grad()
+            loss = loss_fn(model(xb), yb)  # forward pass + loss
+            loss.backward()                # backpropagation: gradients for every parameter
+            opt.step()                     # update
+    n:
+      en: "Walk the four-line training loop: it is the same for every neural network in the following slides, only the model changes."
+      vi: "Đi qua vòng huấn luyện bốn dòng: nó giống nhau cho mọi mạng nơ-ron ở các slide sau, chỉ có model thay đổi."
+  - id: convolutional-neural-network-cnn
+    k: model
+    t:
+      en: Convolutional neural network (CNN)
+      vi: Mạng nơ-ron tích chập (CNN)
+    lead:
+      en: Slide small learned filters over an image so the same pattern detector is reused everywhere.
+      vi: Trượt các bộ lọc nhỏ học được trên ảnh để cùng một bộ dò mẫu được dùng lại ở mọi nơi.
+    how:
+      - en: A convolution slides a k×k kernel over the input and computes dot products, producing a feature map.
+        vi: Phép tích chập trượt kernel k×k trên đầu vào và tính tích vô hướng, tạo ra feature map.
+      - en: Output size = floor((H + 2p − k) / s) + 1 for padding p and stride s. Many kernels give many channels.
+        vi: Kích thước đầu ra = floor((H + 2p − k) / s) + 1 với padding p và stride s. Nhiều kernel cho nhiều kênh.
+      - en: Pooling shrinks the map; early layers learn edges, deeper layers learn shapes and objects.
+        vi: Pooling thu nhỏ map; tầng đầu học cạnh, tầng sâu học hình dạng và vật thể.
+      - en: ResNet adds skip connections y = F(x) + x so very deep networks train without degrading.
+        vi: ResNet thêm kết nối tắt y = F(x) + x để mạng rất sâu huấn luyện được mà không suy giảm.
+    use:
+      en: Images, audio spectrograms, some time series. Vision transformers now compete on large datasets.
+      vi: Ảnh, spectrogram âm thanh, một số chuỗi thời gian. Vision transformer nay cạnh tranh trên dữ liệu lớn.
+    input:
+      en: "Tensor (B, C, H, W): batch, channels, height, width (PyTorch layout), normalized floats."
+      vi: "Tensor (B, C, H, W): batch, kênh, cao, rộng (bố cục PyTorch), số thực đã chuẩn hóa."
+    output:
+      en: Class logits (B, n_classes), or feature maps (B, C_out, H′, W′) for detection and segmentation.
+      vi: Logit lớp (B, n_classes), hoặc feature map (B, C_out, H′, W′) cho detection và segmentation.
+    learned:
+      en: "Kernel weights: (k·k·C_in + 1)·C_out per conv layer; plus the final linear layer."
+      vi: "Trọng số kernel: (k·k·C_in + 1)·C_out cho mỗi tầng conv; cộng tầng tuyến tính cuối."
+    hyper:
+      en: kernel size, stride, padding, channels per layer, depth, pooling, batch norm, dropout, data augmentation.
+      vi: kích thước kernel, stride, padding, số kênh mỗi tầng, độ sâu, pooling, batch norm, dropout, data augmentation.
+    code:
+      lang: python
+      title: cnn.py (PyTorch)
+      code: |-
+        import torch.nn as nn
+
+        cnn = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, padding=1), nn.BatchNorm2d(32), nn.ReLU(),
+            nn.MaxPool2d(2),                          # (B, 32, H/2, W/2)
+            nn.Conv2d(32, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(),
+            nn.AdaptiveAvgPool2d(1),                  # (B, 64, 1, 1)
+            nn.Flatten(),                             # (B, 64)
+            nn.Linear(64, 10),                        # (B, 10) logits
+        )
+        # input x: (B, 3, 32, 32) float32  ->  cnn(x): (B, 10)
+    n:
+      en: "Weight sharing is the key idea: one filter has few parameters yet scans the whole image, and translation of the object does not change the response much."
+      vi: "Chia sẻ trọng số là ý chính: một bộ lọc có ít tham số nhưng quét toàn bộ ảnh, và việc vật thể dịch chuyển không làm phản hồi đổi nhiều."
+  - id: recurrent-networks-rnn-lstm-and-gru
+    k: model
+    t:
+      en: "Recurrent networks: RNN, LSTM and GRU"
+      vi: "Mạng hồi quy: RNN, LSTM và GRU"
+    lead:
+      en: Process a sequence one step at a time while carrying a hidden state that summarizes the past.
+      vi: Xử lý chuỗi từng bước một trong khi mang theo trạng thái ẩn tóm tắt quá khứ.
+    how:
+      - en: "RNN: h_t = tanh(W_x·x_t + W_h·h_(t−1) + b). The same weights are reused at every step."
+        vi: "RNN: h_t = tanh(W_x·x_t + W_h·h_(t−1) + b). Cùng một bộ trọng số dùng lại ở mỗi bước."
+      - en: Gradients flow back through many steps and tend to vanish or explode; clip gradients.
+        vi: Gradient chảy ngược qua nhiều bước và dễ biến mất hoặc bùng nổ; hãy cắt gradient.
+      - en: "LSTM adds a cell state c_t with gates: c_t = f⊙c_(t−1) + i⊙g_t and h_t = o⊙tanh(c_t), with forget f, input i and output o gates."
+        vi: "LSTM thêm cell state c_t với các cổng: c_t = f⊙c_(t−1) + i⊙g_t và h_t = o⊙tanh(c_t), gồm cổng quên f, cổng vào i và cổng ra o."
+      - en: "GRU merges gates into update and reset gates: fewer parameters, similar results."
+        vi: "GRU gộp cổng thành cổng cập nhật và cổng reset: ít tham số hơn, kết quả tương tự."
+    use:
+      en: Time series and sequence labeling. Sequential steps limit speed; transformers and gradient boosting often win now.
+      vi: Chuỗi thời gian và gán nhãn chuỗi. Các bước tuần tự giới hạn tốc độ; nay transformer và gradient boosting thường thắng.
+    input:
+      en: "Tensor (B, T, d) with batch_first: batch, time steps, features. Pad shorter sequences."
+      vi: "Tensor (B, T, d) với batch_first: batch, bước thời gian, đặc trưng. Đệm các chuỗi ngắn."
+    output:
+      en: outputs (B, T, hidden) and final states h_n (layers, B, hidden), plus c_n for LSTM.
+      vi: outputs (B, T, hidden) và trạng thái cuối h_n (số tầng, B, hidden), thêm c_n cho LSTM.
+    learned:
+      en: Gate and state weight matrices. An LSTM layer has 4·(d + hidden + 1)·hidden parameters.
+      vi: Các ma trận trọng số của cổng và trạng thái. Một tầng LSTM có 4·(d + hidden + 1)·hidden tham số.
+    hyper:
+      en: hidden_size, num_layers, bidirectional, dropout, sequence length, gradient clipping, learning rate.
+      vi: hidden_size, num_layers, bidirectional, dropout, độ dài chuỗi, cắt gradient, learning rate.
+    code:
+      lang: python
+      title: lstm.py (PyTorch)
+      code: |-
+        import torch.nn as nn
+
+        lstm = nn.LSTM(input_size=8, hidden_size=64, num_layers=2, batch_first=True, dropout=0.2)
+        head = nn.Linear(64, 1)
+
+        # x: (B, T, 8) float32
+        out, (h_n, c_n) = lstm(x)         # out: (B, T, 64); h_n, c_n: (2, B, 64)
+        y_hat = head(out[:, -1, :])       # use the last time step -> (B, 1)
+    n:
+      en: "Explain vanishing gradients as the motivation for gates: the cell state gives gradients a short, mostly additive path through time."
+      vi: "Giải thích gradient biến mất là động lực cho các cổng: cell state cho gradient một đường ngắn, chủ yếu là phép cộng, xuyên qua thời gian."
+  - id: transformer-and-self-attention
+    k: model
+    t:
+      en: Transformer and self-attention
+      vi: Transformer và self-attention
+    lead:
+      en: Let every token look at every other token at once, and learn which ones matter. The core of modern language models.
+      vi: Cho mỗi token nhìn mọi token khác cùng lúc và học xem token nào quan trọng. Lõi của các mô hình ngôn ngữ hiện đại.
+    how:
+      - en: Tokens become embeddings of size d_model, plus positional information.
+        vi: Token thành embedding kích thước d_model, cộng thông tin vị trí.
+      - en: "Self-attention: Q = XW_Q, K = XW_K, V = XW_V, then Attention(Q, K, V) = softmax(QKᵀ / √d_k)·V."
+        vi: "Self-attention: Q = XW_Q, K = XW_K, V = XW_V, rồi Attention(Q, K, V) = softmax(QKᵀ / √d_k)·V."
+      - en: "Multi-head: h heads in parallel, each with d_k = d_model / h, concatenated and projected by W_O."
+        vi: "Multi-head: h head song song, mỗi head có d_k = d_model / h, nối lại và chiếu bằng W_O."
+      - en: "Each block: attention, then a feed-forward network, each with a residual connection and layer norm. Stack N blocks."
+        vi: "Mỗi khối: attention, rồi mạng feed-forward, mỗi phần có kết nối residual và layer norm. Chồng N khối."
+    use:
+      en: Parallel over tokens and scales well. Attention cost grows with T², which drives long-context engineering and KV caching.
+      vi: Song song theo token và mở rộng tốt. Chi phí attention tăng theo T², thúc đẩy kỹ thuật ngữ cảnh dài và KV cache.
+    input:
+      en: Token ids (B, T) → embeddings X (B, T, d_model). Attention scores are (B, h, T, T).
+      vi: Id token (B, T) → embedding X (B, T, d_model). Điểm attention có dạng (B, h, T, T).
+    output:
+      en: Hidden states (B, T, d_model); a head maps them to logits (B, T, vocab) or a class.
+      vi: Trạng thái ẩn (B, T, d_model); một head ánh xạ sang logit (B, T, vocab) hoặc một lớp.
+    learned:
+      en: "W_Q, W_K, W_V, W_O and feed-forward weights: roughly 12·d_model² parameters per block (with d_ff = 4·d_model), plus embeddings."
+      vi: "W_Q, W_K, W_V, W_O và trọng số feed-forward: khoảng 12·d_model² tham số mỗi khối (với d_ff = 4·d_model), cộng embedding."
+    hyper:
+      en: d_model, n_heads, n_layers, d_ff, context length T, vocabulary size, dropout, learning-rate schedule.
+      vi: d_model, n_heads, n_layers, d_ff, độ dài ngữ cảnh T, kích thước từ vựng, dropout, lịch learning rate.
+    code:
+      lang: python
+      title: attention.py (PyTorch)
+      code: |-
+        import math
+        import torch
+
+
+        def attention(q, k, v, mask=None):                  # q, k, v: (B, H, T, d_k)
+            scores = q @ k.transpose(-2, -1) / math.sqrt(q.size(-1))   # (B, H, T, T)
+            if mask is not None:
+                scores = scores.masked_fill(mask == 0, float("-inf"))
+            weights = torch.softmax(scores, dim=-1)         # each row sums to 1
+            return weights @ v                              # (B, H, T, d_k)
+    n:
+      en: Dividing by √d_k keeps the dot products from growing with dimension, which would push softmax into saturation. The mask is what separates encoders (no mask) from decoders (causal mask).
+      vi: Chia cho √d_k giữ tích vô hướng không tăng theo số chiều, tránh đẩy softmax vào bão hòa. Mask là thứ phân biệt encoder (không mask) với decoder (mask nhân quả).
+  - id: bert-the-encoder-only-transformer
+    k: model
+    t:
+      en: "BERT: the encoder-only transformer"
+      vi: "BERT: transformer chỉ có encoder"
+    lead:
+      en: Reads the whole sentence in both directions to build context-aware representations. Strong for classification, search and embeddings.
+      vi: Đọc cả câu theo hai chiều để tạo biểu diễn hiểu ngữ cảnh. Mạnh cho phân loại, tìm kiếm và embedding.
+    how:
+      - en: Stack of transformer encoder blocks with full (bidirectional) attention.
+        vi: Chồng các khối encoder transformer với attention đầy đủ (hai chiều).
+      - en: "Pretraining by masked language modeling: hide about 15 percent of tokens and predict them from both sides."
+        vi: "Tiền huấn luyện bằng masked language modeling: che khoảng 15 phần trăm token và dự đoán từ cả hai phía."
+      - en: A special [CLS] token at the start gathers a summary of the sequence.
+        vi: Token đặc biệt [CLS] ở đầu gom bản tóm tắt của chuỗi.
+      - en: Fine-tune by adding a small head (for example a linear layer on [CLS]) and training on labeled data.
+        vi: Fine-tune bằng cách thêm head nhỏ (ví dụ tầng tuyến tính trên [CLS]) và huấn luyện trên dữ liệu có nhãn.
+    use:
+      en: Classification, named entity recognition, semantic search and embedding models. It does not generate free text.
+      vi: Phân loại, nhận diện thực thể, tìm kiếm ngữ nghĩa và embedding model. Không sinh văn bản tự do.
+    input:
+      en: input_ids (B, T) integers from a WordPiece tokenizer, attention_mask (B, T), optional token_type_ids (B, T). T up to 512.
+      vi: input_ids (B, T) số nguyên từ tokenizer WordPiece, attention_mask (B, T), tùy chọn token_type_ids (B, T). T tối đa 512.
+    output:
+      en: last_hidden_state (B, T, 768 for BERT-base); pooled [CLS] vector (B, 768); task head logits.
+      vi: last_hidden_state (B, T, 768 với BERT-base); vector [CLS] gộp (B, 768); logit của head tác vụ.
+    learned:
+      en: Around 110 million parameters for BERT-base (12 layers, 12 heads, hidden size 768).
+      vi: Khoảng 110 triệu tham số với BERT-base (12 tầng, 12 head, hidden size 768).
+    hyper:
+      en: learning rate (about 2e-5 to 5e-5 is common for fine-tuning), batch size, epochs, max sequence length, warmup steps, weight decay.
+      vi: learning rate (khoảng 2e-5 đến 5e-5 phổ biến khi fine-tune), batch size, epoch, độ dài chuỗi tối đa, warmup steps, weight decay.
+    code:
+      lang: python
+      title: bert_classify.py (Hugging Face)
+      code: |-
+        import torch
+        from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+        name = "bert-base-uncased"
+        tok = AutoTokenizer.from_pretrained(name)
+        model = AutoModelForSequenceClassification.from_pretrained(name, num_labels=2)
+
+        batch = tok(["refund not received", "great service"], padding=True, truncation=True,
+                    max_length=128, return_tensors="pt")     # input_ids, attention_mask: (2, T)
+        with torch.no_grad():
+            logits = model(**batch).logits                   # (2, 2)
+        probs = logits.softmax(dim=-1)
+    n:
+      en: Many embedding models used in RAG are BERT-style encoders trained so that similar sentences have nearby vectors. The classification head above is randomly initialized until you fine-tune it.
+      vi: Nhiều embedding model dùng trong RAG là encoder kiểu BERT, được huấn luyện để câu giống nhau có vector gần nhau. Head phân loại ở trên được khởi tạo ngẫu nhiên cho đến khi bạn fine-tune.
+  - id: gpt-decoder-only-language-models-llms
+    k: model
+    t:
+      en: "GPT: decoder-only language models (LLMs)"
+      vi: "GPT: mô hình ngôn ngữ chỉ có decoder (LLM)"
+    lead:
+      en: Predict the next token given everything before it. Scaled up and aligned, this single objective powers chat models and agents.
+      vi: Dự đoán token tiếp theo dựa trên mọi thứ phía trước. Khi mở rộng và căn chỉnh, mục tiêu duy nhất này vận hành model chat và agent.
+    how:
+      - en: "Stack of transformer decoder blocks with a causal mask: each token attends only to earlier tokens."
+        vi: "Chồng các khối decoder transformer với mask nhân quả: mỗi token chỉ chú ý các token trước nó."
+      - en: "Pretraining loss: −Σ log p(x_t | x_<t) over a huge text corpus (next-token prediction)."
+        vi: "Loss tiền huấn luyện: −Σ log p(x_t | x_<t) trên kho văn bản khổng lồ (dự đoán token kế tiếp)."
+      - en: "Post-training: supervised instruction tuning, then preference optimization (RLHF or DPO) to follow instructions."
+        vi: "Hậu huấn luyện: instruction tuning có giám sát, rồi tối ưu theo ưu tiên (RLHF hoặc DPO) để làm theo chỉ dẫn."
+      - en: "Generation: sample a token from the softmax, append it, repeat. A KV cache avoids recomputing past tokens."
+        vi: "Sinh: lấy mẫu một token từ softmax, nối vào, lặp lại. KV cache tránh tính lại các token trước."
+    use:
+      en: Chat, code, summarization, agents. Can state falsehoods fluently, so ground it with retrieval, tools and evaluation.
+      vi: Chat, code, tóm tắt, agent. Có thể nói sai một cách trôi chảy, nên cần neo bằng truy xuất, tool và đánh giá.
+    input:
+      en: input_ids (B, T) from a BPE tokenizer, bounded by the context window.
+      vi: input_ids (B, T) từ tokenizer BPE, bị giới hạn bởi context window.
+    output:
+      en: logits (B, T, vocab_size); the last position gives the distribution of the next token.
+      vi: logits (B, T, vocab_size); vị trí cuối cho phân phối của token kế tiếp.
+    learned:
+      en: "Billions of parameters: embeddings, attention and feed-forward weights."
+      vi: "Hàng tỷ tham số: embedding, trọng số attention và feed-forward."
+    hyper:
+      en: "At training: model size, data, learning-rate schedule. At inference: temperature, top_p, top_k, max_tokens, stop sequences."
+      vi: "Khi huấn luyện: kích thước model, dữ liệu, lịch learning rate. Khi suy luận: temperature, top_p, top_k, max_tokens, stop sequence."
+    code:
+      lang: python
+      title: generate.py (Hugging Face)
+      code: |-
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
+        tok = AutoTokenizer.from_pretrained("gpt2")
+        model = AutoModelForCausalLM.from_pretrained("gpt2")
+
+        ids = tok("A window function in SQL", return_tensors="pt")   # input_ids: (1, T)
+        out = model.generate(
+            **ids, max_new_tokens=30, do_sample=True, temperature=0.8, top_p=0.9,
+        )
+        print(tok.decode(out[0], skip_special_tokens=True))
+    n:
+      en: "Temperature rescales logits before softmax: lower is more deterministic, higher is more varied. top_p keeps the smallest set of tokens whose probabilities sum to p. The small GPT-2 here is only for demonstration."
+      vi: "Temperature co giãn logit trước softmax: thấp thì tất định hơn, cao thì đa dạng hơn. top_p giữ tập token nhỏ nhất có tổng xác suất đạt p. GPT-2 nhỏ ở đây chỉ để minh họa."
+  - id: autoencoder-and-vae
+    k: model
+    t:
+      en: Autoencoder and VAE
+      vi: Autoencoder và VAE
+    lead:
+      en: Squeeze data through a narrow bottleneck and learn to rebuild it. The bottleneck becomes a compact representation.
+      vi: Nén dữ liệu qua một nút cổ chai hẹp và học tái tạo nó. Nút cổ chai trở thành biểu diễn gọn.
+    how:
+      - en: Encoder maps x to a code z of low dimension; decoder maps z back to x̂.
+        vi: Encoder ánh xạ x thành mã z ít chiều; decoder ánh xạ z về x̂.
+      - en: "Autoencoder loss: reconstruction error, for example ‖x − x̂‖². Large error on new data signals an anomaly."
+        vi: "Loss của autoencoder: sai số tái tạo, ví dụ ‖x − x̂‖². Sai số lớn trên dữ liệu mới là dấu hiệu bất thường."
+      - en: "VAE: the encoder outputs a mean μ and log-variance; sample z = μ + σ⊙ε with ε ~ N(0, I) (reparameterization trick)."
+        vi: "VAE: encoder xuất trung bình μ và log-variance; lấy mẫu z = μ + σ⊙ε với ε ~ N(0, I) (mẹo reparameterization)."
+      - en: VAE loss = reconstruction + β·KL(q(z|x) ‖ N(0, I)). Sampling z from N(0, I) then decoding generates new data.
+        vi: Loss của VAE = tái tạo + β·KL(q(z|x) ‖ N(0, I)). Lấy mẫu z từ N(0, I) rồi decode sẽ sinh dữ liệu mới.
+    use:
+      en: Anomaly detection, compression, representation learning, synthetic data. VAE samples tend to be blurry compared with GANs and diffusion.
+      vi: Phát hiện bất thường, nén, học biểu diễn, dữ liệu tổng hợp. Mẫu VAE thường mờ hơn GAN và diffusion.
+    input:
+      en: x of shape (B, d) or images (B, C, H, W), scaled to a stable range.
+      vi: x dạng (B, d) hoặc ảnh (B, C, H, W), đã đưa về khoảng ổn định.
+    output:
+      en: Reconstruction x̂ (same shape as x); latent z (B, d_z); for VAE also μ and logvar (B, d_z).
+      vi: Bản tái tạo x̂ (cùng dạng với x); latent z (B, d_z); với VAE còn có μ và logvar (B, d_z).
+    learned:
+      en: Encoder and decoder weights.
+      vi: Trọng số encoder và decoder.
+    hyper:
+      en: latent dimension d_z, layer sizes, β (KL weight), learning rate, noise or masking for denoising variants.
+      vi: chiều latent d_z, kích thước tầng, β (trọng số KL), learning rate, nhiễu hoặc che cho biến thể khử nhiễu.
+    code:
+      lang: python
+      title: vae_loss.py (PyTorch)
+      code: |-
+        import torch
+        import torch.nn.functional as F
+
+        mu, logvar = enc(x)                                   # (B, d_z) each
+        z = mu + torch.exp(0.5 * logvar) * torch.randn_like(mu)   # reparameterization
+        x_hat = dec(z)                                        # same shape as x
+
+        recon = F.mse_loss(x_hat, x, reduction="sum")
+        kl = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+        loss = recon + kl                                     # add a beta factor to tune
+    n:
+      en: For anomaly detection on tabular or sensor data, train on normal data only and flag rows whose reconstruction error exceeds a threshold chosen on validation data.
+      vi: Để phát hiện bất thường trên dữ liệu bảng hoặc cảm biến, chỉ huấn luyện trên dữ liệu bình thường và đánh dấu dòng có sai số tái tạo vượt ngưỡng chọn trên dữ liệu validation.
+  - id: gan-generative-adversarial-network
+    k: model
+    t:
+      en: "GAN: generative adversarial network"
+      vi: "GAN: mạng sinh đối kháng"
+    lead:
+      en: "Two networks compete: a generator forges data, a discriminator tries to spot the forgeries."
+      vi: "Hai mạng cạnh tranh: generator làm giả dữ liệu, discriminator cố phát hiện hàng giả."
+    how:
+      - en: Generator G maps random noise z ~ N(0, I) to a fake sample G(z).
+        vi: Generator G ánh xạ nhiễu ngẫu nhiên z ~ N(0, I) thành mẫu giả G(z).
+      - en: Discriminator D outputs the probability that a sample is real.
+        vi: Discriminator D xuất xác suất một mẫu là thật.
+      - en: "Minimax game: min_G max_D E[log D(x)] + E[log(1 − D(G(z)))]. In practice G uses the non-saturating loss −log D(G(z))."
+        vi: "Trò chơi minimax: min_G max_D E[log D(x)] + E[log(1 − D(G(z)))]. Thực tế G dùng loss không bão hòa −log D(G(z))."
+      - en: "Alternate updates of D and G. Training is delicate: mode collapse and instability are common."
+        vi: "Luân phiên cập nhật D và G. Huấn luyện mong manh: mode collapse và bất ổn thường gặp."
+    use:
+      en: Realistic images and synthetic tabular data (for example CTGAN). Hard to evaluate and train; diffusion models have largely replaced GANs for images.
+      vi: Ảnh chân thật và dữ liệu bảng tổng hợp (ví dụ CTGAN). Khó đánh giá và huấn luyện; diffusion đã phần lớn thay GAN cho ảnh.
+    input:
+      en: G takes noise (B, d_z); D takes real or fake samples (B, d) or (B, C, H, W).
+      vi: G nhận nhiễu (B, d_z); D nhận mẫu thật hoặc giả (B, d) hoặc (B, C, H, W).
+    output:
+      en: "G: synthetic samples. D: a probability or score (B, 1)."
+      vi: "G: mẫu tổng hợp. D: xác suất hoặc điểm (B, 1)."
+    learned:
+      en: Weights of both G and D.
+      vi: Trọng số của cả G và D.
+    hyper:
+      en: latent dimension d_z, learning rates (about 2e-4 with Adam β₁ = 0.5 is a classic setting), D/G update ratio, batch size, architecture.
+      vi: chiều latent d_z, learning rate (khoảng 2e-4 với Adam β₁ = 0.5 là cài đặt kinh điển), tỷ lệ cập nhật D/G, batch size, kiến trúc.
+    code:
+      lang: python
+      title: gan_step.py (PyTorch)
+      code: |-
+        import torch
+        import torch.nn.functional as F
+
+        # real: (B, d) batch of real samples; G, D, opt_g, opt_d already defined
+        z = torch.randn(real.size(0), d_z)
+        fake = G(z)
+
+        # discriminator step: real -> 1, fake -> 0
+        d_loss = (F.binary_cross_entropy_with_logits(D(real), torch.ones(real.size(0), 1))
+                  + F.binary_cross_entropy_with_logits(D(fake.detach()), torch.zeros(real.size(0), 1)))
+        opt_d.zero_grad(); d_loss.backward(); opt_d.step()
+
+        # generator step: try to make D say "real"
+        g_loss = F.binary_cross_entropy_with_logits(D(fake), torch.ones(real.size(0), 1))
+        opt_g.zero_grad(); g_loss.backward(); opt_g.step()
+    n:
+      en: The detach() call stops the discriminator step from sending gradients into the generator. For synthetic data in analytics, always validate that statistics and privacy properties of the synthetic set are acceptable.
+      vi: Lệnh detach() ngăn bước discriminator gửi gradient vào generator. Với dữ liệu tổng hợp trong analytics, luôn kiểm chứng thống kê và tính riêng tư của tập tổng hợp là chấp nhận được.
+  - id: diffusion-models
+    k: model
+    t:
+      en: Diffusion models
+      vi: Mô hình diffusion
+    lead:
+      en: Learn to remove noise step by step. Generation starts from pure noise and denoises it into data.
+      vi: Học cách khử nhiễu từng bước. Việc sinh bắt đầu từ nhiễu thuần và khử nhiễu thành dữ liệu.
+    how:
+      - en: "Forward process: add Gaussian noise over T steps. In closed form x_t = √ᾱ_t·x₀ + √(1 − ᾱ_t)·ε, with ε ~ N(0, I)."
+        vi: "Quá trình thuận: thêm nhiễu Gauss qua T bước. Dạng đúng x_t = √ᾱ_t·x₀ + √(1 − ᾱ_t)·ε, với ε ~ N(0, I)."
+      - en: "Train a network ε_θ(x_t, t) to predict the added noise: loss = ‖ε − ε_θ(x_t, t)‖²."
+        vi: "Huấn luyện mạng ε_θ(x_t, t) dự đoán nhiễu đã thêm: loss = ‖ε − ε_θ(x_t, t)‖²."
+      - en: "Sampling: start from x_T ~ N(0, I) and repeatedly subtract predicted noise down to x₀ (DDPM uses many steps; DDIM and others use fewer)."
+        vi: "Lấy mẫu: bắt đầu từ x_T ~ N(0, I) và liên tục trừ nhiễu dự đoán đến x₀ (DDPM dùng nhiều bước; DDIM và các cách khác dùng ít hơn)."
+      - en: Conditioning (for example text embeddings) and classifier-free guidance steer the result. Latent diffusion works in a VAE’s compressed space.
+        vi: Điều kiện hóa (ví dụ text embedding) và classifier-free guidance định hướng kết quả. Latent diffusion hoạt động trong không gian nén của VAE.
+    use:
+      en: High-quality image, audio and video generation. Sampling is slow compared with a GAN, though faster samplers reduce this.
+      vi: Sinh ảnh, âm thanh, video chất lượng cao. Lấy mẫu chậm hơn GAN, dù các sampler nhanh hơn giảm bớt điều này.
+    input:
+      en: "Training: image x₀ (B, C, H, W), timestep t (B,), noise ε (same shape as x₀). Optional condition embedding."
+      vi: "Huấn luyện: ảnh x₀ (B, C, H, W), timestep t (B,), nhiễu ε (cùng dạng x₀). Có thể thêm embedding điều kiện."
+    output:
+      en: Predicted noise (B, C, H, W) per step; the final sample is an image of the same shape.
+      vi: Nhiễu dự đoán (B, C, H, W) mỗi bước; mẫu cuối là ảnh cùng dạng.
+    learned:
+      en: Weights of the denoiser (typically a U-Net or a transformer).
+      vi: Trọng số của bộ khử nhiễu (thường là U-Net hoặc transformer).
+    hyper:
+      en: number of steps T, noise schedule β_t (linear or cosine), guidance scale, sampler and number of sampling steps, learning rate.
+      vi: số bước T, lịch nhiễu β_t (tuyến tính hoặc cosine), guidance scale, sampler và số bước lấy mẫu, learning rate.
+    code:
+      lang: python
+      title: diffusion_step.py (PyTorch)
+      code: |-
+        import torch
+        import torch.nn.functional as F
+
+        # x0: (B, C, H, W); alpha_bar: (T,) cumulative product of (1 - beta_t)
+        t = torch.randint(0, T, (x0.size(0),))
+        eps = torch.randn_like(x0)
+        ab = alpha_bar[t].view(-1, 1, 1, 1)
+        xt = ab.sqrt() * x0 + (1 - ab).sqrt() * eps      # noised sample at step t
+
+        loss = F.mse_loss(model(xt, t), eps)             # the network predicts the noise
+        loss.backward()
+    n:
+      en: The training step is just regression on noise. That simplicity is a big reason diffusion trains more stably than a GAN.
+      vi: Bước huấn luyện chỉ là hồi quy trên nhiễu. Sự đơn giản đã là lý do lớn khiến diffusion huấn luyện ổn định hơn GAN.
+  - id: graph-neural-network-gnn
+    k: model
+    t:
+      en: Graph neural network (GNN)
+      vi: Mạng nơ-ron đồ thị (GNN)
+    lead:
+      en: Learn from nodes and their connections by repeatedly letting each node gather information from its neighbours.
+      vi: Học từ node và các kết nối của chúng bằng cách liên tục để mỗi node thu thập thông tin từ hàng xóm.
+    how:
+      - en: Each node starts with a feature vector h_v⁰ = x_v.
+        vi: Mỗi node bắt đầu bằng vector đặc trưng h_v⁰ = x_v.
+      - en: "Message passing: h_v^(l+1) = σ(W · AGG({h_u : u ∈ N(v)} ∪ {h_v})), where AGG is a sum, mean, max or attention."
+        vi: "Truyền thông điệp: h_v^(l+1) = σ(W · AGG({h_u : u ∈ N(v)} ∪ {h_v})), với AGG là tổng, trung bình, max hoặc attention."
+      - en: "GCN: H′ = σ(D^(-1/2) (A + I) D^(-1/2) · H · W) using the normalized adjacency matrix. GraphSAGE samples neighbours; GAT learns attention weights."
+        vi: "GCN: H′ = σ(D^(-1/2) (A + I) D^(-1/2) · H · W) dùng ma trận kề đã chuẩn hóa. GraphSAGE lấy mẫu hàng xóm; GAT học trọng số attention."
+      - en: After L layers a node knows its L-hop neighbourhood. Read out node, edge or whole-graph predictions.
+        vi: Sau L tầng, node biết vùng lân cận L bước. Đọc ra dự đoán cho node, cạnh hoặc cả graph.
+    use:
+      en: Fraud rings, recommendations, molecules, lineage and knowledge graphs. Too many layers over-smooth node features; very large graphs need sampling.
+      vi: Vòng gian lận, gợi ý, phân tử, lineage và knowledge graph. Quá nhiều tầng làm đặc trưng node bị over-smoothing; graph rất lớn cần lấy mẫu.
+    input:
+      en: Node features x (N, F); edge_index (2, E) listing source and target node ids; optional edge features and labels.
+      vi: Đặc trưng node x (N, F); edge_index (2, E) liệt kê id node nguồn và đích; có thể thêm đặc trưng cạnh và nhãn.
+    output:
+      en: Node embeddings or logits (N, n_classes); for link prediction, a score per node pair.
+      vi: Embedding hoặc logit của node (N, n_classes); với dự đoán liên kết, một điểm cho mỗi cặp node.
+    learned:
+      en: Weight matrices W per layer (shared across nodes).
+      vi: Ma trận trọng số W mỗi tầng (chia sẻ giữa các node).
+    hyper:
+      en: number of layers (depth), hidden size, aggregator, neighbour sampling size, dropout, learning rate.
+      vi: số tầng (độ sâu), hidden size, aggregator, kích thước lấy mẫu hàng xóm, dropout, learning rate.
+    code:
+      lang: python
+      title: gcn.py (PyTorch Geometric)
+      code: |-
+        import torch
+        from torch_geometric.nn import GCNConv
+
+
+        class GCN(torch.nn.Module):
+            def __init__(self, f_in: int, f_hidden: int, n_classes: int):
+                super().__init__()
+                self.conv1 = GCNConv(f_in, f_hidden)
+                self.conv2 = GCNConv(f_hidden, n_classes)
+
+            def forward(self, x, edge_index):             # x: (N, F), edge_index: (2, E)
+                x = torch.relu(self.conv1(x, edge_index))  # (N, f_hidden)
+                return self.conv2(x, edge_index)           # (N, n_classes) logits
+    n:
+      en: "Connect this to section 15: a lineage or knowledge graph is the input structure, and a GNN is one way to learn from it. Many problems are solved well enough by graph features fed into gradient boosting."
+      vi: "Nối với phần 15: graph lineage hoặc knowledge graph là cấu trúc đầu vào, và GNN là một cách học từ nó. Nhiều bài toán đã giải đủ tốt bằng đặc trưng graph đưa vào gradient boosting."
+  - id: decision-guide-which-model-for-which-problem
+    k: table
+    t:
+      en: "Decision guide: which model for which problem?"
+      vi: "Hướng dẫn quyết định: model nào cho bài toán nào?"
+    head:
+      - en: Problem and data
+        vi: Bài toán và dữ liệu
+      - en: Start with
+        vi: Bắt đầu với
+      - en: Then try
+        vi: Sau đó thử
+      - en: Avoid when
+        vi: Tránh khi
+    rows:
+      - - en: Tabular prediction (churn, price, risk)
+          vi: Dự đoán dữ liệu bảng (churn, giá, rủi ro)
+        - en: Logistic or linear baseline
+          vi: Baseline logistic hoặc tuyến tính
+        - Gradient boosting (XGBoost, LightGBM)
+        - en: Using a deep network without a strong reason
+          vi: Dùng mạng sâu mà không có lý do mạnh
+      - - en: Segmenting customers, no labels
+          vi: Phân khúc khách hàng, không nhãn
+        - en: Scaled features, k-means
+          vi: Đặc trưng đã chuẩn hóa, k-means
+        - en: PCA first, then clustering
+          vi: PCA trước, rồi gom cụm
+        - en: Skipping scaling or cluster profiling
+          vi: Bỏ qua chuẩn hóa hoặc mô tả cụm
+      - - en: Text classification or semantic search
+          vi: Phân loại văn bản hoặc tìm kiếm ngữ nghĩa
+        - en: TF-IDF + logistic regression
+          vi: TF-IDF + hồi quy logistic
+        - en: BERT-style encoder or embedding model
+          vi: Encoder kiểu BERT hoặc embedding model
+        - en: Training a transformer from scratch
+          vi: Huấn luyện transformer từ đầu
+      - - en: Free-form text generation, assistants
+          vi: Sinh văn bản tự do, trợ lý
+        - en: A hosted LLM with RAG and tools
+          vi: LLM được host cùng RAG và tool
+        - en: Fine-tuning only after evals show a gap
+          vi: Chỉ fine-tune sau khi eval cho thấy khoảng trống
+        - en: Relying on the model’s memory for facts
+          vi: Dựa vào trí nhớ của model cho sự kiện
+      - - en: Images, audio
+          vi: Ảnh, âm thanh
+        - en: Pretrained CNN or vision transformer
+          vi: CNN hoặc vision transformer đã huấn luyện sẵn
+        - en: Fine-tune on your labeled data
+          vi: Fine-tune trên dữ liệu có nhãn của bạn
+        - en: Tiny datasets without augmentation
+          vi: Dữ liệu rất nhỏ không có augmentation
+      - - en: Time series forecasting
+          vi: Dự báo chuỗi thời gian
+        - en: Seasonal naive and simple baselines
+          vi: Seasonal naive và baseline đơn giản
+        - en: Gradient boosting on lag features, then sequence models
+          vi: Gradient boosting trên đặc trưng lag, rồi model chuỗi
+        - en: Random train/test splits (leaks the future)
+          vi: Chia train/test ngẫu nhiên (rò rỉ tương lai)
+      - - en: Anomaly detection
+          vi: Phát hiện bất thường
+        - en: Statistical thresholds, isolation forest
+          vi: Ngưỡng thống kê, isolation forest
+        - en: Autoencoder on normal data
+          vi: Autoencoder trên dữ liệu bình thường
+        - en: Labels are unreliable and unvalidated
+          vi: Nhãn không đáng tin và chưa kiểm chứng
+      - - en: Relationship-heavy data (fraud, recommendations)
+          vi: Dữ liệu nhiều quan hệ (gian lận, gợi ý)
+        - en: Graph features into gradient boosting
+          vi: Đặc trưng graph đưa vào gradient boosting
+        - en: GNN when relations are the signal
+          vi: GNN khi quan hệ là tín hiệu chính
+        - en: A graph so sparse it adds no information
+          vi: Graph quá thưa, không thêm thông tin
+    cap:
+      en: "Rule: earn the right to complexity. Each step up must beat the previous baseline on held-out data and justify its cost to run, explain and monitor."
+      vi: "Quy tắc: phải “xứng đáng” mới được phức tạp hơn. Mỗi bước nâng cấp phải thắng baseline trước trên dữ liệu giữ lại và biện minh được chi phí chạy, giải thích và giám sát."
+    n:
+      en: Use this as the decision guide in design reviews. The rightmost column is where real projects go wrong.
+      vi: Dùng làm hướng dẫn quyết định trong buổi review thiết kế. Cột phải là nơi các dự án thật hay sai.
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Data leakage.
+          vi: Rò rỉ dữ liệu.
+        why:
+          en: Future or label-derived features inflate offline scores.
+          vi: Đặc trưng từ tương lai hoặc suy ra từ nhãn làm điểm offline phồng lên.
+        fix:
+          en: Split by time or entity first, then build features using only past data.
+          vi: Chia theo thời gian hoặc thực thể trước, rồi tạo đặc trưng chỉ từ dữ liệu quá khứ.
+      - bad:
+          en: Tuning on the test set.
+          vi: Tinh chỉnh trên tập test.
+        why:
+          en: Test performance becomes optimistic.
+          vi: Hiệu năng test trở nên lạc quan.
+        fix:
+          en: Tune on validation or cross-validation; touch the test set once.
+          vi: Tinh chỉnh trên validation hoặc cross-validation; chỉ chạm tập test một lần.
+      - bad:
+          en: Accuracy on imbalanced data.
+          vi: Dùng accuracy với dữ liệu mất cân bằng.
+        why:
+          en: A model that predicts the majority class looks great.
+          vi: Model luôn đoán lớp đa số trông rất tốt.
+        fix:
+          en: Use precision, recall, PR-AUC and a threshold chosen by cost.
+          vi: Dùng precision, recall, PR-AUC và ngưỡng chọn theo chi phí.
+      - bad:
+          en: Skipping the simple baseline.
+          vi: Bỏ qua baseline đơn giản.
+        why:
+          en: You cannot tell if the complex model helps.
+          vi: Không biết model phức tạp có giúp được không.
+        fix:
+          en: Always report a linear or naive baseline next to the model.
+          vi: Luôn báo cáo baseline tuyến tính hoặc naive bên cạnh model.
+      - bad:
+          en: Forgetting to scale or encode.
+          vi: Quên chuẩn hóa hoặc mã hóa.
+        why:
+          en: Distance-based and gradient-based models misbehave.
+          vi: Model dựa trên khoảng cách và gradient hoạt động sai.
+        fix:
+          en: Put scaling and encoding inside a pipeline fitted on train only.
+          vi: Đưa chuẩn hóa và mã hóa vào pipeline chỉ fit trên train.
+      - bad:
+          en: Ignoring drift after deployment.
+          vi: Bỏ qua drift sau khi triển khai.
+        why:
+          en: Data changes and quality decays silently.
+          vi: Dữ liệu đổi và chất lượng giảm âm thầm.
+        fix:
+          en: Monitor input distributions and outcomes; retrain on a schedule or trigger.
+          vi: Giám sát phân phối đầu vào và kết quả; huấn luyện lại theo lịch hoặc điều kiện.
+    n:
+      en: "Leakage is the most common and most expensive mistake: it makes a useless model look excellent until production."
+      vi: "Rò rỉ dữ liệu là lỗi phổ biến và đắt giá nhất: nó khiến model vô dụng trông xuất sắc cho đến khi lên production."
+  - id: what-senior-looks-like-models-and-ml
+    k: cards
+    t:
+      en: "What senior looks like: models and ML"
+      vi: "Senior trông như thế nào: model và ML"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: Simple model or complex model
+            vi: Model đơn giản hay phức tạp
+          - en: Build, fine-tune or call a hosted model
+            vi: Tự xây, fine-tune hay gọi model được host
+          - en: Which metric reflects the business cost
+            vi: Chỉ số nào phản ánh chi phí nghiệp vụ
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Accuracy versus interpretability
+            vi: Độ chính xác và khả năng giải thích
+          - en: Training cost versus serving cost
+            vi: Chi phí huấn luyện và chi phí phục vụ
+          - en: Fresh models versus stability
+            vi: Model mới và sự ổn định
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Prevent leakage with sound splits and pipelines
+            vi: Ngăn rò rỉ bằng cách chia và pipeline đúng
+          - en: Provide reliable features and labels
+            vi: Cung cấp đặc trưng và nhãn đáng tin
+          - en: Monitor models in production
+            vi: Giám sát model ở production
+    n:
+      en: An analytics engineer is rarely the one inventing models. The value is trustworthy data, correct evaluation, and a team that knows when a simpler model is enough.
+      vi: Analytics engineer hiếm khi là người phát minh model. Giá trị nằm ở dữ liệu đáng tin, đánh giá đúng, và một đội biết khi nào model đơn giản là đủ.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: I can state the loss and update rule for linear regression
+          vi: Tôi nêu được loss và quy tắc cập nhật của hồi quy tuyến tính
+        - en: I can explain bagging versus boosting
+          vi: Tôi giải thích được bagging và boosting
+        - en: I know the tensor shapes entering a CNN, LSTM and transformer
+          vi: Tôi biết hình dạng tensor đi vào CNN, LSTM và transformer
+        - en: I can write scaled dot-product attention
+          vi: Tôi viết được scaled dot-product attention
+        - en: I can separate parameters from hyperparameters
+          vi: Tôi phân biệt được tham số và siêu tham số
+        - en: I split data to avoid leakage
+          vi: Tôi chia dữ liệu để tránh rò rỉ
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Why does a random forest reduce variance while boosting reduces bias?
+          vi: Vì sao random forest giảm variance còn boosting giảm bias?
+        - en: Why divide attention scores by √d_k?
+          vi: Vì sao chia điểm attention cho √d_k?
+        - en: What is the difference between BERT and GPT, in training objective and in use?
+          vi: BERT và GPT khác nhau thế nào về mục tiêu huấn luyện và cách dùng?
+        - en: How would you detect anomalies in sensor data with an autoencoder?
+          vi: Bạn phát hiện bất thường trong dữ liệu cảm biến bằng autoencoder thế nào?
+        - en: Your model scores 0.98 AUC offline and fails in production. What do you check first?
+          vi: Model đạt AUC 0.98 offline nhưng thất bại ở production. Bạn kiểm tra gì đầu tiên?
+    n:
+      en: For the last question, strong candidates start with leakage and train/serve skew before touching the model.
+      vi: Với câu hỏi cuối, ứng viên giỏi bắt đầu từ rò rỉ dữ liệu và lệch train/serve trước khi đụng đến model.

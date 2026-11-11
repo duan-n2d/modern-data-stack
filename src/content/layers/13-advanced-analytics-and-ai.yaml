@@ -1,0 +1,564 @@
+layer: 13
+slides:
+  - id: advanced-analytics-and-ai-from-reporting-to-decisions
+    k: cards
+    t:
+      en: "Advanced analytics and AI: from reporting to decisions"
+      vi: "Phân tích nâng cao và AI: từ báo cáo đến quyết định"
+    lead:
+      en: Seniors are expected to design experiments, reason about causality, and use machine learning and LLMs responsibly.
+      vi: Senior được kỳ vọng thiết kế thí nghiệm, suy luận nhân quả và dùng machine learning, LLM một cách có trách nhiệm.
+    cols: 3
+    cards:
+      - h:
+          en: Experimentation
+          vi: Thử nghiệm
+        tag: must
+        p:
+          en: "A/B tests with sound design: power, randomization, guardrail metrics and pre-defined stopping rules."
+          vi: "A/B test với thiết kế đúng đắn: power, randomization, guardrail metric và quy tắc dừng định trước."
+      - h:
+          en: Causal inference
+          vi: Suy luận nhân quả
+        tag: senior
+        p:
+          en: "When you cannot randomize: difference-in-differences, matching, regression discontinuity, synthetic control."
+          vi: "Khi không thể randomize: difference-in-differences, matching, regression discontinuity, synthetic control."
+      - h:
+          en: Core statistics
+          vi: Thống kê cốt lõi
+        tag: must
+        p:
+          en: Distributions, confidence intervals, what a p-value does and does not mean, and variance.
+          vi: Phân phối, khoảng tin cậy, p-value có và không có nghĩa gì, và phương sai.
+      - h:
+          en: ML basics and MLOps
+          vi: Cơ bản về ML và MLOps
+        tag: nice
+        p:
+          en: scikit-learn models, experiment tracking, feature stores and basic deployment.
+          vi: Model scikit-learn, experiment tracking, feature store và deploy cơ bản.
+      - h:
+          en: LLMs in analytics
+          vi: LLM trong analytics
+        tag: senior
+        p:
+          en: Text-to-SQL, copilots and agents grounded in governed definitions, with guardrails.
+          vi: Text-to-SQL, copilot và agent dựa trên các định nghĩa được governance, kèm guardrail.
+      - h:
+          en: Embeddings and vector search
+          vi: Embedding và vector search
+        tag: nice
+        p:
+          en: Semantic search over documents and tickets with pgvector or a dedicated vector database.
+          vi: Semantic search trên tài liệu và ticket với pgvector hoặc một vector database chuyên dụng.
+    n:
+      en: This layer is broad on purpose. The expectation for a senior analytics engineer is not to be a research scientist, but to enable good experiments, avoid statistical traps and set safe patterns for AI.
+      vi: Lớp này rộng có chủ đích. Kỳ vọng với một senior analytics engineer không phải là trở thành nhà khoa học nghiên cứu, mà là cho phép các thử nghiệm tốt, tránh bẫy thống kê và đặt ra các pattern an toàn cho AI.
+  - id: tool-landscape-analytics-ml-and-ai
+    k: table
+    t:
+      en: "Tool landscape: analytics, ML and AI"
+      vi: "Bức tranh công cụ: analytics, ML và AI"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - Jupyter / Hex / Deepnote
+        - en: Notebooks and collaborative workspaces
+          vi: Notebook và không gian làm việc cộng tác
+        - en: Exploration, analysis and sharing
+          vi: Khám phá, phân tích và chia sẻ
+        - en: Interactive; SQL and Python; easy sharing
+          vi: Tương tác; SQL và Python; dễ chia sẻ
+        - en: Reproducibility and production readiness need discipline
+          vi: Khả năng tái lập và sẵn sàng production cần kỷ luật
+        - en: Jupyter is open source; Hex and Deepnote are plan-based
+          vi: Jupyter là mã nguồn mở; Hex và Deepnote tính phí theo gói
+      - - scikit-learn
+        - en: Machine-learning library
+          vi: Thư viện machine learning
+        - en: "Classical ML: regression, trees, clustering"
+          vi: "ML cổ điển: regression, tree, clustering"
+        - en: Consistent API; reliable; well documented
+          vi: API nhất quán; đáng tin cậy; tài liệu tốt
+        - en: Not for deep learning or very large data
+          vi: Không dành cho deep learning hoặc dữ liệu rất lớn
+        - en: Open source
+          vi: Mã nguồn mở
+      - - MLflow
+        - en: Experiment tracking and model registry
+          vi: Experiment tracking và model registry
+        - en: Tracking runs, parameters and models
+          vi: Theo dõi run, tham số và model
+        - en: Open source; widely supported
+          vi: Mã nguồn mở; được hỗ trợ rộng rãi
+        - en: Needs hosting and conventions to be useful at scale
+          vi: Cần hosting và quy ước để hữu ích ở quy mô lớn
+        - en: Open source; managed options exist
+          vi: Mã nguồn mở; có tùy chọn managed
+      - - en: Feature stores (Feast, platform-native)
+          vi: Feature store (Feast, platform-native)
+        - en: Feature management
+          vi: Quản lý feature
+        - en: Consistent features for training and serving
+          vi: Feature nhất quán cho training và serving
+        - en: Point-in-time correctness; reuse
+          vi: Đúng theo point-in-time; tái sử dụng
+        - en: Operational overhead; often unneeded for small teams
+          vi: Overhead vận hành; thường không cần cho team nhỏ
+        - en: Open source or platform-included
+          vi: Mã nguồn mở hoặc đi kèm platform
+      - - Snowflake Cortex / Databricks Genie
+        - en: In-platform AI and natural-language analytics
+          vi: AI trong platform và analytics bằng ngôn ngữ tự nhiên
+        - en: AI features close to governed warehouse data
+          vi: Tính năng AI gần dữ liệu warehouse đã được governance
+        - en: Data stays in the platform; governance integration
+          vi: Dữ liệu ở lại trong platform; tích hợp governance
+        - en: Platform lock-in; quality depends on semantic modeling
+          vi: Lock-in vào platform; chất lượng phụ thuộc vào semantic modeling
+        - en: Consumption-based
+          vi: Tính theo mức sử dụng
+      - - Claude / GitHub Copilot
+        - en: LLM assistants
+          vi: Trợ lý LLM
+        - en: SQL, code and documentation assistance; analysis help
+          vi: Hỗ trợ SQL, code và tài liệu; trợ giúp phân tích
+        - en: Speeds drafting and exploration
+          vi: Tăng tốc việc soạn thảo và khám phá
+        - en: Needs review and grounding; can be confidently wrong
+          vi: Cần review và grounding; có thể sai một cách tự tin
+        - en: Subscription or usage-based
+          vi: Thuê bao hoặc theo mức sử dụng
+      - - en: pgvector / vector databases
+          vi: pgvector / vector database
+        - en: Embedding storage and search
+          vi: Lưu trữ và tìm kiếm embedding
+        - en: Semantic search and retrieval for AI apps
+          vi: Semantic search và retrieval cho ứng dụng AI
+        - en: pgvector keeps vectors beside relational data
+          vi: pgvector giữ vector bên cạnh dữ liệu quan hệ
+        - en: Dedicated databases add systems; scale and recall need testing
+          vi: Database chuyên dụng thêm hệ thống; quy mô và recall cần test
+        - en: Open source; managed options vary
+          vi: Mã nguồn mở; tùy chọn managed khác nhau
+    cap:
+      en: The model matters less than the data and definitions it is grounded in.
+      vi: Model quan trọng ít hơn dữ liệu và định nghĩa mà nó dựa vào.
+    n:
+      en: "The pattern with LLM tools is the same as for BI: they are only as good as your semantic layer and governance. Treat them as another consumer of your data products."
+      vi: "Pattern với công cụ LLM giống với BI: chúng chỉ tốt bằng semantic layer và governance của bạn. Hãy coi chúng như một consumer nữa của các data product."
+  - id: deep-dive-planning-and-analysing-an-a-b-test
+    k: code
+    t:
+      en: "Deep dive: planning and analysing an A/B test"
+      vi: "Đào sâu: lên kế hoạch và phân tích A/B test"
+    lead:
+      en: Decide how many users you need before the test, then analyse once.
+      vi: Quyết định cần bao nhiêu người dùng trước khi test, rồi chỉ phân tích một lần.
+    blocks:
+      - lang: python
+        title: ab_test.py
+        code: |-
+          import numpy as np
+          from statsmodels.stats.power import NormalIndPower
+          from statsmodels.stats.proportion import proportion_effectsize, proportions_ztest
+
+          # 1) Plan: users needed per variant to detect 10.0% -> 11.0% conversion
+          effect = proportion_effectsize(0.11, 0.10)
+          n_per_arm = NormalIndPower().solve_power(
+              effect_size=effect, alpha=0.05, power=0.8, ratio=1.0, alternative="two-sided"
+          )
+          print(f"Need about {int(np.ceil(n_per_arm)):,} users per variant")
+
+          # 2) Analyse: two-proportion z-test
+          conversions = np.array([1120, 1010])   # treatment, control
+          exposures = np.array([10000, 10000])
+          stat, p_value = proportions_ztest(conversions, exposures)
+          lift = conversions[0] / exposures[0] - conversions[1] / exposures[1]
+          print(f"absolute lift={lift:.4f}, z={stat:.2f}, p={p_value:.3f}")
+    points:
+      - h: Pre-register
+        p:
+          en: Fix the primary metric, minimum detectable effect, duration and stopping rule before launch.
+          vi: Cố định primary metric, minimum detectable effect, thời lượng và quy tắc dừng trước khi launch.
+      - h:
+          en: Do not peek
+          vi: Không nhìn trộm
+        p:
+          en: Checking repeatedly and stopping at the first significant result inflates false positives. Use sequential methods if you must monitor.
+          vi: Kiểm tra liên tục và dừng ở kết quả có ý nghĩa đầu tiên làm tăng false positive. Dùng sequential method nếu buộc phải theo dõi.
+      - h:
+          en: Check sample ratio
+          vi: Kiểm tra sample ratio
+        tag: senior
+        p:
+          en: If the 50/50 split is not near 50/50, assignment is broken and results are unreliable.
+          vi: Nếu tỷ lệ chia 50/50 không gần 50/50, việc phân nhóm bị lỗi và kết quả không đáng tin.
+      - h:
+          en: Statistical is not practical
+          vi: Ý nghĩa thống kê không phải ý nghĩa thực tế
+        tag: senior
+        p:
+          en: Report effect size and uncertainty, and ask whether the lift is worth the cost.
+          vi: Báo cáo effect size và độ bất định, và hỏi xem mức lift có đúng với chi phí không.
+    n:
+      en: The sample-size calculation is the part most teams skip. The analysis step is short; the discipline is in the design. Mention variance reduction methods such as CUPED as a later optimization.
+      vi: Tính sample size là phần hầu hết các team bỏ qua. Bước phân tích thì ngắn; kỷ luật nằm ở thiết kế. Đề cập các phương pháp giảm phương sai như CUPED như một tối ưu hóa về sau.
+  - id: design-patterns-causal-inference-and-statistical
+    k: cards
+    t:
+      en: "Design patterns: causal inference and statistical judgment"
+      vi: "Mẫu thiết kế: suy luận nhân quả và phán đoán thống kê"
+    cols: 3
+    cards:
+      - h:
+          en: Randomize when you can
+          vi: Randomize khi có thể
+        p:
+          en: It is the cleanest way to establish cause. Invest in assignment and logging quality.
+          vi: Đây là cách sạch nhất để xác lập nhân quả. Đầu tư vào chất lượng phân nhóm và logging.
+      - h: Difference-in-differences
+        p:
+          en: Compare the change in a treated group to the change in a comparable untreated group. Needs parallel trends.
+          vi: So sánh thay đổi ở nhóm được tác động với thay đổi ở nhóm tương đương không được tác động. Cần parallel trends.
+      - h:
+          en: Matching and regression adjustment
+          vi: Matching và regression adjustment
+        p:
+          en: Control for observed confounders. Cannot fix unobserved ones.
+          vi: Kiểm soát các confounder quan sát được. Không sửa được các confounder không quan sát được.
+      - h: Regression discontinuity
+        p:
+          en: Exploits a sharp eligibility threshold to estimate local effects.
+          vi: Khai thác một ngưỡng đủ điều kiện rõ ràng để ước lượng tác động cục bộ.
+      - h:
+          en: Beware Simpson’s paradox
+          vi: Coi chừng nghịch lý Simpson
+        p:
+          en: Aggregates can reverse the story told by subgroups. Always slice by the main confounders.
+          vi: Số liệu tổng hợp có thể đảo ngược câu chuyện của các nhóm con. Luôn chia theo các confounder chính.
+      - h:
+          en: Quantify uncertainty
+          vi: Định lượng độ bất định
+        p:
+          en: Report intervals, not only point estimates. Bootstrap when formulas are awkward.
+          vi: Báo cáo khoảng tin cậy, không chỉ ước lượng điểm. Dùng bootstrap khi công thức khó áp dụng.
+    n:
+      en: Keep this slide conceptual. The point is to recognize when an observational analysis cannot support a causal claim, and to say so clearly.
+      vi: Giữ slide này ở mức khái niệm. Mấu chốt là nhận ra khi nào một phân tích quan sát không thể hỗ trợ kết luận nhân quả, và nói rõ điều đó.
+  - id: deep-dive-tracking-models-and-searching-by-meaning
+    k: code
+    t:
+      en: "Deep dive: tracking models and searching by meaning"
+      vi: "Đào sâu: theo dõi model và tìm kiếm theo ngữ nghĩa"
+    lead:
+      en: Track every experiment so results are reproducible, and keep embeddings next to the relational data they describe.
+      vi: Theo dõi mọi experiment để kết quả có thể tái lập, và giữ embedding cạnh dữ liệu quan hệ mà chúng mô tả.
+    blocks:
+      - lang: python
+        title: train_churn.py (MLflow + scikit-learn; X and y come from your feature table)
+        code: |-
+          import mlflow
+          from sklearn.ensemble import GradientBoostingClassifier
+          from sklearn.metrics import roc_auc_score
+          from sklearn.model_selection import train_test_split
+
+          mlflow.set_experiment("churn-model")
+
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=42, stratify=y
+          )
+
+          with mlflow.start_run():
+              params = {"n_estimators": 200, "max_depth": 3, "learning_rate": 0.05}
+              model = GradientBoostingClassifier(**params).fit(X_train, y_train)
+              auc = roc_auc_score(y_test, model.predict_proba(X_test)[:, 1])
+
+              mlflow.log_params(params)
+              mlflow.log_metric("auc", auc)
+              # Newer MLflow versions prefer name="model" over artifact_path
+              mlflow.sklearn.log_model(model, artifact_path="model")
+      - lang: sql
+        title: "pgvector: semantic search (PostgreSQL)"
+        code: |-
+          create extension if not exists vector;
+
+          create table doc_chunks (
+              id         bigserial primary key,
+              doc_id     text not null,
+              content    text not null,
+              embedding  vector(1536)      -- dimension must match your embedding model
+          );
+
+          create index on doc_chunks using hnsw (embedding vector_cosine_ops);
+
+          -- $1 is the query embedding, supplied by your application
+          select id, doc_id, content
+          from doc_chunks
+          order by embedding <=> $1
+          limit 5;
+    points:
+      - h:
+          en: Track everything
+          vi: Theo dõi mọi thứ
+        p:
+          en: Parameters, metrics, data version and code version. “Which model is in production?” should have an answer.
+          vi: Tham số, metric, phiên bản dữ liệu và phiên bản code. “Model nào đang chạy production?” phải có câu trả lời.
+      - h:
+          en: Point-in-time features
+          vi: Feature point-in-time
+        tag: senior
+        p:
+          en: Training features must be computed as of the prediction time, or you leak the future into the model.
+          vi: Feature huấn luyện phải được tính tại thời điểm dự đoán, nếu không bạn làm rò rỉ tương lai vào model.
+      - h:
+          en: Match embedding dimensions
+          vi: Khớp số chiều embedding
+        p:
+          en: The vector column must match the embedding model. Changing models means re-embedding.
+          vi: Cột vector phải khớp với embedding model. Đổi model nghĩa là phải embed lại.
+      - h:
+          en: Test retrieval quality
+          vi: Test chất lượng retrieval
+        tag: senior
+        p:
+          en: Evaluate recall on real questions before trusting similarity search.
+          vi: Đánh giá recall trên các câu hỏi thật trước khi tin vào similarity search.
+    n:
+      en: "The MLflow snippet is intentionally small: it demonstrates the habit rather than a full pipeline. The pgvector example shows that for many teams, vector search can live in the database they already run. Verify extension and index options on your platform."
+      vi: "Đoạn MLflow cố ý để nhỏ: nó minh họa thói quen chứ không phải pipeline đầy đủ. Ví dụ pgvector cho thấy với nhiều team, vector search có thể nằm ngay trong database họ đang chạy. Hãy kiểm tra extension và tùy chọn index trên nền tảng của bạn."
+  - id: guardrails-for-ai-generated-sql
+    k: code
+    t:
+      en: Guardrails for AI-generated SQL
+      vi: Guardrail cho SQL do AI sinh ra
+    lead:
+      en: Never run model-written SQL as-is. Validate it, constrain it, and ground it in governed definitions.
+      vi: Không bao giờ chạy SQL do model viết nguyên trạng. Hãy validate, giới hạn và neo nó vào các định nghĩa được quản trị.
+    blocks:
+      - lang: python
+        title: sql_guard.py (validate before execution)
+        code: |-
+          import sqlglot
+          from sqlglot import exp
+
+          ALLOWED_TABLES = {
+              "analytics.marts.fct_orders",
+              "analytics.marts.dim_customers",
+          }
+
+
+          def validate(sql: str, dialect: str = "snowflake", max_rows: int = 10_000) -> str:
+              tree = sqlglot.parse_one(sql, read=dialect)
+
+              if not isinstance(tree, (exp.Select, exp.Union)):
+                  raise ValueError("Only read-only SELECT queries are allowed")
+
+              cte_names = {c.alias_or_name.lower() for c in tree.find_all(exp.CTE)}
+              for table in tree.find_all(exp.Table):
+                  if table.name.lower() in cte_names and not table.db:
+                      continue  # reference to a CTE defined in this query
+                  full = f"{table.catalog}.{table.db}.{table.name}".lower()
+                  if full not in ALLOWED_TABLES:
+                      raise ValueError(f"Table not allowed: {full}")
+
+              if not tree.args.get("limit"):
+                  tree = tree.limit(max_rows)
+
+              return tree.sql(dialect=dialect)
+    points:
+      - h:
+          en: Read-only role
+          vi: Role chỉ đọc
+        tag: senior
+        p:
+          en: Run generated SQL with credentials that can only read approved marts. Code checks are a second line of defense, not the first.
+          vi: Chạy SQL được sinh ra với credential chỉ đọc được các mart đã duyệt. Kiểm tra code là lớp phòng thủ thứ hai, không phải thứ nhất.
+      - h:
+          en: Ground in the semantic layer
+          vi: Neo vào semantic layer
+        p:
+          en: Let the model choose governed metrics and dimensions rather than invent joins and formulas.
+          vi: Để model chọn metric và dimension đã được quản trị thay vì tự bịa join và công thức.
+      - h:
+          en: Constrain cost
+          vi: Giới hạn chi phí
+        p:
+          en: Dry-run or explain before executing, set row limits, timeouts and per-user budgets.
+          vi: Dry-run hoặc explain trước khi thực thi, đặt giới hạn số dòng, timeout và ngân sách theo từng người dùng.
+      - h:
+          en: Evaluate and log
+          vi: Đánh giá và ghi log
+        tag: senior
+        p:
+          en: Keep a test set of questions with known answers, log every generated query, and review failures.
+          vi: Giữ một bộ test gồm các câu hỏi có đáp án đã biết, ghi log mọi query được sinh ra, và rà soát các trường hợp thất bại.
+      - h:
+          en: Show your work
+          vi: Cho thấy cách làm
+        p:
+          en: Display the SQL and the metric definitions used, so users can check the answer.
+          vi: Hiển thị SQL và các định nghĩa metric đã dùng, để người dùng kiểm tra được câu trả lời.
+    n:
+      en: "The code shows one layer of defense: parse, allowlist tables, enforce a limit. It is a sketch. Real systems also enforce permissions in the database, and treat prompts and retrieved context as untrusted input. The safest design avoids free-form SQL where a governed metric query would do."
+      vi: "Đoạn code minh họa một lớp phòng thủ: parse, allowlist các bảng, áp giới hạn. Đây chỉ là bản phác thảo. Hệ thống thật còn áp quyền ngay trong database, và coi prompt cùng context được truy xuất là input không đáng tin. Thiết kế an toàn nhất tránh SQL tự do khi một query metric được quản trị là đủ."
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Stopping an A/B test when p dips below 0.05.
+          vi: Dừng A/B test khi p xuống dưới 0.05.
+        why:
+          en: Inflates false positives.
+          vi: Làm tăng false positive.
+        fix:
+          en: Fixed duration or sequential testing.
+          vi: Thời lượng cố định hoặc sequential testing.
+      - bad:
+          en: Claiming causation from correlation.
+          vi: Khẳng định nhân quả từ tương quan.
+        why:
+          en: Confounders explain the effect.
+          vi: Các biến gây nhiễu giải thích hiệu ứng.
+        fix:
+          en: Design an experiment or use a causal method, and state assumptions.
+          vi: Thiết kế experiment hoặc dùng phương pháp nhân quả, và nêu rõ các giả định.
+      - bad:
+          en: Training on features unavailable at prediction time.
+          vi: Huấn luyện trên feature không có sẵn tại thời điểm dự đoán.
+        why:
+          en: Leakage; great offline, poor in production.
+          vi: Rò rỉ dữ liệu; offline rất tốt, production kém.
+        fix:
+          en: Point-in-time feature computation.
+          vi: Tính feature point-in-time.
+      - bad:
+          en: Letting an LLM write unrestricted SQL for everyone.
+          vi: Để LLM viết SQL không giới hạn cho mọi người.
+        why:
+          en: Wrong answers, data exposure and cost spikes.
+          vi: Câu trả lời sai, lộ dữ liệu và chi phí tăng vọt.
+        fix:
+          en: Read-only roles, allowlists, semantic grounding and review.
+          vi: Role chỉ đọc, allowlist, neo semantic và review.
+      - bad:
+          en: Notebook-only models.
+          vi: Model chỉ nằm trong notebook.
+        why:
+          en: Not reproducible or deployable.
+          vi: Không tái lập và không deploy được.
+        fix:
+          en: Version code, track runs, package inference.
+          vi: Version code, theo dõi run, đúng gói inference.
+      - bad:
+          en: Reporting the p-value without the effect size.
+          vi: Báo cáo p-value mà không có effect size.
+        why:
+          en: Tiny effects can be significant at scale.
+          vi: Hiệu ứng rất nhỏ vẫn có thể có ý nghĩa thống kê ở quy mô lớn.
+        fix:
+          en: Report effect, interval and practical impact.
+          vi: Báo cáo hiệu ứng, khoảng tin cậy và tác động thực tế.
+    n:
+      en: "These pitfalls share one root: results that look rigorous but are not. Seniors are the ones who ask “how could this be wrong?”"
+      vi: "Các cạm bẫy này có chung một gốc: kết quả trông chặt chẽ nhưng thực ra không. Người senior là người hỏi “điều này có thể sai ở đâu?”"
+  - id: what-senior-looks-like-advanced-analytics-and-ai
+    k: cards
+    t:
+      en: "What senior looks like: advanced analytics and AI"
+      vi: "Senior trông như thế nào: phân tích nâng cao và AI"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: When an experiment is needed versus observational analysis
+            vi: Khi nào cần experiment so với phân tích quan sát
+          - en: Where AI is safe to use, and where it is not
+            vi: Nơi nào dùng AI là an toàn, nơi nào thì không
+          - en: Which AI features to build, buy or enable in-platform
+            vi: Tính năng AI nào nên tự build, mua hay bật sẵn trên nền tảng
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Speed of insight versus rigor
+            vi: Tốc độ có insight so với độ chặt chẽ
+          - en: Convenience of AI versus governance risk
+            vi: Sự tiện lợi của AI so với rủi ro quản trị
+          - en: Platform-native versus best-of-breed AI tools
+            vi: Công cụ AI tích hợp sẵn trên nền tảng so với best-of-breed
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Provide trusted, governed data for experiments and models
+            vi: Cung cấp dữ liệu đáng tin cậy, được quản trị cho experiment và model
+          - en: Set guardrails for AI access to data
+            vi: Đặt guardrail cho việc AI truy cập dữ liệu
+          - en: Educate stakeholders on uncertainty
+            vi: Giúp stakeholder hiểu về độ bất định
+          - en: Evaluate AI tools with real questions, not demos
+            vi: Đánh giá công cụ AI bằng câu hỏi thật, không phải demo
+    n:
+      en: "The senior role in AI is infrastructure and judgment: governed data, grounded definitions, guardrails and honest evaluation."
+      vi: "Vai trò senior trong AI là hạ tầng và phán đoán: dữ liệu được quản trị, định nghĩa có nền tảng, guardrail và đánh giá trung thực."
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: I can size an A/B test before running it
+          vi: Tôi có thể tính cỡ mẫu cho A/B test trước khi chạy
+        - en: I can explain a confidence interval and a p-value correctly
+          vi: Tôi giải thích đúng khoảng tin cậy và p-value
+        - en: I know when difference-in-differences is appropriate
+          vi: Tôi biết khi nào difference-in-differences phù hợp
+        - en: Experiments and models are tracked and reproducible
+          vi: Experiment và model được theo dõi và có thể tái lập
+        - en: AI access to data uses read-only, scoped roles
+          vi: AI truy cập dữ liệu bằng role chỉ đọc, có phạm vi giới hạn
+        - en: I evaluate LLM answers against known questions
+          vi: Tôi đánh giá câu trả lời của LLM với các câu hỏi đã biết đáp án
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: A test shows +2% conversion, p=0.04, after peeking daily. What do you say?
+          vi: Một test cho thấy conversion +2%, p=0.04, sau khi xem kết quả hằng ngày. Bạn nói gì?
+        - en: How would you estimate the effect of a feature that was not randomized?
+          vi: Bạn sẽ ước lượng hiệu ứng của một feature không được randomize như thế nào?
+        - en: What is data leakage, and how do you prevent it?
+          vi: Data leakage là gì, và bạn phòng tránh thế nào?
+        - en: Design a safe natural-language analytics assistant for the finance team.
+          vi: Thiết kế một trợ lý analytics ngôn ngữ tự nhiên an toàn cho team tài chính.
+        - en: When is a vector database unnecessary?
+          vi: Khi nào vector database là không cần thiết?
+    n:
+      en: For the assistant question, a strong answer covers the semantic layer, permissions, validation, evaluation and logging.
+      vi: Với câu hỏi về trợ lý, một câu trả lời tốt bao gồm semantic layer, phân quyền, validation, đánh giá và logging.

@@ -1,0 +1,581 @@
+layer: 17
+slides:
+  - id: security-and-networking-protect-the-platform-and-its
+    k: cards
+    t:
+      en: "Security and networking: protect the platform and its data"
+      vi: "Bảo mật và mạng: bảo vệ nền tảng và dữ liệu"
+    lead:
+      en: "A data platform concentrates the most valuable data in the company. Security is not a final review: identity, network, encryption and audit are designed in from the start."
+      vi: "Data platform tập trung dữ liệu quý nhất của công ty. Bảo mật không phải bước review cuối: danh tính, mạng, mã hóa và audit phải được thiết kế từ đầu."
+    cols: 3
+    cards:
+      - h:
+          en: Identity and access
+          vi: Danh tính và truy cập
+        tag: must
+        p:
+          en: IAM, RBAC and ABAC, service accounts and workload identity. Humans use SSO; workloads use short-lived credentials.
+          vi: IAM, RBAC và ABAC, service account và workload identity. Con người dùng SSO; workload dùng credential ngắn hạn.
+      - h:
+          en: Network isolation
+          vi: Cô lập mạng
+        tag: must
+        p:
+          en: VPC, subnets, routing, DNS, firewalls and private endpoints keep data off the public internet.
+          vi: VPC, subnet, routing, DNS, firewall và private endpoint giữ dữ liệu khỏi internet công cộng.
+      - h:
+          en: Encryption
+          vi: Mã hóa
+        tag: must
+        p:
+          en: TLS in transit, encryption at rest with keys in a KMS, and key rotation.
+          vi: TLS khi truyền, mã hóa khi lưu với khóa trong KMS, và xoay khóa.
+      - h:
+          en: Secrets management
+          vi: Quản lý secret
+        tag: must
+        p:
+          en: No secrets in Git or images. Use a secrets manager, rotation and short-lived tokens.
+          vi: Không để secret trong Git hay image. Dùng secrets manager, xoay vòng và token ngắn hạn.
+      - h:
+          en: Data-level controls
+          vi: Kiểm soát cấp dữ liệu
+        tag: senior
+        p:
+          en: Row-level and column-level security, masking, tokenization and classification tags.
+          vi: Row-level và column-level security, masking, tokenization và tag phân loại.
+      - h:
+          en: Zero trust, audit, compliance
+          vi: Zero trust, audit, tuân thủ
+        tag: senior
+        p:
+          en: Verify every request, log access, threat-model pipelines, and honour GDPR, residency, retention and deletion.
+          vi: Xác minh mọi yêu cầu, log truy cập, threat model cho pipeline, và tuân thủ GDPR, residency, retention, xóa dữ liệu.
+    n:
+      en: "Frame security as layers: who you are, where you can connect from, what you can read, and what is recorded. Weakness in any one layer is the one attackers use."
+      vi: "Trình bày bảo mật như các lớp: bạn là ai, kết nối từ đâu, đọc được gì và điều gì được ghi lại. Lớp yếu nhất là lớp kẻ tấn công dùng."
+  - id: tool-landscape-identity-keys-secrets-and-private
+    k: table
+    t:
+      en: "Tool landscape: identity, keys, secrets and private connectivity"
+      vi: "Bức tranh công cụ: danh tính, khóa, secret và kết nối riêng"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - AWS IAM / IAM Identity Center
+        - en: Cloud identity and access
+          vi: Danh tính và truy cập cloud
+        - en: AWS-centric platforms with SSO
+          vi: Nền tảng thiên về AWS có SSO
+        - en: Fine-grained policies, roles, short-lived credentials
+          vi: Policy chi tiết, role, credential ngắn hạn
+        - en: Policy language is complex; easy to over-permit
+          vi: Ngôn ngữ policy phức tạp; dễ cấp quá quyền
+        - en: IAM is free; you pay for used services
+          vi: IAM miễn phí; trả tiền cho dịch vụ dùng
+      - - Microsoft Entra ID
+        - en: Identity provider and managed identities
+          vi: Identity provider và managed identity
+        - en: Microsoft and Azure estates
+          vi: Hệ sinh thái Microsoft và Azure
+        - en: SSO, conditional access, managed identities for workloads
+          vi: SSO, conditional access, managed identity cho workload
+        - en: Licensing tiers gate advanced features
+          vi: Gói license giới hạn tính năng nâng cao
+        - en: Per-user licensing tiers
+          vi: Theo gói license mỗi người dùng
+      - - GCP IAM / Workload Identity Federation
+        - en: Cloud identity and access
+          vi: Danh tính và truy cập cloud
+        - en: GCP and multi-cloud CI/CD
+          vi: GCP và CI/CD đa cloud
+        - en: Federation removes long-lived keys
+          vi: Federation loại bỏ khóa dài hạn
+        - en: Many predefined roles; custom roles need care
+          vi: Nhiều role dựng sẵn; role tùy biến cần cẩn thận
+        - en: IAM is free; you pay for used services
+          vi: IAM miễn phí; trả tiền cho dịch vụ dùng
+      - - HashiCorp Vault / cloud secrets managers
+        - en: Secrets management
+          vi: Quản lý secret
+        - en: Central secrets, dynamic credentials
+          vi: Secret tập trung, credential động
+        - en: Rotation, leases, audit; dynamic database credentials
+          vi: Xoay vòng, lease, audit; credential database động
+        - en: Vault needs operating; cloud managers are cloud-specific
+          vi: Vault cần vận hành; managed của cloud gắn với từng cloud
+        - en: Open source or enterprise; cloud managers priced per secret and call
+          vi: Mã nguồn mở hoặc enterprise; managed của cloud tính theo secret và lượt gọi
+      - - AWS KMS / Azure Key Vault / Cloud KMS
+        - en: Key management
+          vi: Quản lý khóa
+        - en: Encryption keys, envelope encryption
+          vi: Khóa mã hóa, envelope encryption
+        - en: Managed, audited, integrated with storage and warehouses
+          vi: Managed, có audit, tích hợp storage và warehouse
+        - en: Key policy mistakes can lock you out
+          vi: Sai key policy có thể khóa chính bạn
+        - en: Per key and per request
+          vi: Theo khóa và theo request
+      - - PrivateLink / Private Link / Private Service Connect
+        - en: Private connectivity
+          vi: Kết nối riêng
+        - en: Reaching managed services without public internet
+          vi: Truy cập dịch vụ managed không qua internet công cộng
+        - en: Traffic stays on the provider network
+          vi: Lưu lượng ở lại mạng của nhà cung cấp
+        - en: DNS and routing setup is error-prone
+          vi: Cấu hình DNS và routing dễ sai
+        - en: Per endpoint-hour and per GB
+          vi: Theo giờ endpoint và theo GB
+      - - OPA / policy as code
+        - Policy engine
+        - en: Consistent rules in CI and Kubernetes admission
+          vi: Quy tắc nhất quán trong CI và Kubernetes admission
+        - en: Policies are versioned and testable
+          vi: Policy có version và test được
+        - en: Another language and service to run
+          vi: Thêm ngôn ngữ và dịch vụ phải vận hành
+        - en: Open source; managed options exist
+          vi: Mã nguồn mở; có bản managed
+    cap:
+      en: Pick one identity provider and one secrets approach and use them everywhere. Mixed approaches are where audits fail.
+      vi: Chọn một identity provider và một cách quản lý secret rồi dùng ở mọi nơi. Cách làm lẫn lộn là nơi audit thất bại.
+    n:
+      en: "Do not read every row. The point: identity, keys, secrets and private connectivity each have a managed option in every cloud, so the decision is consistency, not capability."
+      vi: "Đừng đọc từng dòng. Ý chính: danh tính, khóa, secret và kết nối riêng đều có lựa chọn managed ở mọi cloud, nên quyết định nằm ở sự nhất quán, không phải khả năng."
+  - id: network-architecture-for-a-data-platform
+    k: svg
+    t:
+      en: Network architecture for a data platform
+      vi: Kiến trúc mạng cho data platform
+    lead:
+      en: Put compute and data in private subnets, reach managed services through private endpoints, and expose only what must be public.
+      vi: Đặt compute và dữ liệu trong subnet riêng, truy cập dịch vụ managed qua private endpoint, và chỉ công khai thứ bắt buộc.
+    svg: netSVG
+    cap:
+      en: "Security groups act as per-tier firewalls: allow compute to reach data, never the reverse, and never data to the internet."
+      vi: "Security group là firewall theo từng tầng: cho compute truy cập dữ liệu, không bao giờ ngược lại, và không bao giờ cho dữ liệu ra internet."
+    n:
+      en: "Trace a request: a user hits the load balancer in the public subnet, jobs run in private compute, they read data in the private data tier, and talk to the warehouse or storage only through private endpoints. DNS must resolve those names to private addresses, a frequent source of outages."
+      vi: "Theo dấu một yêu cầu: người dùng vào load balancer ở subnet công khai, job chạy ở compute riêng, đọc dữ liệu ở tầng dữ liệu riêng và chỉ nói chuyện với warehouse hoặc storage qua private endpoint. DNS phải phân giải các tên đã ra địa chỉ riêng, nguồn gây sự cố thường gặp."
+  - id: least-privilege-access-in-code
+    k: code
+    t:
+      en: Least-privilege access in code
+      vi: Quyền tối thiểu bằng code
+    lead:
+      en: Grant exactly the prefix and key a job needs, force TLS, and give pods a role instead of a key.
+      vi: Chỉ cấp đúng prefix và khóa mà job cần, ép dùng TLS, và cho pod một role thay vì một khóa.
+    blocks:
+      - lang: json
+        title: iam-policy.json (read curated data only)
+        code: |-
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Sid": "ReadCuratedObjects",
+                "Effect": "Allow",
+                "Action": ["s3:GetObject"],
+                "Resource": "arn:aws:s3:::example-lake/curated/*"
+              },
+              {
+                "Sid": "ListCuratedPrefix",
+                "Effect": "Allow",
+                "Action": ["s3:ListBucket"],
+                "Resource": "arn:aws:s3:::example-lake",
+                "Condition": {"StringLike": {"s3:prefix": ["curated/*"]}}
+              },
+              {
+                "Sid": "DecryptWithLakeKey",
+                "Effect": "Allow",
+                "Action": ["kms:Decrypt"],
+                "Resource": "arn:aws:kms:ap-southeast-1:111122223333:key/EXAMPLE-KEY-ID"
+              }
+            ]
+          }
+      - lang: json
+        title: bucket-policy.json (deny non-TLS access)
+        code: |-
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Sid": "DenyInsecureTransport",
+                "Effect": "Deny",
+                "Principal": "*",
+                "Action": "s3:*",
+                "Resource": ["arn:aws:s3:::example-lake", "arn:aws:s3:::example-lake/*"],
+                "Condition": {"Bool": {"aws:SecureTransport": "false"}}
+              }
+            ]
+          }
+      - lang: yaml
+        title: serviceaccount.yaml (workload identity on EKS)
+        code: |-
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: spark-etl
+            namespace: data-jobs
+            annotations:
+              eks.amazonaws.com/role-arn: arn:aws:iam::111122223333:role/spark-etl-curated-read
+    points:
+      - h:
+          en: Allow lists, not wildcards
+          vi: Allow list, không dùng wildcard
+        p:
+          en: Name the actions, the resource prefix and the key. `s3:*` on `*` is a finding waiting to happen.
+          vi: Nêu rõ hành động, prefix tài nguyên và khóa. `s3:*` trên `*` là một phát hiện lỗi đang chờ xảy ra.
+      - h:
+          en: Roles over keys
+          vi: Role thay vì khóa
+        tag: senior
+        p:
+          en: Pods and CI jobs assume a role with short-lived credentials. No access keys on disk.
+          vi: Pod và job CI assume một role với credential ngắn hạn. Không để access key trên đĩa.
+      - h:
+          en: Separate read and write roles
+          vi: Tách role đọc và ghi
+        p:
+          en: Analysts and agents read curated data. Only pipelines write, and only to their own prefix.
+          vi: Analyst và agent đọc dữ liệu curated. Chỉ pipeline được ghi, và chỉ vào prefix của riêng nó.
+      - h:
+          en: Test the policy
+          vi: Test policy
+        tag: senior
+        p:
+          en: Use a policy simulator or access analyzer and review changes in pull requests.
+          vi: Dùng policy simulator hoặc access analyzer và review thay đổi trong pull request.
+    n:
+      en: "The account ID, bucket and key ARN are placeholders. The ideas port to any cloud: narrow actions, narrow resources, workload identity, and enforced TLS."
+      vi: "Account ID, bucket và key ARN chỉ là chỗ giữ chỗ. Ý tưởng áp dụng cho mọi cloud: hành động hẹp, tài nguyên hẹp, workload identity và ép TLS."
+  - id: encryption-and-secrets-management
+    k: stack
+    t:
+      en: Encryption and secrets management
+      vi: Mã hóa và quản lý secret
+    lead:
+      en: Encrypt in transit and at rest, keep keys separate from data, and never let a long-lived secret reach a repository.
+      vi: Mã hóa khi truyền và khi lưu, giữ khóa tách khỏi dữ liệu, và không để secret dài hạn lọt vào repository.
+    parts:
+      - cols: 2
+        cards:
+          - h: Envelope encryption
+            p:
+              en: Data is encrypted with a data key. The data key is encrypted by a master key in the KMS. Rotating the master key does not require re-encrypting all data.
+              vi: Dữ liệu được mã hóa bằng data key. Data key được mã hóa bằng master key trong KMS. Xoay master key không cần mã hóa lại toàn bộ dữ liệu.
+          - h:
+              en: In transit
+              vi: Khi truyền
+            p:
+              en: TLS between every pair of components, including Kafka brokers, databases and BI connections. Verify certificates.
+              vi: TLS giữa mọi cặp thành phần, kể cả Kafka broker, database và kết nối BI. Hãy xác minh chứng chỉ.
+          - h:
+              en: Customer-managed keys
+              vi: Khóa do khách hàng quản lý
+            p:
+              en: "Use them where policy requires control over revocation. They add operational risk: a deleted key means unreadable data."
+              vi: "Dùng khi chính sách yêu cầu quyền thu hồi. Chúng thêm rủi ro vận hành: xóa khóa nghĩa là dữ liệu không đọc được."
+          - h:
+              en: Rotation and expiry
+              vi: Xoay vòng và hết hạn
+            p:
+              en: Rotate secrets and keys on a schedule and on suspected exposure. Prefer credentials that expire in minutes or hours.
+              vi: Xoay secret và khóa theo lịch và khi nghi bị lộ. Ưu tiên credential hết hạn sau vài phút hoặc vài giờ.
+      - code:
+          lang: python
+          title: read_secret.py (AWS Secrets Manager)
+          code: |-
+            import json
+
+            import boto3
+
+            client = boto3.client("secretsmanager", region_name="ap-southeast-1")
+            response = client.get_secret_value(SecretId="prod/warehouse/dbt")
+            secret = json.loads(response["SecretString"])
+
+            # Use the values in memory. Never print them, log them or write them to disk.
+            connection = {"user": secret["user"], "password": secret["password"]}
+    n:
+      en: Add a scanning step (secret scanning in the repository host and a pre-commit hook) so that accidental commits are blocked before they leave a laptop. Rotation after a leak is mandatory, even if the commit is later deleted.
+      vi: Thêm bước quét (secret scanning ở nơi host repo và pre-commit hook) để commit nhầm bị chặn trước khi rời máy. Xoay secret sau khi lộ là bắt buộc, kể cả khi commit đã bị xóa.
+  - id: data-level-controls-and-privacy-by-layer
+    k: table
+    t:
+      en: Data-level controls and privacy by layer
+      vi: Kiểm soát cấp dữ liệu và quyền riêng tư theo lớp
+    head:
+      - en: Control
+        vi: Kiểm soát
+      - en: Where it is enforced
+        vi: Thực thi ở đâu
+      - en: Example
+        vi: Ví dụ
+      - en: Watch out for
+        vi: Cần lưu ý
+    rows:
+      - - Row-level security
+        - en: Warehouse or catalog policy
+          vi: Policy của warehouse hoặc catalog
+        - en: Regional analysts see only their region
+          vi: Analyst theo khu vực chỉ thấy khu vực của mình
+        - en: Policy joins slow queries; test performance
+          vi: Policy có join làm chậm query; hãy test hiệu năng
+      - - en: Column-level security and masking
+          vi: Column-level security và masking
+        - en: Warehouse or catalog policy
+          vi: Policy của warehouse hoặc catalog
+        - en: Email masked unless role has PII access
+          vi: Email bị che trừ khi role có quyền PII
+        - en: Copies of the column elsewhere bypass the policy
+          vi: Bản sao của cột ở nơi khác sẽ vượt qua policy
+      - - Tokenization / pseudonymization
+        - en: Ingestion or a token service
+          vi: Ingestion hoặc dịch vụ token
+        - en: Replace customer ID with a keyed hash
+          vi: Thay customer ID bằng hash có khóa
+        - en: Linkable data may still count as personal data
+          vi: Dữ liệu liên kết được vẫn có thể là dữ liệu cá nhân
+      - - en: Classification tags
+          vi: Tag phân loại
+        - en: Catalog, propagated by lineage
+          vi: Catalog, lan truyền theo lineage
+        - en: PII tag flows to downstream columns
+          vi: Tag PII chảy tới các cột phía sau
+        - en: Manual tagging drifts; automate detection
+          vi: Tag thủ công sẽ lệch; hãy tự động hóa phát hiện
+      - - en: Retention and deletion
+          vi: Lưu giữ và xóa
+        - en: Lifecycle rules, deletion jobs
+          vi: Lifecycle rule, job xóa
+        - en: Delete a user across tables, backups and logs
+          vi: Xóa một người dùng khỏi bảng, backup và log
+        - en: Backups and derived tables are forgotten
+          vi: Backup và bảng dẫn xuất bị quên
+      - - Residency
+        - en: Region and replication choices
+          vi: Lựa chọn vùng và replication
+        - en: EU data stays in EU regions
+          vi: Dữ liệu EU ở lại vùng EU
+        - en: Cross-region replication and support access
+          vi: Replication liên vùng và truy cập hỗ trợ
+    cap:
+      en: This is engineering orientation, not legal advice. Work with security and legal teams for obligations in your jurisdiction.
+      vi: Đây là định hướng kỹ thuật, không phải tư vấn pháp lý. Hãy làm việc với đội bảo mật và pháp chế về nghĩa vụ tại nơi bạn hoạt động.
+    n:
+      en: "Connect to section 9 (governance): tags drive policies, policies enforce controls, and audit logs prove it. Deletion is the hardest because derived data and backups are easy to miss."
+      vi: "Nối với phần 9 (quản trị): tag điều khiển policy, policy thực thi kiểm soát, và audit log chứng minh. Xóa dữ liệu là khó nhất vì dữ liệu dẫn xuất và backup dễ bị bỏ sót."
+  - id: threat-modeling-a-pipeline-with-stride
+    k: table
+    t:
+      en: Threat modeling a pipeline with STRIDE
+      vi: Threat modeling một pipeline bằng STRIDE
+    lead:
+      en: Draw the data flow, mark trust boundaries, and ask the six STRIDE questions at each boundary.
+      vi: Vẽ luồng dữ liệu, đánh dấu ranh giới tin cậy, và hỏi sáu câu STRIDE tại mỗi ranh giới.
+    head:
+      - en: Threat
+        vi: Mối đe dọa
+      - en: In a data platform
+        vi: Trong data platform
+      - en: Mitigation
+        vi: Biện pháp
+    rows:
+      - - en: Spoofing
+          vi: Giả mạo
+        - en: A stolen token calls the warehouse API
+          vi: Token bị đánh cắp gọi API warehouse
+        - en: SSO, MFA, short-lived tokens, workload identity
+          vi: SSO, MFA, token ngắn hạn, workload identity
+      - - en: Tampering
+          vi: Làm sai lệch
+        - en: Someone edits raw files or a model definition
+          vi: Ai đã sửa file raw hoặc định nghĩa model
+        - en: Immutable raw, versioned code, review, checksums
+          vi: Raw bất biến, code có version, review, checksum
+      - - en: Repudiation
+          vi: Chối bỏ
+        - en: No record of who exported a table
+          vi: Không có bản ghi ai đã xuất bảng
+        - en: Audit logs, query history, retained centrally
+          vi: Audit log, lịch sử query, lưu tập trung
+      - - en: Information disclosure
+          vi: Lộ thông tin
+        - en: PII appears in logs, notebooks or an LLM prompt
+          vi: PII xuất hiện trong log, notebook hoặc prompt LLM
+        - en: Masking, redaction, least privilege, egress controls
+          vi: Masking, che dữ liệu, quyền tối thiểu, kiểm soát egress
+      - - en: Denial of service
+          vi: Từ chối dịch vụ
+        - en: A runaway query or a flood exhausts capacity
+          vi: Query chạy mãi hoặc lưu lượng tràn làm cạn năng lực
+        - en: Quotas, timeouts, workload isolation, rate limits
+          vi: Quota, timeout, cô lập workload, rate limit
+      - - en: Elevation of privilege
+          vi: Leo thang đặc quyền
+        - en: A job role can edit IAM or read all buckets
+          vi: Role của job sửa được IAM hoặc đọc mọi bucket
+        - en: Permission boundaries, separation of duties, policy checks
+          vi: Permission boundary, tách nhiệm vụ, kiểm tra policy
+    cap:
+      en: "Zero trust in practice: authenticate and authorize every request, assume breach, log everything that matters, and limit blast radius."
+      vi: "Zero trust trong thực tế: xác thực và phân quyền mọi yêu cầu, giả định đã bị xâm nhập, log mọi thứ quan trọng và giới hạn phạm vi ảnh hưởng."
+    n:
+      en: Run this as a one-hour workshop on a single pipeline. The output is a short list of mitigations with owners, not a long report.
+      vi: Chạy như một workshop một giờ cho một pipeline. Kết quả là danh sách ngắn các biện pháp có người chịu trách nhiệm, không phải báo cáo dài.
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Shared admin credentials.
+          vi: Dùng chung credential admin.
+        why:
+          en: No accountability and no revocation path.
+          vi: Không quy được trách nhiệm và không có đường thu hồi.
+        fix:
+          en: Individual SSO identities and role-based access.
+          vi: Danh tính SSO riêng từng người và truy cập theo role.
+      - bad:
+          en: Public endpoints for convenience.
+          vi: Mở endpoint công khai cho tiện.
+        why:
+          en: The attack surface grows and data leaks via misconfiguration.
+          vi: Bề mặt tấn công tăng và dữ liệu rò rỉ do cấu hình sai.
+        fix:
+          en: Private endpoints, allowlisted IPs and no public IPs on data.
+          vi: Private endpoint, IP allowlist và không IP công khai cho dữ liệu.
+      - bad:
+          en: Secrets in notebooks and CI variables nobody rotates.
+          vi: Secret trong notebook và biến CI không ai xoay.
+        why:
+          en: Leaks live for years.
+          vi: Rò rỉ tồn tại nhiều năm.
+        fix:
+          en: Secrets manager, OIDC and expiring credentials.
+          vi: Secrets manager, OIDC và credential có hạn.
+      - bad:
+          en: Production data copied to dev.
+          vi: Sao dữ liệu production sang dev.
+        why:
+          en: Weaker controls guard real PII.
+          vi: Kiểm soát yếu bảo vệ PII thật.
+        fix:
+          en: Masked or synthetic data in non-production.
+          vi: Dữ liệu che hoặc tổng hợp ở môi trường non-production.
+      - bad:
+          en: Encryption without key governance.
+          vi: Mã hóa mà không quản trị khóa.
+        why:
+          en: A deleted or mispermissioned key breaks everything.
+          vi: Khóa bị xóa hoặc sai quyền làm hỏng mọi thứ.
+        fix:
+          en: Key policies in code, deletion protection, access reviews.
+          vi: Key policy bằng code, bảo vệ chống xóa, review quyền truy cập.
+      - bad:
+          en: No audit trail review.
+          vi: Không bao giờ xem lại audit log.
+        why:
+          en: Logs exist but nobody notices abuse.
+          vi: Log có nhưng không ai nhận ra lạm dụng.
+        fix:
+          en: Alerts on unusual access and scheduled access reviews.
+          vi: Cảnh báo truy cập bất thường và review quyền định kỳ.
+    n:
+      en: Most real incidents come from over-broad permissions and leaked credentials, not from exotic exploits.
+      vi: Phần lớn sự cố thật đến từ quyền quá rộng và credential bị lộ, không phải từ kỹ thuật tấn công lạ.
+  - id: security-lab-threat-model-a-data-pipeline
+    k: lab
+    t:
+      en: "Security lab: threat-model a data pipeline"
+      vi: "Lab bảo mật: threat model một data pipeline"
+    lead:
+      en: Find the weaknesses, fix three, and prove the fixes with attacks that should fail.
+      vi: Tìm điểm yếu, sửa ba cái, và chứng minh bằng các cuộc tấn công đúng lẽ phải thất bại.
+    scenario:
+      en: A pipeline reads customer data from a database, lands it in object storage and loads a warehouse.
+      vi: Một pipeline đọc dữ liệu khách hàng từ database, hạ cánh vào object storage và nạp vào warehouse.
+    input:
+      en: The architecture of one real or sample pipeline, a cloud sandbox, and the STRIDE table from this deck.
+      vi: Kiến trúc của một pipeline thật hoặc mẫu, một sandbox cloud và bảng STRIDE trong deck này.
+    tasks:
+      - en: Draw the data flow with trust boundaries.
+        vi: Vẽ luồng dữ liệu với các ranh giới tin cậy.
+      - en: Fill a threat register using STRIDE with severity and owner.
+        vi: Điền sổ đăng ký mối đe dọa bằng STRIDE kèm mức độ nghiêm trọng và chủ sở hữu.
+      - en: "Implement three mitigations: least-privilege role, private networking rule, secret rotation."
+        vi: "Cài ba biện pháp: role quyền tối thiểu, quy tắc mạng riêng, xoay secret."
+      - en: Attempt the blocked actions and capture the denials.
+        vi: Thử các hành động bị chặn và ghi lại các lần bị từ chối.
+    expected:
+      en: A threat register and evidence (logs or screenshots) of denied attempts.
+      vi: Sổ mối đe dọa và bằng chứng (log hoặc ảnh chụp) về các lần thử bị từ chối.
+    rubric:
+      - en: Trust boundaries identified correctly
+        vi: Xác định đúng ranh giới tin cậy
+      - en: Mitigations verified by attempted attacks
+        vi: Biện pháp được kiểm chứng bằng tấn công thử
+      - en: Residual risk stated
+        vi: Nêu rủi ro còn lại
+    design:
+      en: Present the top three risks and the order in which you would fix them, with reasons.
+      vi: Trình bày ba rủi ro hàng đầu và thứ tự bạn sẽ sửa, kèm lý do.
+    n:
+      en: Run this only in an environment you are authorized to test.
+      vi: Chỉ chạy trong môi trường bạn được phép kiểm thử.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Senior self-check
+        vi: Tự kiểm tra cấp senior
+      items:
+        - en: No long-lived keys in code, images or CI
+          vi: Không có khóa dài hạn trong code, image hay CI
+        - en: Compute and data live in private subnets with private endpoints
+          vi: Compute và dữ liệu nằm trong subnet riêng với private endpoint
+        - en: Every role is least-privilege and reviewed
+          vi: Mọi role đều quyền tối thiểu và được review
+        - en: PII is tagged, masked and traceable by lineage
+          vi: PII được gắn tag, che và truy vết bằng lineage
+        - en: I can describe a deletion workflow across backups
+          vi: Tôi mô tả được quy trình xóa dữ liệu kể cả backup
+        - en: I have threat-modelled at least one pipeline
+          vi: Tôi đã threat model ít nhất một pipeline
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Design access so analysts see only their region and mask emails.
+          vi: Thiết kế quyền để analyst chỉ thấy khu vực của mình và email bị che.
+        - en: How does a Spark job on Kubernetes authenticate to object storage without keys?
+          vi: Job Spark trên Kubernetes xác thực tới object storage thế nào mà không dùng khóa?
+        - en: A secret was committed to Git. What do you do, in order?
+          vi: Một secret bị commit lên Git. Bạn làm gì, theo thứ tự?
+        - en: How do you honour a deletion request across a lake, a warehouse and backups?
+          vi: Bạn xử lý yêu cầu xóa dữ liệu qua lake, warehouse và backup thế nào?
+        - en: What does zero trust change in a data platform?
+          vi: Zero trust thay đổi điều gì trong data platform?
+    n:
+      en: "Senior expectation: design the secure default, make it the easy path, and prove it with audit evidence. Staff expectation: set the platform-wide security architecture and review model."
+      vi: "Kỳ vọng senior: thiết kế mặc định an toàn, biến nó thành con đường dễ đi và chứng minh bằng bằng chứng audit. Kỳ vọng staff: đặt kiến trúc bảo mật và quy trình review toàn nền tảng."

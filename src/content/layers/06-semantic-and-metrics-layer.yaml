@@ -1,0 +1,536 @@
+layer: 6
+slides:
+  - id: semantic-and-metrics-layer-one-definition-per-metric
+    k: cards
+    t:
+      en: "Semantic and metrics layer: one definition per metric"
+      vi: "Semantic và metrics layer: một định nghĩa cho mỗi metric"
+    lead:
+      en: Without it, “revenue” has five definitions and meetings turn into arguments about numbers instead of decisions.
+      vi: Không có nó, “doanh thu” có năm định nghĩa và các cuộc họp biến thành tranh cãi về con số thay vì ra quyết định.
+    cols: 3
+    cards:
+      - h:
+          en: Single source of truth
+          vi: Nguồn sự thật duy nhất
+        tag: must
+        p:
+          en: Define a metric once, in code, with an owner. Every tool consumes that definition.
+          vi: Định nghĩa một metric một lần, bằng code, có người sở hữu. Mọi công cụ đều dùng định nghĩa đã.
+      - h:
+          en: Entities, dimensions, measures
+          vi: Entity, dimension, measure
+        tag: must
+        p:
+          en: Model the business as entities joined by keys, sliced by dimensions, aggregated by measures.
+          vi: Mô hình hóa nghiệp vụ thành các entity nối với nhau bằng key, được cắt theo dimension, được tổng hợp bằng measure.
+      - h:
+          en: Where it lives
+          vi: Nằm ở đâu
+        tag: senior
+        p:
+          en: Inside the BI tool, in a transformation framework, or in a standalone headless layer queried by many tools.
+          vi: Bên trong công cụ BI, trong một framework transformation, hoặc trong một tầng headless độc lập được nhiều công cụ query.
+      - h:
+          en: Governed self-service
+          vi: Self-service có quản trị
+        tag: senior
+        p:
+          en: Users explore freely, but only within vetted definitions and join paths.
+          vi: Người dùng khám phá tự do, nhưng chỉ trong các định nghĩa và đường join đã được kiểm duyệt.
+      - h:
+          en: Caching and performance
+          vi: Caching và hiệu năng
+        tag: nice
+        p:
+          en: Semantic layers can pre-aggregate and cache common queries.
+          vi: Semantic layer có thể pre-aggregate và cache các query phổ biến.
+      - h:
+          en: Trade-off
+          vi: Đánh đổi
+        tag: senior
+        p:
+          en: "More indirection: another layer to learn, version and test."
+          vi: "Thêm gián tiếp: thêm một tầng để học, version và test."
+    n:
+      en: "The business problem comes first: inconsistent numbers erode trust faster than any outage. The semantic layer is the technical fix and the organizational forcing function for agreeing on definitions."
+      vi: "Vấn đề nghiệp vụ đến trước: số liệu không nhất quán làm xói mòn niềm tin nhanh hơn bất kỳ sự cố nào. Semantic layer là giải pháp kỹ thuật và cũng là lực thúc đẩy tổ chức thống nhất các định nghĩa."
+  - id: tool-landscape-semantic-and-metrics-layers
+    k: table
+    t:
+      en: "Tool landscape: semantic and metrics layers"
+      vi: "Bức tranh công cụ: semantic và metrics layer"
+    head:
+      - en: Tool
+        vi: Công cụ
+      - en: Type
+        vi: Loại
+      - en: Best for
+        vi: Phù hợp nhất
+      - en: Strengths
+        vi: Điểm mạnh
+      - en: Limitations
+        vi: Hạn chế
+      - en: Pricing model
+        vi: Mô hình giá
+    rows:
+      - - dbt Semantic Layer (MetricFlow)
+        - en: Metrics defined in dbt
+          vi: Metric được định nghĩa trong dbt
+        - en: Teams already on dbt that want shared metrics
+          vi: Team đã dùng dbt muốn có metric dùng chung
+        - en: Definitions live next to models; versioned; API for integrations
+          vi: Định nghĩa nằm cạnh model; có version; có API cho tích hợp
+        - en: Tool integrations vary; feature availability depends on dbt plan
+          vi: Mức tích hợp công cụ khác nhau; tính năng khả dụng phụ thuộc gói dbt
+        - en: Part of paid dbt platform plans (check current packaging)
+          vi: Thuộc các gói trả phí của nền tảng dbt (kiểm tra gói hiện hành)
+      - - Cube
+        - en: Headless semantic layer
+          vi: Semantic layer headless
+        - en: "Many consumers: BI, apps, embedded analytics, AI agents"
+          vi: "Nhiều consumer: BI, ứng dụng, embedded analytics, AI agent"
+        - en: Open source core; caching and pre-aggregations; APIs (SQL, REST, GraphQL)
+          vi: Lõi mã nguồn mở; caching và pre-aggregation; API (SQL, REST, GraphQL)
+        - en: Another service to run and model; modeling language to learn
+          vi: Thêm một service để vận hành và mô hình hóa; ngôn ngữ mô hình hóa cần học
+        - en: Open source plus managed cloud
+          vi: Mã nguồn mở cộng managed cloud
+      - - LookML (Looker)
+        - en: BI-native modeling layer
+          vi: Tầng mô hình hóa gốc của BI
+        - en: Organizations committed to Looker
+          vi: Tổ chức gắn bó với Looker
+        - en: Mature, Git-based modeling; strong governance in Looker
+          vi: Mô hình hóa trưởng thành dựa trên Git; quản trị mạnh trong Looker
+        - en: Mostly consumable inside Google Cloud Looker; proprietary language
+          vi: Chủ yếu chỉ dùng được bên trong Google Cloud Looker; ngôn ngữ độc quyền
+        - en: Part of Looker licensing
+          vi: Thuộc giấy phép Looker
+      - - AtScale
+        - en: Universal semantic layer
+          vi: Semantic layer đa năng
+        - en: Enterprises with many BI tools and OLAP-style users
+          vi: Doanh nghiệp có nhiều công cụ BI và người dùng kiểu OLAP
+        - en: Works with multiple BI tools; strong enterprise features
+          vi: Hoạt động với nhiều công cụ BI; tính năng enterprise mạnh
+        - en: Enterprise complexity and cost
+          vi: Độ phức tạp và chi phí enterprise
+        - en: Enterprise license
+          vi: Giấy phép enterprise
+      - - Power BI semantic models
+        - en: BI-native (DAX)
+          vi: Gốc của BI (DAX)
+        - en: Microsoft-centric organizations
+          vi: Tổ chức xoay quanh Microsoft
+        - en: Deep Power BI integration; widely known
+          vi: Tích hợp sâu với Power BI; được biết đến rộng rãi
+        - en: Logic can get trapped in the BI tool and DAX
+          vi: Logic có thể bị kẹt trong công cụ BI và DAX
+        - en: Included in Power BI/Fabric licensing
+          vi: Đã gồm trong giấy phép Power BI/Fabric
+      - - Tableau data sources
+        - en: BI-native published sources
+          vi: Nguồn published gốc của BI
+        - en: Tableau-centric organizations
+          vi: Tổ chức xoay quanh Tableau
+        - en: Governed, reusable published data sources
+          vi: Published data source có quản trị, tái sử dụng được
+        - en: Definitions live inside Tableau; harder to reuse elsewhere
+          vi: Định nghĩa nằm trong Tableau; khó tái sử dụng ở nơi khác
+        - en: Part of Tableau licensing
+          vi: Thuộc giấy phép Tableau
+    cap:
+      en: "Key question: should metric logic be portable across tools, or is one BI tool the center of your world?"
+      vi: "Câu hỏi chính: logic metric nên portable giữa các công cụ, hay một công cụ BI là trung tâm thế giới của bạn?"
+    n:
+      en: The split is portable (dbt, Cube, AtScale) versus BI-native (LookML, DAX, Tableau). Portable layers cost more to run but reduce lock-in and serve non-BI consumers such as applications and AI agents.
+      vi: Ranh giới là portable (dbt, Cube, AtScale) so với gốc BI (LookML, DAX, Tableau). Tầng portable tốn chi phí vận hành hơn nhưng giảm lock-in và phục vụ các consumer ngoài BI như ứng dụng và AI agent.
+  - id: deep-dive-defining-metrics-once-with-metricflow
+    k: code
+    t:
+      en: "Deep dive: defining metrics once with MetricFlow"
+      vi: "Đào sâu: định nghĩa metric một lần với MetricFlow"
+    lead:
+      en: A semantic model describes the grain and the columns; metrics build on its measures.
+      vi: Một semantic model mô tả grain và các cột; metric xây dựng trên các measure của nó.
+    blocks:
+      - lang: yaml
+        title: models/marts/_orders__semantic.yml
+        code: |-
+          semantic_models:
+            - name: orders
+              description: Order fact table at order grain.
+              model: ref('fct_orders')
+              defaults:
+                agg_time_dimension: ordered_at
+              entities:
+                - name: order_id
+                  type: primary
+                - name: customer
+                  type: foreign
+                  expr: customer_id
+              dimensions:
+                - name: ordered_at
+                  type: time
+                  type_params:
+                    time_granularity: day
+                - name: order_status
+                  type: categorical
+              measures:
+                - name: order_total
+                  description: Sum of order amounts.
+                  agg: sum
+                  expr: order_amount
+                - name: order_count
+                  agg: count
+                  expr: order_id
+
+          metrics:
+            - name: revenue
+              label: Revenue
+              description: Gross revenue from shipped orders. Owner is Finance.
+              type: simple
+              type_params:
+                measure: order_total
+              filter: |
+                {{ Dimension('order_id__order_status') }} = 'shipped'
+
+            - name: orders
+              label: Orders
+              type: simple
+              type_params:
+                measure: order_count
+
+            - name: average_order_value
+              label: Average order value
+              type: ratio
+              type_params:
+                numerator: revenue
+                denominator: orders
+    points:
+      - h:
+          en: Grain first
+          vi: Grain trước tiên
+        p:
+          en: State the grain (one row per order) and keep entities and keys consistent so joins are safe.
+          vi: Nêu rõ grain (một dòng cho mỗi đơn hàng) và giữ entity cùng key nhất quán để join an toàn.
+      - h:
+          en: Metric types
+          vi: Các loại metric
+        p:
+          en: Simple, ratio, cumulative and derived metrics cover most needs without custom SQL.
+          vi: Metric simple, ratio, cumulative và derived đáp ứng hầu hết nhu cầu mà không cần SQL tùy biến.
+      - h:
+          en: Owner in the description
+          vi: Owner trong phần mô tả
+        tag: senior
+        p:
+          en: A metric with no owner has no one to resolve disputes.
+          vi: Metric không có owner thì không ai giải quyết tranh chấp.
+      - h:
+          en: Spec is evolving
+          vi: Spec đang tiến hóa
+        tag: senior
+        p:
+          en: The configuration format has been changing between releases. Check the docs for your version.
+          vi: Định dạng cấu hình đã thay đổi giữa các bản phát hành. Hãy kiểm tra tài liệu cho phiên bản của bạn.
+    n:
+      en: "Read it as a contract: the semantic model says what the table is; the metrics say what the business means. The filter on revenue is the kind of rule that otherwise gets re-implemented in ten dashboards."
+      vi: "Hãy đọc nó như một contract: semantic model nói bảng là gì; các metric nói nghiệp vụ muốn nói gì. Bộ lọc trên revenue là loại quy tắc mà nếu không sẽ bị cài đặt lại trong mười dashboard."
+  - id: the-same-idea-in-cube-and-lookml
+    k: code
+    t:
+      en: The same idea in Cube and LookML
+      vi: Cùng ý tưởng trong Cube và LookML
+    lead:
+      en: "Different syntax, same discipline: measures and dimensions defined once, near the data."
+      vi: "Cú pháp khác, kỷ luật giống nhau: measure và dimension được định nghĩa một lần, gần dữ liệu."
+    blocks:
+      - lang: yaml
+        title: model/cubes/orders.yml (Cube)
+        code: |-
+          cubes:
+            - name: orders
+              sql_table: analytics.marts.fct_orders
+
+              measures:
+                - name: count
+                  type: count
+                - name: revenue
+                  sql: order_amount
+                  type: sum
+                  filters:
+                    - sql: "{CUBE}.order_status = 'shipped'"
+
+              dimensions:
+                - name: order_id
+                  sql: order_id
+                  type: number
+                  primary_key: true
+                - name: ordered_at
+                  sql: ordered_at
+                  type: time
+      - lang: lookml
+        title: orders.view.lkml (LookML)
+        code: |-
+          view: orders {
+            sql_table_name: analytics.marts.fct_orders ;;
+
+            dimension: order_id {
+              primary_key: yes
+              type: number
+              sql: ${TABLE}.order_id ;;
+            }
+
+            dimension_group: ordered {
+              type: time
+              timeframes: [date, week, month]
+              sql: ${TABLE}.ordered_at ;;
+            }
+
+            measure: revenue {
+              type: sum
+              sql: ${TABLE}.order_amount ;;
+              filters: [order_status: "shipped"]
+            }
+          }
+    cap:
+      en: LookML measure filters refer to an order_status dimension that would also be defined in the view; omitted here for brevity.
+      vi: Các bộ lọc measure của LookML tham chiếu một dimension order_status mà cũng sẽ được định nghĩa trong view; được lược bỏ ở đây cho ngắn gọn.
+    n:
+      en: "Use this slide to show that the concept transfers between tools. The skill is semantic modeling, not any one syntax. Mention the caption: a real view would also define order_status."
+      vi: "Dùng slide này để cho thấy khái niệm chuyển được giữa các công cụ. Kỹ năng là semantic modeling, không phải một cú pháp cụ thể. Nhắc đến chú thích: một view thật cũng sẽ định nghĩa order_status."
+  - id: design-patterns-and-best-practices
+    k: cards
+    t:
+      en: Design patterns and best practices
+      vi: Mẫu thiết kế và thực hành tốt
+    cols: 3
+    cards:
+      - h:
+          en: Start with the 10 metrics that matter
+          vi: Bắt đầu với 10 metric quan trọng
+        p:
+          en: Agree on definitions for the executive metrics first; expand with demand.
+          vi: Thống nhất định nghĩa cho các metric của ban điều hành trước; mở rộng theo nhu cầu.
+      - h:
+          en: Metrics are code
+          vi: Metric là code
+        p:
+          en: Version, review and test them like any model. Changes get changelogs and owners.
+          vi: Version, review và test chúng như mọi model. Thay đổi có changelog và owner.
+      - h:
+          en: Build on marts, not raw
+          vi: Xây trên mart, không phải raw
+        p:
+          en: The semantic layer sits on top of clean, tested models with a clear grain.
+          vi: Semantic layer nằm trên các model sạch, đã test, có grain rõ ràng.
+      - h:
+          en: Naming conventions
+          vi: Quy ước đặt tên
+        p:
+          en: Business names for metrics, consistent entity names for joins, descriptions for every public object.
+          vi: Tên nghiệp vụ cho metric, tên entity nhất quán cho join, mô tả cho mọi đối tượng public.
+      - h:
+          en: Certify and deprecate
+          vi: Certify và deprecate
+        p:
+          en: Mark certified metrics; retire duplicates instead of letting them accumulate.
+          vi: Đánh dấu metric đã certify; loại bỏ bản trùng lặp thay vì để chúng tích tụ.
+      - h:
+          en: Serve many consumers
+          vi: Phục vụ nhiều consumer
+        p:
+          en: Dashboards, notebooks, apps and AI assistants should all call the same definitions.
+          vi: Dashboard, notebook, ứng dụng và trợ lý AI đều nên gọi cùng các định nghĩa.
+    n:
+      en: "Most of the work is organizational: choosing owners, resolving conflicting definitions, deprecating duplicates. The tool just makes the decision enforceable."
+      vi: "Phần lớn công việc mang tính tổ chức: chọn owner, giải quyết các định nghĩa mâu thuẫn, deprecate bản trùng lặp. Công cụ chỉ giúp quyết định đã có thể được thực thi."
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Metric logic copy-pasted into each dashboard.
+          vi: Logic metric bị copy-paste vào từng dashboard.
+        why:
+          en: Numbers diverge and nobody knows which is right.
+          vi: Số liệu lệch nhau và không ai biết cái nào đúng.
+        fix:
+          en: Define once in the semantic layer; dashboards reference it.
+          vi: Định nghĩa một lần trong semantic layer; dashboard tham chiếu tới nó.
+      - bad:
+          en: Modeling everything on day one.
+          vi: Mô hình hóa mọi thứ ngay từ ngày đầu.
+        why:
+          en: Big-bang projects stall and lose sponsors.
+          vi: Dự án big-bang bị đánh trệ và mất người bảo trợ.
+        fix:
+          en: Start with a few high-value metrics; expand.
+          vi: Bắt đầu với vài metric giá trị cao; rồi mở rộng.
+      - bad:
+          en: Semantic layer on top of untested data.
+          vi: Semantic layer trên dữ liệu chưa được test.
+        why:
+          en: It spreads bad data faster and more consistently.
+          vi: Nó lan truyền dữ liệu xấu nhanh hơn và nhất quán hơn.
+        fix:
+          en: Fix quality in marts first.
+          vi: Sửa chất lượng ở mart trước.
+      - bad:
+          en: Ignoring grain and fan-out.
+          vi: Bỏ qua grain và fan-out.
+        why:
+          en: Joins inflate sums silently.
+          vi: Join làm phình tổng một cách âm thầm.
+        fix:
+          en: Declare grains and test uniqueness of keys.
+          vi: Khai báo grain và test tính unique của key.
+      - bad:
+          en: No owner for a metric.
+          vi: Metric không có owner.
+        why:
+          en: Disputes are never resolved.
+          vi: Tranh chấp không bao giờ được giải quyết.
+        fix:
+          en: Name an owner and a review process.
+          vi: Chỉ định một owner và quy trình review.
+      - bad:
+          en: Choosing a layer for the logo.
+          vi: Chọn một layer vì cái logo.
+        why:
+          en: It may not integrate with your BI and apps.
+          vi: Nó có thể không tích hợp với BI và ứng dụng của bạn.
+        fix:
+          en: Prototype with your real tools and queries.
+          vi: Prototype với công cụ và query thật của bạn.
+    n:
+      en: "The fan-out pitfall deserves attention: it is the most common way a correct-looking metric is wrong."
+      vi: "Cái bẫy fan-out đúng được chú ý: đã là cách phổ biến nhất khiến một metric trông đúng mà thực ra sai."
+  - id: what-senior-looks-like-semantic-layer
+    k: cards
+    t:
+      en: "What senior looks like: semantic layer"
+      vi: "Senior trông như thế nào: semantic layer"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: Portable layer or BI-native
+            vi: Tầng portable hay gốc BI
+          - en: Which metrics are certified
+            vi: Metric nào được certify
+          - en: Who owns each definition
+            vi: Ai sở hữu từng định nghĩa
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Governance versus self-service speed
+            vi: Quản trị so với tốc độ self-service
+          - en: Portability versus integration depth
+            vi: Tính portable so với độ sâu tích hợp
+          - en: Central team versus domain ownership
+            vi: Team trung tâm so với quyền sở hữu theo domain
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Run the definition-alignment process
+            vi: Vận hành quy trình thống nhất định nghĩa
+          - en: Maintain the metric catalog
+            vi: Duy trì metric catalog
+          - en: Manage breaking changes to metrics
+            vi: Quản lý các breaking change của metric
+          - en: Measure adoption and drift
+            vi: Đo mức độ adoption và drift
+    n:
+      en: "The senior contribution is facilitation: getting finance, product and sales to agree, then encoding it. See section 14."
+      vi: "Đúng góp của senior là điều phối thảo luận: khiến tài chính, sản phẩm và bán hàng đồng thuận, rồi mã hóa nó. Xem mục 14."
+  - id: semantic-layer-lab-governed-metrics-for-bi-and-apis
+    k: lab
+    t:
+      en: "Semantic layer lab: governed metrics for BI and APIs"
+      vi: "Lab semantic layer: metric có quản trị cho BI và API"
+    lead:
+      en: Define a metric once and prove two consumers agree.
+      vi: Định nghĩa metric một lần và chứng minh hai nơi dùng cho cùng kết quả.
+    scenario:
+      en: Two dashboards report different revenue because each defines it in its own way.
+      vi: Hai dashboard báo doanh thu khác nhau vì mỗi nơi tự định nghĩa theo cách riêng.
+    input:
+      en: A tested mart (orders, customers), a semantic layer (MetricFlow or Cube), one BI tool or SQL client and an HTTP client for the API.
+      vi: Một mart đã test (orders, customers), một semantic layer (MetricFlow hoặc Cube), một công cụ BI hoặc SQL client và HTTP client cho API.
+    tasks:
+      - en: Define revenue, orders and average order value with owners and descriptions.
+        vi: Định nghĩa revenue, orders và average order value kèm chủ sở hữu và mô tả.
+      - en: Query them from the BI tool and from the API.
+        vi: Truy vấn chúng từ công cụ BI và từ API.
+      - en: Add a test that fails if the two outputs differ.
+        vi: Thêm test thất bại nếu hai kết quả khác nhau.
+      - en: Deprecate one duplicate definition and communicate it.
+        vi: Ngừng dùng một định nghĩa trùng lặp và thông báo.
+    expected:
+      en: Identical numbers from both consumers, a metric catalog with owners, and a deprecation note.
+      vi: Con số giống hệt từ cả hai nơi dùng, danh mục metric có chủ sở hữu và một ghi chú ngừng dùng.
+    rubric:
+      - en: Grain and join paths are explicit
+        vi: Grain và đường join rõ ràng
+      - en: Single definition with an owner
+        vi: Một định nghĩa duy nhất có chủ sở hữu
+      - en: Change process is described
+        vi: Quy trình thay đổi được mô tả
+    design:
+      en: Design the review process for changing a metric that finance and sales both depend on.
+      vi: Thiết kế quy trình review khi đổi một metric mà cả tài chính và kinh doanh đều phụ thuộc.
+    n:
+      en: The automated comparison test is the evidence that matters.
+      vi: Test so sánh tự động là bằng chứng quan trọng.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: Each executive metric has one definition and an owner
+          vi: Mỗi metric của ban điều hành có một định nghĩa và một owner
+        - en: Metric logic is version-controlled and reviewed
+          vi: Logic metric được quản lý version và review
+        - en: Grain and keys are explicit for each semantic model
+          vi: Grain và key tường minh cho từng semantic model
+        - en: Dashboards use certified metrics where possible
+          vi: Dashboard dùng metric đã certify khi có thể
+        - en: I can explain portable versus BI-native layers
+          vi: Tôi có thể giải thích tầng portable so với gốc BI
+        - en: Marts under it are tested
+          vi: Các mart bên dưới đã được test
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Two dashboards show different revenue. How do you resolve it?
+          vi: Hai dashboard hiển thị revenue khác nhau. Bạn giải quyết thế nào?
+        - en: When would you choose Cube or dbt Semantic Layer over LookML or DAX?
+          vi: Khi nào bạn chọn Cube hoặc dbt Semantic Layer thay vì LookML hoặc DAX?
+        - en: How do you introduce a semantic layer without a big-bang project?
+          vi: Làm sao đưa semantic layer vào mà không cần một dự án big-bang?
+        - en: What goes wrong if a semantic model has the wrong grain?
+          vi: Điều gì xảy ra nếu một semantic model có grain sai?
+        - en: How do you version a change to a metric’s definition?
+          vi: Bạn quản lý version thế nào khi đổi định nghĩa của một metric?
+    n:
+      en: For the first question, listen for “find the definitions, pick an owner, record the decision”, not “pick the number that looks right”.
+      vi: Với câu hỏi đầu tiên, hãy lắng nghe “tìm các định nghĩa, chọn owner, ghi lại quyết định”, chứ không phải “chọn con số trông có vẻ đúng”.

@@ -1,0 +1,84 @@
+tech: {id: spark, name: Spark, color: "#EA580C"}
+slides:
+  - id: spark-overview-driver-executors-and-shuffle
+    k: components
+    mod: [overview]
+    t: {en: "Spark overview: driver, executors and shuffle", vi: "Spark tong quan: driver, executor va shuffle"}
+    lead: {en: "Spark turns a logical dataflow into stages separated by shuffle boundaries, then schedules tasks across executors.", vi: "Spark bien dataflow logic thanh cac stage ngan boi shuffle, sau do schedule task tren cac executor."}
+    comps:
+      - - Driver
+        - {en: "Builds the plan, requests resources and coordinates stages.", vi: "Lap plan, xin resource va dieu phoi stage."}
+      - - Executor
+        - {en: "Runs tasks and caches partitions for the application.", vi: "Chay task va cache partition cho application."}
+      - - Shuffle
+        - {en: "Redistributes records by key and usually creates a stage boundary.", vi: "Phan phoi lai record theo key va thuong tao ranh gioi stage."}
+    flow: [{en: "Read and transform", vi: "Doc va transform"}, {en: "Exchange by key", vi: "Exchange theo key"}, {en: "Write output", vi: "Ghi output"}]
+    ops: [{en: "Inspect the physical plan before tuning settings.", vi: "Xem physical plan truoc khi tinh chinh setting."}]
+    n: {en: "Explain that parallelism is bounded by partitions and that shuffle is the main cost boundary, not the number of DataFrame lines.", vi: "Giai thich parallelism bi gioi han boi partition va shuffle la ranh gioi chi phi chinh, khong phai so dong DataFrame."}
+  - id: spark-configuration-partitions-and-memory
+    k: code
+    mod: [config]
+    t: {en: "Spark configuration: partitions and memory", vi: "Cau hinh Spark: partition va memory"}
+    lead: {en: "Set parallelism from data size and cluster capacity, then verify with stage metrics.", vi: "Dat parallelism tu kich thuoc du lieu va capacity cluster, sau do xac minh bang metric stage."}
+    blocks:
+      - lang: scala
+        title: spark_conf.scala
+        code: |-
+          val spark = SparkSession.builder()
+            .config("spark.sql.shuffle.partitions", "800")
+            .config("spark.sql.adaptive.enabled", "true")
+            .config("spark.sql.adaptive.coalescePartitions.enabled", "true")
+            .getOrCreate()
+          spark.conf.set("spark.sql.files.maxPartitionBytes", 512L * 1024 * 1024)
+    points:
+      - {h: {en: Avoid magic numbers, vi: Tranh magic number}, p: {en: "A partition count that works for one table size may create tiny tasks or stragglers after growth.", vi: "So partition hop voi mot table size co the tao task qua nho hoac straggler khi du lieu tang."}}
+    n: {en: "Adaptive Query Execution helps, but it cannot repair a badly skewed key or an undersized executor heap.", vi: "Adaptive Query Execution giup nhung khong sua duoc key skew nang hay heap executor qua nho."}
+  - id: spark-implementation-incremental-dataframe-job
+    k: code
+    mod: [implementation]
+    t: {en: "Spark implementation: an incremental DataFrame job", vi: "Trien khai Spark: DataFrame job incremental"}
+    lead: {en: "Make input bounds, deduplication and output commit semantics explicit in every batch job.", vi: "Lam ro gioi han input, dedup va semantics commit output trong moi batch job."}
+    blocks:
+      - lang: python
+        title: incremental_job.py
+        code: |-
+          from pyspark.sql import functions as F, Window
+          w = Window.partitionBy("order_id").orderBy(F.col("event_at").desc())
+          latest = (spark.read.table("bronze.orders")
+              .where((F.col("event_at") >= start) & (F.col("event_at") < end))
+              .withColumn("rn", F.row_number().over(w)).where("rn = 1").drop("rn"))
+          (latest.writeTo("silver.orders").option("mergeSchema", "true").append())
+    points:
+      - {h: {en: Retry boundary, vi: Ranh gioi retry}, p: {en: "Write to a staging location or idempotent table partition so a failed attempt cannot publish a partial batch.", vi: "Ghi vao staging hoac partition table idempotent de attempt fail khong publish batch mot phan."}}
+    n: {en: "Run the same interval twice in a test environment and compare row counts, keys and output files.", vi: "Chay cung interval hai lan trong test va so sanh row count, key va file output."}
+  - id: spark-operations-failure-and-skew-diagnosis
+    k: table
+    mod: [operations]
+    t: {en: "Spark operations: failure and skew diagnosis", vi: "Van hanh Spark: chan doan fail va skew"}
+    lead: {en: "The Spark UI is a data-shape debugger: use stage boundaries, task duration and shuffle metrics together.", vi: "Spark UI la cong cu debug hinh dang du lieu: dung ranh gioi stage, duration task va metric shuffle cung nhau."}
+    head: [{en: Symptom, vi: Trieu chung}, {en: Evidence, vi: Bang chung}, {en: First action, vi: Hanh dong dau}]
+    rows:
+      - - {en: One task runs much longer, vi: Mot task chay lau hon nhieu}
+        - {en: "Task input bytes and records are concentrated in one partition.", vi: "Bytes va record input tap trung vao mot partition."}
+        - {en: "Salt or split hot keys; do not simply add executors.", vi: "Salt hoac tach hot key; khong chi them executor."}
+      - - {en: Executor OOM, vi: Executor OOM}
+        - {en: "Large aggregation, collect or cache exceeds heap and memory overhead.", vi: "Aggregation lon, collect hoac cache vuot heap va memory overhead."}
+        - {en: "Remove collect, reduce cache scope and inspect the physical plan.", vi: "Bo collect, giam pham vi cache va xem physical plan."}
+    n: {en: "Capture the Spark UI and event log with every production incident; logs alone lose the task distribution.", vi: "Luu Spark UI va event log trong moi incident production; chi log se mat phan bo task."}
+  - id: spark-performance-joins-files-and-cache
+    k: table
+    mod: [performance]
+    t: {en: "Spark performance: joins, files and cache", vi: "Hieu nang Spark: join, file va cache"}
+    lead: {en: "Optimize the data shape before changing cluster size.", vi: "Toi uu hinh dang du lieu truoc khi doi kich thuoc cluster."}
+    head: [{en: Lever, vi: Don bay}, {en: Works when, vi: Khi hieu qua}, {en: Risk, vi: Rui ro}]
+    rows:
+      - - {en: Broadcast join, vi: Broadcast join}
+        - {en: "One side is safely smaller than executor memory.", vi: "Mot ben chac chan nho hon memory executor."}
+        - {en: "OOM or stale size statistics.", vi: "OOM hoac statistic kich thuoc cu."}
+      - - {en: File compaction, vi: File compaction}
+        - {en: "Many small files dominate listing and task startup.", vi: "Nhieu file nho lam ton listing va startup task."}
+        - {en: "Oversized files reduce parallelism.", vi: "File qua lon lam giam parallelism."}
+      - - {en: Cache, vi: Cache}
+        - {en: "The same expensive result is reused in one application.", vi: "Cung ket qua dat duoc dung lai trong mot application."}
+        - {en: "Eviction and memory pressure hide the real cost.", vi: "Eviction va memory pressure che chi phi that."}
+    n: {en: "Benchmark representative data with the same file layout and skew; synthetic uniform data produces false confidence.", vi: "Benchmark du lieu dai dien voi cung layout file va skew; du lieu synthetic deu tao tu tin ao."}

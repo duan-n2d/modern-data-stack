@@ -1,0 +1,113 @@
+tech:
+  id: aws-data-stack
+  name:
+    en: AWS data stack
+    vi: Data stack của AWS
+  color: "#D97706"
+  refs:
+    - [AWS, https://docs.aws.amazon.com/]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "AWS data stack: architecture"
+      vi: "AWS data stack: kiến trúc"
+    lead:
+      en: S3 is the lake, a catalog describes it, and many engines (Athena, Glue, EMR, Redshift) read the same files.
+      vi: S3 là lake, một catalog mô tả nó, và nhiều engine (Athena, Glue, EMR, Redshift) đọc cùng các file đó.
+    svg:
+      fn: cloudSVG
+      args:
+        - - - en: Sources
+              vi: Nguồn
+            - en: apps, databases|SaaS, IoT
+              vi: ứng dụng, database|SaaS, IoT
+            - "#7A869F"
+          - - en: Ingest
+              vi: Nạp
+            - DMS (CDC)|Kinesis, MSK|Firehose, AppFlow
+          - [S3 raw, {en: landing zone|append-only, vi: landing zone|chỉ append}]
+          - - en: Transform
+              vi: Biến đổi
+            - Glue ETL, EMR|Athena CTAS, dbt
+          - [S3 curated, {en: Parquet or Iceberg|partitioned, vi: Parquet hoặc Iceberg|có partition}]
+          - - en: Serve
+              vi: Phục vụ
+            - Athena, Redshift|QuickSight, SageMaker
+        - - [{en: Glue Data Catalog and Lake Formation, vi: Glue Data Catalog và Lake Formation}, {en: "table metadata, fine-grained permissions, tags", vi: "metadata bảng, phân quyền chi tiết, tag"}]
+          - ["IAM, KMS, VPC endpoints, CloudTrail", {en: "identity, encryption, private networking, audit", vi: "định danh, mã hóa, mạng riêng, audit"}]
+          - ["MWAA, Step Functions, EventBridge", {en: orchestration and event triggers, vi: orchestration và trigger theo sự kiện}]
+          - ["CloudWatch, Cost Explorer, Budgets", {en: observability and spend control, vi: observability và kiểm soát chi tiêu}]
+        - en: AWS data lake architecture from sources to serving with cross-cutting services
+          vi: Kiến trúc data lake AWS từ nguồn đến serving với các dịch vụ xuyên suốt
+        - "#D97706"
+    cap:
+      en: "Choose the engine per workload: Athena for ad hoc, Redshift for steady BI, EMR or Glue for custom Spark and streaming."
+      vi: "Chọn engine theo workload: Athena cho ad hoc, Redshift cho BI ổn định, EMR hoặc Glue cho Spark tùy biến và streaming."
+    n:
+      en: The AWS pattern is “bring your own engine to shared storage”. The catalog and Lake Formation are what keep many engines consistent and governed.
+      vi: Mô hình AWS là “mang engine của bạn đến storage dùng chung”. Catalog và Lake Formation là thứ giữ cho nhiều engine nhất quán và được quản trị.
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "AWS data stack: components and workflow"
+      vi: "AWS data stack: thành phần và quy trình"
+    comps:
+      - - S3
+        - en: Object storage; the foundation of the lake
+          vi: Object storage; nền tảng của lake
+      - - Glue Data Catalog
+        - en: Central, Hive-metastore-compatible metadata
+          vi: Metadata tập trung, tương thích Hive metastore
+      - - en: Glue ETL and crawlers
+          vi: Glue ETL và crawler
+        - en: Serverless Spark jobs and schema discovery
+          vi: Job Spark serverless và schema discovery
+      - - Lake Formation
+        - en: Fine-grained permissions on catalog tables and columns
+          vi: Phân quyền chi tiết trên table và cột của catalog
+      - - Athena
+        - en: Serverless SQL on S3 (Trino/Presto-based); billed by data scanned
+          vi: SQL serverless trên S3 (dựa trên Trino/Presto); tính phí theo dữ liệu được quét
+      - - Redshift
+        - en: MPP warehouse (provisioned or serverless); Spectrum reads S3
+          vi: Warehouse MPP (provisioned hoặc serverless); Spectrum đọc S3
+      - - EMR
+        - en: Managed Spark, Hadoop and Flink clusters
+          vi: Cluster Spark, Hadoop và Flink managed
+      - - DMS, Kinesis, MSK, Firehose
+        - en: CDC, streaming and delivery into S3
+          vi: CDC, streaming và phân phối vào S3
+      - - MWAA
+        - en: Managed Airflow
+          vi: Airflow managed
+      - - IAM, KMS, VPC
+        - en: Identity, encryption and networking
+          vi: Danh tính, mã hóa và networking
+    flow:
+      - en: Ingest with DMS (CDC), Kinesis or MSK (streams), AppFlow or Fivetran (SaaS) into S3 raw.
+        vi: Ingest bằng DMS (CDC), Kinesis hoặc MSK (stream), AppFlow hoặc Fivetran (SaaS) vào S3 raw.
+      - en: Transform with Glue, EMR, Athena or dbt into curated Parquet or Iceberg tables.
+        vi: Biến đổi bằng Glue, EMR, Athena hoặc dbt thành các table Parquet hoặc Iceberg đã curated.
+      - en: Register tables in the Glue Data Catalog and grant access through Lake Formation.
+        vi: Đăng ký table trong Glue Data Catalog và cấp quyền truy cập qua Lake Formation.
+      - en: Serve SQL through Athena or Redshift; BI and ML tools connect to those.
+        vi: Phục vụ SQL qua Athena hoặc Redshift; các công cụ BI và ML kết nối vào đó.
+      - en: MWAA or Step Functions orchestrates; CloudWatch monitors.
+        vi: MWAA hoặc Step Functions điều phối; CloudWatch giám sát.
+    ops:
+      - en: Athena cost follows bytes scanned. Partition and use columnar formats.
+        vi: Chi phí Athena tỷ lệ với số byte được quét. Hãy partition và dùng columnar format.
+      - en: Many small files hurt every engine. Compact them.
+        vi: Nhiều file nhỏ làm hại mọi engine. Hãy compact chúng.
+      - en: Prefer IAM roles over access keys, and use VPC endpoints for private access.
+        vi: Ưu tiên IAM role thay vì access key, và dùng VPC endpoint để truy cập riêng tư.
+      - en: "Hidden costs: cross-AZ and cross-region transfer, NAT gateways, idle clusters."
+        vi: "Chi phí ẩn: truyền dữ liệu cross-AZ và cross-region, NAT gateway, cluster nhàn rỗi."
+      - en: Pick one primary SQL engine to avoid duplicating logic.
+        vi: Chọn một SQL engine chính để tránh trùng lặp logic.
+    n:
+      en: Walk the five steps, then ask when each engine fits. A typical interview answer compares Athena, Redshift and EMR by workload shape and cost model.
+      vi: Đi qua năm bước, rồi hỏi khi nào mỗi engine phù hợp. Một câu trả lời phỏng vấn điển hình so sánh Athena, Redshift và EMR theo hình dạng workload và mô hình chi phí.

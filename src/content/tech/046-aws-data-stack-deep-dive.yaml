@@ -1,0 +1,129 @@
+tech: {id: aws-data-stack, name: {en: AWS data stack, vi: Data stack AWS}, color: "#D97706"}
+slides:
+  - id: overview-aws-data-path
+    k: components
+    mod: [overview]
+    t: {en: "AWS data stack: ingestion to analytics", vi: "AWS data stack: tu ingestion toi analytics"}
+    lead: {en: "AWS composes object storage, managed ingestion, catalog, processing and query services under IAM and network boundaries.", vi: "AWS ket hop object storage, ingestion managed, catalog, processing va query service trong ranh gioi IAM va network."}
+    comps:
+      - - S3
+        - {en: "Durable object storage for raw and curated data.", vi: "Object storage ben vung cho du lieu raw va curated."}
+      - - Glue
+        - {en: "Catalog and managed ETL options.", vi: "Catalog va tuy chon ETL managed."}
+      - - Athena / Redshift
+        - {en: "Serverless lake query or managed warehouse patterns.", vi: "Query lake serverless hoac warehouse managed."}
+      - - IAM
+        - {en: "Identity and policy boundary for service access.", vi: "Ranh gioi identity va policy cho service access."}
+    flow: [{en: "Land in S3", vi: "Nap vao S3"}, {en: "Catalog and transform", vi: "Catalog va transform"}, {en: "Query with governed identity", vi: "Query bang identity co governance"}]
+    ops: [{en: "Design encryption, bucket policy, KMS and audit together.", vi: "Thiet ke encryption, bucket policy, KMS va audit cung nhau."}]
+    n: {en: "Choose services by workload and operating model; avoid coupling every layer to one execution service without a clear need.", vi: "Chon service theo workload va operating model; tranh gan moi layer vao mot execution service neu khong can."}
+  - id: internals-iam-s3-and-glue-catalog
+    k: table
+    mod: [internals]
+    t: {en: "AWS internals: IAM, S3 and Glue catalog", vi: "Noi bo AWS: IAM, S3 va Glue catalog"}
+    lead: {en: "The effective data access path combines role credentials, identity policy, resource policy, encryption key policy and network reachability.", vi: "Duong truy cap data hieu luc ket hop credential role, identity policy, resource policy, key policy encryption va network reachability."}
+    head: [{en: Layer, vi: Layer}, {en: Responsibility, vi: Trach nhiem}, {en: Failure clue, vi: Dau hieu loi}]
+    rows:
+      - - {en: IAM role, vi: IAM role}
+        - {en: "Issues temporary credentials to workload.", vi: "Cap credential tam thoi cho workload."}
+        - {en: "AssumeRole or identity policy denial.", vi: "Tu choi AssumeRole hoac identity policy."}
+      - - {en: S3 policy and KMS, vi: S3 policy va KMS}
+        - {en: "Authorizes object operation and decryption.", vi: "Cap quyen object operation va giai ma."}
+        - {en: "AccessDenied despite bucket access often points to key policy.", vi: "AccessDenied du co bucket access thuong chi toi key policy."}
+      - - {en: Glue catalog, vi: Glue catalog}
+        - {en: "Stores table metadata and locations.", vi: "Luu metadata table va location."}
+        - {en: "Catalog permission and S3 data permission are separate.", vi: "Quyen catalog va quyen S3 data tach biet."}
+    n: {en: "Trace the principal and action through CloudTrail; a successful catalog lookup does not prove the caller can read the files.", vi: "Trace principal va action qua CloudTrail; catalog lookup thanh cong khong chung minh caller doc duoc file."}
+  - id: configuration-roles-encryption-and-lake-layout
+    k: code
+    mod: [config]
+    t: {en: "AWS configuration: roles, encryption and lake layout", vi: "Cau hinh AWS: role, encryption va lake layout"}
+    lead: {en: "Use workload roles, explicit encryption and narrow prefixes as the default lake security model.", vi: "Mac dinh dung workload role, encryption ro rang va prefix hep cho security model cua lake."}
+    blocks:
+      - lang: hcl
+        title: lake_policy.tf
+        code: |-
+          resource "aws_s3_bucket_server_side_encryption_configuration" "lake" {
+            bucket = aws_s3_bucket.lake.id
+            rule {
+              apply_server_side_encryption_by_default {
+                sse_algorithm = "aws:kms"
+                kms_master_key_id = aws_kms_key.lake.arn
+              }
+            }
+          }
+          data "aws_iam_policy_document" "reader" {
+            statement {
+              actions = ["s3:GetObject"]
+              resources = ["${aws_s3_bucket.lake.arn}/curated/team-a/*"]
+            }
+          }
+    points:
+      - {h: {en: Separate catalog and object permissions, vi: Tach quyen catalog va object}, p: {en: "Grant only the table metadata and object prefixes a workload needs; include KMS decrypt only for approved keys.", vi: "Chi cap metadata table va object prefix workload can; chi cap KMS decrypt cho key da duyet."}}
+    n: {en: "Validate access from the actual execution role and private network path, not an administrator workstation.", vi: "Validate access tu execution role va network private thuc te, khong tu may administrator."}
+  - id: implementation-glue-to-s3-curated-job
+    k: list
+    mod: [implementation]
+    t: {en: "AWS implementation: land and publish a curated dataset", vi: "Trien khai AWS: nap va publish curated dataset"}
+    lead: {en: "A governed batch pipeline separates landing, validation and publication and records each run's inputs.", vi: "Pipeline batch co governance tach landing, validation va publication, ghi input cua tung run."}
+    items:
+      - {en: "Write source objects to a run-specific S3 landing prefix.", vi: "Ghi object source vao S3 landing prefix rieng cho run."}
+      - {en: "Validate schema and counts before catalog registration.", vi: "Validate schema va count truoc khi dang ky catalog."}
+      - {en: "Transform with Glue or a selected compute service using a workload role.", vi: "Transform bang Glue hoac compute service da chon voi workload role."}
+      - {en: "Publish a versioned curated prefix and update catalog metadata.", vi: "Publish curated prefix co version va cap nhat metadata catalog."}
+      - {en: "Record object version, job run ID and data-quality result.", vi: "Ghi object version, job run ID va ket qua data quality."}
+    n: {en: "Make the publish pointer or partition commit the final step so consumers never read a partial run.", vi: "De publish pointer hoac partition commit la buoc cuoi de consumer khong doc run chua xong."}
+  - id: operations-cost-security-and-freshness
+    k: table
+    mod: [operations]
+    t: {en: "AWS data operations: cost, security and freshness", vi: "Van hanh data AWS: chi phi, security va freshness"}
+    lead: {en: "Operational ownership spans object lifecycle, query spend, failed jobs and access audit.", vi: "Ownership van hanh gom object lifecycle, chi phi query, job fail va audit access."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Inspect, vi: Kiem tra}, {en: Response, vi: Phan hoi}]
+    rows:
+      - - {en: Query cost spike, vi: Chi phi query tang dot bien}
+        - {en: "Bytes scanned, partition pruning and repeated scans.", vi: "Bytes scan, partition pruning va scan lap lai."}
+        - {en: "Fix file layout and predicates; add workload budgets or limits.", vi: "Sua layout file va predicate; them budget hoac limit workload."}
+      - - {en: Access denied, vi: Tu choi truy cap}
+        - {en: "CloudTrail principal, bucket policy, KMS key and endpoint policy.", vi: "Principal CloudTrail, bucket policy, KMS key va endpoint policy."}
+        - {en: "Repair the narrow missing authorization layer.", vi: "Sua dung lop authorization hep dang thieu."}
+    n: {en: "Set owners and alerts for freshness, failed runs, spend and public-access changes at the dataset boundary.", vi: "Dat owner va alert freshness, run fail, spend va thay doi public access tai ranh gioi dataset."}
+  - id: troubleshooting-iam-and-query-failures
+    k: table
+    mod: [troubleshooting]
+    t: {en: "AWS data troubleshooting: IAM and query failures", vi: "Xu ly su co data AWS: IAM va query failure"}
+    lead: {en: "Separate control-plane authorization from object reads and query-engine execution.", vi: "Tach authorization control plane khoi object read va query engine execution."}
+    head: [{en: Symptom, vi: Trieu chung}, {en: Check, vi: Kiem tra}, {en: Fix, vi: Sua}]
+    rows:
+      - - {en: "Table visible, files unreadable", vi: "Thay table nhung khong doc file"}
+        - {en: "Role's S3 prefix access, KMS decrypt and VPC endpoint policy.", vi: "Quyen S3 prefix cua role, KMS decrypt va VPC endpoint policy."}
+        - {en: "Grant the required object and key actions to the execution role.", vi: "Cap object action va key action can thiet cho execution role."}
+      - - {en: Query scans all data, vi: Query scan toan bo data}
+        - {en: "Partition predicate, file statistics and catalog partition state.", vi: "Partition predicate, file statistic va trang thai partition catalog."}
+        - {en: "Repair partition layout and use predicate types compatible with pruning.", vi: "Sua partition layout va dung predicate tuong thich pruning."}
+    n: {en: "Use request IDs and CloudTrail events to identify the denied action before broadening policies.", vi: "Dung request ID va CloudTrail event tim action bi tu choi truoc khi mo rong policy."}
+  - id: performance-file-layout-and-query-cost
+    k: table
+    mod: [performance]
+    t: {en: "AWS data performance: file layout and query cost", vi: "Hieu nang data AWS: layout file va chi phi query"}
+    lead: {en: "S3 query efficiency depends on file sizing, partition pruning and avoiding repeated metadata listing.", vi: "Hieu qua query S3 phu thuoc kich thuoc file, partition pruning va tranh listing metadata lap lai."}
+    head: [{en: Lever, vi: Don bay}, {en: Benefit, vi: Loi ich}, {en: Risk, vi: Rui ro}]
+    rows:
+      - - {en: Compact small files, vi: Compact small file}
+        - {en: "Fewer opens and lower planning overhead.", vi: "It open va overhead planning thap hon."}
+        - {en: "Oversized objects reduce parallel reads.", vi: "Object qua lon giam doc song song."}
+      - - {en: Partition by common filters, vi: Partition theo filter pho bien}
+        - {en: "Less data scanned.", vi: "Scan it data hon."}
+        - {en: "High-cardinality partitions create metadata overhead.", vi: "Partition cardinality cao tao overhead metadata."}
+    n: {en: "Measure bytes scanned, object count, query latency and cost per workload together.", vi: "Do bytes scan, so object, query latency va chi phi theo tung workload."}
+  - id: lab-debug-a-cross-account-lake-query
+    k: lab
+    mod: [lab]
+    t: {en: "AWS data lab: debug a cross-account lake query", vi: "Lab data AWS: debug query lake cross-account"}
+    lead: {en: "Restore least-privilege access when a query can list catalog tables but cannot read S3 objects.", vi: "Khoi phuc access least-privilege khi query thay table catalog nhung khong doc duoc S3 object."}
+    scenario: {en: "A consumer role sees Glue metadata but query execution fails with AccessDenied on encrypted objects.", vi: "Consumer role thay Glue metadata nhung query fail AccessDenied tren object ma hoa."}
+    input: {en: "Role trust, identity and bucket policies, KMS policy, CloudTrail and query error.", vi: "Trust role, identity va bucket policy, KMS policy, CloudTrail va query error."}
+    tasks: [{en: "Trace the caller principal and denied API action.", vi: "Trace caller principal va API action bi tu choi."}, {en: "Propose a narrow authorization fix across accounts.", vi: "De xuat sua authorization hep giua cac account."}, {en: "Define a verification query and audit evidence.", vi: "Dinh nghia query verify va bang chung audit."}]
+    expected: {en: "A minimal cross-account grant with KMS access and a successful read test.", vi: "Grant cross-account toi thieu co KMS access va read test thanh cong."}
+    rubric: [{en: "Separates Glue, S3 and KMS permissions.", vi: "Tach quyen Glue, S3 va KMS."}, {en: "Does not use wildcard administrator access.", vi: "Khong dung quyen administrator wildcard."}]
+    design: {en: "Include role assumption, encryption ownership and revocation steps.", vi: "Gom assume role, owner encryption va buoc thu hoi quyen."}
+    n: {en: "Assess whether the learner can prove the exact authorization gap before proposing policy changes.", vi: "Danh gia hoc vien chung minh dung authorization gap truoc khi de xuat doi policy."}

@@ -1,0 +1,308 @@
+tech:
+  id: spark
+  name: Spark
+  color: "#EA580C"
+  refs:
+    - [Apache Spark, https://spark.apache.org/docs/latest/]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "Spark: architecture"
+      vi: "Spark: kiến trúc"
+    lead:
+      en: The driver plans the work; executors do it. Shuffles are where plans split into stages and where most of the cost lives.
+      vi: Driver lập kế hoạch; executor thực thi. Shuffle là nơi kế hoạch bị tách thành các stage và là nơi phần lớn chi phí nằm.
+    svg: sparkSVG
+    cap:
+      en: Transformations are lazy. Nothing runs until an action such as write, count or collect.
+      vi: Transformation là lazy. Không có gì chạy cho tới khi có một action như write, count hoặc collect.
+    n:
+      en: "The key idea: lazy plan, optimizer, stages cut at shuffles, tasks per partition. When a job is slow, the question is almost always which shuffle or which skewed key."
+      vi: "Ý chính: lazy plan, optimizer, stage cắt tại shuffle, task theo partition. Khi một job chậm, câu hỏi hầu như luôn là shuffle nào hoặc key skew nào."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "Spark: components and workflow"
+      vi: "Spark: thành phần và quy trình"
+    comps:
+      - - Driver
+        - en: Runs your program, builds the plan, schedules tasks, collects results
+          vi: Chạy chương trình của bạn, xây kế hoạch, lập lịch task, thu thập kết quả
+      - - Cluster manager
+        - en: "Allocates resources: YARN, Kubernetes or Standalone"
+          vi: "Cấp phát tài nguyên: YARN, Kubernetes hoặc Standalone"
+      - - Executor
+        - en: JVM on a worker that runs tasks, caches data and writes shuffle files
+          vi: JVM trên worker chạy task, cache dữ liệu và ghi file shuffle
+      - - Job, stage, task
+        - en: Action starts a job; stages are split at shuffles; one task per partition
+          vi: Action khởi động một job; stage bị tách tại các shuffle; mỗi partition một task
+      - - Catalyst
+        - en: Optimizer for DataFrames and SQL (rule-based and cost-based)
+          vi: Optimizer cho DataFrame và SQL (dựa trên rule và dựa trên cost)
+      - - Tungsten
+        - en: Efficient memory layout and whole-stage code generation
+          vi: Bố cục bộ nhớ hiệu quả và sinh code toàn stage
+      - - Shuffle
+        - en: Redistribution of rows by key between stages. Usually the dominant cost
+          vi: Phân phối lại các row theo key giữa các stage. Thường là chi phí chiếm ưu thế
+      - - Adaptive Query Execution
+        - en: "Re-optimizes at runtime: coalesces partitions, switches join strategy, handles skew"
+          vi: "Tối ưu lại lúc runtime: gộp partition, đổi chiến lược join, xử lý skew"
+      - - Structured Streaming
+        - en: Micro-batch streaming on the same engine
+          vi: Streaming micro-batch trên cùng engine
+    flow:
+      - en: Transformations build a logical plan lazily.
+        vi: Transformation xây logical plan một cách lazy.
+      - en: An action triggers execution and Catalyst optimizes the plan.
+        vi: Một action kích hoạt thực thi và Catalyst tối ưu kế hoạch.
+      - en: The physical plan becomes a DAG of stages, cut at shuffle boundaries.
+        vi: Physical plan trở thành DAG các stage, cắt tại ranh giới shuffle.
+      - en: The driver sends tasks to executors through the cluster manager.
+        vi: Driver gửi task tới executor thông qua cluster manager.
+      - en: Executors read partitions, process them and write shuffle output.
+        vi: Executor đọc partition, xử lý và ghi output shuffle.
+      - en: The next stage fetches shuffle data. Final results are written or returned.
+        vi: Stage kế tiếp fetch dữ liệu shuffle. Kết quả cuối được ghi ra hoặc trả về.
+    ops:
+      - en: Skew (one huge key) stalls a whole stage. Use AQE, salting or a different key.
+        vi: Skew (một key quá lớn) làm kẹt cả stage. Dùng AQE, salting hoặc một key khác.
+      - en: Broadcast small tables to avoid shuffling the large side.
+        vi: Broadcast các bảng nhỏ để tránh shuffle phía bảng lớn.
+      - en: Too few partitions underuses the cluster; too many adds scheduling overhead.
+        vi: Quá ít partition dùng cluster chưa hết công suất; quá nhiều làm tăng overhead lập lịch.
+      - en: "`collect()` on big data crashes the driver."
+        vi: "`collect()` trên dữ liệu lớn làm crash driver."
+      - en: Spill to disk signals memory pressure. The Spark UI shows skew, spill and slow stages.
+        vi: Spill ra đĩa cho thấy áp lực bộ nhớ. Spark UI hiển thị skew, spill và các stage chậm.
+    n:
+      en: "Walk the six steps, then tie the notes to the Spark UI: stages tab for skew, storage tab for caching. Defaults change between versions, so verify settings such as AQE."
+      vi: "Đi qua sáu bước, rồi gắn các ghi chú với Spark UI: tab stages cho skew, tab storage cho caching. Giá trị mặc định thay đổi giữa các phiên bản, nên hãy kiểm tra các setting như AQE."
+  - id: spark-internals-from-query-to-tasks
+    k: stack
+    mod: [internals]
+    t:
+      en: "Spark internals: from query to tasks"
+      vi: "Nội bộ Spark: từ query đến task"
+    lead:
+      en: Understanding the plan pipeline is what lets you read the Spark UI and fix slow jobs.
+      vi: Hiểu pipeline tạo plan là điều giúp bạn đọc Spark UI và sửa job chậm.
+    parts:
+      - table:
+          head:
+            - en: Stage
+              vi: Giai đoạn
+            - en: What happens
+              vi: Điều gì xảy ra
+            - en: Where to observe
+              vi: Quan sát ở đâu
+          rows:
+            - - en: Parse and analyze
+                vi: Parse và phân tích
+              - en: SQL or DataFrame code becomes a logical plan; names and types are resolved against the catalog
+                vi: SQL hoặc code DataFrame thành logical plan; tên và kiểu được phân giải theo catalog
+              - '`explain("extended")`'
+            - - en: Catalyst optimization
+                vi: Tối ưu Catalyst
+              - en: "Rules rewrite the plan: predicate pushdown, column pruning, constant folding, join reordering"
+                vi: "Các rule viết lại plan: đẩy predicate xuống, cắt cột, gập hằng số, sắp xếp lại join"
+              - Optimized logical plan
+            - - en: Physical planning
+                vi: Lập kế hoạch vật lý
+              - en: "Chooses strategies: broadcast hash join, sort-merge join, shuffle hash join, aggregation type"
+                vi: "Chọn chiến lược: broadcast hash join, sort-merge join, shuffle hash join, loại aggregation"
+              - '`explain("formatted")`'
+            - - en: Code generation
+                vi: Sinh code
+              - en: Whole-stage codegen (Tungsten) fuses operators into tight loops over compact memory
+                vi: Whole-stage codegen (Tungsten) hợp nhất operator thành vòng lặp chặt trên bộ nhớ gọn
+              - en: Stages marked with a star in the plan
+                vi: Stage đánh dấu sao trong plan
+            - - en: DAG and task scheduling
+                vi: Lập lịch DAG và task
+              - en: The DAG scheduler cuts stages at shuffles; the task scheduler sends one task per partition to executors
+                vi: DAG scheduler cắt stage tại shuffle; task scheduler gửi mỗi partition một task tới executor
+              - "Spark UI: Jobs, Stages, Tasks"
+            - - en: Adaptive execution
+                vi: Thực thi thích ứng
+              - en: At stage boundaries AQE uses real statistics to coalesce partitions, switch to broadcast joins and split skewed partitions
+                vi: Tại ranh giới stage, AQE dùng thống kê thật để gộp partition, chuyển sang broadcast join và tách partition lệch
+              - en: "SQL tab: adaptive plan"
+                vi: "Tab SQL: adaptive plan"
+      - cards:
+          - h:
+              en: Memory model
+              vi: Mô hình bộ nhớ
+            p:
+              en: Executor memory is split into execution memory (joins, sorts, aggregations), storage memory (cached data) and overhead for off-heap and native use. When execution memory runs out, Spark spills to disk; when overhead runs out, the container manager can kill the executor.
+              vi: Bộ nhớ executor chia thành bộ nhớ thực thi (join, sort, aggregation), bộ nhớ lưu trữ (dữ liệu cache) và overhead cho off-heap và native. Khi bộ nhớ thực thi hết, Spark spill ra đĩa; khi overhead hết, trình quản lý container có thể giết executor.
+      - code:
+          lang: python
+          title: read_the_plan.py
+          code: |-
+            df = (
+                spark.table("curated.orders")
+                .where("order_date >= '2026-01-01'")
+                .join(spark.table("curated.dim_customers"), "customer_id")
+                .groupBy("country")
+                .agg({"amount": "sum"})
+            )
+            df.explain("formatted")  # look for: PushedFilters, BroadcastHashJoin vs SortMergeJoin, Exchange (shuffle)
+    n:
+      en: Teach learners to read explain output before touching configuration. Most fixes (filter earlier, broadcast the small side, remove a shuffle) come from the plan, not from memory settings.
+      vi: Dạy người học đọc output explain trước khi đụng tới cấu hình. Phần lớn cách sửa (lọc sớm hơn, broadcast phía nhỏ, bỏ một shuffle) đến từ plan, không phải từ cấu hình bộ nhớ.
+  - id: spark-troubleshooting-errors-to-fixes
+    k: table
+    mod: [troubleshooting]
+    t:
+      en: "Spark troubleshooting: errors to fixes"
+      vi: "Troubleshooting Spark: từ lỗi đến cách sửa"
+    head:
+      - en: Symptom
+        vi: Triệu chứng
+      - en: Likely cause
+        vi: Nguyên nhân có thể
+      - en: Diagnose
+        vi: Chẩn đoán
+      - en: Fix
+        vi: Cách sửa
+    rows:
+      - - "`java.lang.OutOfMemoryError` on executor"
+        - en: Partitions too large, wide aggregation, skew
+          vi: Partition quá lớn, aggregation rộng, lệch
+        - en: "Stage page: spill, GC time, task size distribution"
+          vi: "Trang stage: spill, thời gian GC, phân phối kích thước task"
+        - en: More partitions, less data per task, fix skew, raise executor memory last
+          vi: Thêm partition, giảm dữ liệu mỗi task, sửa lệch, tăng bộ nhớ executor sau cùng
+      - - en: Container killed for exceeding memory limits
+          vi: Container bị giết vì vượt giới hạn bộ nhớ
+        - en: Off-heap, Python or native memory beyond overhead
+          vi: Off-heap, Python hoặc native vượt overhead
+        - en: Cluster manager logs showing the kill reason
+          vi: Log của cluster manager cho biết lý do bị giết
+        - en: "`spark.executor.memoryOverhead`, fewer cores per executor"
+          vi: "`spark.executor.memoryOverhead`, ít core hơn cho mỗi executor"
+      - - "`FetchFailedException`"
+        - en: Executor lost during shuffle, spot reclaim, node failure
+          vi: Mất executor trong shuffle, bị thu hồi spot, node hỏng
+        - en: Executor loss events; node and spot logs
+          vi: Sự kiện mất executor; log node và spot
+        - en: Use stable nodes for shuffle-heavy jobs; consider shuffle service or external shuffle storage
+          vi: Dùng node ổn định cho job nặng shuffle; cân nhắc shuffle service hoặc lưu shuffle ngoài
+      - - en: Driver crashes after `collect()` or `toPandas()`
+          vi: Driver sập sau `collect()` hoặc `toPandas()`
+        - en: Result too large for driver memory
+          vi: Kết quả quá lớn so với bộ nhớ driver
+        - en: Driver logs; result size
+          vi: Log driver; kích thước kết quả
+        - en: Aggregate first, write to storage, or limit rows
+          vi: Tổng hợp trước, ghi ra storage, hoặc giới hạn số dòng
+      - - en: Job slow with thousands of tiny tasks
+          vi: Job chậm với hàng nghìn task nhỏ
+        - en: Too many small input files or partitions
+          vi: Quá nhiều file đầu vào nhỏ hoặc partition
+        - en: Task count versus data size
+          vi: Số task so với kích thước dữ liệu
+        - en: Compact files; `coalesce`; adjust `spark.sql.shuffle.partitions`
+          vi: Gộp file; `coalesce`; chỉnh `spark.sql.shuffle.partitions`
+      - - en: One task takes far longer than the others
+          vi: Một task lâu hơn hẳn các task còn lại
+        - en: Key skew
+          vi: Lệch key
+        - en: "Stage summary: max versus median task time"
+          vi: "Tóm tắt stage: task lâu nhất so với trung vị"
+        - en: AQE skew join, salting, filter the dominant key separately
+          vi: AQE skew join, salting, lọc riêng key chiếm ưu thế
+    cap:
+      en: Change one setting at a time and record the Spark UI before and after.
+      vi: Chỉ đổi một cấu hình mỗi lần và ghi lại Spark UI trước và sau.
+    n:
+      en: Memory settings are the last resort. First reduce the data each task sees, then tune memory.
+      vi: Cấu hình bộ nhớ là phương án cuối. Trước tiên giảm dữ liệu mỗi task thấy, rồi mới tinh chỉnh bộ nhớ.
+  - id: spark-lab-find-and-fix-a-skewed-join
+    k: lab
+    mod: [lab]
+    t:
+      en: "Spark lab: find and fix a skewed join"
+      vi: "Lab Spark: tìm và sửa một join bị lệch"
+    lead:
+      en: Reproduce skew, read it in the Spark UI, and fix it three ways.
+      vi: Tái tạo độ lệch, đọc nó trong Spark UI và sửa bằng ba cách.
+    scenario:
+      en: A daily job joins 500 million events to a customer table and takes four hours because one stage has a single very slow task.
+      vi: Job hằng ngày join 500 triệu sự kiện với bảng khách hàng và mất bốn giờ vì một stage có đúng một task rất chậm.
+    input:
+      en: A local or small-cluster Spark session. A generator producing events where 30 percent share one customer_id. A customer table of 5 million rows.
+      vi: Một Spark session cục bộ hoặc cluster nhỏ. Bộ sinh dữ liệu trong đã 30 phần trăm sự kiện chung một customer_id. Bảng khách hàng 5 triệu dòng.
+    tasks:
+      - en: Run the join and capture the stage task-time distribution.
+        vi: Chạy join và ghi lại phân phối thời gian task của stage.
+      - en: "Fix 1: enable adaptive skew join. Fix 2: salt the hot key. Fix 3: handle the hot key in a separate broadcast join."
+        vi: "Cách 1: bật adaptive skew join. Cách 2: salting key nóng. Cách 3: xử lý key nóng bằng broadcast join riêng."
+      - en: Compare runtime, shuffle bytes and result equality for all variants.
+        vi: So sánh thời gian chạy, byte shuffle và kết quả giống nhau cho mọi biến thể.
+    expected:
+      en: A table with runtime and shuffle bytes for the baseline and each fix, and proof that all outputs match.
+      vi: Bảng thời gian chạy và byte shuffle cho baseline và từng cách sửa, cùng bằng chứng mọi kết quả khớp nhau.
+    rubric:
+      - en: Skew is shown with max versus median task time
+        vi: Độ lệch được chỉ ra bằng task lâu nhất so với trung vị
+      - en: Correctness verified, not assumed
+        vi: Tính đúng đắn được kiểm chứng, không giả định
+      - en: Trade-offs of each fix explained
+        vi: Giải thích đánh đổi của từng cách sửa
+      - en: Only one variable changed per experiment
+        vi: Mỗi thí nghiệm chỉ đổi một biến
+    design:
+      en: Design the join strategy for a table whose hot keys change daily and are not known in advance.
+      vi: Thiết kế chiến lược join cho bảng có key nóng đổi hằng ngày và không biết trước.
+    n:
+      en: Look for learners who verify equality of outputs; a faster wrong answer is a failure.
+      vi: Tìm những người học kiểm chứng kết quả giống nhau; câu trả lời nhanh hơn nhưng sai là thất bại.
+  - id: spark-lifecycle-from-dataframe-to-executors
+    k: lifecycle
+    mod: [internals]
+    t:
+      en: "Spark lifecycle: from DataFrame to executors"
+      vi: "Vòng đời Spark: từ DataFrame đến executor"
+    lead:
+      en: How a few lines of code become tasks on a cluster.
+      vi: Vài dòng code trở thành task trên cluster như thế nào.
+    steps:
+      - - en: Build the logical plan
+          vi: Dựng logical plan
+        - en: Transformations are lazy and build a logical plan.
+          vi: Transformation lazy và dựng logical plan.
+        - df.explain("extended")
+      - - en: Analyze and optimize
+          vi: Phân tích và tối ưu
+        - en: Catalyst resolves names and rewrites the plan.
+          vi: Catalyst phân giải tên và viết lại plan.
+        - optimized logical plan
+      - - en: Choose the physical plan
+          vi: Chọn physical plan
+        - en: Join and aggregation strategies are selected.
+          vi: Chiến lược join và aggregation được chọn.
+        - df.explain("formatted")
+      - - en: Create stages
+          vi: Tạo stage
+        - en: The DAG scheduler cuts stages at shuffles.
+          vi: DAG scheduler cắt stage tại shuffle.
+        - "Spark UI: Stages"
+      - - en: Schedule tasks
+          vi: Lập lịch task
+        - en: The task scheduler sends one task per partition to executors.
+          vi: Task scheduler gửi mỗi partition một task tới executor.
+        - task time distribution
+      - - en: Execute and shuffle
+          vi: Thực thi và shuffle
+        - en: Executors process partitions and write or read shuffle data.
+          vi: Executor xử lý partition và ghi hoặc đọc dữ liệu shuffle.
+        - shuffle read/write, spill
+    n:
+      en: Each step maps to a place in the Spark UI or an explain output.
+      vi: Mỗi bước tương ứng một chỗ trong Spark UI hoặc output explain.

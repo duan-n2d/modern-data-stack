@@ -1,0 +1,130 @@
+tech:
+  id: kubernetes
+  name: Kubernetes
+  color: "#2563EB"
+  refs:
+    - [Kubernetes, https://kubernetes.io/docs/]
+slides:
+  - id: architecture
+    k: svg
+    mod: [architecture]
+    t:
+      en: "Kubernetes: architecture"
+      vi: "Kubernetes: kiến trúc"
+    lead:
+      en: You declare the desired state; controllers continuously make reality match it. Everything goes through the API server and is stored in etcd.
+      vi: Bạn khai báo trạng thái mong muốn; các controller liên tục đưa thực tế khớp với nó. Mọi thứ đi qua API server và được lưu trong etcd.
+    svg: k8sSVG
+    cap:
+      en: Managed services (EKS, GKE, AKS) run the control plane for you. You still own nodes, workloads and cost.
+      vi: Các dịch vụ managed (EKS, GKE, AKS) vận hành control plane giúp bạn. Bạn vẫn sở hữu node, workload và chi phí.
+    n:
+      en: "The core idea is the reconciliation loop. Ask the audience what happens when a node dies: controllers notice the pods are missing and the scheduler places replacements."
+      vi: "Ý tưởng cốt lõi là reconciliation loop. Hãy hỏi khán giả điều gì xảy ra khi một node chết: controller nhận ra các pod bị thiếu và scheduler đặt các pod thay thế."
+  - id: components
+    k: components
+    mod: [fundamentals]
+    t:
+      en: "Kubernetes: components and workflow"
+      vi: "Kubernetes: thành phần và quy trình"
+    comps:
+      - - kube-apiserver
+        - en: "Front door of the cluster: authenticates, validates and persists objects"
+          vi: "Cửa trước của cluster: xác thực, validate và lưu trữ các object"
+      - - etcd
+        - en: Consistent key-value store holding all cluster state
+          vi: Key-value store nhất quán lưu toàn bộ trạng thái cluster
+      - - Scheduler
+        - en: Places unscheduled pods on nodes by resources and constraints
+          vi: Đặt các pod chưa được lên lịch vào node theo tài nguyên và ràng buộc
+      - - Controller manager
+        - en: Control loops that move actual state toward desired state
+          vi: Các control loop đưa trạng thái thực tế về gần trạng thái mong muốn
+      - - kubelet
+        - en: Node agent that starts pods and reports status
+          vi: Agent trên node khởi động pod và báo cáo trạng thái
+      - - kube-proxy / CNI
+        - en: Service routing and pod networking
+          vi: Định tuyến Service và networking cho pod
+      - - Pod
+        - en: "Smallest deployable unit: one or more containers sharing network and storage"
+          vi: "Đơn vị triển khai nhỏ nhất: một hoặc nhiều container dùng chung network và storage"
+      - - Deployment, StatefulSet, Job, CronJob
+        - en: Stateless apps, stateful apps, batch runs, schedules
+          vi: Ứng dụng stateless, ứng dụng stateful, batch run, lịch chạy
+      - - Service, Ingress
+        - en: Stable networking and external HTTP routing
+          vi: Networking ổn định và định tuyến HTTP bên ngoài
+      - - ConfigMap, Secret, PV, PVC
+        - en: Configuration, credentials and storage
+          vi: Cấu hình, credential và storage
+    flow:
+      - en: "`kubectl apply` sends a manifest to the API server."
+        vi: "`kubectl apply` gửi một manifest tới API server."
+      - en: The API server authenticates, authorizes (RBAC), runs admission checks and stores the object in etcd.
+        vi: API server xác thực, phân quyền (RBAC), chạy admission check và lưu object vào etcd.
+      - en: The Deployment controller creates a ReplicaSet, which creates Pods.
+        vi: Deployment controller tạo một ReplicaSet, và ReplicaSet tạo các Pod.
+      - en: The scheduler assigns each Pod to a node.
+        vi: Scheduler gán từng Pod vào một node.
+      - en: The kubelet pulls the image, starts containers and runs health probes.
+        vi: kubelet pull image, khởi động container và chạy health probe.
+      - en: Services route traffic to ready Pods. Controllers replace failed Pods, and autoscalers adjust replicas.
+        vi: Service định tuyến traffic tới các Pod sẵn sàng. Controller thay thế các Pod lỗi, và autoscaler điều chỉnh số replica.
+    ops:
+      - en: Keep desired state in Git (GitOps) and deploy by automation.
+        vi: Giữ trạng thái mong muốn trong Git (GitOps) và deploy bằng tự động hóa.
+      - en: Set resource requests and limits. Without them, noisy neighbours and surprise evictions follow.
+        vi: Đặt resource request và limit. Nếu không, sẽ gặp noisy neighbour và eviction bất ngờ.
+      - en: Data teams use it for Spark on Kubernetes, Airflow’s KubernetesExecutor and Flink operators.
+        vi: Các team dữ liệu dùng nó cho Spark on Kubernetes, KubernetesExecutor của Airflow và Flink operator.
+      - en: "Cost leaks: idle nodes and over-requested resources. Use autoscaling and right-size."
+        vi: "Rò rỉ chi phí: node nhàn rỗi và tài nguyên request thừa. Dùng autoscaling và right-size."
+      - en: Use it when you run long-lived services; prefer managed services for the rest.
+        vi: Dùng khi bạn chạy các service chạy dài hạn; còn lại nên ưu tiên dịch vụ managed.
+    n:
+      en: "Walk through `kubectl apply` to a running pod. Then link to data work: most data tools run on Kubernetes as pods, so resource requests decide both stability and cost."
+      vi: "Đi qua `kubectl apply` đến một pod đang chạy. Sau đó nối với công việc dữ liệu: hầu hết công cụ dữ liệu chạy trên Kubernetes dưới dạng pod, nên resource request quyết định cả độ ổn định lẫn chi phí."
+  - id: kubernetes-lifecycle-from-kubectl-apply-to-traffic
+    k: lifecycle
+    mod: [internals]
+    t:
+      en: "Kubernetes lifecycle: from kubectl apply to traffic"
+      vi: "Vòng đời Kubernetes: từ kubectl apply đến lưu lượng"
+    lead:
+      en: How a declared Deployment becomes a running, reachable pod.
+      vi: Một Deployment đã khai báo trở thành pod chạy được và truy cập được như thế nào.
+    steps:
+      - - en: Submit the manifest
+          vi: Gửi manifest
+        - en: kubectl sends the object to the API server.
+          vi: kubectl gửi đối tượng tới API server.
+        - kubectl apply -f
+      - - en: Authenticate and admit
+          vi: Xác thực và cho phép
+        - en: Authentication, RBAC and admission checks run.
+          vi: Chạy xác thực, RBAC và kiểm tra admission.
+        - "`kubectl auth can-i`"
+      - - en: Persist the state
+          vi: Lưu trạng thái
+        - en: The object is stored in etcd.
+          vi: Đối tượng được lưu trong etcd.
+        - kubectl get deploy
+      - - en: Create pods
+          vi: Tạo pod
+        - en: Controllers create a ReplicaSet and Pods.
+          vi: Controller tạo ReplicaSet và Pod.
+        - kubectl get rs,pods
+      - - en: Schedule
+          vi: Lập lịch
+        - en: The scheduler binds each pod to a node using requests.
+          vi: Scheduler gán mỗi pod vào một node dựa trên requests.
+        - kubectl describe pod (Events)
+      - - en: Run and probe
+          vi: Chạy và probe
+        - en: The kubelet pulls the image, starts containers, runs probes; Services route traffic.
+          vi: Kubelet kéo image, khởi động container, chạy probe; Service điều hướng lưu lượng.
+        - kubectl logs --previous
+    n:
+      en: Pending pods point to step 5, CrashLoopBackOff to step 6.
+      vi: Pod Pending trỏ tới bước 5, CrashLoopBackOff trỏ tới bước 6.

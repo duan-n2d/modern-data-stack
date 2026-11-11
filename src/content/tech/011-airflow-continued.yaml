@@ -1,0 +1,104 @@
+tech: {id: airflow, name: Airflow, color: "#16A34A"}
+slides:
+  - id: airflow-overview-dag-scheduler-and-worker
+    k: components
+    mod: [overview]
+    t: {en: "Airflow overview: DAG, scheduler and worker", vi: "Airflow tong quan: DAG, scheduler va worker"}
+    lead: {en: "Airflow coordinates bounded tasks with dependencies; it is not a streaming engine or a general-purpose queue.", vi: "Airflow dieu phoi task co gioi han va dependency; no khong phai streaming engine hay queue tong quat."}
+    comps:
+      - - DAG
+        - {en: "Versioned workflow definition and schedule.", vi: "Dinh nghia workflow va lich chay co version."}
+      - - Scheduler
+        - {en: "Creates task instances when dependencies and timetable allow.", vi: "Tao task instance khi dependency va timetable cho phep."}
+      - - Executor
+        - {en: "Chooses local, Celery or Kubernetes execution behavior.", vi: "Chon cach chay local, Celery hoac Kubernetes."}
+      - - Worker
+        - {en: "Runs the task and reports state through the metadata database.", vi: "Chay task va bao cao state qua metadata database."}
+    flow:
+      - {en: "Parse DAG files", vi: "Parse file DAG"}
+      - {en: "Schedule runnable task instances", vi: "Schedule task instance co the chay"}
+      - {en: "Execute, retry and publish logs", vi: "Chay, retry va ghi log"}
+    ops:
+      - {en: "Keep tasks idempotent and make external side effects explicit.", vi: "Giua task idempotent va lam ro side effect ben ngoai."}
+    n: {en: "Use Airflow for orchestration boundaries: wait for data, call a bounded job, validate its result and record ownership.", vi: "Dung Airflow cho ranh gioi dieu phoi: cho du lieu, goi job co gioi han, validate ket qua va ghi owner."}
+  - id: airflow-configuration-retries-timeouts-and-pools
+    k: code
+    mod: [config]
+    t: {en: "Airflow configuration: retries, timeouts and pools", vi: "Cau hinh Airflow: retry, timeout va pool"}
+    lead: {en: "Defaults are operational policy: make retry cost, concurrency and timeout visible in code.", vi: "Gia tri mac dinh la policy van hanh: lam ro chi phi retry, concurrency va timeout trong code."}
+    blocks:
+      - lang: python
+        title: dag_defaults.py
+        code: |-
+          from datetime import timedelta
+          from airflow import DAG
+          from airflow.operators.python import PythonOperator
+          from pendulum import datetime
+
+          with DAG(
+              dag_id="daily_orders",
+              start_date=datetime(2026, 1, 1, tz="UTC"),
+              schedule="0 2 * * *",
+              catchup=False,
+              max_active_runs=1,
+              default_args={"retries": 2, "retry_delay": timedelta(minutes=10)},
+              dagrun_timeout=timedelta(hours=2),
+          ) as dag:
+              load = PythonOperator(task_id="load", python_callable=load_orders,
+                                    execution_timeout=timedelta(minutes=45), pool="warehouse")
+    points:
+      - {h: {en: Retry only safe work, vi: Chi retry cong viec an toan}, p: {en: "A retry must not duplicate a charge or publish a second event. Put non-idempotent effects behind a deduplication key.", vi: "Retry khong duoc lap charge hay publish event lan hai. Dat side effect khong idempotent sau dedup key."}}
+    n: {en: "Tune pools from downstream capacity and monitor queued time separately from task runtime.", vi: "Dieu chinh pool theo capacity downstream va theo doi thoi gian queued tach khoi runtime task."}
+  - id: airflow-implementation-backfill-and-data-intervals
+    k: code
+    mod: [implementation]
+    t: {en: "Airflow implementation: data intervals and backfills", vi: "Trien khai Airflow: data interval va backfill"}
+    lead: {en: "A scheduled run describes an interval of data, not merely the time at which a process started.", vi: "Mot run theo lich mo ta mot khoang du lieu, khong chi thoi diem process bat dau."}
+    blocks:
+      - lang: python
+        title: interval_aware_task.py
+        code: |-
+          from airflow.decorators import dag, task
+          from pendulum import datetime
+
+          @dag(start_date=datetime(2026, 1, 1, tz="UTC"), schedule="@daily", catchup=False)
+          def orders_daily():
+              @task
+              def transform(data_interval_start=None, data_interval_end=None):
+                  return run_incremental(
+                      start=data_interval_start.isoformat(),
+                      end=data_interval_end.isoformat(),
+                  )
+              transform()
+          orders_daily()
+    points:
+      - {h: {en: Make reruns deterministic, vi: Lam rerun deterministic}, p: {en: "Use the interval in extraction predicates and write to a deterministic partition or merge key.", vi: "Dung interval trong predicate extract va ghi vao partition hoac merge key deterministic."}}
+    n: {en: "Test one missed interval, an overlapping rerun and a late upstream completion before enabling catchup.", vi: "Test mot interval bi bo lo, rerun chong lan va upstream den muon truoc khi bat catchup."}
+  - id: airflow-operations-scheduler-health-and-alerts
+    k: table
+    mod: [operations]
+    t: {en: "Airflow operations: scheduler health and alerts", vi: "Van hanh Airflow: suc khoe scheduler va alert"}
+    lead: {en: "An Airflow incident can be queueing, scheduling, execution or data freshness; alert on the layer that failed.", vi: "Su co Airflow co the nam o queue, scheduling, execution hoac freshness; alert dung lop bi loi."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Meaning, vi: Y nghia}, {en: Action, vi: Hanh dong}]
+    rows:
+      - - {en: Tasks queued but not running, vi: Task queued nhung chua chay}
+        - {en: "Executor, pool, worker capacity or concurrency limit is the bottleneck.", vi: "Executor, pool, capacity worker hoac gioi han concurrency la nut that."}
+        - {en: "Compare pool slots, worker heartbeats and queue age before scaling.", vi: "So sanh pool slot, heartbeat worker va tuoi queue truoc khi scale."}
+      - - {en: Scheduler heartbeat gap, vi: Khoang heartbeat scheduler}
+        - {en: "Scheduler is overloaded or metadata database latency is high.", vi: "Scheduler qua tai hoac metadata database co latency cao."}
+        - {en: "Inspect parsing duration, DB locks and scheduler logs.", vi: "Kiem tra thoi gian parse, lock DB va log scheduler."}
+    n: {en: "Page on missed data freshness and scheduler heartbeat separately; users care about output freshness, operators need the cause.", vi: "Alert freshness bi miss va heartbeat scheduler tach nhau; nguoi dung can output moi, operator can nguyen nhan."}
+  - id: airflow-performance-dag-parsing-and-task-granularity
+    k: table
+    mod: [performance]
+    t: {en: "Airflow performance: parsing and task granularity", vi: "Hieu nang Airflow: parsing va do hat task"}
+    lead: {en: "Airflow performance is often control-plane performance: too many DAG parses and tiny tasks can dominate useful work.", vi: "Hieu nang Airflow thuong la hieu nang control plane: qua nhieu parse DAG va task nho co the lan at cong viec huu ich."}
+    head: [{en: Problem, vi: Van de}, {en: Why it hurts, vi: Vi sao ton}, {en: Remedy, vi: Cach xu ly}]
+    rows:
+      - - {en: Heavy top-level DAG code, vi: Code nang o top-level DAG}
+        - {en: "Scheduler executes imports repeatedly.", vi: "Scheduler lap lai viec import nhieu lan."}
+        - {en: "Keep DAG generation cheap and move work into tasks.", vi: "Giua viec tao DAG nhe va dua work vao task."}
+      - - {en: One task per tiny record, vi: Mot task cho moi record nho}
+        - {en: "Metadata overhead exceeds useful processing.", vi: "Overhead metadata lon hon xu ly huu ich."}
+        - {en: "Batch records and use a bounded worker job.", vi: "Batch record va dung worker job co gioi han."}
+    n: {en: "Measure scheduler loop duration, task queue age and task runtime distributions; one average hides the bottleneck.", vi: "Do duration scheduler loop, tuoi queue va phan bo runtime task; mot gia tri trung binh se che nut that."}

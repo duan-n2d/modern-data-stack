@@ -1,0 +1,812 @@
+layer: 15
+slides:
+  - id: ai-engineering-from-prompts-to-agents
+    k: cards
+    t:
+      en: "AI engineering: from prompts to agents"
+      vi: "Kỹ thuật AI: từ prompt đến agent"
+    lead:
+      en: "Modern data stacks now ship LLM features. Seniors need the architecture and the vocabulary: how a model is called, how it gets context (RAG), how it uses tools (MCP), and how a loop inside a harness keeps it useful and safe."
+      vi: "Data stack hiện đại đều có tính năng LLM. Senior cần hiểu kiến trúc và thuật ngữ: model được gọi thế nào, lấy ngữ cảnh ra sao (RAG), dùng công cụ thế nào (MCP), và vòng lặp trong harness giữ nó hữu ích và an toàn ra sao."
+    cols: 3
+    cards:
+      - h: LLM
+        tag: must
+        p:
+          en: "A stateless function: tokens in, tokens out. It only knows what is in its context window."
+          vi: "Hàm không trạng thái: token vào, token ra. Nó chỉ biết những gì nằm trong context window."
+      - h: RAG
+        tag: must
+        p:
+          en: "Retrieval-augmented generation: fetch relevant documents or rows and put them in the prompt so answers are grounded."
+          vi: "Retrieval-augmented generation: lấy tài liệu hoặc dòng dữ liệu liên quan đưa vào prompt để câu trả lời có căn cứ."
+      - h:
+          en: Tools and MCP
+          vi: Tool và MCP
+        tag: must
+        p:
+          en: Functions the model can ask you to run. The Model Context Protocol standardizes how tools and data are exposed.
+          vi: Các hàm model có thể yêu cầu bạn chạy. Model Context Protocol chuẩn hóa cách mở tool và dữ liệu ra.
+      - h:
+          en: Agent loop
+          vi: Vòng lặp agent
+        tag: must
+        p:
+          en: Think, act, observe, repeat until the goal is met or a limit is hit.
+          vi: Nghĩ, hành động, quan sát, lặp lại đến khi đạt mục tiêu hoặc chạm giới hạn.
+      - h: Harness
+        tag: senior
+        p:
+          en: "The runtime around the model: prompts, tools, memory, permissions, limits, tracing. Most agent quality lives here."
+          vi: "Runtime bao quanh model: prompt, tool, bộ nhớ, quyền, giới hạn, tracing. Phần lớn chất lượng agent nằm ở đây."
+      - h: Graph
+        tag: senior
+        p:
+          en: Knowledge graphs store relations (GraphRAG). Workflow graphs define agent control flow as nodes and edges.
+          vi: Knowledge graph lưu quan hệ (GraphRAG). Workflow graph định nghĩa luồng điều khiển của agent bằng node và edge.
+    n:
+      en: "Introduce the six pieces as a stack: the model at the center, RAG and tools feeding it, the loop driving it, the harness containing it, and graphs as two different structures (data and control)."
+      vi: "Giới thiệu sáu mảnh như một ngăn xếp: model ở giữa, RAG và tool cấp cho nó, vòng lặp điều khiển nó, harness chứa nó, và graph là hai cấu trúc khác nhau (dữ liệu và điều khiển)."
+  - id: tool-calling-the-request-and-response-format
+    k: code
+    t:
+      en: "Tool calling: the request and response format"
+      vi: "Tool calling: định dạng request và response"
+    lead:
+      en: The model never runs your code. It returns a structured request; you execute it and send the result back as the next message.
+      vi: Model không bao giờ chạy code của bạn. Nó trả về một yêu cầu có cấu trúc; bạn thực thi rồi gửi kết quả lại trong tin nhắn kế tiếp.
+    blocks:
+      - lang: python
+        title: request.py (Anthropic Python SDK)
+        code: |-
+          import anthropic
+
+          client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY
+
+          tools = [{
+              "name": "run_sql",
+              "description": "Run a read-only SQL query on the analytics warehouse and return up to 100 rows.",
+              "input_schema": {
+                  "type": "object",
+                  "properties": {"sql": {"type": "string", "description": "A single SELECT statement"}},
+                  "required": ["sql"],
+              },
+          }]
+
+          resp = client.messages.create(
+              model="claude-sonnet-5-5",
+              max_tokens=1024,
+              tools=tools,
+              messages=[{"role": "user", "content": "How many orders shipped yesterday?"}],
+          )
+          print(resp.stop_reason)  # "tool_use" when the model wants a tool
+      - lang: json
+        title: resp.content (what the model returns)
+        code: |-
+          [
+            {"type": "text", "text": "I will query the orders table."},
+            {
+              "type": "tool_use",
+              "id": "toolu_01A",
+              "name": "run_sql",
+              "input": {"sql": "select count(*) from marts.fct_orders where order_status = 'shipped' and ordered_at::date = current_date - 1"}
+            }
+          ]
+      - lang: json
+        title: next user message (what you send back)
+        code: |-
+          {
+            "role": "user",
+            "content": [
+              {"type": "tool_result", "tool_use_id": "toolu_01A", "content": "count\n1284"}
+            ]
+          }
+    points:
+      - h:
+          en: Messages are the whole state
+          vi: Messages là toàn bộ trạng thái
+        p:
+          en: The API is stateless. You resend the full conversation each call, including earlier tool results.
+          vi: API không có trạng thái. Mỗi lần gọi bạn gửi lại toàn bộ hội thoại, gồm cả kết quả tool trước đó.
+      - h:
+          en: Schema is the contract
+          vi: Schema là hợp đồng
+        p:
+          en: The JSON Schema in `input_schema` and the description decide how well the model uses the tool.
+          vi: JSON Schema trong `input_schema` và phần mô tả quyết định model dùng tool tốt đến đâu.
+      - h:
+          en: You own execution
+          vi: Bạn sở hữu việc thực thi
+        tag: senior
+        p:
+          en: Validate arguments, enforce read-only access and cap output size before running anything.
+          vi: Kiểm tra tham số, ép quyền chỉ đọc và giới hạn kích thước output trước khi chạy bất cứ thứ gì.
+      - h:
+          en: Tokens are the unit of cost
+          vi: Token là đơn vị chi phí
+        p:
+          en: Input, output and tool results all count. Long tool outputs are the usual budget leak.
+          vi: Input, output và kết quả tool đều tính phí. Output tool dài là chỗ rò rỉ ngân sách thường gặp.
+    n:
+      en: "Show the three artifacts in order: your request with a tool definition, the model’s tool_use block, and your tool_result. Model names change often, so check the current model list before copying the string."
+      vi: "Cho xem ba thành phần theo thứ tự: request có định nghĩa tool, block tool_use của model, và tool_result của bạn. Tên model đổi thường xuyên, hãy kiểm tra danh sách model hiện hành trước khi chép chuỗi này."
+  - id: the-agent-loop-observe-decide-act
+    k: svg
+    t:
+      en: "The agent loop: observe, decide, act"
+      vi: "Vòng lặp agent: quan sát, quyết định, hành động"
+    lead:
+      en: An agent is a loop around a model. Each pass either calls a tool and feeds the result back, or ends with an answer.
+      vi: Agent là một vòng lặp quanh model. Mỗi lượt hoặc gọi tool và đưa kết quả quay lại, hoặc kết thúc bằng câu trả lời.
+    svg: loopSVG
+    cap:
+      en: The loop controller, not the model, owns the stopping rules. Never rely on the model to stop itself.
+      vi: Bộ điều khiển vòng lặp, không phải model, nắm các quy tắc dừng. Đừng trông chờ model tự dừng.
+    n:
+      en: "Trace one example: user asks a data question, model requests run_sql, the tool returns rows, the model reads them and answers. Then stress the bottom bar: step and budget limits are what stop a runaway loop."
+      vi: "Theo dõi một ví dụ: người dùng hỏi về dữ liệu, model yêu cầu run_sql, tool trả về dòng dữ liệu, model đọc và trả lời. Sau đó nhấn mạnh thanh dưới: giới hạn bước và ngân sách là thứ chặn vòng lặp chạy mãi."
+  - id: a-minimal-agent-loop-with-limits
+    k: code
+    t:
+      en: A minimal agent loop with limits
+      vi: Vòng lặp agent tối giản có giới hạn
+    lead:
+      en: "Under 30 lines: call the model, run requested tools, append results, stop on an answer or a limit."
+      vi: "Dưới 30 dòng: gọi model, chạy tool được yêu cầu, thêm kết quả, dừng khi có câu trả lời hoặc chạm giới hạn."
+    blocks:
+      - lang: python
+        title: agent.py
+        code: |-
+          MODEL = "claude-sonnet-5-5"
+
+
+          def run_agent(question: str, max_steps: int = 8) -> str:
+              messages = [{"role": "user", "content": question}]
+              for step in range(max_steps):
+                  resp = client.messages.create(
+                      model=MODEL, max_tokens=1024, tools=tools, messages=messages
+                  )
+                  messages.append({"role": "assistant", "content": resp.content})
+
+                  if resp.stop_reason != "tool_use":
+                      return "".join(b.text for b in resp.content if b.type == "text")
+
+                  results = []
+                  for block in resp.content:
+                      if block.type != "tool_use":
+                          continue
+                      try:
+                          output, is_error = TOOL_REGISTRY[block.name](**block.input), False
+                      except Exception as exc:  # report failures back to the model
+                          output, is_error = f"Tool error: {exc}", True
+                      results.append({
+                          "type": "tool_result",
+                          "tool_use_id": block.id,
+                          "content": str(output)[:4000],  # cap what re-enters the context
+                          "is_error": is_error,
+                      })
+                  messages.append({"role": "user", "content": results})
+
+              return "Stopped: step limit reached"
+    points:
+      - h:
+          en: Hard step limit
+          vi: Giới hạn bước cứng
+        p:
+          en: "`max_steps` turns an infinite loop into a bounded cost."
+          vi: "`max_steps` biến vòng lặp vô hạn thành chi phí có giới hạn."
+      - h:
+          en: Errors go back to the model
+          vi: Lỗi quay lại cho model
+        p:
+          en: A failed tool is information. Return it with `is_error` so the model can adapt.
+          vi: Tool lỗi cũng là thông tin. Trả về với `is_error` để model thích nghi.
+      - h:
+          en: Cap output
+          vi: Giới hạn output
+        tag: senior
+        p:
+          en: Truncate tool results so one big query cannot fill the context window.
+          vi: Cắt ngắn kết quả tool để một query lớn không làm đầy context window.
+      - h:
+          en: Add before production
+          vi: Thêm trước khi lên production
+        tag: senior
+        p:
+          en: Token budget, timeout, parallel tool calls, logging, retries on API errors and an allowlist of tools.
+          vi: Ngân sách token, timeout, gọi tool song song, logging, retry khi API lỗi và allowlist tool.
+    n:
+      en: "`client`, `tools` and `TOOL_REGISTRY` come from the previous slide and your own code. This is intentionally the smallest loop that is honest about errors and limits."
+      vi: "`client`, `tools` và `TOOL_REGISTRY` lấy từ slide trước và code của bạn. Đây cố ý là vòng lặp nhỏ nhất vẫn xử lý trung thực lỗi và giới hạn."
+  - id: the-harness-everything-around-the-model
+    k: stack
+    t:
+      en: "The harness: everything around the model"
+      vi: "Harness: mọi thứ bao quanh model"
+    lead:
+      en: "Two teams with the same model get very different results. The difference is the harness: prompts, tools, context handling, permissions, limits and observability."
+      vi: "Hai đội dùng cùng một model cho kết quả rất khác nhau. Khác biệt là harness: prompt, tool, xử lý ngữ cảnh, quyền, giới hạn và khả năng quan sát."
+    parts:
+      - svg: harnessSVG
+      - cols: 2
+        cards:
+          - h:
+              en: Context management
+              vi: Quản lý ngữ cảnh
+            p:
+              en: "Decide what enters the window: retrieved chunks, summaries of old turns, memory notes. Compaction keeps long tasks inside the limit."
+              vi: "Quyết định cái gì vào cửa sổ: chunk truy xuất, tóm tắt các lượt cũ, ghi chú bộ nhớ. Nén ngữ cảnh giữ tác vụ dài trong giới hạn."
+          - h:
+              en: Tool design
+              vi: Thiết kế tool
+            p:
+              en: Few, well-named tools with clear schemas beat many overlapping ones. Tool errors should teach the model what to do next.
+              vi: Ít tool, tên rõ, schema rõ tốt hơn nhiều tool chồng chéo. Lỗi của tool nên chỉ cho model biết bước tiếp theo.
+          - h:
+              en: Safety layer
+              vi: Lớp an toàn
+            p:
+              en: Least-privilege credentials, sandboxed execution, approvals for writes, and treating retrieved text as untrusted input.
+              vi: Credential đặc quyền tối thiểu, thực thi trong sandbox, phê duyệt cho thao tác ghi, và coi văn bản truy xuất là đầu vào không đáng tin.
+          - h:
+              en: Observability and evals
+              vi: Observability và đánh giá
+            p:
+              en: Trace every step (prompt, tool call, result, tokens, latency). Replay failures and run regression evals on every change.
+              vi: Trace mọi bước (prompt, gọi tool, kết quả, token, độ trễ). Phát lại lỗi và chạy eval hồi quy cho mỗi thay đổi.
+    n:
+      en: "Define harness plainly: the runtime that wraps the model and runs the loop. Coding agents such as Claude Code are examples of a harness: the model plus tools, permissions, context handling and a loop. Model upgrades help, but harness changes are often the bigger lever."
+      vi: "Định nghĩa harness đơn giản: runtime bao quanh model và chạy vòng lặp. Các coding agent như Claude Code là ví dụ về harness: model cộng tool, quyền, xử lý ngữ cảnh và một vòng lặp. Nâng cấp model có ích, nhưng thay đổi harness thường là đãn bẩy lớn hơn."
+  - id: mcp-a-standard-plug-for-tools-and-data
+    k: stack
+    t:
+      en: "MCP: a standard plug for tools and data"
+      vi: "MCP: ổ cắm chuẩn cho tool và dữ liệu"
+    lead:
+      en: The Model Context Protocol lets any host application talk to any server that exposes tools, resources and prompts. Write the integration once, use it from many clients.
+      vi: Model Context Protocol cho phép mọi ứng dụng host nói chuyện với mọi server cung cấp tool, resource và prompt. Viết tích hợp một lần, dùng từ nhiều client.
+    parts:
+      - svg: mcpSVG
+      - cols: 2
+        cards:
+          - h:
+              en: Three primitives
+              vi: Ba primitive
+            p:
+              en: Tools (actions the model can request), resources (data it can read), prompts (reusable templates).
+              vi: Tool (hành động model có thể yêu cầu), resource (dữ liệu nó đọc được), prompt (mẫu tái sử dụng).
+          - h:
+              en: Lifecycle
+              vi: Vòng đời
+            p:
+              en: Connect, `initialize` and negotiate capabilities, `tools/list`, then `tools/call` as the model needs.
+              vi: Kết nối, `initialize` và thương lượng capability, `tools/list`, rồi `tools/call` khi model cần.
+          - h:
+              en: Transports
+              vi: Transport
+            p:
+              en: stdio for local servers, Streamable HTTP for remote ones, both carrying JSON-RPC 2.0.
+              vi: stdio cho server cục bộ, Streamable HTTP cho server từ xa, cả hai mang JSON-RPC 2.0.
+          - h:
+              en: Security is yours
+              vi: Bảo mật là việc của bạn
+            p:
+              en: Read-only roles, authentication on remote servers, allowlists, and no blind trust in tool descriptions or tool output.
+              vi: Role chỉ đọc, xác thực cho server từ xa, allowlist, và không tin mù quáng mô tả hay output của tool.
+      - split:
+          - - code:
+                lang: python
+                title: server.py (Python MCP SDK)
+                code: |-
+                  from mcp.server.fastmcp import FastMCP
+
+                  mcp = FastMCP("warehouse")
+
+
+                  @mcp.tool()
+                  def run_sql(sql: str) -> str:
+                      """Run a read-only SQL query and return up to 100 rows as CSV."""
+                      if not sql.lstrip().lower().startswith("select"):
+                          raise ValueError("Only SELECT statements are allowed")
+                      return execute_readonly(sql, limit=100)  # your warehouse client
+
+
+                  @mcp.resource("schema://{table}")
+                  def table_schema(table: str) -> str:
+                      """Column names and types for a table."""
+                      return describe_table(table)
+
+
+                  if __name__ == "__main__":
+                      mcp.run()  # stdio transport by default
+          - - code:
+                lang: json
+                title: JSON-RPC messages on the wire
+                code: |-
+                  {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}
+
+                  {"jsonrpc": "2.0", "id": 2, "method": "tools/call",
+                   "params": {"name": "run_sql", "arguments": {"sql": "select 1 as ok"}}}
+
+                  {"jsonrpc": "2.0", "id": 2,
+                   "result": {"content": [{"type": "text", "text": "ok\n1"}], "isError": false}}
+            - code:
+                lang: json
+                title: client config (how a host launches the server)
+                code: |-
+                  {
+                    "mcpServers": {
+                      "warehouse": {
+                        "command": "python",
+                        "args": ["server.py"]
+                      }
+                    }
+                  }
+    n:
+      en: "MCP is to AI tools what a USB port is to peripherals: one connector, many devices. For data teams, typical servers expose the warehouse, dbt, the catalog and the orchestrator. Check the current specification for transport and authorization details, which have evolved."
+      vi: "MCP với công cụ AI giống cổng USB với thiết bị ngoại vi: một đầu nối, nhiều thiết bị. Với đội dữ liệu, server điển hình mở warehouse, dbt, catalog và orchestrator. Hãy kiểm tra đặc tả hiện hành về transport và ủy quyền, vì phần này đã thay đổi."
+  - id: rag-retrieval-augmented-generation
+    k: svg
+    t: "RAG: retrieval-augmented generation"
+    lead:
+      en: RAG replaces “the model remembers” with “the system looks it up”. Quality depends far more on retrieval than on the model.
+      vi: RAG thay “model nhớ” bằng “hệ thống tra cứu”. Chất lượng phụ thuộc vào truy xuất nhiều hơn vào model.
+    svg: ragSVG
+    cap:
+      en: "Most RAG failures are retrieval failures: the right chunk was never fetched. Measure retrieval separately from generation."
+      vi: "Phần lớn lỗi RAG là lỗi truy xuất: chunk đúng chưa bao giờ được lấy. Hãy đo truy xuất tách riêng khỏi sinh câu trả lời."
+    n:
+      en: "Two lanes: indexing happens ahead of time, querying happens per question. The dashed arrow shows the index being searched. Then the evaluation bar: if you cannot measure recall@k you cannot improve it."
+      vi: "Hai làn: lập chỉ mục diễn ra trước, truy vấn diễn ra cho mỗi câu hỏi. Mũi tên đứt cho thấy chỉ mục được tìm kiếm. Rồi thanh đánh giá: không đo được recall@k thì không cải thiện được."
+  - id: rag-variables-and-a-minimal-implementation
+    k: stack
+    t:
+      en: RAG variables and a minimal implementation
+      vi: Các biến của RAG và bản cài đặt tối giản
+    lead:
+      en: Every stage has parameters that change quality and cost. Tune them against a test set, not by feel.
+      vi: Mỗi giai đoạn có tham số làm đổi chất lượng và chi phí. Hãy tinh chỉnh dựa trên bộ test, không theo cảm tính.
+    parts:
+      - table:
+          head:
+            - en: Variable
+              vi: Biến
+            - en: Meaning
+              vi: Ý nghĩa
+            - en: Effect
+              vi: Tác động
+          rows:
+            - - en: Chunk size
+                vi: Kích thước chunk
+              - en: Characters or tokens per chunk
+                vi: Số ký tự hoặc token mỗi chunk
+              - en: Small = precise but loses context; large = noisy and costly
+                vi: Nhỏ = chính xác nhưng mất ngữ cảnh; lớn = nhiễu và tốn kém
+            - - Overlap
+              - en: Shared text between neighbours
+                vi: Phần văn bản chung giữa chunk liền kề
+              - en: Prevents cutting an answer in half; adds storage
+                vi: Tránh cắt ??i câu trả lời; tốn thêm lưu trữ
+            - - en: Embedding model and dimension
+                vi: Embedding model và số chiều
+              - en: Vector length, for example 768 or 1536
+                vi: Độ dài vector, ví dụ 768 hoặc 1536
+              - en: Quality, language coverage, storage and speed
+                vi: Chất lượng, phủ ngôn ngữ, lưu trữ và tốc độ
+            - - en: Similarity metric
+                vi: Độ đo tương đồng
+              - en: Cosine, dot product or L2
+                vi: Cosine, dot product hoặc L2
+              - en: Must match how the embedding model was trained
+                vi: Phải khớp cách embedding model được huấn luyện
+            - - k (top-k)
+              - en: Chunks returned
+                vi: Số chunk trả về
+              - en: Higher k raises recall but dilutes the prompt
+                vi: k cao tăng recall nhưng làm loãng prompt
+            - - en: Hybrid weight
+                vi: Trọng số hybrid
+              - en: Mix of keyword (BM25) and vector scores
+                vi: Trộn điểm từ khóa (BM25) và vector
+              - en: Keywords catch exact IDs and names that vectors miss
+                vi: Từ khóa bắt ID và tên chính xác mà vector bỏ sót
+            - - Reranker
+              - en: Second-stage model that rescores candidates
+                vi: Model giai đoạn hai chấm lại ứng viên
+              - en: Better precision at extra latency
+                vi: Độ chính xác tốt hơn, thêm độ trễ
+      - code:
+          lang: python
+          title: rag_min.py
+          code: |-
+            import numpy as np
+
+
+            def chunk(text: str, size: int = 800, overlap: int = 100) -> list[str]:
+                step = size - overlap
+                return [text[i:i + size] for i in range(0, max(len(text) - overlap, 1), step)]
+
+
+            def cosine_top_k(query_vec: np.ndarray, doc_vecs: np.ndarray, k: int = 5) -> np.ndarray:
+                q = query_vec / np.linalg.norm(query_vec)
+                d = doc_vecs / np.linalg.norm(doc_vecs, axis=1, keepdims=True)
+                scores = d @ q                      # (n_chunks,)
+                return np.argsort(-scores)[:k]      # indices of the best chunks
+
+
+            # doc_vecs: (n_chunks, d_embed) from your embedding model; query_vec: (d_embed,)
+            top = cosine_top_k(query_vec, doc_vecs, k=5)
+            context = "\n\n".join(f"[{i}] {chunks[i]}" for i in top)
+            prompt = (
+                "Answer using only the context below and cite chunk numbers like [3].\n\n"
+                f"{context}\n\nQuestion: {question}"
+            )
+    n:
+      en: "Spend time on chunking and hybrid search before touching the model. For structured data, retrieve schemas and metric definitions rather than raw rows: that is RAG over your semantic layer."
+      vi: "Hãy dành thời gian cho chunking và tìm kiếm hybrid trước khi đụng tới model. Với dữ liệu có cấu trúc, truy xuất schema và định nghĩa metric thay vì dòng thô: đã là RAG trên semantic layer của bạn."
+  - id: graphs-knowledge-graphs-and-graphrag
+    k: stack
+    t:
+      en: "Graphs: knowledge graphs and GraphRAG"
+      vi: "Graph: knowledge graph và GraphRAG"
+    lead:
+      en: "Vector search finds similar text. A graph answers questions about relationships: what feeds this table, who owns it, what breaks if it changes."
+      vi: "Vector search tìm văn bản tương tự. Graph trả lời câu hỏi về quan hệ: cái gì nuôi bảng này, ai sở hữu, thay đổi thì cái gì hỏng."
+    parts:
+      - svg: kgSVG
+      - cols: 2
+        cards:
+          - h:
+              en: Build
+              vi: Xây dựng
+            p:
+              en: Extract entities and relations from documents with an LLM or take them from metadata (lineage, ownership), then store nodes and edges.
+              vi: Trích xuất thực thể và quan hệ từ tài liệu bằng LLM hoặc lấy từ metadata (lineage, ownership), rồi lưu node và edge.
+          - h:
+              en: Local query
+              vi: Truy vấn cục bộ
+            p:
+              en: Find entities in the question, walk their neighbourhood, and pass those facts and linked text to the model.
+              vi: Tìm thực thể trong câu hỏi, duyệt vùng lân cận của chúng, rồi đưa các sự kiện và văn bản liên kết cho model.
+          - h:
+              en: Global query
+              vi: Truy vấn toàn cục
+            p:
+              en: Cluster the graph into communities, summarize each, and answer broad questions from the summaries.
+              vi: Gom graph thành các community, tóm tắt từng cái, rồi trả lời câu hỏi rộng từ các bản tóm tắt.
+          - h:
+              en: When it wins
+              vi: Khi nào graph thắng
+            p:
+              en: Multi-hop and aggregation questions. For plain lookups, vector or keyword search is cheaper.
+              vi: Câu hỏi nhiều bước và tổng hợp. Với tra cứu đơn giản, vector hoặc từ khóa rẻ hơn.
+      - code:
+          lang: cypher
+          title: lineage.cypher (Neo4j / Cypher)
+          code: |-
+            // Everything downstream of raw.orders within 4 hops, with owners
+            MATCH (src:Table {name: 'raw.orders'})-[:FEEDS*1..4]->(d)
+            OPTIONAL MATCH (d)-[:OWNED_BY]->(t:Team)
+            RETURN d.name AS asset, labels(d) AS kind, t.name AS owner
+            ORDER BY asset
+    n:
+      en: "Data lineage is already a graph, which makes this a natural fit for analytics engineers: a lineage graph plus an LLM answers impact-analysis questions that vector search cannot. Extraction by LLM is costly and imperfect, so prefer structured metadata when you have it."
+      vi: "Data lineage vốn đã là graph, nên rất hợp với analytics engineer: graph lineage cộng LLM trả lời được câu hỏi phân tích tác động mà vector search không làm được. Trích xuất bằng LLM tốn kém và không hoàn hảo, nên ưu tiên metadata có cấu trúc nếu có."
+  - id: graphs-for-control-flow-agent-workflows
+    k: code
+    t:
+      en: "Graphs for control flow: agent workflows"
+      vi: "Graph cho luồng điều khiển: workflow agent"
+    lead:
+      en: "A workflow graph makes the agent’s steps explicit: nodes do work, edges decide what runs next, and a shared state travels along. This is the structured alternative to a free-form loop."
+      vi: "Workflow graph làm rõ các bước của agent: node làm việc, edge quyết định bước tiếp theo, và một state chung đi cùng. Đây là lựa chọn có cấu trúc thay cho vòng lặp tự do."
+    blocks:
+      - lang: python
+        title: sql_agent_graph.py (LangGraph style)
+        code: |-
+          from typing import TypedDict
+
+          from langgraph.graph import END, START, StateGraph
+
+
+          class State(TypedDict):
+              question: str
+              sql: str
+              result: str
+              error: str
+              attempts: int
+
+
+          def write_sql(state: State) -> dict:
+              sql = llm_write_sql(state["question"], state.get("error", ""))  # your LLM call
+              return {"sql": sql, "attempts": state["attempts"] + 1}
+
+
+          def run_sql(state: State) -> dict:
+              try:
+                  return {"result": execute_readonly(state["sql"]), "error": ""}
+              except Exception as exc:
+                  return {"error": str(exc)}
+
+
+          def route(state: State) -> str:
+              if not state["error"]:
+                  return "done"
+              return "retry" if state["attempts"] < 3 else "give_up"
+
+
+          graph = StateGraph(State)
+          graph.add_node("write_sql", write_sql)
+          graph.add_node("run_sql", run_sql)
+          graph.add_edge(START, "write_sql")
+          graph.add_edge("write_sql", "run_sql")
+          graph.add_conditional_edges("run_sql", route, {"done": END, "retry": "write_sql", "give_up": END})
+          app = graph.compile()
+
+          final = app.invoke({"question": "Revenue by month in 2026", "attempts": 0, "error": ""})
+    points:
+      - h:
+          en: Nodes, edges, state
+          vi: Node, edge, state
+        p:
+          en: Each node reads and updates the shared state. Conditional edges are the only place control flow branches.
+          vi: Mỗi node đọc và cập nhật state chung. Conditional edge là nơi duy nhất luồng điều khiển rẽ nhánh.
+      - h:
+          en: Predictable and testable
+          vi: Dự đoán được và test được
+        p:
+          en: You can unit-test each node and assert which path a failure takes.
+          vi: Bạn có thể unit test từng node và khẳng định lỗi đi theo nhánh nào.
+      - h:
+          en: Checkpoints
+          vi: Checkpoint
+        tag: senior
+        p:
+          en: Persisting state per step allows resume after failure and human approval pauses.
+          vi: Lưu state mỗi bước cho phép tiếp tục sau lỗi và tạm dừng chờ con người duyệt.
+      - h:
+          en: Loop or graph?
+          vi: Vòng lặp hay graph?
+        tag: senior
+        p:
+          en: Open-ended tasks suit a free loop. Repeatable business processes suit a graph with explicit gates.
+          vi: Tác vụ mở hợp với vòng lặp tự do. Quy trình nghiệp vụ lặp lại hợp với graph có cổng rõ ràng.
+    n:
+      en: "Mention that the library API is an example and may change between versions. The design point stands in any framework: make the allowed paths explicit, cap retries, and keep state inspectable."
+      vi: "Lưu ý API thư viện chỉ là ví dụ và có thể đổi giữa các phiên bản. Ý thiết kế vẫn đúng ở mọi framework: làm rõ các nhánh được phép, giới hạn retry và giữ state kiểm tra được."
+  - id: evaluation-safety-and-cost
+    k: cards
+    t:
+      en: Evaluation, safety and cost
+      vi: Đánh giá, an toàn và chi phí
+    lead:
+      en: Demos hide the failure cases. Production needs measurement, containment and a budget.
+      vi: Demo che giấu các ca lỗi. Production cần đo lường, kiềm chế rủi ro và ngân sách.
+    cols: 3
+    cards:
+      - h:
+          en: Golden test set
+          vi: Bộ test vàng
+        tag: must
+        p:
+          en: Real questions with known answers (or known SQL results). Run it on every prompt, model or tool change.
+          vi: Câu hỏi thật với đáp án đã biết (hoặc kết quả SQL đã biết). Chạy mỗi khi đổi prompt, model hoặc tool.
+      - h:
+          en: LLM as judge, with care
+          vi: LLM làm giám khảo, thận trọng
+        tag: senior
+        p:
+          en: Useful for scale, but calibrate against human labels and watch for bias toward verbose answers.
+          vi: Hữu ích khi cần quy mô, nhưng phải hiệu chuẩn với nhãn của con người và coi chừng thiên vị câu dài dòng.
+      - h: Tracing
+        tag: must
+        p:
+          en: Log prompts, tool calls, results, tokens and latency per run so any bad answer can be replayed.
+          vi: Log prompt, lệnh gọi tool, kết quả, token và độ trễ mỗi lần chạy để phát lại bất kỳ câu trả lời sai nào.
+      - h: Prompt injection
+        tag: must
+        p:
+          en: Retrieved documents and tool outputs can contain instructions. Treat them as data, restrict tools, and require approval for writes.
+          vi: Tài liệu truy xuất và output tool có thể chứa chỉ dẫn. Coi chúng là dữ liệu, giới hạn tool và yêu cầu duyệt cho thao tác ghi.
+      - h:
+          en: Privacy
+          vi: Quyền riêng tư
+        tag: senior
+        p:
+          en: Mask PII before it reaches a model, check vendor data-retention terms, and log access.
+          vi: Che PII trước khi tới model, kiểm tra điều khoản lưu giữ dữ liệu của nhà cung cấp và log truy cập.
+      - h:
+          en: Cost and latency
+          vi: Chi phí và độ trễ
+        tag: senior
+        p:
+          en: Cache prompts and results, route easy tasks to smaller models, cap steps and context size.
+          vi: Cache prompt và kết quả, chuyển việc dễ sang model nhỏ hơn, giới hạn số bước và kích thước ngữ cảnh.
+    n:
+      en: If there is no evaluation set, the team is guessing. Start with 30 to 50 real questions and grow it from production failures.
+      vi: Không có bộ đánh giá thì đội đang đoán mò. Bắt đầu với 30 đến 50 câu hỏi thật và mở rộng từ các lỗi ở production.
+  - id: common-pitfalls-and-anti-patterns
+    k: pit
+    t:
+      en: Common pitfalls and anti-patterns
+      vi: Lỗi thường gặp và anti-pattern
+    rows:
+      - bad:
+          en: Shipping on a demo.
+          vi: Phát hành chỉ vì demo đẹp.
+        why:
+          en: Happy-path examples hide failures.
+          vi: Ví dụ thuận lợi che giấu lỗi.
+        fix:
+          en: Build a golden test set first and track it over time.
+          vi: Xây bộ test vàng trước và theo dõi theo thời gian.
+      - bad:
+          en: Stuffing everything into the prompt.
+          vi: Nhồi mọi thứ vào prompt.
+        why:
+          en: Cost rises and answers get worse as the context fills.
+          vi: Chi phí tăng và câu trả lời tệ đi khi ngữ cảnh đầy.
+        fix:
+          en: Retrieve only what is needed and compact old turns.
+          vi: Chỉ truy xuất thứ cần thiết và nén các lượt cũ.
+      - bad:
+          en: Too many overlapping tools.
+          vi: Quá nhiều tool chồng chéo.
+        why:
+          en: The model picks the wrong one or loops.
+          vi: Model chọn sai hoặc lặp.
+        fix:
+          en: Few tools, clear names, precise schemas.
+          vi: Ít tool, tên rõ, schema chính xác.
+      - bad:
+          en: Letting the agent write to production.
+          vi: Cho agent ghi vào production.
+        why:
+          en: One bad step is irreversible.
+          vi: Một bước sai không thể hoàn tác.
+        fix:
+          en: Read-only by default, approvals and sandboxes for writes.
+          vi: Mặc định chỉ đọc, duyệt và sandbox cho thao tác ghi.
+      - bad:
+          en: Trusting retrieved text.
+          vi: Tin văn bản truy xuất.
+        why:
+          en: Injected instructions hijack the agent.
+          vi: Chỉ dẫn bị chèn chiếm quyền agent.
+        fix:
+          en: Treat it as untrusted data and limit what tools can do.
+          vi: Coi là dữ liệu không đáng tin và giới hạn khả năng của tool.
+      - bad:
+          en: No stopping rules.
+          vi: Không có quy tắc dừng.
+        why:
+          en: Runaway loops burn budget.
+          vi: Vòng lặp chạy mãi đốt ngân sách.
+        fix:
+          en: Step, token and time limits owned by the controller.
+          vi: Giới hạn bước, token và thời gian do bộ điều khiển nắm.
+    n:
+      en: "The first row is the root of the others: without measurement you cannot even see these failures."
+      vi: "Hàng đầu là gốc của các hàng còn lại: không đo lường thì thậm chí không thấy được các lỗi này."
+  - id: what-senior-looks-like-ai-engineering
+    k: cards
+    t:
+      en: "What senior looks like: AI engineering"
+      vi: "Senior trông như thế nào: kỹ thuật AI"
+    cols: 3
+    cards:
+      - h:
+          en: Decisions
+          vi: Quyết định
+        tag: senior
+        list:
+          - en: Loop or workflow graph
+            vi: Vòng lặp hay workflow graph
+          - en: RAG, fine-tuning or neither
+            vi: RAG, fine-tuning hay không cần
+          - en: Which tools to expose, and with what permissions
+            vi: Mở tool nào, với quyền gì
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        list:
+          - en: Autonomy versus control
+            vi: Tự chủ và kiểm soát
+          - en: Quality versus cost and latency
+            vi: Chất lượng và chi phí, độ trễ
+          - en: Vendor platform versus own harness
+            vi: Nền tảng nhà cung cấp và harness tự xây
+      - h:
+          en: Responsibilities
+          vi: Trách nhiệm
+        tag: senior
+        list:
+          - en: Own the eval set and the release gate
+            vi: Nắm bộ eval và cổng phát hành
+          - en: Set security rules for tools and data
+            vi: Đặt quy tắc bảo mật cho tool và dữ liệu
+          - en: Make cost and failures visible
+            vi: Làm chi phí và lỗi nhìn thấy được
+    n:
+      en: The senior contribution is judgment about where AI belongs and the engineering that makes it measurable and safe.
+      vi: Đúng góp của senior là phán đoán AI nên đặt ở đâu và kỹ thuật làm nó đo được và an toàn.
+  - id: ai-engineering-lab-rag-with-evaluation-and-access
+    k: lab
+    t:
+      en: "AI engineering lab: RAG with evaluation and access controls"
+      vi: "Lab AI: RAG có đánh giá và kiểm soát truy cập"
+    lead:
+      en: Build retrieval that respects permissions and measure it honestly.
+      vi: Xây truy xuất tôn trọng quyền truy cập và đo nó một cách trung thực.
+    scenario:
+      en: An internal assistant must answer from company documents but never reveal documents a user cannot open.
+      vi: Một trợ lý nội bộ phải trả lời từ tài liệu công ty nhưng không bao giờ tiết lộ tài liệu người dùng không mở được.
+    input:
+      en: A small document set with access groups, an embedding model, a vector store with metadata filters, an LLM, and a golden set of 30 questions.
+      vi: Một bộ tài liệu nhỏ có nhóm truy cập, một embedding model, vector store có bộ lọc metadata, một LLM và bộ vàng 30 câu hỏi.
+    tasks:
+      - en: Index documents with access tags and chunk metadata.
+        vi: Lập chỉ mục tài liệu với tag truy cập và metadata của chunk.
+      - en: Filter retrieval by the caller’s groups before ranking.
+        vi: Lọc truy xuất theo nhóm của người gọi trước khi xếp hạng.
+      - en: Measure recall at k and answer faithfulness on the golden set.
+        vi: Đo recall tại k và độ trung thực của câu trả lời trên bộ vàng.
+      - en: Add a document containing a prompt injection and show the defence.
+        vi: Thêm một tài liệu chứa prompt injection và cho thấy cách phòng thủ.
+    expected:
+      en: An evaluation report, a permission test showing denied documents never appear, and an injection test result.
+      vi: Báo cáo đánh giá, test quyền cho thấy tài liệu bị từ chối không bao giờ xuất hiện và kết quả test injection.
+    rubric:
+      - en: Access control enforced before generation
+        vi: Kiểm soát truy cập được ép trước khi sinh câu trả lời
+      - en: Retrieval and generation measured separately
+        vi: Đo riêng truy xuất và sinh câu trả lời
+      - en: Tracing and logs available
+        vi: Có tracing và log
+    design:
+      en: Design re-indexing, deletion of documents and audit of what each answer used.
+      vi: Thiết kế lập chỉ mục lại, xóa tài liệu và audit xem mỗi câu trả lời đã dùng gì.
+    n:
+      en: A single leaked document fails the lab regardless of other results.
+      vi: Chỉ một tài liệu bị lộ là trượt lab bất kể các kết quả khác.
+  - id: checklist-and-interview-questions
+    k: check
+    t:
+      en: Checklist and interview questions
+      vi: Checklist và câu hỏi phỏng vấn
+    left:
+      h:
+        en: Self-check
+        vi: Tự kiểm tra
+      items:
+        - en: I can explain the tool-calling message format
+          vi: Tôi giải thích được định dạng message của tool calling
+        - en: I can write an agent loop with limits
+          vi: Tôi viết được vòng lặp agent có giới hạn
+        - en: I can describe MCP hosts, clients and servers
+          vi: Tôi mô tả được host, client, server của MCP
+        - en: I can tune a RAG pipeline against a test set
+          vi: Tôi tinh chỉnh được pipeline RAG dựa trên bộ test
+        - en: I know when a graph beats vector search
+          vi: Tôi biết khi nào graph hơn vector search
+        - en: I treat tool output as untrusted
+          vi: Tôi coi output của tool là không đáng tin
+    right:
+      h:
+        en: Interview-style questions
+        vi: Câu hỏi kiểu phỏng vấn
+      items:
+        - en: Walk through one full tool call, including what the API returns.
+          vi: Mô tả một lần tool call đầy đủ, gồm cả những gì API trả về.
+        - en: The agent loops forever. What do you check and change?
+          vi: Agent lặp mãi. Bạn kiểm tra và đổi gì?
+        - en: Why can RAG answers be wrong even when the model is strong?
+          vi: Vì sao câu trả lời RAG có thể sai dù model mạnh?
+        - en: Design a safe natural-language interface to the warehouse using MCP.
+          vi: Thiết kế giao diện ngôn ngữ tự nhiên an toàn tới warehouse bằng MCP.
+        - en: When would you choose a workflow graph over a free agent loop?
+          vi: Khi nào chọn workflow graph thay vì vòng lặp agent tự do?
+    n:
+      en: Strong answers to the safe-interface question combine read-only roles, governed metrics, validation, evals and logging.
+      vi: Câu trả lời tốt cho câu hỏi giao diện an toàn kết hợp role chỉ đọc, metric được quản trị, validation, eval và logging.

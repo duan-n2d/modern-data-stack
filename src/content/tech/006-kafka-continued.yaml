@@ -1,0 +1,19 @@
+tech: {id: kafka, name: Kafka, color: "#0891B2"}
+slides:
+  - id: operations-lag-rebalance-and-retention
+    k: table
+    mod: [operations]
+    t: {en: "Kafka operations: lag, rebalances and retention", vi: "Van hanh Kafka: lag, rebalance va retention"}
+    lead: {en: "Operate Kafka from consumer behavior and partition health, not broker CPU alone.", vi: "Van hanh Kafka tu hanh vi consumer va suc khoe partition, khong chi tu CPU broker."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Diagnose, vi: Chan doan}, {en: Action, vi: Hanh dong}]
+    rows:
+      - - {en: Consumer lag grows, vi: Consumer lag tang}
+        - {en: "Compare production rate, fetch rate, poll duration and rebalance count by partition.", vi: "So sanh toc do san xuat, fetch, thoi gian poll va so rebalance theo partition."}
+        - {en: "Scale consumers only up to partition count; fix slow handlers and commit behavior.", vi: "Chi scale consumer toi so partition; sua handler cham va cach commit."}
+      - - {en: Frequent rebalances, vi: Rebalance thuong xuyen}
+        - {en: "Check max.poll.interval.ms, session timeout and consumer membership churn.", vi: "Kiem tra max.poll.interval.ms, session timeout va viec consumer ra vao."}
+        - {en: "Bound processing batches, use cooperative assignment and roll clients deliberately.", vi: "Gioi han batch xu ly, dung cooperative assignment va rollout co chu dich."}
+      - - {en: Disk pressure, vi: Ap luc dia}
+        - {en: "Inspect segment age, retention bytes, replica placement and offline partitions.", vi: "Kiem tra tuoi segment, retention bytes, vi tri replica va partition offline."}
+        - {en: "Enforce retention as a capacity policy; never delete data to hide replication faults.", vi: "Xem retention la policy capacity; khong xoa du lieu de che loi replication."}
+    n: {en: "Page on sustained lag and under-replicated partitions; a single broker metric rarely explains a user-visible delay.", vi: "Alert khi lag keo dai va partition thieu replica; mot metric broker hiem khi giai thich duoc do tre nguoi dung thay."}

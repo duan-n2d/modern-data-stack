@@ -1,0 +1,86 @@
+practice:
+  id: coverage-audit
+  name:
+    en: Audit against the submitted SSP topic map
+    vi: Đối chiếu với bản đồ chủ đề SSP đã gửi
+  color: "#7C2D12"
+slides:
+  - id: coverage-audit-the-supplied-101-concept-map
+    k: table
+    t:
+      en: "Coverage audit: the supplied 101-concept map"
+      vi: "Audit phạm vi: bản đồ 101 khái niệm đã cung cấp"
+    lead:
+      en: “Covered” means a dedicated lesson or substantial treatment; “partial” means a mention, comparison or example; “backlog” means the map suggests a useful next module. This is a content audit, not a live verification of every linked article.
+      vi: “Đã có” nghĩa là có bài học riêng hoặc nội dung đúng kể; “một phần” nghĩa là mới nhắc, so sánh hoặc lấy ví dụ; “backlog” là module tiếp theo đúng cân nhắc. Đây là audit nội dung, không phải xác minh trực tiếp từng bài viết được liên kết.
+    head:
+      - en: Topic family
+        vi: Nhóm chủ đề
+      - en: Covered in this deck
+        vi: Đã có trong deck
+      - en: Partial / backlog
+        vi: Một phần / cần bổ sung
+    rows:
+      - - en: Foundations, lifecycle and role
+          vi: Nền tảng, vòng đời và vai trò
+        - en: "Layers 1, 12, 20, 21: lifecycle, role, SQL/Python, normalization, Inmon vs Kimball, dimensional and entity-centric modeling, data assets, MDM."
+          vi: "Layer 1, 12, 20, 21: vòng đời, vai trò, SQL/Python, chuẩn hóa, Inmon vs Kimball, mô hình dimensional và entity-centric, data asset, MDM."
+        - en: ERD and modeling levels, cardinality, anchor/activity schemas, and a worked lifecycle case are not standalone lessons.
+          vi: ERD và các cấp độ mô hình hóa, cardinality, anchor/activity schema và một ca thực hành xuyên vòng đời chưa thành bài riêng.
+      - - en: Infrastructure, storage and formats
+          vi: Hạ tầng, lưu trữ và định dạng
+        - en: "Layers 3, 22 and appendix: warehouses, lakehouse, DuckDB, Iceberg/Delta, Parquet/Avro/Arrow, DataFusion, VertiPaq, OLAP and open/declarative stacks."
+          vi: "Layer 3, 22 và phụ lục: warehouse, lakehouse, DuckDB, Iceberg/Delta, Parquet/Avro/Arrow, DataFusion, VertiPaq, OLAP và stack mở/declarative."
+        - en: Delta transaction-log internals and table-catalog interoperability deserve a deeper comparison; some topics are currently tool overviews.
+          vi: Nội bộ transaction log của Delta và khả năng tương tác giữa table catalog cần so sánh sâu hơn; một số nội dung hiện mới là tổng quan công cụ.
+      - - en: Ingestion, movement and streaming
+          vi: Ingestion, luân chuyển và streaming
+        - en: "Layers 2, 18, 23 and appendix: ETL/ELT/ETLT, CDC, batch/streaming, backfills, idempotency, snapshots and Kafka/Flink."
+          vi: "Layer 2, 18, 23 và phụ lục: ETL/ELT/ETLT, CDC, batch/streaming, backfill, idempotency, snapshot và Kafka/Flink."
+        - en: Schema Registry compatibility, source-delete reconciliation, and a full schema-drift recovery runbook need a practical end-to-end case; Hadoop/MapReduce are legacy context only.
+          vi: Tương thích Schema Registry, đối soát xóa ở nguồn và runbook phục hồi schema drift cần một ca thực hành đầu-cuối; Hadoop/MapReduce hiện chỉ là bối cảnh legacy.
+      - - en: Transformation and orchestration
+          vi: Biến đổi và điều phối
+        - en: "Layers 1, 4, 5, 23 and appendix: SQL/dbt/SQLMesh, Airflow/Dagster/Kestra, software-defined assets, functional and declarative patterns."
+          vi: "Layer 1, 4, 5, 23 và phụ lục: SQL/dbt/SQLMesh, Airflow/Dagster/Kestra, software-defined asset, mẫu functional và declarative."
+        - en: Clarify where AI workflow orchestrators overlap with, or differ from, data orchestrators.
+          vi: Cần làm rõ AI workflow orchestrator giao nhau hoặc khác data orchestrator ở đâu.
+      - - en: Modeling, architecture and data products
+          vi: Mô hình hóa, kiến trúc và data product
+        - en: "Layers 9, 12, 21: Kimball, Data Vault, medallion, Data Mesh, contracts, products, SCD and MDM."
+          vi: "Layer 9, 12, 21: Kimball, Data Vault, medallion, Data Mesh, contract, product, SCD và MDM."
+        - en: Data Mesh has a decision guide but not a detailed operating-model case; anchor/activity modeling and data-product lifecycle need examples.
+          vi: Data Mesh có hướng dẫn chọn nhưng chưa có ca vận hành chi tiết; anchor/activity modeling và vòng đời data product cần ví dụ.
+      - - en: Governance, quality and operations
+          vi: Quản trị, chất lượng và vận hành
+        - en: "Layers 8, 9, 11, 17: tests, observability, lineage, catalog, contracts, access control, security and DevOps."
+          vi: "Layer 8, 9, 11, 17: test, observability, lineage, catalog, contract, kiểm soát truy cập, bảo mật và DevOps."
+        - en: Show one joined-up DataOps workflow from contract change through CI, catalog/lineage, alert and incident resolution.
+          vi: Cần một workflow DataOps xuyên suốt từ đổi contract qua CI, catalog/lineage, cảnh báo đến xử lý sự cố.
+      - - en: Semantic layer, BI and serving
+          vi: Semantic layer, BI và phục vụ dữ liệu
+        - en: "Layers 6, 7, 10, 22, 23: metrics, semantic models, Cube, BI, reverse ETL, OLAP alternatives and analytics/personalized APIs."
+          vi: "Layer 6, 7, 10, 22, 23: metric, semantic model, Cube, BI, reverse ETL, lựa chọn thay OLAP và API analytics/cá nhân hóa."
+        - en: Data federation and semantic-model versioning/deprecation are thin; add a concrete consumer and API contract example.
+          vi: Data federation và versioning/deprecation của semantic model còn mỏng; nên thêm ví dụ contract cho consumer và API.
+      - - en: Performance and distributed systems
+          vi: Hiệu năng và hệ thống phân tán
+        - en: "Layers 3, 18, 19, 20, 22 and appendix: ACID, CAP, query plans, push-downs, reliability, FinOps and engine internals."
+          vi: "Layer 3, 18, 19, 20, 22 và phụ lục: ACID, CAP, query plan, push-down, độ tin cậy, FinOps và nội bộ engine."
+        - en: Connect materialized views, full scans, CTE behavior and workload tuning into one diagnostic path with measured examples.
+          vi: Cần nối materialized view, full table scan, hành vi CTE và tuning workload thành một quy trình chẩn đoán có số đo.
+      - - en: Career and community
+          vi: Nghề nghiệp và cộng đồng
+        - en: "Layers 14, 21 and closing: senior expectations, role comparison, learning path, books, podcasts and open-source projects."
+          vi: "Layer 14, 21 và phần kết: kỳ vọng senior, so sánh vai trò, lộ trình học, sách, podcast và dự án mã nguồn mở."
+        - en: People-of-data profiles and the supplied Patterns of Data Engineering book link are not independently validated or taught as content.
+          vi: Chân dung cộng đồng Data Engineering và liên kết sách Patterns of Data Engineering chưa được xác minh độc lập hoặc đưa thành nội dung học.
+    cap:
+      en: Use the submitted MOC as an index, not a mandate to turn all 101 ideas into slides. Prioritize gaps by audience, incidents and design decisions.
+      vi: Dùng MOC đã gửi như một chỉ mục, không phải yêu cầu biến cả 101 ý thành slide. Ưu tiên khoảng trống theo đối tượng học, sự cố và quyết định thiết kế.
+    refs:
+      - ["SSP: Data Engineering Concepts MOC", https://www.ssp.sh/brain/data-engineering-concepts/]
+      - [Patterns of Data Engineering, https://www.dedp.online/?ref=ssp.sh]
+    n:
+      en: "Next content pass: add one data-mesh operating case, one schema-change recovery lab and one data-federation/semantic-serving decision example. Verify source links and current tool behavior before publishing."
+      vi: "Đợt nội dung tiếp theo: thêm một ca vận hành data mesh, một lab phục hồi sau đổi schema và một ví dụ quyết định data federation/semantic serving. Xác minh link nguồn và hành vi công cụ hiện tại trước khi phát hành."

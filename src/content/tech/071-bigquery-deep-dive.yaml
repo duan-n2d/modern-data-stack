@@ -1,0 +1,137 @@
+tech: {id: bigquery, name: BigQuery, color: "#1A73E8"}
+slides:
+  - id: overview-storage-slots-and-query-engine
+    k: components
+    mod: [overview]
+    t: {en: "BigQuery overview: storage, slots and query engine", vi: "BigQuery tong quan: storage, slot va query engine"}
+    lead: {en: "BigQuery separates managed columnar storage from distributed query execution governed by slots and reservations.", vi: "BigQuery tach storage columnar managed khoi query execution phan tan duoc dieu phoi boi slot va reservation."}
+    comps:
+      - - Storage
+        - {en: "Managed columnar tables and partitions.", vi: "Table columnar va partition managed."}
+      - - Slots
+        - {en: "Compute capacity assigned to query stages.", vi: "Compute capacity gan cho query stage."}
+      - - Query engine
+        - {en: "Plans scans, shuffle and distributed operators.", vi: "Lap plan scan, shuffle va distributed operator."}
+      - - Governance
+        - {en: "Projects, datasets, IAM, policy tags and audit logs.", vi: "Project, dataset, IAM, policy tag va audit log."}
+    flow: [{en: "Authorize job", vi: "Authorize job"}, {en: "Plan and scan columns", vi: "Plan va scan cot"}, {en: "Shuffle and return results", vi: "Shuffle va tra ket qua"}]
+    ops: [{en: "Set project, location and reservation ownership deliberately.", vi: "Chon ro project, location va owner reservation."}]
+    n: {en: "Storage is serverless, but query cost and latency still depend on bytes scanned, shuffle volume, slot availability and concurrency.", vi: "Storage serverless nhung chi phi va latency query van phu thuoc bytes scan, shuffle, slot availability va concurrency."}
+  - id: internals-partition-pruning-and-shuffle
+    k: table
+    mod: [internals]
+    t: {en: "BigQuery internals: pruning and shuffle", vi: "Noi bo BigQuery: pruning va shuffle"}
+    lead: {en: "A query reads selected columns and partitions, then exchanges rows between distributed stages when operators require it.", vi: "Query doc cot va partition duoc chon, sau do exchange row giua stage khi operator can."}
+    head: [{en: Stage behavior, vi: Hanh vi stage}, {en: Cost driver, vi: Yeu to chi phi}, {en: Evidence, vi: Bang chung}]
+    rows:
+      - - {en: Column scan, vi: Scan cot}
+        - {en: "Selected column bytes and partition range.", vi: "Byte cot duoc chon va range partition."}
+        - {en: "Bytes processed and partition pruning in job details.", vi: "Bytes xu ly va partition pruning trong job detail."}
+      - - {en: Shuffle join or aggregate, vi: Shuffle join hoac aggregate}
+        - {en: "Rows exchanged and key distribution.", vi: "Row trao doi va phan bo key."}
+        - {en: "Execution graph shuffle output and slot time.", vi: "Shuffle output va slot time trong execution graph."}
+      - - {en: Slot scheduling, vi: Slot scheduling}
+        - {en: "Concurrent demand within reservation and project limits.", vi: "Nhu cau dong thoi trong reservation va gioi han project."}
+        - {en: "Queue time, reservation utilization and timeline.", vi: "Queue time, reservation utilization va timeline."}
+    n: {en: "A query can process few bytes and still be slow due to shuffle skew or slot contention; inspect the execution graph.", vi: "Query co the xu ly it byte nhung van cham do shuffle skew hoac tranh chap slot; inspect execution graph."}
+  - id: configuration-partitions-clusters-and-reservations
+    k: code
+    mod: [config]
+    t: {en: "BigQuery configuration: partitions, clustering and reservations", vi: "Cau hinh BigQuery: partition, clustering va reservation"}
+    lead: {en: "Choose table layout from filter patterns and assign compute capacity by workload priority.", vi: "Chon table layout theo pattern filter va gan compute capacity theo uu tien workload."}
+    blocks:
+      - lang: sql
+        title: table_layout.sql
+        code: |-
+          CREATE TABLE analytics.orders (
+            order_id INT64, customer_id INT64, order_date DATE, amount NUMERIC
+          )
+          PARTITION BY order_date
+          CLUSTER BY customer_id
+          OPTIONS (require_partition_filter = TRUE);
+          SELECT customer_id, SUM(amount)
+          FROM analytics.orders
+          WHERE order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)
+          GROUP BY customer_id;
+    points:
+      - {h: {en: Bound accidental full scans, vi: Chan full scan vo tinh}, p: {en: "Required partition filters protect cost but callers need clear query contracts and partition predicates.", vi: "Partition filter bat buoc bao ve chi phi nhung caller can query contract va predicate partition ro rang."}}
+    n: {en: "Reservation and edition features vary; validate the current assignment, location and autoscaling policy for the project.", vi: "Tinh nang reservation va edition thay doi; validate assignment, location va autoscaling policy hien tai cua project."}
+  - id: implementation-incremental-merge-with-partition-pruning
+    k: code
+    mod: [implementation]
+    t: {en: "BigQuery implementation: incremental partition merge", vi: "Trien khai BigQuery: merge partition incremental"}
+    lead: {en: "Bound both source and target partitions and deduplicate the source before MERGE.", vi: "Gioi han partition source va target, dedup source truoc MERGE."}
+    blocks:
+      - lang: sql
+        title: incremental_merge.sql
+        code: |-
+          MERGE analytics.orders T
+          USING (
+            SELECT * FROM staging.order_changes
+            WHERE change_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)
+            QUALIFY ROW_NUMBER() OVER (
+              PARTITION BY order_id ORDER BY source_lsn DESC
+            ) = 1
+          ) S
+          ON T.order_id = S.order_id
+             AND T.order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+          WHEN MATCHED THEN UPDATE SET amount = S.amount, status = S.status
+          WHEN NOT MATCHED THEN INSERT (order_id, order_date, amount, status)
+            VALUES (S.order_id, S.order_date, S.amount, S.status);
+    points:
+      - {h: {en: Check target bounds, vi: Kiem tra gioi han target}, p: {en: "A target predicate that is too narrow can turn updates into duplicate inserts; validate key uniqueness after merge.", vi: "Predicate target qua hep co the bien update thanh insert trung; validate uniqueness key sau merge."}}
+    n: {en: "Test late updates beyond the lookback, deletes and an empty input; document a repair path for older changes.", vi: "Test update muon qua lookback, delete va input rong; viet duong sua cho change cu hon."}
+  - id: operations-jobs-reservations-and-freshness
+    k: table
+    mod: [operations]
+    t: {en: "BigQuery operations: jobs, reservations and freshness", vi: "Van hanh BigQuery: job, reservation va freshness"}
+    lead: {en: "Operate from job metadata: bytes, slot time, queue time, errors and data freshness.", vi: "Van hanh tu job metadata: byte, slot time, queue time, error va freshness data."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Inspect, vi: Kiem tra}, {en: Action, vi: Hanh dong}]
+    rows:
+      - - {en: Slot contention, vi: Tranh chap slot}
+        - {en: "Reservation utilization, queue time and concurrent workloads.", vi: "Utilization reservation, queue time va workload dong thoi."}
+        - {en: "Separate workload assignments or adjust capacity from measured demand.", vi: "Tach assignment workload hoac chinh capacity theo nhu cau do duoc."}
+      - - {en: Cost increase, vi: Chi phi tang}
+        - {en: "Bytes processed, repeated jobs, partition filters and retries.", vi: "Byte xu ly, job lap, partition filter va retry."}
+        - {en: "Attribute by labels and owner; add guardrails for unbounded scans.", vi: "Gan theo label va owner; them guardrail cho scan khong gioi han."}
+    n: {en: "Keep job IDs and location with incident reports; metadata views are regional and permissions affect visibility.", vi: "Luu job ID va location trong incident report; metadata view theo region va permission anh huong visibility."}
+  - id: troubleshooting-slot-contention-and-expensive-query
+    k: table
+    mod: [troubleshooting]
+    t: {en: "BigQuery troubleshooting: contention and expensive queries", vi: "Xu ly BigQuery: tranh chap va query ton kem"}
+    lead: {en: "Use the execution graph and job metadata to locate scan, shuffle or scheduling cost.", vi: "Dung execution graph va job metadata de tim chi phi scan, shuffle hoac scheduling."}
+    head: [{en: Symptom, vi: Trieu chung}, {en: Evidence, vi: Bang chung}, {en: Response, vi: Phan hoi}]
+    rows:
+      - - {en: High bytes processed, vi: Byte xu ly cao}
+        - {en: "Missing partition filter or unused projected columns.", vi: "Thieu partition filter hoac cot select khong can."}
+        - {en: "Add a partition predicate and project only needed columns.", vi: "Them predicate partition va chi select cot can."}
+      - - {en: Long runtime with low bytes, vi: Runtime dai du byte thap}
+        - {en: "Shuffle, skew, slot queue or remote function latency.", vi: "Shuffle, skew, slot queue hoac remote function latency."}
+        - {en: "Inspect the slow stage and key distribution before resizing reservations.", vi: "Inspect stage cham va phan bo key truoc khi resize reservation."}
+    n: {en: "Compare job timeline and execution graph from the same location and time range; avoid inferring root cause from bytes alone.", vi: "So sanh job timeline va execution graph cung location, time range; dung suy root cause chi tu bytes."}
+  - id: performance-pruning-shuffle-and-materialization
+    k: table
+    mod: [performance]
+    t: {en: "BigQuery performance: pruning, shuffle and materialization", vi: "Hieu nang BigQuery: pruning, shuffle va materialization"}
+    lead: {en: "Reduce scanned columns and partitions, then reduce data exchanged between stages.", vi: "Giam cot va partition scan, sau do giam data trao doi giua cac stage."}
+    head: [{en: Technique, vi: Ky thuat}, {en: Helps when, vi: Hieu qua khi}, {en: Cost, vi: Chi phi}]
+    rows:
+      - - {en: Partition and cluster, vi: Partition va cluster}
+        - {en: "Filters align with table partition and clustered keys.", vi: "Filter khop partition table va key clustered."}
+        - {en: "Maintenance and over-partitioning overhead.", vi: "Overhead maintenance va partition qua nhieu."}
+      - - {en: Pre-aggregate, vi: Pre-aggregate}
+        - {en: "Repeated dashboards use a stable aggregation grain.", vi: "Dashboard lap lai dung grain aggregate on dinh."}
+        - {en: "Refresh cost and freshness lag.", vi: "Chi phi refresh va freshness lag."}
+    n: {en: "Compare slot milliseconds, bytes and elapsed time before and after using representative concurrency.", vi: "So sanh slot milliseconds, byte va elapsed time truoc sau voi concurrency dai dien."}
+  - id: lab-debug-a-bigquery-slot-and-scan-spike
+    k: lab
+    mod: [lab]
+    t: {en: "BigQuery lab: debug a slot and scan spike", vi: "Lab BigQuery: debug slot va scan tang dot bien"}
+    lead: {en: "Reduce a dashboard's cost and latency while preserving its freshness requirement.", vi: "Giam chi phi va latency dashboard trong khi giu freshness requirement."}
+    scenario: {en: "A dashboard query scans more data and queues during a reservation workload peak.", vi: "Query dashboard scan nhieu data hon va queue luc reservation workload dat dinh."}
+    input: {en: "Job metadata, execution graph, table layout, reservation assignment and dashboard SLO.", vi: "Job metadata, execution graph, table layout, reservation assignment va dashboard SLO."}
+    tasks: [{en: "Separate scan, shuffle and slot scheduling contributors.", vi: "Tach contributor scan, shuffle va slot scheduling."}, {en: "Propose query or layout and reservation changes.", vi: "De xuat thay doi query hoac layout va reservation."}, {en: "Define cost, latency and freshness acceptance checks.", vi: "Dinh nghia acceptance check cost, latency va freshness."}]
+    expected: {en: "A measured plan with bounded scans and a workload-aware capacity recommendation.", vi: "Plan co do luong voi scan gioi han va recommendation capacity theo workload."}
+    rubric: [{en: "Uses execution-stage evidence.", vi: "Dung bang chung execution stage."}, {en: "Includes a before-and-after cost measure.", vi: "Co cost measure truoc va sau."}]
+    design: {en: "State project location, workload priority and rollback criteria.", vi: "Neu project location, uu tien workload va tieu chi rollback."}
+    n: {en: "Do not solve every queue by buying slots; require evidence that capacity rather than query shape is limiting.", vi: "Khong giai quyet moi queue bang mua slot; can bang chung capacity chu khong phai query shape la gioi han."}

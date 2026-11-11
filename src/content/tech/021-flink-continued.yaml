@@ -1,0 +1,82 @@
+tech: {id: flink, name: Flink, color: "#2563EB"}
+slides:
+  - id: flink-overview-streaming-time-and-state
+    k: components
+    mod: [overview]
+    t: {en: "Flink overview: time, state and watermarks", vi: "Flink tong quan: time, state va watermark"}
+    lead: {en: "Flink processes unbounded streams with keyed state and event-time progress, even when events arrive late or out of order.", vi: "Flink xu ly stream vo han voi keyed state va tien do event-time, ke ca khi event den muon hoac sai thu tu."}
+    comps:
+      - - Source
+        - {en: "Reads events and assigns timestamps.", vi: "Doc event va gan timestamp."}
+      - - Operator state
+        - {en: "Maintains keyed windows, joins or timers.", vi: "Giu window, join hoac timer theo key."}
+      - - Watermark
+        - {en: "Signals how far event time has progressed.", vi: "Bao hieu event time da tien bao xa."}
+      - - Checkpoint
+        - {en: "Persists consistent state for recovery.", vi: "Luu state nhat quan de recovery."}
+    flow: [{en: "Ingest and timestamp", vi: "Ingest va gan timestamp"}, {en: "Key, window and aggregate", vi: "Key, window va aggregate"}, {en: "Checkpoint and sink", vi: "Checkpoint va sink"}]
+    ops: [{en: "Choose lateness and state retention from business correctness, not default settings.", vi: "Chon lateness va state retention tu correctness nghiep vu, khong tu default."}]
+    n: {en: "Contrast event time with processing time: the former protects correctness under delay, the latter minimizes latency but can misplace late events.", vi: "Phan biet event time va processing time: event time bao ve correctness khi tre, processing time giam latency nhung co the xu ly sai event muon."}
+  - id: flink-configuration-checkpoints-and-state
+    k: code
+    mod: [config]
+    t: {en: "Flink configuration: checkpoints and state", vi: "Cau hinh Flink: checkpoint va state"}
+    lead: {en: "Checkpoint settings define recovery point, external storage load and the maximum tolerable failure gap.", vi: "Setting checkpoint dinh nghia recovery point, tai storage ngoai va khoang fail toi da chap nhan."}
+    blocks:
+      - lang: java
+        title: checkpoint_config.java
+        code: |-
+          env.enableCheckpointing(60_000);
+          env.getCheckpointConfig().setCheckpointTimeout(45_000);
+          env.getCheckpointConfig().setMinPauseBetweenCheckpoints(10_000);
+          env.getCheckpointConfig().setCheckpointStorage("s3://lake/checkpoints/orders");
+          env.getCheckpointConfig().setExternalizedCheckpointCleanup(
+              ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+    points:
+      - {h: {en: Align interval and timeout, vi: Can chinh interval va timeout}, p: {en: "A checkpoint that cannot finish before the next one is operational noise and increases state-store pressure.", vi: "Checkpoint khong xong truoc lan tiep theo la noise van hanh va lam tang ap luc state store."}}
+    n: {en: "Test restore from a retained checkpoint after a code upgrade and a rescale; recovery is part of the deployment contract.", vi: "Test restore tu checkpoint duoc giu sau upgrade code va rescale; recovery la phan cua deployment contract."}
+  - id: flink-implementation-idempotent-sink
+    k: code
+    mod: [implementation]
+    t: {en: "Flink implementation: an idempotent sink", vi: "Trien khai Flink: sink idempotent"}
+    lead: {en: "Exactly-once state does not automatically make an external side effect exactly once; the sink must participate in the commit protocol.", vi: "State exactly-once khong tu dong lam side effect ben ngoai exactly once; sink phai tham gia commit protocol."}
+    blocks:
+      - lang: java
+        title: sink_contract.java
+        code: |-
+          stream.keyBy(Order::id)
+              .process(new DeduplicateByEventId())
+              .sinkTo(icebergSink)
+              .setParallelism(8);
+          // sink must commit by checkpoint and tolerate replay
+    points:
+      - {h: {en: Define the replay key, vi: Dinh nghia replay key}, p: {en: "Persist event_id or transaction_id so a recovered task can recognize a previously prepared output.", vi: "Luu event_id hoac transaction_id de task recovery nhan ra output da prepare truoc do."}}
+    n: {en: "Inject a failure after prepare and before commit; verify that restart does not duplicate business output.", vi: "Chen loi sau prepare va truoc commit; xac minh restart khong lap business output."}
+  - id: flink-operations-backpressure-and-recovery
+    k: table
+    mod: [operations]
+    t: {en: "Flink operations: backpressure and recovery", vi: "Van hanh Flink: backpressure va recovery"}
+    lead: {en: "Backpressure propagates from the slowest downstream operator; locate that operator before scaling everything.", vi: "Backpressure lan nguoc tu operator downstream cham nhat; tim dung operator truoc khi scale tat ca."}
+    head: [{en: Signal, vi: Tin hieu}, {en: Evidence, vi: Bang chung}, {en: Action, vi: Hanh dong}]
+    rows:
+      - - {en: Rising backpressure, vi: Backpressure tang}
+        - {en: "Busy time and input queue rise at one operator.", vi: "Busy time va input queue tang o mot operator."}
+        - {en: "Fix skew, external I/O or operator parallelism at that boundary.", vi: "Sua skew, I/O ngoai hoac parallelism tai ranh gioi do."}
+      - - {en: Checkpoint duration grows, vi: Duration checkpoint tang}
+        - {en: "State grows, storage slows or alignment waits for barriers.", vi: "State tang, storage cham hoac alignment cho barrier."}
+        - {en: "Inspect state size, incremental checkpoints and unaligned mode trade-offs.", vi: "Kiem tra state size, incremental checkpoint va trade-off unaligned."}
+    n: {en: "Record checkpoint duration, completed checkpoints, restart count and watermark lag together; each describes a different failure mode.", vi: "Ghi duration checkpoint, checkpoint thanh cong, so restart va watermark lag cung nhau; moi metric mo ta mot failure mode khac."}
+  - id: flink-performance-state-skew-and-windows
+    k: table
+    mod: [performance]
+    t: {en: "Flink performance: state, skew and windows", vi: "Hieu nang Flink: state, skew va window"}
+    lead: {en: "Streaming performance is bounded by state growth, hot keys and the amount of late data retained.", vi: "Hieu nang streaming bi gioi han boi state growth, hot key va luong du lieu muon phai giu."}
+    head: [{en: Lever, vi: Don bay}, {en: Benefit, vi: Loi ich}, {en: Cost, vi: Chi phi}]
+    rows:
+      - - {en: TTL and cleanup, vi: TTL va cleanup}
+        - {en: "Bounds state and checkpoint size.", vi: "Gioi han state va kich thuoc checkpoint."}
+        - {en: "Late events outside the contract may be rejected.", vi: "Event muon ngoai contract co the bi tu choi."}
+      - - {en: Key redistribution, vi: Phan bo lai key}
+        - {en: "Reduces hot operator instances.", vi: "Giam instance operator bi hot."}
+        - {en: "Changes aggregation semantics or requires a two-stage key.", vi: "Doi semantics aggregate hoac can key hai giai doan."}
+    n: {en: "Benchmark with realistic key skew and late-event distributions; uniform test streams hide the production bottleneck.", vi: "Benchmark voi phan bo key skew va late event thuc te; stream deu trong test che nut that production."}

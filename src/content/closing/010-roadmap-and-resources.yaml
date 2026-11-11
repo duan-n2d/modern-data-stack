@@ -1,0 +1,754 @@
+closing: true
+slides:
+  - id: how-to-use-this-deck-3-levels-across-6-domains
+    k: table
+    t:
+      en: "How to use this deck: 3 levels across 6 domains"
+      vi: "Cách dùng bộ slide: 3 level qua 6 domain"
+    lead:
+      en: "You do not need every tool at the same depth. Choose a level per layer: understand it, implement it, or engineer it in production."
+      vi: "Bạn không cần mọi công cụ ở cùng một độ sâu. Chọn level cho từng lớp: hiểu nó, triển khai nó, hoặc làm kỹ thuật cho nó ở production."
+    head:
+      - Domain
+      - en: Layers
+        vi: Các lớp
+      - en: "Level 1: Understand"
+        vi: "Level 1: Hiểu"
+      - en: "Level 2: Implement"
+        vi: "Level 2: Triển khai"
+      - en: "Level 3: Engineer"
+        vi: "Level 3: Làm kỹ thuật"
+    rows:
+      - - en: 1. Foundations
+          vi: 1. Nền tảng
+        - 1, 12
+        - en: Know what SQL, Python and modeling solve
+          vi: Biết SQL, Python và mô hình hóa giải quyết gì
+        - en: Write tested SQL and a star schema
+          vi: Viết SQL có test và một star schema
+        - en: Optimize at scale; own modeling standards
+          vi: Tối ưu ở quy mô lớn; nắm chuẩn mô hình hóa
+      - - en: 2. Modern data platform
+          vi: 2. Data platform hiện đại
+        - 2, 3, 4, 6, 7, 10
+        - en: Explain ingestion, storage, transformation, semantic layer
+          vi: Giải thích ingestion, storage, transformation, semantic layer
+        - en: Build an ELT pipeline with dbt and a BI layer
+          vi: Xây pipeline ELT với dbt và một lớp BI
+        - en: Design for scale, cost, schema change and replay
+          vi: Thiết kế cho quy mô, chi phí, đổi schema và phát lại
+      - - en: 3. Platform operations
+          vi: 3. Vận hành nền tảng
+        - 5, 8, 9, 17, 19
+        - en: Know orchestration, quality, governance, security, cost
+          vi: Biết điều phối, chất lượng, quản trị, bảo mật, chi phí
+        - en: Add tests, lineage, RBAC and budgets
+          vi: Thêm test, lineage, RBAC và ngân sách
+        - en: Run SLAs, audits, incident response and FinOps
+          vi: Vận hành SLA, audit, xử lý sự cố và FinOps
+      - - en: 4. Infrastructure and architecture
+          vi: 4. Hạ tầng và kiến trúc
+        - en: 11, 18, appendix
+          vi: 11, 18, phụ lục
+        - en: Explain Kubernetes, Terraform, CAP and replication
+          vi: Giải thích Kubernetes, Terraform, CAP và replication
+        - en: Deploy with CI/CD and infrastructure as code
+          vi: Triển khai bằng CI/CD và infrastructure as code
+        - en: Design HA and DR; troubleshoot distributed failures
+          vi: Thiết kế HA và DR; xử lý sự cố phân tán
+      - - en: 5. Advanced data and AI
+          vi: 5. Dữ liệu nâng cao và AI
+        - 13, 15, 16
+        - en: Explain models, RAG, MCP and agent loops
+          vi: Giải thích model, RAG, MCP và vòng lặp agent
+        - en: Train a model; build a RAG or tool-using agent
+          vi: Huấn luyện một model; xây RAG hoặc agent dùng tool
+        - en: Evaluate, secure and monitor AI in production
+          vi: Đánh giá, bảo mật và giám sát AI ở production
+      - - en: 6. Engineering excellence
+          vi: 6. Xuất sắc kỹ thuật
+        - "14"
+        - en: Know ADRs, build vs buy, prioritization
+          vi: Biết ADR, build vs buy, ưu tiên
+        - en: Write ADRs and run design reviews
+          vi: Viết ADR và chạy buổi review thiết kế
+        - en: Set technical direction and mentor others
+          vi: Đặt định hướng kỹ thuật và dìu dắt người khác
+    cap:
+      en: "Planned next layers: API and integration, platform engineering, data mesh and data products, and event-driven architecture."
+      vi: "Các lớp dự kiến tiếp theo: API và tích hợp, platform engineering, data mesh và data product, và kiến trúc hướng sự kiện."
+    n:
+      en: Use the levels to scope learning. A mid-level engineer targets Level 2 across the board and Level 3 in two or three layers they own; a senior owns Level 3 in most operations and architecture layers.
+      vi: Dùng các level để định phạm vi học. Engineer mid-level nhắm Level 2 ở mọi nơi và Level 3 ở hai hoặc ba lớp mình phụ trách; senior nắm Level 3 ở hầu hết lớp vận hành và kiến trúc.
+  - id: reference-architecture-a-modern-batch-data-platform
+    k: stack
+    t:
+      en: "Reference architecture A: modern batch data platform"
+      vi: "Kiến trúc tham chiếu A: data platform batch hiện đại"
+    lead:
+      en: Sources, managed ingestion, raw storage, dbt transformation, a semantic layer and BI. Quality monitoring watches the whole path.
+      vi: Nguồn, ingestion managed, lưu trữ thô, biến đổi bằng dbt, semantic layer và BI. Giám sát chất lượng theo dõi toàn bộ đường đi.
+    parts:
+      - svg: batchArchSVG
+      - cols: 3
+        cards:
+          - h: Ingestion
+            p:
+              en: Managed connectors for SaaS, CDC for operational databases, and files landing in object storage. Raw data stays append-only.
+              vi: Connector managed cho SaaS, CDC cho database vận hành, và file hạ cánh vào object storage. Dữ liệu thô chỉ ghi thêm.
+          - h:
+              en: Transformation
+              vi: Biến đổi
+            p:
+              en: dbt builds staging, intermediate and mart models with tests and contracts, deployed by CI.
+              vi: dbt dựng model staging, intermediate và mart có test và contract, triển khai bằng CI.
+          - h:
+              en: Failure points
+              vi: Điểm dễ hỏng
+            p:
+              en: Schema drift, late sources, partial loads and non-idempotent reruns. Orchestration and freshness checks catch them.
+              vi: Lệch schema, nguồn đến trễ, load dở dang và chạy lại không idempotent. Điều phối và kiểm tra freshness bắt được chúng.
+    n:
+      en: "This is the default most teams should start from. Technology options: Airbyte or Fivetran, Python, S3 or MinIO, Iceberg, Spark or Trino, dbt, Airflow."
+      vi: "Đây là mặc định hầu hết đội nên bắt đầu. Lựa chọn công nghệ: Airbyte hoặc Fivetran, Python, S3 hoặc MinIO, Iceberg, Spark hoặc Trino, dbt, Airflow."
+  - id: reference-architecture-b-real-time-streaming-platform
+    k: stack
+    t:
+      en: "Reference architecture B: real-time streaming platform"
+      vi: "Kiến trúc tham chiếu B: nền tảng streaming thời gian thực"
+    lead:
+      en: Row changes flow from the database log through Kafka and Flink into Iceberg tables that Trino can query within seconds to minutes.
+      vi: Thay đổi dòng dữ liệu chảy từ log của database qua Kafka và Flink vào bảng Iceberg mà Trino truy vấn được sau vài giây đến vài phút.
+    parts:
+      - svg: streamArchSVG
+      - cols: 3
+        cards:
+          - h:
+              en: Event time and watermarks
+              vi: Event time và watermark
+            p:
+              en: Window by when the event happened, not when it arrived. A watermark says how long to wait for stragglers.
+              vi: Chia cửa sổ theo lúc sự kiện xảy ra, không phải lúc nó đến. Watermark cho biết chờ các sự kiện đến muộn bao lâu.
+          - h:
+              en: Checkpoints and replay
+              vi: Checkpoint và phát lại
+            p:
+              en: Flink snapshots state and Kafka offsets together. After failure it restores and re-reads, so no acknowledged event is lost.
+              vi: Flink snapshot state và offset Kafka cùng lúc. Sau lỗi nó khôi phục và đọc lại, nên không mất sự kiện đã xác nhận.
+          - h:
+              en: Late events and exactly-once
+              vi: Sự kiện trễ và exactly-once
+            p:
+              en: Allow lateness or route late data to a side output. Exactly-once needs transactional or idempotent writes to Iceberg.
+              vi: Cho phép trễ hoặc đưa dữ liệu trễ ra side output. Exactly-once cần ghi giao dịch hoặc idempotent vào Iceberg.
+    n:
+      en: "Contrast with the batch platform: lower latency and more moving parts. Also mention compaction of small files that streaming writes create in Iceberg."
+      vi: "So với nền tảng batch: độ trễ thấp hơn và nhiều bộ phận chuyển động hơn. Cũng nhắc compaction các file nhỏ mà streaming tạo ra trong Iceberg."
+  - id: reference-architecture-c-enterprise-lakehouse
+    k: stack
+    t:
+      en: "Reference architecture C: enterprise lakehouse"
+      vi: "Kiến trúc tham chiếu C: lakehouse doanh nghiệp"
+    lead:
+      en: Bronze, silver and gold layers on a transactional table format, with compute engines on top and one governance layer across everything.
+      vi: Các tầng bronze, silver và gold trên table format có giao dịch, engine compute ở trên và một lớp quản trị xuyên suốt.
+    parts:
+      - svg: lakehouseArchSVG
+      - cols: 3
+        cards:
+          - h:
+              en: Table format and catalog
+              vi: Table format và catalog
+            p:
+              en: Iceberg or Delta gives ACID commits and schema evolution. The catalog is the pointer, the permission point and the discovery point.
+              vi: Iceberg hoặc Delta cho commit ACID và tiến hóa schema. Catalog là con trỏ, điểm phân quyền và điểm khám phá.
+          - h:
+              en: Compaction and metadata
+              vi: Compaction và metadata
+            p:
+              en: Schedule file compaction, snapshot expiry and orphan cleanup, or reads and costs degrade.
+              vi: Lên lịch compaction file, hết hạn snapshot và dọn file mồ côi, nếu không đọc chậm và chi phí tăng.
+          - h:
+              en: Governance
+              vi: Quản trị
+            p:
+              en: Access control, lineage and audit at the catalog level apply to every engine that reads the tables.
+              vi: Kiểm soát truy cập, lineage và audit ở mức catalog áp dụng cho mọi engine đọc các bảng.
+    n:
+      en: Gold is where data products are published with contracts. Whether the stack is Databricks and Unity Catalog or an open stack with Iceberg and a REST catalog, the responsibilities are the same.
+      vi: Gold là nơi xuất bản data product kèm contract. Dù stack là Databricks và Unity Catalog hay stack mở với Iceberg và REST catalog, trách nhiệm vẫn như nhau.
+  - id: reference-architecture-d-data-platform-on-kubernetes
+    k: stack
+    t:
+      en: "Reference architecture D: data platform on Kubernetes"
+      vi: "Kiến trúc tham chiếu D: data platform trên Kubernetes"
+    lead:
+      en: "One cluster runs batch, streaming and orchestration workloads with shared guardrails: quotas, network policies, secrets and GitOps."
+      vi: "Một cluster chạy các workload batch, streaming và điều phối với hàng rào chung: quota, network policy, secret và GitOps."
+    parts:
+      - svg: k8sPlatformSVG
+      - cols: 3
+        cards:
+          - h:
+              en: Scheduling and isolation
+              vi: Lập lịch và cô lập
+            p:
+              en: Namespaces, quotas and node pools separate teams and workload types. Taints keep expensive nodes for the jobs that need them.
+              vi: Namespace, quota và node pool tách đội và loại workload. Taint giữ node đắt cho job thật sự cần.
+          - h: Autoscaling
+            p:
+              en: HPA scales pods; the cluster autoscaler adds nodes. Cap both to keep cost predictable.
+              vi: HPA co giãn pod; cluster autoscaler thêm node. Đặt giới hạn cả hai để chi phí dự đoán được.
+          - h:
+              en: Secrets, networking, deployment
+              vi: Secret, mạng, triển khai
+            p:
+              en: Workload identity and external secrets avoid stored keys; network policies limit traffic; GitOps deploys declared state.
+              vi: Workload identity và external secrets tránh lưu khóa; network policy giới hạn lưu lượng; GitOps triển khai trạng thái đã khai báo.
+    n:
+      en: Kubernetes pays off when you run many services and need a shared platform. For a small team, managed services are usually cheaper to operate.
+      vi: Kubernetes đúng giá khi bạn chạy nhiều dịch vụ và cần nền tảng dùng chung. Với đội nhỏ, dịch vụ managed thường rẻ hơn để vận hành.
+  - id: reference-architecture-e-ai-powered-data-platform
+    k: stack
+    t:
+      en: "Reference architecture E: AI-powered data platform"
+      vi: "Kiến trúc tham chiếu E: data platform có AI"
+    lead:
+      en: "MCP gives agents connectivity. The governed semantic layer gives them meaning: consistent metrics, enforced policies and deterministic SQL."
+      vi: "MCP cho agent khả năng kết nối. Semantic layer có quản trị cho chúng ý nghĩa: metric nhất quán, policy được thực thi và SQL tất định."
+    parts:
+      - svg: aiArchSVG
+      - cols: 3
+        cards:
+          - h:
+              en: Ingestion for RAG
+              vi: Ingestion cho RAG
+            p:
+              en: Documents are parsed, chunked, embedded and indexed with metadata and access tags. Re-index when sources change.
+              vi: Tài liệu được phân tích, chia chunk, embed và lập chỉ mục kèm metadata và tag quyền. Lập chỉ mục lại khi nguồn đổi.
+          - h:
+              en: Retrieval and evaluation
+              vi: Truy xuất và đánh giá
+            p:
+              en: Hybrid search plus a reranker, measured by recall@k and answer faithfulness on a golden set.
+              vi: Tìm hybrid cộng reranker, đo bằng recall@k và độ trung thực của câu trả lời trên bộ test vàng.
+          - h:
+              en: Agents and security
+              vi: Agent và bảo mật
+            p:
+              en: Agents call governed tools through MCP with the user’s identity, read-only by default, with logging and approvals for risky actions.
+              vi: Agent gọi tool có quản trị qua MCP bằng danh tính của người dùng, mặc định chỉ đọc, có log và duyệt cho hành động rủi ro.
+    n:
+      en: "Key message: MCP connects, the semantic layer ensures answers are correct, consistent and compliant. Without the semantic layer an agent can connect to everything and still return the wrong number."
+      vi: "Thông điệp chính: MCP kết nối, semantic layer bảo đảm câu trả lời đúng, nhất quán và tuân thủ. Không có semantic layer, agent có thể kết nối mọi thứ mà vẫn trả sai con số."
+  - id: reference-architecture-1-startup-1-to-3-data-people
+    k: svg
+    t:
+      en: "Reference architecture 1: startup (1 to 3 data people)"
+      vi: "Kiến trúc tham chiếu 1: startup (1 đến 3 người làm dữ liệu)"
+    lead:
+      en: "Goal: answers this quarter with minimal operations."
+      vi: "Mục tiêu: có câu trả lời trong quý này với vận hành tối thiểu."
+    svg:
+      fn: archSVG
+      args:
+        - - en: SaaS apps|Postgres|product events
+            vi: ứng dụng SaaS|Postgres|sự kiện sản phẩm
+          - en: Airbyte Cloud or|Fivetran, or|small dlt scripts
+            vi: Airbyte Cloud hoặc|Fivetran, hoặc|script dlt nhỏ
+          - en: BigQuery, Snowflake|or MotherDuck
+            vi: BigQuery, Snowflake|hoặc MotherDuck
+          - en: dbt Core|staging and marts|SQLFluff, tests
+            vi: dbt Core|staging và mart|SQLFluff, test
+          - en: Metrics in dbt YAML|(Lightdash can|read them)
+            vi: Metric trong dbt YAML|(Lightdash có thể|đọc chúng)
+          - en: Metabase or|Lightdash|Streamlit apps
+            vi: Metabase hoặc|Lightdash|ứng dụng Streamlit
+        - - - en: Orchestration
+              vi: Điều phối
+            - en: GitHub Actions cron or the dbt Cloud scheduler
+              vi: cron GitHub Actions hoặc scheduler của dbt Cloud
+          - [{en: Quality, vi: Chất lượng}, {en: "dbt tests plus freshness checks, alerts to a Slack channel", vi: "dbt test cùng kiểm tra freshness, cảnh báo về kênh Slack"}]
+          - [{en: Governance, vi: Quản trị}, {en: "Roles by schema, README per mart, owners in YAML, no PII in raw sandboxes", vi: "Role theo schema, README mỗi mart, owner trong YAML, không PII trong sandbox raw"}]
+          - [DevOps, {en: "One repository, pull-request review, Slim CI, Terraform for warehouse basics", vi: "Một repository, review pull request, Slim CI, Terraform cho warehouse cơ bản"}]
+        - en: "Startup stack: managed ingestion, one warehouse, dbt, a simple BI tool"
+          vi: "Stack startup: ingestion được quản lý, một warehouse, dbt, một công cụ BI đơn giản"
+    cap:
+      en: Defer streaming, a catalog and a separate semantic layer until a measured need appears. Spend on reliability basics first.
+      vi: Hoãn streaming, catalog và semantic layer riêng cho đến khi xuất hiện nhu cầu đo lường được. Hãy chi tiền cho các nền tảng độ tin cậy trước.
+    n:
+      en: "The startup stack is deliberately boring: fewer moving parts than you think you need. The skills that matter are SQL, dbt discipline and cost awareness."
+      vi: "Stack của startup cố tình đơn giản: ít bộ phận chuyển động hơn bạn nghĩ là cần. Các kỹ năng quan trọng là SQL, kỷ luật dbt và ý thức về chi phí."
+  - id: reference-architecture-2-mid-size-company-10-to-40-data
+    k: svg
+    t:
+      en: "Reference architecture 2: mid-size company (10 to 40 data people)"
+      vi: "Kiến trúc tham chiếu 2: công ty vừa (10 đến 40 người làm dữ liệu)"
+    lead:
+      en: "Goal: reliable, governed self-service across several teams."
+      vi: "Mục tiêu: self-service đáng tin, có quản trị cho nhiều đội."
+    svg:
+      fn: archSVG
+      args:
+        - - en: SaaS apps|Operational DBs|Product events
+            vi: Ứng dụng SaaS|DB vận hành|Sự kiện sản phẩm
+          - en: Fivetran or Airbyte|Debezium CDC for|core databases
+            vi: Fivetran hoặc Airbyte|Debezium CDC cho|database lõi
+          - en: Snowflake, BigQuery|or Databricks|Open table formats|where shared
+            vi: Snowflake, BigQuery|hoặc Databricks|Open table format|khi dùng chung
+          - en: dbt with contracts|Slim CI, unit tests|shared packages
+            vi: dbt với contract|Slim CI, unit test|package dùng chung
+          - en: dbt Semantic Layer|or Cube for|certified metrics
+            vi: dbt Semantic Layer|hoặc Cube cho|metric đã chứng nhận
+          - en: Looker, Power BI|or Tableau|Hightouch or Census|ML notebooks
+            vi: Looker, Power BI|hoặc Tableau|Hightouch hoặc Census|notebook ML
+        - - - en: Orchestration
+              vi: Điều phối
+            - en: Dagster or managed Airflow; asset checks and freshness SLAs on key tables
+              vi: Dagster hoặc Airflow managed; asset check và SLA freshness trên bảng chính
+          - - en: Quality
+              vi: Chất lượng
+            - en: dbt tests plus an observability tool (Elementary or a commercial platform); data diff in CI
+              vi: dbt test cùng công cụ observability (Elementary hoặc nền tảng thương mại); data diff trong CI
+          - [{en: Governance, vi: Quản trị}, {en: "DataHub, OpenMetadata or Atlan; masking policies; role-based access through groups", vi: "DataHub, OpenMetadata hoặc Atlan; masking policy; truy cập theo vai trò qua group"}]
+          - [DevOps, {en: "Terraform, OIDC for CI, per-PR schemas, budgets and team-level cost attribution", vi: "Terraform, OIDC cho CI, schema theo PR, ngân sách và phân bổ chi phí theo team"}]
+        - en: Mid-size stack with orchestrator, semantic layer, observability and catalog
+          vi: Stack cỡ vừa với orchestrator, semantic layer, observability và catalog
+    cap:
+      en: "New concerns appear at this size: ownership, contracts between teams, cost attribution and incident response."
+      vi: "Ở quy mô này xuất hiện các mối quan tâm mới: quyền sở hữu, contract giữa các team, phân bổ chi phí và xử lý sự cố."
+    n:
+      en: "This is the stage where seniors matter most: you add process and tools only when coordination costs justify them. The mid-size stack adds a semantic layer, observability and a catalog."
+      vi: "Đây là giai đoạn senior quan trọng nhất: bạn chỉ thêm quy trình và công cụ khi chi phí phối hợp biện minh cho chúng. Stack quy mô vừa bổ sung semantic layer, observability và catalog."
+  - id: reference-architecture-3-enterprise-many-domains
+    k: svg
+    t:
+      en: "Reference architecture 3: enterprise (many domains)"
+      vi: "Kiến trúc tham chiếu 3: doanh nghiệp lớn (nhiều domain)"
+    lead:
+      en: "Goal: scale ownership, security and compliance without a central bottleneck."
+      vi: "Mục tiêu: mở rộng quyền sở hữu, bảo mật và tuân thủ mà không có nút thắt trung tâm."
+    svg:
+      fn: archSVG
+      args:
+        - - en: Hundreds of sources|ERP, SaaS, IoT|Multiple clouds
+            vi: Hàng trăm nguồn|ERP, SaaS, IoT|Nhiều cloud
+          - en: Kafka and Debezium|Managed ELT for SaaS|Landing zones|per domain
+            vi: Kafka và Debezium|ELT managed cho SaaS|Landing zone|theo domain
+          - en: Lakehouse (Iceberg|or Delta) plus|warehouses|Domain-owned zones
+            vi: Lakehouse (Iceberg|hoặc Delta) cùng|warehouse|Zone do domain sở hữu
+          - en: Domain dbt projects|Shared conventions|Spark for heavy jobs
+            vi: Dự án dbt theo domain|Quy ước dùng chung|Spark cho job nặng
+          - en: Enterprise semantic|layer (AtScale, Cube|or platform native)
+            vi: Semantic layer|doanh nghiệp (AtScale, Cube|hoặc native của nền tảng)
+          - en: Power BI, Tableau|Embedded analytics|Reverse ETL|Guarded AI assistants
+            vi: Power BI, Tableau|Embedded analytics|Reverse ETL|Trợ lý AI có kiểm soát
+        - - - en: Orchestration
+              vi: Điều phối
+            - en: Airflow, Composer or Dagster operated by a platform team; isolation between domains
+              vi: Airflow, Composer hoặc Dagster do platform team vận hành; cô lập giữa các domain
+          - [{en: Quality, vi: Chất lượng}, {en: Observability platform; SLAs per data product; formal incident process, vi: Nền tảng observability; SLA theo data product; quy trình incident chính thức}]
+          - - en: Governance
+              vi: Quản trị
+            - en: Collibra, Alation or Unity Catalog; OpenLineage; contracts, audit trails, residency rules
+              vi: Collibra, Alation hoặc Unity Catalog; OpenLineage; contract, audit trail, quy tắc residency
+          - [DevOps, {en: Terraform and Kubernetes; FinOps; security reviews; ADRs for platform choices, vi: Terraform và Kubernetes; FinOps; rà soát bảo mật; ADR cho lựa chọn nền tảng}]
+        - en: Enterprise stack with domain ownership, platform team and automated governance
+          vi: Stack doanh nghiệp với domain ownership, platform team và quản trị tự động
+    cap:
+      en: The platform team provides paved roads; domains build data products on them. Governance is automated, not manual.
+      vi: Platform team cung cấp các paved road; các domain xây data product trên đó. Governance được tự động hóa, không làm thủ công.
+    n:
+      en: At enterprise scale the hard problems are organizational. The architecture is mostly the same building blocks as mid-size, with stronger isolation, governance and platform ownership.
+      vi: Ở quy mô enterprise, các vấn đề khó mang tính tổ chức. Kiến trúc phần lớn dùng cùng các khối xây dựng như quy mô vừa, với cô lập, governance và quyền sở hữu platform mạnh hơn.
+  - id: senior-level-skills-matrix-1-of-2
+    k: table
+    t:
+      en: Senior-level skills matrix (1 of 2)
+      vi: Ma trận kỹ năng senior (1/2)
+    lead:
+      en: "Mark yourself honestly for each layer: Learning, Working or Leading."
+      vi: "Tự chấm trung thực cho từng lớp: Learning, Working hoặc Leading."
+    head:
+      - en: Layer
+        vi: Lớp
+      - en: "Mid-level: you can…"
+        vi: "Mid-level: bạn có thể…"
+      - en: "Senior: you also…"
+        vi: "Senior: bạn còn…"
+      - en: Self-assess
+        vi: Tự đánh giá
+    rows:
+      - - en: 1. Core languages
+          vi: 1. Ngôn ngữ cốt lõi
+        - en: Write correct joins, windows and aggregates; basic Python
+          vi: Viết đúng join, window và aggregate; Python cơ bản
+        - en: Read query plans, optimize costly queries, set style standards, choose SQL versus Python deliberately
+          vi: Đọc query plan, tối ưu query tốn kém, đặt chuẩn style, chọn SQL hay Python một cách có chủ đích
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - 2. Ingestion
+        - en: Configure managed connectors; fix failed loads
+          vi: Cấu hình connector được quản lý; sửa các lần load lỗi
+        - en: Design idempotent, replayable loads; handle drift, deletes and backfills; choose batch versus streaming on value
+          vi: Thiết kế load idempotent, có thể replay; xử lý drift, delete và backfill; chọn batch hay streaming dựa trên giá trị
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - 3. Warehouse
+        - en: Query and load tables on one platform
+          vi: Query và load bảng trên một nền tảng
+        - en: Model cost, isolate workloads, choose formats and platforms, plan migrations
+          vi: Mô hình hóa chi phí, cô lập workload, chọn định dạng và nền tảng, lập kế hoạch migration
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 4. Transformation
+          vi: 4. Biến đổi dữ liệu
+        - en: Build and test dbt models
+          vi: Xây dựng và test model dbt
+        - en: Define structure, contracts and Slim CI; control build cost; manage breaking changes
+          vi: Định nghĩa cấu trúc, contract và Slim CI; kiểm soát chi phí build; quản lý breaking change
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 5. Orchestration
+          vi: 5. Điều phối
+        - en: Schedule and monitor jobs
+          vi: Lên lịch và giám sát job
+        - en: Design retry, SLA and backfill strategy; choose tasks or assets; own recovery runbooks
+          vi: Thiết kế chiến lược retry, SLA và backfill; chọn task hay asset; sở hữu runbook khôi phục
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - 6. Semantic layer
+        - en: Use existing metrics
+          vi: Dùng các metric có sẵn
+        - en: Define and govern metrics; manage versioning and deprecation; resolve definition conflicts
+          vi: Định nghĩa và governance metric; quản lý versioning và deprecation; giải quyết xung đột định nghĩa
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - 7. BI
+        - en: Build dashboards
+          vi: Xây dựng dashboard
+        - en: Govern self-service; manage performance; own the data layer under dashboards
+          vi: Governance self-service; quản lý hiệu năng; sở hữu data layer bên dưới dashboard
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+    n:
+      en: Use this as a one-on-one tool with your manager. Seniors are expected to be Leading in several rows and at least Working in all of them.
+      vi: Dùng đây làm công cụ one-on-one với manager của bạn. Senior được kỳ vọng ở mức Dẫn dắt trong nhiều hàng và ít nhất Đang làm ở tất cả các hàng.
+  - id: senior-level-skills-matrix-2-of-2
+    k: table
+    t:
+      en: Senior-level skills matrix (2 of 2)
+      vi: Ma trận kỹ năng senior (2/2)
+    lead:
+      en: Pick two rows to turn from Working to Leading in the next six months.
+      vi: Chọn hai hàng để chuyển từ Đang làm sang Dẫn dắt trong sáu tháng tới.
+    head:
+      - en: Layer
+        vi: Lớp
+      - en: "Mid-level: you can…"
+        vi: "Mid-level: bạn có thể…"
+      - en: "Senior: you also…"
+        vi: "Senior: bạn còn…"
+      - en: Self-assess
+        vi: Tự đánh giá
+    rows:
+      - - en: 8. Quality
+          vi: 8. Chất lượng
+        - en: Add basic tests
+          vi: Thêm test cơ bản
+        - en: Define SLAs, tune monitors, run incident response and cut alert noise
+          vi: Định nghĩa SLA, tinh chỉnh monitor, xử lý sự cố và giảm nhiễu alert
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - 9. Governance
+        - en: Follow access rules
+          vi: Tuân thủ quy tắc truy cập
+        - en: Design roles, masking and contracts; partner with security and legal
+          vi: Thiết kế role, masking và contract; phối hợp với bộ phận bảo mật và pháp lý
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - 10. Reverse ETL
+        - en: Configure a sync
+          vi: Cấu hình một sync
+        - en: "Build safe activation: consent, thresholds, diff-based syncs and failure handling"
+          vi: "Xây dựng activation an toàn: consent, ngưỡng, sync dựa trên diff và xử lý lỗi"
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - 11. DevOps
+        - en: Use Git and pull requests
+          vi: Dùng Git và pull request
+        - en: Own CI/CD, infrastructure as code, IAM and cost hygiene
+          vi: Sở hữu CI/CD, infrastructure as code, IAM và vệ sinh chi phí
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 12. Modeling
+          vi: 12. Mô hình hóa
+        - en: Build marts from a specification
+          vi: Xây dựng mart từ một đặc tả
+        - en: Choose and defend modeling approaches; own conformed dimensions and history
+          vi: Chọn và bảo vệ cách tiếp cận mô hình hóa; sở hữu conformed dimension và lịch sử
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 13. Analytics and AI
+          vi: 13. Analytics và AI
+        - en: Run basic analyses
+          vi: Chạy các phân tích cơ bản
+        - en: Design experiments, reason causally, set AI guardrails and evaluate tools honestly
+          vi: Thiết kế experiment, suy luận nhân quả, đặt guardrail cho AI và đánh giá công cụ một cách trung thực
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 14. Soft skills
+          vi: 14. Kỹ năng mềm
+        - en: Deliver assigned tasks
+          vi: Hoàn thành các task được giao
+        - en: Lead alignment, write ADRs, mentor, prioritize and communicate trade-offs
+          vi: Dẫn dắt sự đồng thuận, viết ADR, mentor, ưu tiên và truyền đạt các trade-off
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - 15. AI engineering
+        - en: Call an LLM API and use a prompt template
+          vi: Gọi LLM API và dùng prompt template
+        - en: Design agent loops, harnesses, RAG and MCP integrations with evals, limits and security
+          vi: Thiết kế agent loop, harness, RAG và tích hợp MCP với eval, giới hạn và bảo mật
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 16. ML and DL models
+          vi: 16. Model ML và DL
+        - en: Train a scikit-learn model
+          vi: Train một model scikit-learn
+        - en: Explain how each model works, choose by data and cost, and prevent leakage and drift
+          vi: Giải thích cách từng model hoạt động, chọn theo dữ liệu và chi phí, phòng tránh leakage và drift
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 17. Security and networking
+          vi: 17. Bảo mật và networking
+        - en: Follow access and secrets rules
+          vi: Tuân thủ quy tắc về truy cập và secret
+        - en: Design least-privilege identity, private networking, encryption and audit; threat-model a pipeline
+          vi: Thiết kế identity least-privilege, private networking, mã hóa và audit; threat-model một pipeline
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 18. Distributed systems and reliability
+          vi: 18. Hệ thống phân tán và độ tin cậy
+        - en: Retry a failed job
+          vi: Retry một job lỗi
+        - en: Reason about consistency, delivery semantics and idempotency; design HA and DR with RPO and RTO
+          vi: Suy luận về consistency, delivery semantics và idempotency; thiết kế HA và DR với RPO và RTO
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 19. FinOps and performance
+          vi: 19. FinOps và hiệu năng
+        - en: Check the bill
+          vi: Kiểm tra hóa đơn
+        - en: Model unit costs, attribute spend, tune queries, shuffles and consumer lag, and plan capacity
+          vi: Mô hình hóa unit cost, phân bổ chi tiêu, tinh chỉnh query, shuffle và consumer lag, và lập kế hoạch capacity
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 20. Engineering foundations
+          vi: 20. Nền tảng kỹ thuật
+        - en: Use Git, SSH and a database
+          vi: Dùng Git, SSH và database
+        - en: Diagnose network, OS and transaction problems; run release and rollback safely
+          vi: Chẩn đoán vấn đề network, OS và transaction; chạy release và rollback an toàn
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 21. Concepts and modeling theory
+          vi: 21. Khái niệm và lý thuyết mô hình hóa
+        - en: Build tables from a spec
+          vi: Xây dựng bảng từ một spec
+        - en: Choose between normalized, dimensional and entity-centric models; define data products and golden records
+          vi: Chọn giữa model normalized, dimensional và entity-centric; định nghĩa data product và golden record
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 22. Formats and engines
+          vi: 22. Định dạng và engine
+        - en: Read and write Parquet
+          vi: Đọc và ghi Parquet
+        - en: Explain file layout, push-downs and engine choice; tune layout for scan cost
+          vi: Giải thích file layout, push-down và cách chọn engine; tinh chỉnh layout cho chi phí scan
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+      - - en: 23. Processing paradigms
+          vi: 23. Mô hình xử lý
+        - en: Write an ETL script
+          vi: Viết một script ETL
+        - en: Design functional, idempotent, declarative pipelines; choose batch, streaming or hybrid; serve data through APIs
+          vi: Thiết kế pipeline functional, idempotent, declarative; chọn batch, streaming hoặc hybrid; phục vụ dữ liệu qua API
+        - en: ☐ Learning ☐ Working ☐ Leading
+          vi: ☐ Đang học ☐ Đang làm ☐ Dẫn dắt
+    n:
+      en: "Encourage depth over breadth: it is better to be genuinely strong in a handful of layers and competent in the rest than superficial everywhere."
+      vi: "Khuyến khích chiều sâu hơn chiều rộng: tốt hơn là thực sự mạnh ở một số ít layer và đủ năng lực ở phần còn lại so với hời hợt ở mọi nơi."
+  - id: a-six-month-learning-roadmap
+    k: cards
+    t:
+      en: A six-month learning roadmap
+      vi: Lộ trình học sáu tháng
+    lead:
+      en: One real project per phase beats reading about ten tools. Apply each step to your current work.
+      vi: Một dự án thật mỗi giai đoạn hơn là đọc về mười công cụ. Áp dụng từng bước vào công việc hiện tại.
+    cols: 2
+    cards:
+      - h:
+          en: "Days 1 to 30: foundations"
+          vi: "Ngày 1 đến 30: nền tảng"
+        tag: must
+        list:
+          - en: Read five query plans and fix the worst query
+            vi: Đọc năm query plan và sửa query tệ nhất
+          - en: Add SQLFluff and pre-commit to a repository
+            vi: Thêm SQLFluff và pre-commit vào một repository
+          - en: Write unique, not-null and relationship tests for your top 10 models
+            vi: Viết test unique, not-null và relationship cho 10 model hàng đầu của bạn
+          - en: Start an ADR log with one retrospective ADR
+            vi: Bắt đầu một ADR log với một ADR hồi cứu
+      - h:
+          en: "Days 31 to 60: reliability"
+          vi: "Ngày 31 đến 60: độ tin cậy"
+        tag: must
+        list:
+          - en: Add Slim CI with a per-PR schema
+            vi: Thêm Slim CI với schema riêng cho mỗi PR
+          - en: Make one pipeline idempotent and backfillable
+            vi: Làm cho một pipeline idempotent và có thể backfill
+          - en: Add freshness and volume monitoring on three critical tables
+            vi: Thêm giám sát freshness và volume trên ba bảng quan trọng
+          - en: Write a runbook and rehearse an incident
+            vi: Viết runbook và diễn tập một sự cố
+      - h:
+          en: "Days 61 to 90: design and governance"
+          vi: "Ngày 61 đến 90: thiết kế và governance"
+        tag: senior
+        list:
+          - en: Write grain statements and a star schema for one domain
+            vi: Viết grain statement và star schema cho một domain
+          - en: Define five core metrics with owners in a semantic layer
+            vi: Định nghĩa năm metric cốt lõi cùng owner trong một semantic layer
+          - en: Mask one PII column and run an access review
+            vi: Mask một cột PII và thực hiện access review
+          - en: Present a cost review of your top queries
+            vi: Trình bày bản review chi phí của các query hàng đầu
+      - h:
+          en: "Months 4 to 6: leadership"
+          vi: "Tháng 4 đến 6: dẫn dắt"
+        tag: senior
+        list:
+          - en: Lead a build-versus-buy decision with a scorecard and an ADR
+            vi: Dẫn dắt quyết định build-versus-buy với scorecard và ADR
+          - en: Run a metric-alignment workshop
+            vi: Tổ chức workshop thống nhất metric
+          - en: Mentor one engineer through a full review cycle
+            vi: Mentor một engineer qua một chu kỳ review đầy đủ
+          - en: "Run an experiment end to end: design, power, analysis, write-up"
+            vi: "Chạy một experiment từ đầu đến cuối: thiết kế, power, phân tích, viết báo cáo"
+    n:
+      en: The roadmap moves from personal craft (days 1 to 30), to team reliability (31 to 60), to design and governance (61 to 90), to leadership (months 4 to 6). Adjust the order to your biggest gaps.
+      vi: Lộ trình đi từ kỹ năng cá nhân (ngày 1 đến 30), đến độ tin cậy của team (31 đến 60), đến thiết kế và governance (61 đến 90), đến dẫn dắt (tháng 4 đến 6). Hãy điều chỉnh thứ tự theo khoảng trống lớn nhất của bạn.
+  - id: final-summary-eight-ideas-to-keep
+    k: cards
+    t:
+      en: "Final summary: eight ideas to keep"
+      vi: "Tổng kết: tám ý tưởng cần giữ lại"
+    cols: 2
+    plain: true
+    cards:
+      - h:
+          en: Grain, keys and definitions outlive tools
+          vi: Grain, key và định nghĩa tồn tại lâu hơn công cụ
+        p:
+          en: Invest where change is slowest.
+          vi: Đầu tư vào nơi thay đổi chậm nhất.
+      - h:
+          en: Make everything idempotent and replayable
+          vi: Làm mọi thứ idempotent và có thể replay
+        p:
+          en: Safe retries and backfills prevent most data incidents.
+          vi: Retry và backfill an toàn ngăn chặn phần lớn sự cố dữ liệu.
+      - h:
+          en: Test where it is cheapest, monitor the unknown
+          vi: Test ở nơi rẻ nhất, monitor những điều chưa biết
+        p:
+          en: Layer checks; tune alerts; assign owners.
+          vi: Kiểm tra theo từng layer; tinh chỉnh alert; gán owner.
+      - h:
+          en: Logic belongs in reviewed code
+          vi: Logic thuộc về code đã được review
+        p:
+          en: Not in consoles, spreadsheets or BI tools.
+          vi: Không phải trong console, spreadsheet hay công cụ BI.
+      - h:
+          en: Treat cost as a design constraint
+          vi: Xem chi phí là ràng buộc thiết kế
+        p:
+          en: Measure, attribute and put guardrails in place.
+          vi: Đo lường, phân bổ và đặt guardrail.
+      - h:
+          en: One answer for every consumer
+          vi: Một câu trả lời cho mọi consumer
+        p:
+          en: Dashboards, apps and AI assistants share governed definitions.
+          vi: Dashboard, ứng dụng và trợ lý AI dùng chung các định nghĩa được governance.
+      - h:
+          en: Decide in writing
+          vi: Quyết định bằng văn bản
+        p:
+          en: ADRs, scorecards and explicit trade-offs.
+          vi: ADR, scorecard và trade-off rõ ràng.
+      - h:
+          en: Grow the people around you
+          vi: Phát triển những người xung quanh bạn
+        p:
+          en: Seniority is measured by what the team can do without you.
+          vi: Mức độ senior được đo bằng những gì team làm được mà không có bạn.
+    n:
+      en: "If the audience remembers only one thing: seniority is mostly about judgment, communication and leverage, applied on top of solid fundamentals."
+      vi: "Nếu khán giả chỉ nhớ một điều: mức độ senior chủ yếu là phán đoán, giao tiếp và đãn bẩy, áp dụng trên nền tảng cơ bản vững chắc."
+  - id: recommended-resources
+    k: cards
+    t:
+      en: Recommended resources
+      vi: Tài nguyên khuyến nghị
+    lead:
+      en: Prefer primary documentation and a few durable books over a long tool-by-tool reading list.
+      vi: Ưu tiên tài liệu gốc và một vài cuốn sách bền vững hơn là danh sách đọc dài theo từng công cụ.
+    cols: 3
+    cards:
+      - h:
+          en: Books
+          vi: Sách
+        tag: must
+        list:
+          - The Data Warehouse Toolkit (Kimball and Ross)
+          - Fundamentals of Data Engineering (Reis and Housley)
+          - Designing Data-Intensive Applications (Kleppmann)
+          - Trustworthy Online Controlled Experiments (Kohavi, Tang and Xu)
+          - The Staff Engineer’s Path (Reilly)
+      - h:
+          en: Reference sites
+          vi: Trang tham khảo
+        tag: must
+        list:
+          - en: Use The Index, Luke (use-the-index-luke.com) for SQL performance
+            vi: Dùng The Index, Luke (use-the-index-luke.com) cho hiệu năng SQL
+          - en: Modern SQL (modern-sql.com) for standard SQL features
+            vi: Modern SQL (modern-sql.com) cho các tính năng SQL chuẩn
+          - en: "The documentation of the tools you actually use: dbt, your warehouse, your orchestrator"
+            vi: "Tài liệu của các công cụ bạn thực sự dùng: dbt, warehouse, orchestrator của bạn"
+          - en: Dagster University and the Airflow documentation tutorials
+            vi: Dagster University và các tutorial trong tài liệu Airflow
+      - h:
+          en: Practice
+          vi: Thực hành
+        tag: nice
+        list:
+          - en: Build a small end-to-end stack locally with DuckDB, dbt and an orchestrator
+            vi: Xây dựng một stack end-to-end nhỏ ở local với DuckDB, dbt và một orchestrator
+          - en: Contribute to an open-source package or fix docs
+            vi: Đúng góp cho một package open-source hoặc sửa tài liệu
+          - en: Do a postmortem on a past incident
+            vi: Làm postmortem cho một sự cố trong quá khứ
+          - en: Mentor someone and write down what you learned
+            vi: Mentor ai đã và ghi lại những gì bạn học được
+    n:
+      en: Resources change; fundamentals do not. Check current editions and documentation versions. The best learning is deliberate practice on a real system with real stakes.
+      vi: Tài nguyên thay đổi; nền tảng cơ bản thì không. Hãy kiểm tra các edition và phiên bản tài liệu hiện hành. Cách học tốt nhất là thực hành có chủ đích trên hệ thống thật với rủi ro thật.
