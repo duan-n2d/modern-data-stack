@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modern Data Engineering: From Foundations to Senior-Level Architecture</title>
+<link rel="stylesheet" href="./styles/deck.css">
+</head>
+<body>
+<!-- shared SVG defs -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#7A869F"/></marker>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <button class="ib" id="btn-toc" title="Contents (M)" data-i18n-title="Contents (M)" aria-label="Toggle contents" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <div class="ttl" data-i18n="Modern Data Engineering: From Foundations to Senior-Level Architecture">Modern Data Engineering: From Foundations to Senior-Level Architecture</div>
+  <button class="ib" id="btn-search" title="Search slides (/)" data-i18n-title="Search slides (/)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+  <button class="ib" id="btn-bm" title="Bookmark slide (B)" data-i18n-title="Bookmark slide (B)" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button>
+  <button class="ib" id="btn-lang" title="Switch language (L)" data-i18n-title="Switch language (L)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg><b id="lang-label" style="font-size:.78rem">EN</b></button>
+  <button class="ib" id="btn-ov" title="Overview grid (O)" data-i18n-title="Overview grid (O)" aria-pressed="false"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><kbd>O</kbd></button>
+  <button class="ib" id="btn-graph" title="Knowledge graph (G)" data-i18n-title="Knowledge graph (G)" aria-label="Knowledge graph" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M7.2 7.3l3.6 8M16.8 7.3l-3.6 8M7.5 6h9"/></svg><kbd>G</kbd></button>
+  <button class="ib" id="btn-notes" title="Speaker notes (N)" data-i18n-title="Speaker notes (N)" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M5 4h14v12H9l-4 4z"/></svg><kbd>N</kbd></button>
+  <button class="ib" id="btn-theme" title="Toggle light / dark" data-i18n-title="Toggle light / dark" aria-label="Toggle theme"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button class="ib" id="btn-print" title="Print / save as PDF" data-i18n-title="Print / save as PDF" aria-label="Print"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z"/></svg></button>
+</header>
+<div class="progress" aria-hidden="true"><i id="bar"></i></div>
+<nav id="toc" aria-label="Table of contents"></nav>
+<div class="scrim" id="scrim"></div>
+<main id="stage" aria-live="polite"></main>
+<section id="ov" aria-label="Slide overview"></section>
+<section id="search" aria-label="Search"><input id="q" type="search" placeholder="Search slides and code" autocomplete="off"><div id="results"></div></section>
+<section id="graph" role="dialog" aria-modal="true" aria-labelledby="graph-heading" aria-hidden="true">
+  <div class="graph-shell">
+    <header class="graph-head">
+      <div><h2 id="graph-heading" data-i18n="Knowledge graph">Knowledge graph</h2><p data-i18n="Explore relationships across the data engineering topics">Explore relationships across the data engineering topics</p></div>
+      <div class="graph-actions"><input id="graph-q" type="search" data-i18n-placeholder="Find a concept" placeholder="Find a concept" autocomplete="off"><button class="ib" id="graph-close" title="Close graph" data-i18n-title="Close graph" aria-label="Close graph"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    </header>
+    <div class="graph-layout"><div class="graph-canvas"><svg id="graph-svg" role="img" aria-label="Knowledge graph"></svg></div><aside class="graph-inspector" id="graph-inspector" aria-live="polite"></aside></div>
+  </div>
+</section>
+<div id="status" class="sr" aria-live="polite"></div>
+<footer class="bottombar">
+  <div class="secname" id="secname"></div>
+  <button class="ib" id="prev" data-i18n-title="Previous slide" aria-label="Previous slide"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="count" id="count">1 / 1</div>
+  <button class="ib" id="next" data-i18n-title="Next slide" aria-label="Next slide"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  <div class="hint" data-i18n="arrows / space / swipe">arrows / space / swipe</div>
+</footer>
+<script src="./js/core.js"></script>
+<script src="./js/intro.js"></script>
+<script src="./js/sections/layers-01-02.js"></script>
+<script src="./js/sections/layers-03-04.js"></script>
+<script src="./js/sections/layers-05-06.js"></script>
+<script src="./js/sections/layers-07-08.js"></script>
+<script src="./js/sections/layers-09-11.js"></script>
+<script src="./js/sections/layers-12-13.js"></script>
+<script src="./js/sections/layer-14.js"></script>
+<script src="./js/knowledge-graph.js"></script>
+<script src="./js/appendix.js"></script>
+
+
+<script src="./js/i18n.js"></script>
+<script src="./js/advanced-topics.js"></script>
+
+
+<script src="./js/extensions.js"></script>
+
+<script src="./js/sections/layer-20.js"></script>
+<script src="./js/practice-scenarios.js"></script>
+
+
+<script src="./js/sections/layers-21-23.js"></script>
+<script src="./js/coverage-audit.js"></script>
+<script src="./js/app.js"></script>
+</body>
+</html>

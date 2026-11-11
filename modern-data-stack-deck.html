@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Modern Data Engineering: From Foundations to Senior-Level Architecture</title>
 <style>
+
 :root{
   --bg:#F2F4F8; --surface:#FFFFFF; --surface2:#F7F8FB; --ink:#121623; --muted:#4E5A74; --line:#D5DBE7;
   --code-bg:#0F1420; --code-ink:#DDE3F0; --code-bar:#171E2E;
@@ -176,6 +177,13 @@ kbd{font-family:var(--mono);font-size:.78rem;background:var(--surface);border:1p
 .agenda svg{width:26px;height:26px;stroke:var(--c);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .agenda b{display:block;font-size:.95rem;line-height:1.2}
 .agenda small{color:var(--muted);font-size:.78rem}
+.path-map{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.path{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:8px;padding:10px 12px}
+.path h3{margin:0 0 7px;font-size:.95rem;line-height:1.25}
+.path ol{margin:0;padding-left:1.8em;display:grid;gap:3px}
+.path li{padding-left:2px;color:var(--muted);font-size:.82rem}
+.path a{color:var(--ink);text-decoration:none}
+.path a:hover{text-decoration:underline;color:var(--tx)}
 
 /* overview */
 #ov{position:fixed;inset:56px 0 52px 0;background:var(--bg);z-index:28;overflow:auto;padding:18px;display:none}
@@ -200,6 +208,39 @@ body.search-on #search{display:block}
 #results b{display:block;font-size:.92rem}
 #results small{color:var(--muted);display:block;font-size:.78rem}
 #results mark{background:color-mix(in srgb,var(--accent) 30%,transparent);color:inherit;border-radius:3px}
+#graph{position:fixed;inset:0;z-index:40;background:var(--bg);display:none}
+body.graph-on #graph{display:block}
+.graph-shell{height:100%;display:flex;flex-direction:column}
+.graph-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 18px;background:var(--surface);border-bottom:1px solid var(--line)}
+.graph-head h2{margin:0;font-family:var(--serif);font-size:1.35rem;line-height:1.2}
+.graph-head p{margin:3px 0 0;color:var(--muted);font-size:.84rem}
+.graph-actions{display:flex;align-items:center;gap:8px}
+#graph-q{width:min(36vw,340px);min-width:180px;padding:8px 11px;font:inherit;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+.graph-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;flex:1;min-height:0}
+.graph-canvas{min-width:0;min-height:0;overflow:auto;background:var(--bg)}
+#graph-svg{display:block;width:1440px;height:720px;max-width:none}
+.graph-path-label{fill:var(--muted);font-family:var(--sans);font-size:13px;font-weight:700}
+.graph-edge{stroke:var(--muted);stroke-width:1.7;opacity:.38;fill:none;transition:opacity .15s,stroke .15s}
+.graph-edge.active{stroke:var(--accent);stroke-width:2.5;opacity:.9}
+.graph-edge.faded{opacity:.07}
+.graph-node{cursor:pointer;outline:none;transition:opacity .15s}
+.graph-node rect{fill:color-mix(in srgb,var(--node-color) 10%,var(--surface));stroke:color-mix(in srgb,var(--node-color) 68%,var(--line));stroke-width:1.5;rx:7}
+.graph-node text{fill:var(--ink);font-family:var(--sans);font-size:12px;pointer-events:none}
+.graph-node .graph-node-number{fill:var(--muted);font-family:var(--mono);font-size:10px}
+.graph-node.selected rect{stroke:var(--accent);stroke-width:3}
+.graph-node.neighbor rect{stroke-width:2.5}
+.graph-node.faded{opacity:.2}
+.graph-node.filtered{opacity:.12;pointer-events:none}
+.graph-node:focus-visible rect{stroke:var(--accent);stroke-width:3}
+.graph-inspector{overflow:auto;padding:18px;background:var(--surface);border-left:1px solid var(--line)}
+.graph-inspector h3{margin:0 0 5px;font-family:var(--serif);font-size:1.2rem;line-height:1.2}
+.graph-inspector p{margin:0 0 14px;color:var(--muted);font-size:.9rem}
+.graph-inspector .graph-open{display:inline-flex;align-items:center;gap:7px;margin:0 0 16px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font-size:.86rem}
+.graph-inspector .graph-open:hover,.graph-relation:hover{background:var(--surface2)}
+.graph-inspector h4{margin:5px 0 6px;color:var(--muted);font-size:.75rem;text-transform:uppercase}
+.graph-relation{display:block;width:100%;padding:8px 0;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;font-size:.82rem;line-height:1.35}
+.graph-relation span{display:block;color:var(--muted);font-size:.73rem}
+.graph-empty{padding:18px;color:var(--muted);font-size:.9rem}
 .slide a{color:var(--tx)}
 .refs{margin-top:16px;font-size:.82rem;color:var(--muted)}
 .refs a{margin-right:12px}
@@ -213,11 +254,18 @@ body.search-on #search{display:block}
   .bottombar .secname,.bottombar .hint{display:none}
   .topbar .ib kbd{display:none}
   .slide{border-left-width:5px}
+  .graph-head{align-items:flex-start;flex-direction:column;padding:11px 12px}
+  .graph-actions{width:100%}
+  #graph-q{width:100%;min-width:0}
+}
+@media (max-width:850px){
+  .graph-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(48vh,1fr) minmax(180px,30vh)}
+  .graph-inspector{border-left:0;border-top:1px solid var(--line);padding:12px 14px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 @media print{
-  #search,#status{display:none!important}
+  #search,#graph,#status{display:none!important}
   @page{size:A4 landscape;margin:10mm}
   html,body{height:auto;overflow:visible;background:#fff}
   :root,:root[data-theme="dark"],:root:not([data-theme="light"]){
@@ -237,6 +285,7 @@ body.search-on #search{display:block}
   .tw{overflow:visible}
   .fig svg{min-width:0}
 }
+
 </style>
 </head>
 <body>
@@ -254,6 +303,7 @@ body.search-on #search{display:block}
   <button class="ib" id="btn-bm" title="Bookmark slide (B)" data-i18n-title="Bookmark slide (B)" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button>
   <button class="ib" id="btn-lang" title="Switch language (L)" data-i18n-title="Switch language (L)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg><b id="lang-label" style="font-size:.78rem">EN</b></button>
   <button class="ib" id="btn-ov" title="Overview grid (O)" data-i18n-title="Overview grid (O)" aria-pressed="false"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><kbd>O</kbd></button>
+  <button class="ib" id="btn-graph" title="Knowledge graph (G)" data-i18n-title="Knowledge graph (G)" aria-label="Knowledge graph" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M7.2 7.3l3.6 8M16.8 7.3l-3.6 8M7.5 6h9"/></svg><kbd>G</kbd></button>
   <button class="ib" id="btn-notes" title="Speaker notes (N)" data-i18n-title="Speaker notes (N)" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M5 4h14v12H9l-4 4z"/></svg><kbd>N</kbd></button>
   <button class="ib" id="btn-theme" title="Toggle light / dark" data-i18n-title="Toggle light / dark" aria-label="Toggle theme"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
   <button class="ib" id="btn-print" title="Print / save as PDF" data-i18n-title="Print / save as PDF" aria-label="Print"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z"/></svg></button>
@@ -264,6 +314,15 @@ body.search-on #search{display:block}
 <main id="stage" aria-live="polite"></main>
 <section id="ov" aria-label="Slide overview"></section>
 <section id="search" aria-label="Search"><input id="q" type="search" placeholder="Search slides and code" autocomplete="off"><div id="results"></div></section>
+<section id="graph" role="dialog" aria-modal="true" aria-labelledby="graph-heading" aria-hidden="true">
+  <div class="graph-shell">
+    <header class="graph-head">
+      <div><h2 id="graph-heading" data-i18n="Knowledge graph">Knowledge graph</h2><p data-i18n="Explore relationships across the data engineering topics">Explore relationships across the data engineering topics</p></div>
+      <div class="graph-actions"><input id="graph-q" type="search" data-i18n-placeholder="Find a concept" placeholder="Find a concept" autocomplete="off"><button class="ib" id="graph-close" title="Close graph" data-i18n-title="Close graph" aria-label="Close graph"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    </header>
+    <div class="graph-layout"><div class="graph-canvas"><svg id="graph-svg" role="img" aria-label="Knowledge graph"></svg></div><aside class="graph-inspector" id="graph-inspector" aria-live="polite"></aside></div>
+  </div>
+</section>
 <div id="status" class="sr" aria-live="polite"></div>
 <footer class="bottombar">
   <div class="secname" id="secname"></div>
@@ -504,6 +563,7 @@ function slideHTML(s, sec){
   if(s.refs){ refs = '<p class="refs">' + esc(tx('Official documentation:')) + ' ' + s.refs.map(function(r){ return '<a href="' + r[1] + '" target="_blank" rel="noopener noreferrer">' + esc(r[0]) + '</a>'; }).join('') + '</p>'; }
   return '<div class="slide-in">' + head + renderBody(s) + refs + notes + '</div>';
 }
+
 </script>
 <script>
 "use strict";
@@ -533,6 +593,15 @@ var META = [
  {name:L('Processing paradigms and analytics serving','Mô hình xử lý và phục vụ analytics'), color:'#0F766E', short:L('ETL vs ELT, functional, declarative, APIs, toolkit','ETL vs ELT, functional, declarative, API, toolkit')}
 ];
 
+var PATHS = [
+ {name:L('1. Foundations and problem framing','1. Nền tảng và xác định bài toán'), layers:[19, 0, 20]},
+ {name:L('2. Data platform and ingestion','2. Nền tảng dữ liệu và ingestion'), layers:[2, 21, 1]},
+ {name:L('3. Transform, model and orchestrate','3. Biến đổi, mô hình hóa và điều phối'), layers:[3, 11, 4, 22]},
+ {name:L('4. Govern, serve and activate','4. Quản trị, phục vụ và kích hoạt dữ liệu'), layers:[8, 5, 6, 7, 9]},
+ {name:L('5. Production engineering and reliability','5. Kỹ thuật production và độ tin cậy'), layers:[10, 16, 17, 18]},
+ {name:L('6. Advanced analytics and senior practice','6. Analytics nâng cao và thực hành senior'), layers:[12, 14, 15, 13]}
+];
+
 function titleSlide(){
   var viz = META.map(function(m, i){
     return '<a href="#" data-sec="' + i + '" style="--c:' + m.color + '"><span>' + (i + 1) + '</span>' + esc(tx(m.name)) + '</a>';
@@ -545,24 +614,26 @@ function titleSlide(){
       '<h1>' + X('Modern Data Engineering: From Foundations to Senior-Level Architecture', 'Modern Data Engineering: từ nền tảng đến kiến trúc cấp senior') + '</h1>' +
       '<p>' + X('A 23-layer roadmap from mid-level to senior, now including AI engineering and the machine-learning models behind it. For each layer: what it does, which tools compete, and the trade-offs you are expected to own.',
                 'Lộ trình 23 lớp từ mid-level lên senior, nay có thêm kỹ thuật AI và các mô hình machine learning phía sau. Với mỗi lớp: nó làm gì, công cụ nào cạnh tranh và những đánh đổi bạn phải chịu trách nhiệm.') + '</p>' +
-      '<div class="keys"><span><kbd>←</kbd> <kbd>→</kbd> ' + X('navigate', 'chuyển slide') + '</span><span><kbd>O</kbd> ' + X('overview', 'tổng quan') + '</span><span><kbd>N</kbd> ' + X('notes', 'ghi chú') + '</span><span><kbd>M</kbd> ' + X('contents', 'mục lục') + '</span><span><kbd>L</kbd> EN / VI</span></div>' +
+      '<div class="keys"><span><kbd>←</kbd> <kbd>→</kbd> ' + X('navigate', 'chuyển slide') + '</span><span><kbd>O</kbd> ' + X('overview', 'tổng quan') + '</span><span><kbd>G</kbd> ' + X('knowledge graph', 'đồ thị tri thức') + '</span><span><kbd>N</kbd> ' + X('notes', 'ghi chú') + '</span><span><kbd>M</kbd> ' + X('contents', 'mục lục') + '</span><span><kbd>L</kbd> EN / VI</span></div>' +
       '<p class="note" style="margin-top:14px">' + X('Written for data analysts, analytics engineers and data engineers with 2 to 5 years of experience who know basic SQL and want to reach senior level.', 'Dành cho data analyst, analytics engineer và data engineer có 2 đến 5 năm kinh nghiệm, đã biết SQL cơ bản và muốn lên cấp senior.') + '</p>' +
       '</div><div class="stackviz" aria-label="' + X('The 23 layers', '23 lớp') + '">' + viz + '</div></div></div>'
   };
 }
 
 function agendaSlide(){
-  var cards = META.map(function(m, i){
-    return '<a href="#" data-sec="' + i + '" style="--c:' + m.color + '">' + icon(i) +
-      '<div><b>' + (i + 1) + '. ' + esc(tx(m.name)) + '</b><small>' + esc(tx(m.short)) + '</small></div></a>';
+  var paths = PATHS.map(function(path){
+    var items = path.layers.map(function(i){
+      return '<li><a href="#" data-sec="' + i + '">' + (i + 1) + '. ' + esc(tx(META[i].name)) + '</a></li>';
+    }).join('');
+    return '<section class="path" style="--c:' + META[path.layers[0]].color + '"><h3>' + esc(tx(path.name)) + '</h3><ol>' + items + '</ol></section>';
   }).join('');
   return {
-    k:'html', t:L('Agenda','Chương trình'),
-    lead:L('Twenty-three layers, four to ten slides each. Every layer follows the same arc: overview, tool landscape, deep dive, patterns, pitfalls, what senior looks like, and a checklist.',
-           'Hai mươi ba lớp, mỗi lớp 4 đến 10 slide. Mỗi lớp theo cùng một mạch: tổng quan, bức tranh công cụ, đào sâu, mẫu thiết kế, lỗi thường gặp, senior trông như thế nào và checklist.'),
-    n:X('Each section has the same shape so you can skim. Layers 15 and 16 are the modern additions (AI engineering, ML models) and 17 to 20 are production engineering and 21 to 23 cover concepts, data formats and processing paradigms. After the layers come an appendix on tool internals, three reference architectures, a skills matrix and a roadmap.',
-        'Mỗi phần có cùng cấu trúc để bạn đọc lướt. Lớp 15 và 16 là phần bổ sung hiện đại (kỹ thuật AI, mô hình ML) và lớp 17 đến 20 là kỹ thuật production và lớp 21 đến 23 là khái niệm, định dạng dữ liệu và mô hình xử lý. Sau các lớp là phụ lục về nội bộ công cụ, ba kiến trúc tham chiếu, ma trận kỹ năng và lộ trình.'),
-    html:'<div class="agenda">' + cards + '</div>' +
+    k:'html', t:L('A learning path through 23 layers','Lộ trình học qua 23 layer'),
+    lead:L('Six paths move from foundations to production ownership. Layer numbers stay stable for cross-references; each topic links directly to its section.',
+           'Sáu lộ trình đi từ nền tảng đến trách nhiệm vận hành production. Số layer được giữ ổn định để đối chiếu; từng chủ đề liên kết thẳng tới phần tương ứng.'),
+    n:X('Use the paths in order for a complete course, or jump to the layer that matches a current project. Tool internals and reference architectures are in the appendix; scenarios, incidents and competency material follow the core layers.',
+        'Đi theo thứ tự các lộ trình để học trọn bộ, hoặc nhảy đến layer gắn với dự án hiện tại. Nội bộ công cụ và kiến trúc tham chiếu nằm ở phụ lục; kịch bản, sự cố và năng lực nằm sau các layer chính.'),
+    html:'<div class="path-map">' + paths + '</div>' +
       '<p class="note"><a href="#" data-sec="30">' + X('Appendix', 'Phụ lục') + '</a>: ' + X('after the layers, a deep dive into how 15 tools work inside (Kafka, Flink, Spark, Hadoop, Iceberg, Airflow, dbt, Snowflake, BigQuery, Databricks, AWS, Azure, Fabric, Kubernetes, Terraform): architecture, components and workflow.',
         'sau các lớp, phần đào sâu cách 15 công cụ hoạt động bên trong (Kafka, Flink, Spark, Hadoop, Iceberg, Airflow, dbt, Snowflake, BigQuery, Databricks, AWS, Azure, Fabric, Kubernetes, Terraform): kiến trúc, thành phần và quy trình.') + '</p>' +
       '<p class="note">' + X('Tags used throughout:', 'Nhãn dùng xuyên suốt:') + ' <span class="badge must">' + esc(tx('Must-know')) + '</span> <span class="badge nice">' + esc(tx('Nice-to-have')) + '</span> <span class="badge senior" style="--accent:#2563EB">' + esc(tx('Senior-level')) + '</span></p>'
@@ -609,6 +680,7 @@ function bigPictureSlide(){
         'Đi từ trái sang phải: nguồn là hệ thống bạn không sở hữu; ingestion đưa dữ liệu thô vào; storage lưu giữ; transformation biến thành model đáng tin; semantic layer cố định định nghĩa metric; BI và activation đưa tới người dùng và công cụ. Sau đó chỉ vào các thanh ngang: điều phối, chất lượng, quản trị, DevOps không phải giai đoạn mà là thuộc tính của cả hệ thống.')
   };
 }
+
 </script>
 <script>
 "use strict";
@@ -934,6 +1006,7 @@ when not matched then insert (id, status, amount, updated_at)
    right:{h:'Interview-style questions', items:['Design ingestion for a table with hard deletes and no `updated_at`.','How do you make a load idempotent?','When is streaming not worth it?','A source adds a column and changes another’s type. What happens in your stack?','How would you backfill 90 days without double counting?']},
    n:'Good answers to the first question mention log-based CDC or periodic key comparison, and name the trade-off of each.' }
 ]);
+
 </script>
 <script>
 "use strict";
@@ -1222,6 +1295,7 @@ models:
    right:{h:'Interview-style questions', items:['How does an incremental model handle late-arriving data?','When would you use a snapshot instead of an incremental model?','What does an enforced contract protect against?','How would you reduce a 3-hour dbt run to 30 minutes?','When would you choose Spark over dbt?']},
    n:'Look for answers that discuss failure modes: late data, schema change, cost. A pure feature list is a mid-level answer.' }
 ]);
+
 </script>
 <script>
 "use strict";
@@ -1566,6 +1640,7 @@ view: orders {
    right:{h:'Interview-style questions', items:['Two dashboards show different revenue. How do you resolve it?','When would you choose Cube or dbt Semantic Layer over LookML or DAX?','How do you introduce a semantic layer without a big-bang project?','What goes wrong if a semantic model has the wrong grain?','How do you version a change to a metric’s definition?']},
    n:'For the first question, listen for “find the definitions, pick an owner, record the decision”, not “pick the number that looks right”.' }
 ]);
+
 </script>
 <script>
 "use strict";
@@ -1816,6 +1891,7 @@ checks for orders:
    right:{h:'Interview-style questions', items:['A dashboard shows zero revenue for yesterday. How do you investigate?','How do you prevent alert fatigue?','dbt tests versus an observability platform: when do you need each?','How would you add data diff to a CI process?','What would you test first in a pipeline with no tests?']},
    n:'A good answer to the first question starts with scoping using lineage, then checks freshness and volume, and only then looks at logic.' }
 ]);
+
 </script>
 <script>
 "use strict";
@@ -2257,6 +2333,7 @@ capitalisation_policy = lower`}
    right:{h:'Interview-style questions', items:['Design CI/CD for a dbt project with 15 contributors.','How would you roll back a bad production deployment?','How do you manage secrets for CI and production?','When is Kubernetes justified for a data team?','How do you stop a developer from running a $5,000 query?']},
    n:'For the last question, look for guardrails (budgets, query limits, roles) rather than “tell them to be careful”.' }
 ]);
+
 </script>
 <script>
 "use strict";
@@ -2573,6 +2650,7 @@ def validate(sql: str, dialect: str = "snowflake", max_rows: int = 10_000) -> st
    right:{h:'Interview-style questions', items:['A test shows +2% conversion, p=0.04, after peeking daily. What do you say?','How would you estimate the effect of a feature that was not randomized?','What is data leakage, and how do you prevent it?','Design a safe natural-language analytics assistant for the finance team.','When is a vector database unnecessary?']},
    n:'For the assistant question, a strong answer covers the semantic layer, permissions, validation, evaluation and logging.' }
 ]);
+
 </script>
 <script>
 "use strict";
@@ -2810,6 +2888,74 @@ CLOSING.push(
    ],
    n:'Resources change; fundamentals do not. Check current editions and documentation versions. The best learning is deliberate practice on a real system with real stakes.' }
 );
+
+</script>
+<script>
+"use strict";
+var GRAPH_NODES = [
+  {id:'languages', sec:0, label:L('SQL and Python','SQL và Python'), description:L('Query, transform and automate data with the languages used across the stack.','Truy vấn, biến đổi và tự động hóa dữ liệu bằng các ngôn ngữ dùng xuyên stack.')},
+  {id:'ingestion', sec:1, label:L('Ingestion and CDC','Ingestion và CDC'), description:L('Move batch and change events from operational sources into analytical storage.','Đưa batch và change event từ nguồn vận hành vào kho phân tích.')},
+  {id:'warehouse', sec:2, label:L('Warehouse and lakehouse','Warehouse và lakehouse'), description:L('Choose where data is stored and which compute engines operate on it.','Chọn nơi lưu dữ liệu và engine compute xử lý dữ liệu.')},
+  {id:'transformation', sec:3, label:L('Transformations','Biến đổi dữ liệu'), description:L('Turn raw inputs into tested, documented, reusable models.','Biến đầu vào thô thành các model đã kiểm thử, có tài liệu và tái sử dụng được.')},
+  {id:'orchestration', sec:4, label:L('Orchestration and assets','Điều phối và asset'), description:L('Coordinate dependencies, execution, retries, freshness and recovery.','Điều phối phụ thuộc, thực thi, retry, freshness và khôi phục.')},
+  {id:'semantic', sec:5, label:L('Metrics and semantic layer','Metric và semantic layer'), description:L('Give business metrics shared definitions across consumers.','Cung cấp định nghĩa metric thống nhất giữa các bên sử dụng.')},
+  {id:'bi', sec:6, label:L('BI and dashboards','BI và dashboard'), description:L('Present governed data for human analysis and decisions.','Trình bày dữ liệu được quản trị để con người phân tích và ra quyết định.')},
+  {id:'quality', sec:7, label:L('Quality and observability','Chất lượng và observability'), description:L('Detect correctness, freshness, volume and schema problems.','Phát hiện vấn đề về tính đúng, độ mới, khối lượng và schema.')},
+  {id:'governance', sec:8, label:L('Governance and lineage','Quản trị và lineage'), description:L('Track ownership, meaning, access, contracts and data flow.','Theo dõi chủ sở hữu, ý nghĩa, quyền truy cập, contract và luồng dữ liệu.')},
+  {id:'activation', sec:9, label:L('Reverse ETL and activation','Reverse ETL và activation'), description:L('Deliver trusted warehouse data back to operational tools and products.','Đưa dữ liệu warehouse đáng tin cậy trở lại công cụ và sản phẩm vận hành.')},
+  {id:'devops', sec:10, label:L('DevOps and delivery','DevOps và phát hành'), description:L('Make data changes reviewable, reproducible, deployable and reversible.','Giúp thay đổi dữ liệu được review, tái lập, triển khai và hoàn tác an toàn.')},
+  {id:'modeling', sec:11, label:L('Modeling and architecture','Mô hình hóa và kiến trúc'), description:L('Choose grains, schemas and ownership patterns that fit the domain.','Chọn grain, schema và cách phân quyền sở hữu phù hợp domain.')},
+  {id:'analytics', sec:12, label:L('Advanced analytics','Analytics nâng cao'), description:L('Use experiments, causal reasoning and AI with explicit evaluation.','Dùng thử nghiệm, suy luận nhân quả và AI với đánh giá rõ ràng.')},
+  {id:'leadership', sec:13, label:L('Senior engineering practice','Thực hành kỹ thuật senior'), description:L('Turn technical judgment into alignment, written decisions and team leverage.','Chuyển phán đoán kỹ thuật thành đồng thuận, quyết định thành văn bản và năng lực đội ngũ.')},
+  {id:'ai', sec:14, label:L('RAG, MCP and agents','RAG, MCP và agent'), description:L('Connect models to governed knowledge and tools with evaluation and limits.','Kết nối model với tri thức và công cụ có quản trị, kèm đánh giá và giới hạn.')},
+  {id:'ml', sec:15, label:L('ML and deep learning','ML và deep learning'), description:L('Understand model families, their data needs, deployment and failure modes.','Hiểu nhóm mô hình, nhu cầu dữ liệu, triển khai và các kiểu lỗi.')},
+  {id:'security', sec:16, label:L('Security and networking','Bảo mật và mạng'), description:L('Protect identities, data paths, secrets and sensitive information.','Bảo vệ danh tính, đường đi dữ liệu, secret và thông tin nhạy cảm.')},
+  {id:'reliability', sec:17, label:L('Distributed reliability','Độ tin cậy hệ thống phân tán'), description:L('Design for retries, replication, idempotency, high availability and recovery.','Thiết kế cho retry, replication, idempotency, tính sẵn sàng cao và khôi phục.')},
+  {id:'finops', sec:18, label:L('FinOps and performance','FinOps và hiệu năng'), description:L('Relate query and platform behavior to latency, capacity and unit cost.','Liên hệ hành vi query và platform với độ trễ, năng lực và đơn giá.')},
+  {id:'foundations', sec:19, label:L('Systems foundations','Nền tảng hệ thống'), description:L('Use networking, Linux, Git and transaction fundamentals to diagnose failures.','Dùng kiến thức mạng, Linux, Git và transaction để chẩn đoán sự cố.')},
+  {id:'lifecycle', sec:20, label:L('Data lifecycle and concepts','Vòng đời và khái niệm dữ liệu'), description:L('Frame data work from generation through storage, transformation and serving.','Định hình công việc dữ liệu từ lúc phát sinh đến lưu trữ, biến đổi và phục vụ.')},
+  {id:'formats', sec:21, label:L('Formats and query engines','Định dạng và query engine'), description:L('Understand files, columnar memory and the engines that scan and optimize them.','Hiểu file, bộ nhớ dạng cột và engine quét, tối ưu dữ liệu.')},
+  {id:'serving', sec:22, label:L('Processing and serving','Xử lý và phục vụ dữ liệu'), description:L('Choose processing semantics and expose governed results to applications.','Chọn ngữ nghĩa xử lý và cung cấp kết quả có quản trị cho ứng dụng.')}
+];
+
+var GRAPH_EDGES = [
+  {from:'languages', to:'ingestion', relation:L('implements connectors and transforms','triển khai connector và phép biến đổi')},
+  {from:'languages', to:'transformation', relation:L('expresses models and data logic','biểu đạt model và logic dữ liệu')},
+  {from:'languages', to:'orchestration', relation:L('defines tasks and workflows','định nghĩa task và workflow')},
+  {from:'ingestion', to:'warehouse', relation:L('lands source data','đưa dữ liệu nguồn vào')},
+  {from:'ingestion', to:'quality', relation:L('introduces schema and freshness signals','tạo tín hiệu schema và freshness')},
+  {from:'ingestion', to:'governance', relation:L('carries source ownership and contracts','mang theo chủ sở hữu nguồn và contract')},
+  {from:'warehouse', to:'formats', relation:L('stores tables using file and table formats','lưu bảng bằng định dạng file và table format')},
+  {from:'warehouse', to:'transformation', relation:L('provides execution compute','cung cấp compute để thực thi')},
+  {from:'warehouse', to:'finops', relation:L('creates measurable compute and storage cost','tạo chi phí compute và lưu trữ có thể đo')},
+  {from:'formats', to:'finops', relation:L('layout affects scan cost and latency','bố cục ảnh hưởng chi phí quét và độ trễ')},
+  {from:'transformation', to:'orchestration', relation:L('models become scheduled work','model trở thành công việc được lập lịch')},
+  {from:'transformation', to:'modeling', relation:L('implements analytical schemas','triển khai schema phân tích')},
+  {from:'transformation', to:'quality', relation:L('is checked by tests and monitors','được kiểm tra bằng test và monitor')},
+  {from:'transformation', to:'semantic', relation:L('produces governed metric inputs','tạo đầu vào metric có quản trị')},
+  {from:'orchestration', to:'reliability', relation:L('owns retries, ordering and recovery','chịu trách nhiệm retry, thứ tự và khôi phục')},
+  {from:'orchestration', to:'quality', relation:L('runs checks and reacts to failures','chạy kiểm tra và phản ứng với lỗi')},
+  {from:'modeling', to:'semantic', relation:L('defines grains and dimensions for metrics','định nghĩa grain và dimension cho metric')},
+  {from:'semantic', to:'bi', relation:L('supplies consistent measures','cung cấp phép đo nhất quán')},
+  {from:'semantic', to:'serving', relation:L('provides governed query interfaces','cung cấp giao diện truy vấn có quản trị')},
+  {from:'bi', to:'analytics', relation:L('exposes trends and business outcomes','phơi bày xu hướng và kết quả nghiệp vụ')},
+  {from:'governance', to:'quality', relation:L('sets contracts, owners and expectations','đặt contract, chủ sở hữu và kỳ vọng')},
+  {from:'governance', to:'security', relation:L('defines access and data handling rules','định nghĩa quyền truy cập và quy tắc xử lý dữ liệu')},
+  {from:'governance', to:'ai', relation:L('grounds retrieval in owned, permissioned knowledge','neo retrieval vào tri thức có chủ sở hữu và phân quyền')},
+  {from:'activation', to:'ml', relation:L('delivers model scores to operational systems','đưa điểm số mô hình tới hệ thống vận hành')},
+  {from:'activation', to:'security', relation:L('must honor consent and least privilege','phải tuân thủ consent và least privilege')},
+  {from:'ml', to:'ai', relation:L('supplies models used by AI applications','cung cấp model cho ứng dụng AI')},
+  {from:'ai', to:'serving', relation:L('retrieves and serves grounded context','truy xuất và phục vụ ngữ cảnh có căn cứ')},
+  {from:'foundations', to:'reliability', relation:L('explains failure behavior below the platform','giải thích hành vi lỗi bên dưới platform')},
+  {from:'foundations', to:'security', relation:L('supports identity and network boundaries','làm nền cho danh tính và ranh giới mạng')},
+  {from:'reliability', to:'finops', relation:L('balances resilience against operating cost','cân bằng khả năng phục hồi với chi phí vận hành')},
+  {from:'lifecycle', to:'governance', relation:L('governance spans the full lifecycle','quản trị xuyên suốt vòng đời')},
+  {from:'devops', to:'reliability', relation:L('makes releases and rollback repeatable','giúp phát hành và rollback có thể lặp lại')},
+  {from:'devops', to:'governance', relation:L('encodes policy and audit in delivery','mã hóa policy và audit trong quy trình phát hành')},
+  {from:'leadership', to:'devops', relation:L('aligns teams around safe delivery','giúp các đội thống nhất cách phát hành an toàn')},
+  {from:'leadership', to:'modeling', relation:L('resolves ownership and definition trade-offs','giải quyết đánh đổi về quyền sở hữu và định nghĩa')}
+];
+
 </script>
 <script>
 "use strict";
@@ -3059,8 +3205,7 @@ ARCH[ARCH.length - 1].slides.push(
   ], cap:'Feature gaps between formats are narrowing, and interoperability layers exist. Verify the current state before choosing.',
    n:'Do not declare a winner. The decision is about engine mix and workload: multi-engine reads favor Iceberg, Databricks favors Delta, heavy upsert streams are Hudi territory.' }
 );
-</script>
-<script>
+
 "use strict";
 
 /* generic left-to-right cloud flow with cross-cutting bars */
@@ -3217,8 +3362,7 @@ archTool('Microsoft Fabric', '#0078D4',
  ['One shared capacity means a heavy job can throttle everyone. Separate production from development capacities.','Use the capacity metrics app to see which items consume units.','Apply sensitivity labels and workspace roles early.','The product evolves quickly. Verify feature availability before committing.'],
  'The key idea: unify storage (OneLake) and billing (capacity) so the workloads become interchangeable views over the same Delta data. The cost is a shared-capacity noisy-neighbour risk.',
  'Walk the five steps, then stress capacity planning. In interviews, the strong answer covers OneLake, Direct Lake and how capacity sharing affects isolation.');
-</script>
-<script>
+
 "use strict";
 
 /* ---------- DBT ---------- */
@@ -3330,7 +3474,10 @@ archTool('Databricks', '#EA580C',
  ['Cost is Databricks units plus cloud VM cost. Use auto-termination and job clusters for scheduled work.','Run `OPTIMIZE` and `VACUUM`, and use clustering features, to keep Delta tables healthy.','Treat Unity Catalog as the single governance layer.','Product names and boundaries change often. Check current documentation.'],
  'The message: separate control from compute, keep data in open formats, and govern centrally. That is the lakehouse pitch in architectural terms.',
  'Trace one job: control plane starts compute, compute reads Delta, catalog enforces access. Make sure the audience knows where the money goes: compute hours, not storage.');
+
 </script>
+
+
 <script>
 "use strict";
 /* English -> Vietnamese exact-match dictionary for existing content.
@@ -3339,6 +3486,7 @@ archTool('Databricks', '#EA580C',
   var D = {
    /* chrome */
    'Modern Data Engineering: From Foundations to Senior-Level Architecture':'Modern Data Engineering: từ nền tảng đến kiến trúc cấp senior','Search slides (/)':'Tìm kiếm slide (/)','Bookmark slide (B)':'Đánh dấu slide (B)','Official documentation:':'Tài liệu chính thức:','Progress':'Tiến độ','Bookmarks':'Đã đánh dấu','No results':'Không có kết quả','Search slides and code':'Tìm trong slide và code',
+  'Knowledge graph':'Đồ thị tri thức','Knowledge graph (G)':'Đồ thị tri thức (G)','Explore relationships across the data engineering topics':'Khám phá mối liên hệ giữa các chủ đề data engineering','Find a concept':'Tìm khái niệm','Close graph':'Đóng đồ thị','Select a concept to inspect its connections.':'Chọn một khái niệm để xem các mối liên hệ.','Connected concepts':'Các khái niệm liên quan','Open layer':'Mở layer','No concepts match this search.':'Không có khái niệm phù hợp.','Incoming':'Đi vào','Outgoing':'Đi ra','knowledge graph':'đồ thị tri thức',
    'Contents (M)':'Mục lục (M)','Overview grid (O)':'Lưới tổng quan (O)','Speaker notes (N)':'Ghi chú diễn giả (N)',
    'Toggle light / dark':'Đổi sáng / tối','Print / save as PDF':'In / lưu PDF','Switch language (L)':'Đổi ngôn ngữ (L)',
    'Previous slide':'Slide trước','Next slide':'Slide sau','arrows / space / swipe':'phím mũi tên / space / vuốt',
@@ -3482,6 +3630,7 @@ archTool('Databricks', '#EA580C',
    'Commit':'Commit','Configuration':'Cấu hình','State':'State','Control plane':'Control plane','Storage layer':'Tầng lưu trữ'};
   for(var s in svgLabels){ DICT[s] = svgLabels[s]; }
 })();
+
 </script>
 <script>
 "use strict";
@@ -3896,8 +4045,7 @@ final = app.invoke({"question": "Revenue by month in 2026", "attempts": 0, "erro
    right:{h:L('Interview-style questions','Câu hỏi kiểu phỏng vấn'), items:[L('Walk through one full tool call, including what the API returns.','Mô tả một lần tool call đầy đủ, gồm cả những gì API trả về.'), L('The agent loops forever. What do you check and change?','Agent lặp mãi. Bạn kiểm tra và đổi gì?'), L('Why can RAG answers be wrong even when the model is strong?','Vì sao câu trả lời RAG có thể sai dù model mạnh?'), L('Design a safe natural-language interface to the warehouse using MCP.','Thiết kế giao diện ngôn ngữ tự nhiên an toàn tới warehouse bằng MCP.'), L('When would you choose a workflow graph over a free agent loop?','Khi nào chọn workflow graph thay vì vòng lặp agent tự do?')]},
    n:L('Strong answers to the safe-interface question combine read-only roles, governed metrics, validation, evals and logging.','Câu trả lời tốt cho câu hỏi giao diện an toàn kết hợp role chỉ đọc, metric được quản trị, validation, eval và logging.') }
 ]);
-</script>
-<script>
+
 "use strict";
 
 /* one uniform slide per model: how it works, input/output format, variables, use and limits, code */
@@ -4384,8 +4532,7 @@ class GCN(torch.nn.Module):
    right:{h:L('Interview-style questions','Câu hỏi kiểu phỏng vấn'), items:[L('Why does a random forest reduce variance while boosting reduces bias?','Vì sao random forest giảm variance còn boosting giảm bias?'), L('Why divide attention scores by √d_k?','Vì sao chia điểm attention cho √d_k?'), L('What is the difference between BERT and GPT, in training objective and in use?','BERT và GPT khác nhau thế nào về mục tiêu huấn luyện và cách dùng?'), L('How would you detect anomalies in sensor data with an autoencoder?','Bạn phát hiện bất thường trong dữ liệu cảm biến bằng autoencoder thế nào?'), L('Your model scores 0.98 AUC offline and fails in production. What do you check first?','Model đạt AUC 0.98 offline nhưng thất bại ở production. Bạn kiểm tra gì đầu tiên?')]},
    n:L('For the last question, strong candidates start with leakage and train/serve skew before touching the model.','Với câu hỏi cuối, ứng viên giỏi bắt đầu từ rò rỉ dữ liệu và lệch train/serve trước khi đụng đến model.') }
 ]);
-</script>
-<script>
+
 "use strict";
 
 /* ---------- diagrams ---------- */
@@ -4818,7 +4965,10 @@ joined.write.mode("overwrite").partitionBy("order_date").parquet("s3://example-l
    right:{h:L('Interview-style questions','Câu hỏi kiểu phỏng vấn'), items:[L('Cut a warehouse bill by 30 percent without hurting users. What are your first three moves?','Cắt 30 phần trăm hóa đơn warehouse mà không hại người dùng. Ba bước đầu của bạn là gì?'), L('A Spark job has one task that runs 20 times longer. Diagnose it.','Một job Spark có một task chạy lâu gấp 20 lần. Hãy chẩn đoán.'), L('Consumer lag keeps growing. What do you check and in what order?','Consumer lag cứ tăng. Bạn kiểm tra gì và theo thứ tự nào?'), L('How would you attribute shared platform cost to teams?','Bạn quy gán chi phí nền tảng dùng chung cho các đội thế nào?'), L('How do you plan capacity for a month-end peak?','Bạn hoạch định năng lực cho đỉnh tải cuối tháng thế nào?')]},
    n:L('Senior expectation: tie every optimization to a measurement and an owner. Staff expectation: build the cost and performance feedback loop for the whole platform.','Kỳ vọng senior: gắn mỗi tối ưu với một phép đo và một chủ sở hữu. Kỳ vọng staff: xây vòng phản hồi chi phí và hiệu năng cho cả nền tảng.') }
 ]);
+
 </script>
+
+
 <script>
 "use strict";
 DICT['Store'] = 'Lưu trữ'; DICT['Compute'] = 'Compute';
@@ -5033,8 +5183,7 @@ CLOSING.splice(0, 0,
           [L('Agents and security','Agent và bảo mật'), L('Agents call governed tools through MCP with the user’s identity, read-only by default, with logging and approvals for risky actions.','Agent gọi tool có quản trị qua MCP bằng danh tính của người dùng, mặc định chỉ đọc, có log và duyệt cho hành động rủi ro.')]],
    n:L('Key message: MCP connects, the semantic layer ensures answers are correct, consistent and compliant. Without the semantic layer an agent can connect to everything and still return the wrong number.','Thông điệp chính: MCP kết nối, semantic layer bảo đảm câu trả lời đúng, nhất quán và tuân thủ. Không có semantic layer, agent có thể kết nối mọi thứ mà vẫn trả sai con số.') })
 );
-</script>
-<script>
+
 "use strict";
 (function(){
   var more = {'Symptom':'Triệu chứng','Likely cause':'Nguyên nhân có thể','Diagnose':'Chẩn đoán','Fix':'Cách sửa','Stage':'Giai đoạn','What happens':'Điều gì xảy ra','Where to observe':'Quan sát ở đâu',
@@ -5585,7 +5734,9 @@ print(f"peak memory: {peak / 1e6:.1f} MB")`}
   sql.concat(py).forEach(function(x){ s.push(x); });
   s.push(last);
 })();
+
 </script>
+
 <script>
 "use strict";
 SEC(20, [
@@ -5677,6 +5828,7 @@ SELECT * FROM orders WHERE customer_id = 42;`});
    right:{h:L('Interview-style questions','Câu hỏi kiểu phỏng vấn'), items:[L('A job connects fine from your laptop but times out in production. What do you check, in order?','Job kết nối tốt từ laptop nhưng timeout ở production. Bạn kiểm tra gì, theo thứ tự?'), L('A container disappears with no error in its logs. What happened?','Một container biến mất mà log không có lỗi. Chuyện gì đã xảy ra?'), L('How do you roll back a deployment that already changed a warehouse table?','Bạn rollback thế nào một lần deploy đã làm đổi bảng warehouse?'), L('Two jobs update the same row at once. What can go wrong and how do you prevent it?','Hai job cập nhật cùng một dòng cùng lúc. Có thể sai gì và ngăn thế nào?')]},
    n:L('Strong answers name the observation tool before proposing a fix.','Câu trả lời tốt nêu công cụ quan sát trước khi đề xuất cách sửa.') }
 ]);
+
 </script>
 <script>
 "use strict";
@@ -6028,8 +6180,7 @@ query.awaitTermination()`}
    design:L('Design review: how would you add multi-tenant access control, retention of 90 days with time travel for 7, and disaster recovery for object storage and the catalog?','Review thiết kế: bạn sẽ thêm kiểm soát truy cập đa tenant, lưu 90 ngày với time travel 7 ngày và disaster recovery cho object storage và catalog thế nào?'),
    n:L('The deliverable is a defended design backed by numbers, not a working demo alone.','Sản phẩm là một thiết kế được bảo vệ bằng số liệu, không chỉ một bản demo chạy được.') })
 ]});
-</script>
-<script>
+
 "use strict";
 
 function incidentSlide(o){
@@ -6157,8 +6308,7 @@ adr: ADR-0012                      # decision record explaining platform choices
   ], cap:L('Before relying on a configuration or command from this deck, check it against the documentation for your exact version.','Trước khi dựa vào một cấu hình hoặc lệnh trong deck này, hãy đối chiếu với tài liệu của đúng phiên bản bạn dùng.'),
    n:L('This table is a work list. Closing each row with a verified date and a version range is the next governance step.','Bảng này là một danh sách việc cần làm. Đóng từng hàng bằng ngày xác minh và dải phiên bản là bước quản trị tiếp theo.') }
 ]});
-</script>
-<script>
+
 "use strict";
 
 function groupNamed(list, en){ return list.filter(function(g){ return (g.name && g.name.en === en) || g.name === en; })[0]; }
@@ -6425,7 +6575,10 @@ groupNamed(PRACTICE, 'Version and source governance').slides.push(
    },
    n:L('Links point to official documentation home pages. Check the version selector on each site, since the page you land on may describe a different release than the one you run.','Các liên kết trỏ tới trang chủ tài liệu chính thức. Hãy kiểm tra bộ chọn phiên bản trên mỗi trang, vì trang bạn vào có thể mô tả bản phát hành khác với bản bạn chạy.') }
 );
+
 </script>
+
+
 <script>
 "use strict";
 
@@ -6963,22 +7116,28 @@ csvstat orders.csv`}],
    ],
    n:L('Commands are examples; check flags for your installed versions. The `\\copy` meta-command is psql-specific.','Các lệnh chỉ là ví dụ; hãy kiểm tra cờ cho phiên bản bạn cài. Meta-command `\\copy` là của riêng psql.') }
 ]);
+
 </script>
 <script>
 "use strict";
-PRACTICE.unshift({ name:L('Coverage map vs the reference topic taxonomy','Bản đồ đối chiếu với taxonomy chủ đề tham chiếu'), color:'#7C2D12', slides:[
- { k:'table', t:L('Coverage map: your reference taxonomy versus this deck','Bản đồ đối chiếu: taxonomy tham chiếu của bạn so với deck này'),
-   lead:L('Compared topic by topic with the screenshot. “Already covered” topics existed before; “Added now” topics are the gaps closed in layers 21 to 23; “Still thin” topics deserve more depth.','Đối chiếu từng chủ đề với ảnh chụp. Chủ đề “Đã có” tồn tại từ trước; “Mới thêm” là các khoảng trống được lấp ở layer 21 đến 23; “Còn mỏng” là các chủ đề cần thêm chiều sâu.'),
-   head:[L('Category in the screenshot','Nhóm trong ảnh'), L('Already covered (layer)','Đã có (layer)'), L('Added now','Mới thêm'), L('Still thin','Còn mỏng')], rows:[
-   [L('Data Engineering Foundations','Nền tảng Data Engineering'), 'Data Modeling and Dimensional Modeling (12), Semantic Layer (6), Data Lineage (9), Data Engineering Architecture (appendix, reference architectures), Data Engineering Concepts (all layers)', 'Data Engineering Lifecycle, The Role of a Data Engineer, Normalization, Inmon vs Kimball, Entity-Centric Data Modeling, Data Assets (21)', L('Metrics layer depth','Chiều sâu metrics layer')],
-   [L('Modern Data Infrastructure','Hạ tầng dữ liệu hiện đại'), 'DuckDB, Delta Lake, Apache Iceberg, Data Lakehouse, Open Table Format, Cloud Data Warehouses, Microsoft Fabric, Modern Data Stack (3, appendix)', 'Data Lake File Formats, Apache Arrow, DataFusion, VertiPaq, Modern OLAP Systems, Open Data Stack, Declarative Data Stack (22)', L('Delta Lake internals (only compared)','Nội bộ Delta Lake (mới chỉ so sánh)')],
-   [L('Data Transformation and Processing','Biến đổi và xử lý dữ liệu'), 'SQL, dbt, Python (1, 4), Stream Processing, Data Orchestrators: Airflow and Dagster (5, appendix), ETL vs ELT (2)', 'ETL vs ELT in depth, Functional Data Engineering, Declarative vs Imperative, Extending SQL for Analytics, Semantic SQL, Push-downs, SQL Query Engine, Kestra (5, 22, 23)', L('Stream processing patterns beyond Flink basics','Mẫu stream processing ngoài phần Flink cơ bản')],
-   [L('Modern Analytics Approaches','Hướng analytics hiện đại'), 'Metrics, Semantic Models (6), Data Governance, Data Catalog (9), Reverse ETL (10), Medallion Architecture (12), Data Mesh (decision guide only)', 'Master Data Management, Data Warehouse Automation, Analytics API, Personalized API, Traditional OLAP Cube Replacements, Pivot Table (21 to 23)', L('Data Mesh (still a single decision table)','Data Mesh (vẫn chỉ một bảng quyết định)')],
-   [L('Specialized Data Technologies','Công nghệ dữ liệu chuyên biệt'), 'Data Contracts, CDC, Snapshotting, Slowly Changing Dimension, Time Travel, ACID Transactions, Schema Evolution, Schema Drift, Idempotency, Cube (2, 4, 9, 12, 18, appendix)', 'Data Product, Software-Defined Asset, Data Integration CLI tools, Data Engineering Toolkit, VertiPaq (21, 22, 23)', L('Schema drift runbooks','Runbook cho schema drift')],
-   [L('Professional Development','Phát triển nghề nghiệp'), L('Books (resources slide), senior skills (14)','Sách (slide tài nguyên), kỹ năng senior (14)'), L('Job description and skills, Data Engineer vs Software Engineer, learning path, podcasts and newsletters, open-source projects (21)','Mô tả công việc và kỹ năng, Data Engineer vs Software Engineer, lộ trình học, podcast và newsletter, dự án mã nguồn mở (21)'), L('“People of Data Engineering” and the “Patterns of Data Engineering” book: not verified here','“Con người của Data Engineering” và sách “Patterns of Data Engineering”: chưa xác minh ở đây')]
-  ], cap:L('Basis: the topics visible in your screenshot. A topic marked covered may still be only a section of a slide rather than a dedicated lesson.','Cơ sở: các chủ đề nhìn thấy trong ảnh của bạn. Chủ đề đánh dấu đã có vẫn có thể chỉ là một phần của slide thay vì một bài riêng.'),
-   n:L('Use this as the backlog for the next revision: each “Still thin” cell is a candidate for a full module.','Dùng làm backlog cho bản sửa tiếp theo: mỗi ô “Còn mỏng” là ứng viên cho một module đầy đủ.') }
+PRACTICE.unshift({ name:L('Audit against the submitted SSP topic map','Đối chiếu với bản đồ chủ đề SSP đã gửi'), color:'#7C2D12', slides:[
+ { k:'table', t:L('Coverage audit: the supplied 101-concept map','Audit phạm vi: bản đồ 101 khái niệm đã cung cấp'),
+   lead:L('“Covered” means a dedicated lesson or substantial treatment; “partial” means a mention, comparison or example; “backlog” means the map suggests a useful next module. This is a content audit, not a live verification of every linked article.','“Đã có” nghĩa là có bài học riêng hoặc nội dung đáng kể; “một phần” nghĩa là mới nhắc, so sánh hoặc lấy ví dụ; “backlog” là module tiếp theo đáng cân nhắc. Đây là audit nội dung, không phải xác minh trực tiếp từng bài viết được liên kết.'),
+   head:[L('Topic family','Nhóm chủ đề'), L('Covered in this deck','Đã có trong deck'), L('Partial / backlog','Một phần / cần bổ sung')], rows:[
+  [L('Foundations, lifecycle and role','Nền tảng, vòng đời và vai trò'), L('Layers 1, 12, 20, 21: lifecycle, role, SQL/Python, normalization, Inmon vs Kimball, dimensional and entity-centric modeling, data assets, MDM.','Layer 1, 12, 20, 21: vòng đời, vai trò, SQL/Python, chuẩn hóa, Inmon vs Kimball, mô hình dimensional và entity-centric, data asset, MDM.'), L('ERD and modeling levels, cardinality, anchor/activity schemas, and a worked lifecycle case are not standalone lessons.','ERD và các cấp độ mô hình hóa, cardinality, anchor/activity schema và một ca thực hành xuyên vòng đời chưa thành bài riêng.')],
+  [L('Infrastructure, storage and formats','Hạ tầng, lưu trữ và định dạng'), L('Layers 3, 22 and appendix: warehouses, lakehouse, DuckDB, Iceberg/Delta, Parquet/Avro/Arrow, DataFusion, VertiPaq, OLAP and open/declarative stacks.','Layer 3, 22 và phụ lục: warehouse, lakehouse, DuckDB, Iceberg/Delta, Parquet/Avro/Arrow, DataFusion, VertiPaq, OLAP và stack mở/declarative.'), L('Delta transaction-log internals and table-catalog interoperability deserve a deeper comparison; some topics are currently tool overviews.','Nội bộ transaction log của Delta và khả năng tương tác giữa table catalog cần so sánh sâu hơn; một số nội dung hiện mới là tổng quan công cụ.')],
+  [L('Ingestion, movement and streaming','Ingestion, luân chuyển và streaming'), L('Layers 2, 18, 23 and appendix: ETL/ELT/ETLT, CDC, batch/streaming, backfills, idempotency, snapshots and Kafka/Flink.','Layer 2, 18, 23 và phụ lục: ETL/ELT/ETLT, CDC, batch/streaming, backfill, idempotency, snapshot và Kafka/Flink.'), L('Schema Registry compatibility, source-delete reconciliation, and a full schema-drift recovery runbook need a practical end-to-end case; Hadoop/MapReduce are legacy context only.','Tương thích Schema Registry, đối soát xóa ở nguồn và runbook phục hồi schema drift cần một ca thực hành đầu-cuối; Hadoop/MapReduce hiện chỉ là bối cảnh legacy.')],
+  [L('Transformation and orchestration','Biến đổi và điều phối'), L('Layers 1, 4, 5, 23 and appendix: SQL/dbt/SQLMesh, Airflow/Dagster/Kestra, software-defined assets, functional and declarative patterns.','Layer 1, 4, 5, 23 và phụ lục: SQL/dbt/SQLMesh, Airflow/Dagster/Kestra, software-defined asset, mẫu functional và declarative.'), L('Clarify where AI workflow orchestrators overlap with, or differ from, data orchestrators.','Cần làm rõ AI workflow orchestrator giao nhau hoặc khác data orchestrator ở đâu.')],
+  [L('Modeling, architecture and data products','Mô hình hóa, kiến trúc và data product'), L('Layers 9, 12, 21: Kimball, Data Vault, medallion, Data Mesh, contracts, products, SCD and MDM.','Layer 9, 12, 21: Kimball, Data Vault, medallion, Data Mesh, contract, product, SCD và MDM.'), L('Data Mesh has a decision guide but not a detailed operating-model case; anchor/activity modeling and data-product lifecycle need examples.','Data Mesh có hướng dẫn chọn nhưng chưa có ca vận hành chi tiết; anchor/activity modeling và vòng đời data product cần ví dụ.')],
+  [L('Governance, quality and operations','Quản trị, chất lượng và vận hành'), L('Layers 8, 9, 11, 17: tests, observability, lineage, catalog, contracts, access control, security and DevOps.','Layer 8, 9, 11, 17: test, observability, lineage, catalog, contract, kiểm soát truy cập, bảo mật và DevOps.'), L('Show one joined-up DataOps workflow from contract change through CI, catalog/lineage, alert and incident resolution.','Cần một workflow DataOps xuyên suốt từ đổi contract qua CI, catalog/lineage, cảnh báo đến xử lý sự cố.')],
+  [L('Semantic layer, BI and serving','Semantic layer, BI và phục vụ dữ liệu'), L('Layers 6, 7, 10, 22, 23: metrics, semantic models, Cube, BI, reverse ETL, OLAP alternatives and analytics/personalized APIs.','Layer 6, 7, 10, 22, 23: metric, semantic model, Cube, BI, reverse ETL, lựa chọn thay OLAP và API analytics/cá nhân hóa.'), L('Data federation and semantic-model versioning/deprecation are thin; add a concrete consumer and API contract example.','Data federation và versioning/deprecation của semantic model còn mỏng; nên thêm ví dụ contract cho consumer và API.')],
+  [L('Performance and distributed systems','Hiệu năng và hệ thống phân tán'), L('Layers 3, 18, 19, 20, 22 and appendix: ACID, CAP, query plans, push-downs, reliability, FinOps and engine internals.','Layer 3, 18, 19, 20, 22 và phụ lục: ACID, CAP, query plan, push-down, độ tin cậy, FinOps và nội bộ engine.'), L('Connect materialized views, full scans, CTE behavior and workload tuning into one diagnostic path with measured examples.','Cần nối materialized view, full table scan, hành vi CTE và tuning workload thành một quy trình chẩn đoán có số đo.')],
+  [L('Career and community','Nghề nghiệp và cộng đồng'), L('Layers 14, 21 and closing: senior expectations, role comparison, learning path, books, podcasts and open-source projects.','Layer 14, 21 và phần kết: kỳ vọng senior, so sánh vai trò, lộ trình học, sách, podcast và dự án mã nguồn mở.'), L('People-of-data profiles and the supplied Patterns of Data Engineering book link are not independently validated or taught as content.','Chân dung cộng đồng Data Engineering và liên kết sách Patterns of Data Engineering chưa được xác minh độc lập hoặc đưa thành nội dung học.')]
+  ], cap:L('Use the submitted MOC as an index, not a mandate to turn all 101 ideas into slides. Prioritize gaps by audience, incidents and design decisions.','Dùng MOC đã gửi như một chỉ mục, không phải yêu cầu biến cả 101 ý thành slide. Ưu tiên khoảng trống theo đối tượng học, sự cố và quyết định thiết kế.'),
+   refs:[['SSP: Data Engineering Concepts MOC','https://www.ssp.sh/brain/data-engineering-concepts/'], ['Patterns of Data Engineering','https://www.dedp.online/?ref=ssp.sh']],
+   n:L('Next content pass: add one data-mesh operating case, one schema-change recovery lab and one data-federation/semantic-serving decision example. Verify source links and current tool behavior before publishing.','Đợt nội dung tiếp theo: thêm một ca vận hành data mesh, một lab phục hồi sau đổi schema và một ví dụ quyết định data federation/semantic serving. Xác minh link nguồn và hành vi công cụ hiện tại trước khi phát hành.') }
 ]});
+
 </script>
 <script>
 "use strict";
@@ -6987,6 +7146,8 @@ PRACTICE.unshift({ name:L('Coverage map vs the reference topic taxonomy','Bản 
   var SLIDES = [], els = [], firstIdx = {}, N = 0, cur = 0;
   var stage = document.getElementById('stage'), bar = document.getElementById('bar'), count = document.getElementById('count');
   var secname = document.getElementById('secname'), toc = document.getElementById('toc'), ov = document.getElementById('ov'), body = document.body;
+  var graphPanel = document.getElementById('graph'), graphSvg = document.getElementById('graph-svg'), graphInspector = document.getElementById('graph-inspector');
+  var selectedGraphId = null, graphReturnFocus = null;
 
   var REFMAP = {
     Kafka:[['Apache Kafka','https://kafka.apache.org/documentation/'],['Debezium','https://debezium.io/documentation/']],
@@ -7017,12 +7178,13 @@ PRACTICE.unshift({ name:L('Coverage map vs the reference topic taxonomy','Bản 
         : slideHTML(s, null);
       SLIDES.push({ html: inner, sec: -1, color: INTRO_COLOR, group: introName, title: s.t ? plain(s.t) : X('Title', 'Tiêu đề'), kind: s.k });
     });
-    DATA.forEach(function(sec, i){
+    PATHS.forEach(function(path){ path.layers.forEach(function(i){
+      var sec = DATA[i];
       var meta = META[i], secObj = { name: (i + 1) + '. ' + tx(meta.name), icon: i };
       sec.slides.forEach(function(s, j){
         SLIDES.push({ html: slideHTML(s, secObj), sec: i, color: meta.color, group: secObj.name, title: plain(s.t), kind: s.k });
       });
-    });
+    }); });
     ARCH.forEach(function(g, gi){
       var secObj = { name: X('Appendix: ', 'Phụ lục: ') + tx(g.name), icon: 5 };
       g.slides.forEach(function(sl0){
@@ -7051,7 +7213,7 @@ PRACTICE.unshift({ name:L('Coverage map vs the reference topic taxonomy','Bản 
       stage.appendChild(el); els.push(el);
     });
     SLIDES.forEach(function(s, i){ if(firstIdx[s.sec] === undefined) firstIdx[s.sec] = i; });
-    buildToc(); buildOv(); buildSearch();
+    buildToc(); buildOv(); buildSearch(); buildGraph();
   }
 
   function kindLabel(k){
@@ -7067,9 +7229,13 @@ PRACTICE.unshift({ name:L('Coverage map vs the reference topic taxonomy','Bản 
     [X('Title', 'Tiêu đề'), X('Agenda', 'Chương trình'), X('Big picture', 'Bức tranh tổng thể')].forEach(function(n, i){
       h += '<a href="#s' + (i + 1) + '" data-go="' + i + '" style="--accent:' + INTRO_COLOR + '"><span>' + esc(n) + '</span><span class="num">' + (i + 1) + '</span></a>';
     });
-    h += '<h3>' + esc(tx('The 23 layers')) + '</h3>';
-    META.forEach(function(m, i){
-      h += '<a href="#s' + (secStart(i) + 1) + '" data-go="' + secStart(i) + '" data-s="' + i + '" style="--accent:' + m.color + '">' + icon(i).replace('<svg ', '<svg class="ico" ') + '<span>' + (i + 1) + '. ' + esc(tx(m.name)) + '</span><span class="num">' + (secStart(i) + 1) + '</span></a>';
+    h += '<h3>' + esc(X('Learning paths', 'Lộ trình học')) + '</h3>';
+    PATHS.forEach(function(path){
+      h += '<h3>' + esc(tx(path.name)) + '</h3>';
+      path.layers.forEach(function(i){
+        var m = META[i];
+        h += '<a href="#s' + (secStart(i) + 1) + '" data-go="' + secStart(i) + '" data-s="' + i + '" style="--accent:' + m.color + '">' + icon(i).replace('<svg ', '<svg class="ico" ') + '<span>' + (i + 1) + '. ' + esc(tx(m.name)) + '</span><span class="num">' + (secStart(i) + 1) + '</span></a>';
+      });
     });
     h += '<h3>' + esc(tx('Appendix: how the tools work inside')) + '</h3>';
     ARCH.forEach(function(g, gi){
@@ -7172,6 +7338,106 @@ PRACTICE.unshift({ name:L('Coverage map vs the reference topic taxonomy','Bản 
     rawText = els.map(function(el){ return el.textContent.replace(/\s+/g, ' '); });
     searchIdx = rawText.map(function(t){ return t.toLowerCase(); });
   }
+  function graphLines(value, maxLength){
+    var words = String(value).split(/\s+/), lines = [], line = '';
+    words.forEach(function(word){
+      if(line && (line + ' ' + word).length > maxLength){ lines.push(line); line = word; }
+      else line += (line ? ' ' : '') + word;
+    });
+    if(line) lines.push(line);
+    return lines.slice(0, 2);
+  }
+  function buildGraph(){
+    var positions = {}, nodesBySection = {};
+    var parts = ['<defs><marker id="graph-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>'];
+    graphSvg.setAttribute('viewBox', '0 0 1440 690');
+    graphSvg.setAttribute('aria-label', tx('Knowledge graph'));
+    PATHS.forEach(function(path, pathIndex){
+      var x = 14 + pathIndex * 238;
+      var pathLabel = graphLines(tx(path.name), 27);
+      parts.push('<text class="graph-path-label" x="' + (x + 104) + '" y="24" text-anchor="middle">' + pathLabel.map(function(line, i){ return '<tspan x="' + (x + 104) + '" dy="' + (i ? 15 : 0) + '">' + esc(line) + '</tspan>'; }).join('') + '</text>');
+      path.layers.forEach(function(section, row){
+        var node = GRAPH_NODES.filter(function(item){ return item.sec === section; })[0];
+        if(!node) return;
+        var point = {x:x, y:68 + row * 116, width:208, height:62};
+        positions[node.id] = point; nodesBySection[section] = node;
+      });
+    });
+    GRAPH_EDGES.forEach(function(edge){
+      var from = positions[edge.from], to = positions[edge.to];
+      if(!from || !to) return;
+      parts.push('<path class="graph-edge" data-from="' + edge.from + '" data-to="' + edge.to + '" d="M' + (from.x + from.width / 2) + ' ' + (from.y + from.height / 2) + 'L' + (to.x + to.width / 2) + ' ' + (to.y + to.height / 2) + '" marker-end="url(#graph-arrow)"><title>' + esc(tx(edge.relation)) + '</title></path>');
+    });
+    GRAPH_NODES.forEach(function(node, index){
+      var point = positions[node.id]; if(!point) return;
+      var labelLines = graphLines(tx(node.label), 25);
+      var label = labelLines.map(function(line, i){ return '<tspan x="' + (point.x + 116) + '" dy="' + (i ? 14 : 0) + '">' + esc(line) + '</tspan>'; }).join('');
+      parts.push('<g class="graph-node" data-graph-node="' + node.id + '" data-color="' + META[node.sec].color + '" style="--node-color:' + META[node.sec].color + '" role="button" tabindex="0" aria-pressed="false" aria-label="' + esc(tx(node.label)) + '"><title>' + esc(tx(node.description)) + '</title><rect x="' + point.x + '" y="' + point.y + '" width="' + point.width + '" height="' + point.height + '"/><text class="graph-node-number" x="' + (point.x + 12) + '" y="' + (point.y + 19) + '">' + (index + 1) + '</text><text x="' + (point.x + 116) + '" y="' + (point.y + (labelLines.length > 1 ? 25 : 33)) + '" text-anchor="middle">' + label + '</text></g>');
+    });
+    graphSvg.innerHTML = parts.join('');
+    applyGraphFilter();
+    if(selectedGraphId) selectGraphNode(selectedGraphId); else renderGraphInspector(null);
+  }
+  function applyGraphFilter(){
+    var query = document.getElementById('graph-q').value.trim().toLowerCase();
+    GRAPH_NODES.forEach(function(node){
+      var match = !query || tx(node.label).toLowerCase().indexOf(query) >= 0;
+      var el = graphSvg.querySelector('[data-graph-node="' + node.id + '"]');
+      if(el) el.classList.toggle('filtered', !match);
+    });
+  }
+  function graphNeighbors(node){
+    return GRAPH_EDGES.filter(function(edge){ return edge.from === node.id || edge.to === node.id; }).map(function(edge){
+      var outgoing = edge.from === node.id;
+      return {node:GRAPH_NODES.filter(function(item){ return item.id === (outgoing ? edge.to : edge.from); })[0], relation:edge.relation, outgoing:outgoing};
+    }).filter(function(item){ return !!item.node; });
+  }
+  function renderGraphInspector(node){
+    if(!node){ graphInspector.innerHTML = '<p class="graph-empty">' + esc(tx('Select a concept to inspect its connections.')) + '</p>'; return; }
+    var neighbors = graphNeighbors(node);
+    var rows = neighbors.map(function(item){
+      return '<button class="graph-relation" data-graph-select="' + item.node.id + '">' +
+        (item.outgoing ? esc(tx(node.label)) : esc(tx(item.node.label))) +
+        '<span>' + esc(tx(item.outgoing ? 'Outgoing' : 'Incoming')) + ': ' + esc(tx(item.relation)) + '</span>' +
+        (item.outgoing ? esc(tx(item.node.label)) : esc(tx(node.label))) + '</button>';
+    }).join('');
+    graphInspector.innerHTML = '<h3>' + esc(tx(node.label)) + '</h3><p>' + esc(tx(node.description)) + '</p>' +
+      '<button class="graph-open" data-graph-go="' + secStart(node.sec) + '">' + esc(tx('Open layer')) + ' ' + (node.sec + 1) + '</button>' +
+      '<h4>' + esc(tx('Connected concepts')) + '</h4>' + (rows || '<p class="graph-empty">' + esc(tx('No concepts match this search.')) + '</p>');
+  }
+  function selectGraphNode(id){
+    var node = GRAPH_NODES.filter(function(item){ return item.id === id; })[0];
+    if(!node) return;
+    selectedGraphId = id;
+    var related = {};
+    graphNeighbors(node).forEach(function(item){ related[item.node.id] = true; });
+    graphSvg.querySelectorAll('.graph-node').forEach(function(el){
+      var selected = el.getAttribute('data-graph-node') === id;
+      var neighbor = !!related[el.getAttribute('data-graph-node')];
+      el.classList.toggle('selected', selected);
+      el.classList.toggle('neighbor', neighbor);
+      el.classList.toggle('faded', !selected && !neighbor);
+      el.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    });
+    graphSvg.querySelectorAll('.graph-edge').forEach(function(el){
+      var active = el.getAttribute('data-from') === id || el.getAttribute('data-to') === id;
+      el.classList.toggle('active', active);
+      el.classList.toggle('faded', !active);
+    });
+    renderGraphInspector(node);
+  }
+  function setGraph(on){
+    body.classList.toggle('graph-on', on);
+    graphPanel.setAttribute('aria-hidden', on ? 'false' : 'true');
+    document.getElementById('btn-graph').setAttribute('aria-pressed', on ? 'true' : 'false');
+    if(on){
+      setSearch(false); setOv(false); setToc(false);
+      graphReturnFocus = document.activeElement;
+      document.getElementById('graph-q').focus();
+    } else if(graphReturnFocus && graphReturnFocus.focus){
+      graphReturnFocus.focus(); graphReturnFocus = null;
+    }
+  }
   function setSearch(on){
     body.classList.toggle('search-on', on);
     if(on){ var q = document.getElementById('q'); q.placeholder = tx('Search slides and code'); q.focus(); q.select(); }
@@ -7231,6 +7497,8 @@ PRACTICE.unshift({ name:L('Coverage map vs the reference topic taxonomy','Bản 
     for(var i = 0; i < a.length; i++) a[i].textContent = tx(a[i].getAttribute('data-i18n'));
     var b = document.querySelectorAll('[data-i18n-title]');
     for(var j = 0; j < b.length; j++){ var t = tx(b[j].getAttribute('data-i18n-title')); b[j].title = t; b[j].setAttribute('aria-label', t); }
+    var c = document.querySelectorAll('[data-i18n-placeholder]');
+    for(var k = 0; k < c.length; k++) c[k].placeholder = tx(c[k].getAttribute('data-i18n-placeholder'));
     document.getElementById('lang-label').textContent = LANG === 'vi' ? 'VI' : 'EN';
   }
   function setLang(l){
@@ -7244,6 +7512,26 @@ PRACTICE.unshift({ name:L('Coverage map vs the reference topic taxonomy','Bản 
   document.getElementById('btn-toc').addEventListener('click', function(){ setToc(!body.classList.contains('toc-open')); });
   document.getElementById('scrim').addEventListener('click', function(){ setToc(false); });
   document.getElementById('btn-ov').addEventListener('click', function(){ setOv(!body.classList.contains('ov-on')); });
+  document.getElementById('btn-graph').addEventListener('click', function(){ setGraph(!body.classList.contains('graph-on')); });
+  document.getElementById('graph-close').addEventListener('click', function(){ setGraph(false); });
+  document.getElementById('graph-q').addEventListener('input', applyGraphFilter);
+  graphSvg.addEventListener('click', function(e){ var node = e.target.closest('[data-graph-node]'); if(node) selectGraphNode(node.getAttribute('data-graph-node')); });
+  graphSvg.addEventListener('keydown', function(e){ if((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-graph-node]')){ e.preventDefault(); selectGraphNode(e.target.getAttribute('data-graph-node')); } });
+  graphInspector.addEventListener('click', function(e){
+    var node = e.target.closest('[data-graph-select]');
+    if(node){ selectGraphNode(node.getAttribute('data-graph-select')); return; }
+    var target = e.target.closest('[data-graph-go]');
+    if(target){ setGraph(false); go(parseInt(target.getAttribute('data-graph-go'), 10)); }
+  });
+  graphPanel.addEventListener('keydown', function(e){
+    if(e.key !== 'Tab') return;
+    var items = graphPanel.querySelectorAll('input,button,[data-graph-node]');
+    var focusable = Array.prototype.filter.call(items, function(el){ return !el.disabled && el.getAttribute('aria-hidden') !== 'true'; });
+    if(!focusable.length) return;
+    var first = focusable[0], last = focusable[focusable.length - 1];
+    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  });
   document.getElementById('btn-notes').addEventListener('click', function(){ setNotes(!body.classList.contains('show-notes')); });
   document.getElementById('btn-theme').addEventListener('click', function(){ setTheme(isDark() ? 'light' : 'dark'); });
   document.getElementById('btn-search').addEventListener('click', function(){ setSearch(!body.classList.contains('search-on')); });
@@ -7256,6 +7544,7 @@ PRACTICE.unshift({ name:L('Coverage map vs the reference topic taxonomy','Bản 
   document.addEventListener('keydown', function(e){
     if(e.ctrlKey || e.metaKey || e.altKey) return;
     var tag = (e.target && e.target.tagName) || '', k0 = e.key;
+    if(k0 === 'Escape' && body.classList.contains('graph-on')){ setGraph(false); return; }
     if(k0 === 'Escape' && body.classList.contains('search-on')){ setSearch(false); return; }
     if(tag === 'INPUT' || tag === 'TEXTAREA') return;
     if(k0 === '/' && tag !== 'INPUT'){ e.preventDefault(); setSearch(true); return; }
@@ -7268,6 +7557,7 @@ PRACTICE.unshift({ name:L('Coverage map vs the reference topic taxonomy','Bản 
     else if(k === 'End'){ e.preventDefault(); go(N - 1); }
     else if(k === 'o' || k === 'O'){ setOv(!body.classList.contains('ov-on')); }
     else if(k === 'n' || k === 'N'){ setNotes(!body.classList.contains('show-notes')); }
+    else if(k === 'g' || k === 'G'){ setGraph(!body.classList.contains('graph-on')); }
     else if(k === 'm' || k === 'M'){ setToc(!body.classList.contains('toc-open')); }
     else if(k === 't' || k === 'T'){ setTheme(isDark() ? 'light' : 'dark'); }
     else if(k === 'b' || k === 'B'){ toggleBm(); }
@@ -7300,6 +7590,7 @@ PRACTICE.unshift({ name:L('Coverage map vs the reference topic taxonomy','Bản 
   go(m0 ? parseInt(m0[1], 10) - 1 : 0, true);
   window.__DECK = { get N(){ return N; }, get slides(){ return SLIDES; }, go: go, setLang: setLang, validate: validate };
 })();
+
 </script>
 </body>
 </html>
