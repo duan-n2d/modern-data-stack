@@ -51,3 +51,7 @@ Slides use stable hashes such as `#/l03/storage-formats` rather than numeric sli
 ## Project purpose
 
 The deck is designed as a practical learning resource for data engineers and platform builders, covering topics such as data architecture, warehousing, pipelines, orchestration, governance, reliability, and senior-level engineering practices.
+
+## Related
+
+- [AI-Augmented Data Engineering Roadmap](https://github.com/duan-n2d/learning-data-platform) — a companion project-led, 24-week curriculum with hands-on project briefs.
