@@ -461,3 +461,66 @@ slides:
     n:
       en: Commands are examples; check flags for your installed versions. The `\copy` meta-command is psql-specific.
       vi: Các lệnh chỉ là ví dụ; hãy kiểm tra cờ cho phiên bản bạn cài. Meta-command `\copy` là của riêng psql.
+  - id: real-time-analytics-htap-and-virtual-data-warehouses
+    k: table
+    t:
+      en: Real-time analytics, HTAP and the virtual data warehouse
+      vi: Real-time analytics, HTAP và virtual data warehouse
+    lead:
+      en: "Three ways to answer questions on fresh or scattered data without a nightly batch: stream into a real-time store, run analytics inside the transactional database, or query the data where it already lives."
+      vi: "Ba cách trả lời câu hỏi trên dữ liệu mới hoặc phân tán mà không cần batch hằng đêm: stream vào kho thời gian thực, chạy analytics ngay trong database giao dịch, hoặc truy vấn dữ liệu tại nơi nó đang nằm."
+    head:
+      - en: Approach
+        vi: Cách tiếp cận
+      - en: How it works
+        vi: Cách hoạt động
+      - en: Examples
+        vi: Ví dụ
+      - en: Choose when
+        vi: Chọn khi
+      - en: Trade-off
+        vi: Đánh đổi
+    rows:
+      - - en: Real-time analytics pipeline
+          vi: Pipeline real-time analytics
+        - en: Events flow through Kafka, are enriched or aggregated by Flink, and land in a real-time OLAP store and an Iceberg table for history
+          vi: Sự kiện đi qua Kafka, được Flink làm giàu hoặc tổng hợp, rồi vào kho OLAP thời gian thực và một bảng Iceberg để lưu lịch sử
+        - Kafka, Flink, Druid, Pinot, ClickHouse, StarRocks, Iceberg
+        - en: User-facing metrics, fraud and operations dashboards that need seconds of freshness
+          vi: Metric hướng người dùng, dashboard gian lận và vận hành cần độ mới tính bằng giây
+        - en: Several always-on systems to operate; late and duplicate events need explicit handling
+          vi: Nhiều hệ thống chạy liên tục phải vận hành; sự kiện đến trễ và trùng lặp cần xử lý rõ ràng
+      - - en: HTAP (hybrid transactional/analytical processing)
+          vi: HTAP (xử lý lai giao dịch/phân tích)
+        - en: One database keeps a row store for transactions and a synchronized columnar replica for analytics
+          vi: Một database giữ row store cho giao dịch và một bản sao dạng cột được đồng bộ cho analytics
+        - TiDB + TiFlash, SingleStore, AlloyDB columnar engine, SAP HANA, Oracle In-Memory
+        - en: Operational reporting on the application’s own live data, with no pipeline in between
+          vi: Báo cáo vận hành trên chính dữ liệu sống của ứng dụng, không cần pipeline ở giữa
+        - en: Covers one system’s data only; heavy queries compete with transactions; history and cross-source joins still need a lakehouse
+          vi: Chỉ bao phủ dữ liệu của một hệ thống; query nặng tranh tài nguyên với giao dịch; lịch sử và join đa nguồn vẫn cần lakehouse
+      - - en: Virtual data warehouse (federation)
+          vi: Virtual data warehouse (federation)
+        - en: A query engine presents many sources as one SQL catalog and pushes work down to each source at query time; nothing is copied
+          vi: Query engine trình bày nhiều nguồn như một catalog SQL và đẩy công việc xuống từng nguồn khi truy vấn; không sao chép gì
+        - Trino / Starburst, Dremio, Denodo, BigQuery Omni
+        - en: Exploration, rarely used sources, or regulations that forbid copying data
+          vi: Khám phá dữ liệu, nguồn ít dùng, hoặc quy định cấm sao chép dữ liệu
+        - en: Speed limited by the slowest source; load lands on production systems; no history unless sources keep it
+          vi: Tốc độ bị giới hạn bởi nguồn chậm nhất; tải đổ lên hệ thống production; không có lịch sử trừ khi nguồn tự giữ
+      - - en: Batch lakehouse (baseline)
+          vi: Lakehouse batch (mốc so sánh)
+        - en: Scheduled ELT into open tables, modeled and served to BI
+          vi: ELT theo lịch vào bảng mở, được mô hình hóa và phục vụ cho BI
+        - en: Iceberg or Delta with Spark, dbt and Trino
+          vi: Iceberg hoặc Delta với Spark, dbt và Trino
+        - en: Most analytics, where minutes or hours of delay are acceptable
+          vi: Phần lớn analytics, khi trễ vài phút hoặc vài giờ là chấp nhận được
+        - en: Freshness bounded by the schedule
+          vi: Độ mới bị giới hạn bởi lịch chạy
+    cap:
+      en: These combine well. A common design is a batch lakehouse for history, a real-time store for the few metrics that need seconds, and federation for the long tail of sources.
+      vi: Các cách này kết hợp tốt. Thiết kế phổ biến là lakehouse batch cho lịch sử, kho thời gian thực cho vài metric cần độ mới tính bằng giây, và federation cho phần đuôi dài các nguồn.
+    n:
+      en: Push the audience to name the freshness requirement in seconds, minutes or hours before picking an approach. Real-time is expensive to run around the clock.
+      vi: Hãy buộc khán giả nêu yêu cầu độ mới bằng giây, phút hay giờ trước khi chọn cách tiếp cận. Real-time rất tốn kém khi chạy suốt ngày đêm.

@@ -988,6 +988,641 @@ slides:
     n:
       en: "Connect this to section 15: a lineage or knowledge graph is the input structure, and a GNN is one way to learn from it. Many problems are solved well enough by graph features fed into gradient boosting."
       vi: "Nối với phần 15: graph lineage hoặc knowledge graph là cấu trúc đầu vào, và GNN là một cách học từ nó. Nhiều bài toán đã giải đủ tốt bằng đặc trưng graph đưa vào gradient boosting."
+  - id: feature-engineering-point-in-time-features
+    k: code
+    t:
+      en: "Feature engineering: turning raw tables into model inputs"
+      vi: "Feature engineering: biến bảng thô thành đầu vào cho model"
+    lead:
+      en: "Feature engineering is the work of turning events and entities into numeric columns a model can learn from: aggregates over time windows, ratios, recency, encoded categories. It is mostly data engineering, and most leakage bugs live here."
+      vi: "Feature engineering là việc biến sự kiện và thực thể thành các cột số mà model học được: tổng hợp theo cửa sổ thời gian, tỷ lệ, độ gần đây, biến phân loại đã mã hóa. Phần lớn đây là việc của data engineering, và đa số lỗi rò rỉ dữ liệu nằm ở đây."
+    blocks:
+      - lang: sql
+        title: churn_features.sql (point-in-time window features)
+        code: |-
+          -- One row per (customer_id, as_of_ts): the moment a prediction would have been made.
+          select
+              l.customer_id,
+              l.as_of_ts,
+              l.churned_next_30d                                  as label,
+              count(o.order_id)                                   as orders_90d,
+              coalesce(sum(o.amount), 0)                          as spend_90d,
+              coalesce(sum(o.amount), 0) / nullif(count(o.order_id), 0) as avg_order_90d,
+              datediff('day', max(o.order_ts), l.as_of_ts)        as days_since_last_order
+          from ml.churn_labels l
+          left join analytics.fct_orders o
+            on  o.customer_id = l.customer_id
+            and o.order_ts <  l.as_of_ts                          -- only the past is visible
+            and o.order_ts >= l.as_of_ts - interval '90 days'     -- fixed look-back window
+          group by l.customer_id, l.as_of_ts, l.churned_next_30d;
+      - lang: python
+        title: encode.py (fit encoders on train only)
+        code: |-
+          from sklearn.compose import ColumnTransformer
+          from sklearn.pipeline import make_pipeline
+          from sklearn.preprocessing import OneHotEncoder, StandardScaler
+          from lightgbm import LGBMClassifier
+
+          prep = ColumnTransformer([
+              ("num", StandardScaler(), ["orders_90d", "spend_90d", "days_since_last_order"]),
+              ("cat", OneHotEncoder(handle_unknown="ignore", min_frequency=50), ["country", "plan"]),
+          ])
+          model = make_pipeline(prep, LGBMClassifier(n_estimators=400, learning_rate=0.05))
+          model.fit(train_df, train_df["label"])   # split by as_of_ts first, then fit
+    points:
+      - h:
+          en: Extraction and windowing
+          vi: Trích xuất và cửa sổ thời gian
+        p:
+          en: Counts, sums and recency over 7, 30 or 90 day windows usually beat raw columns. Compute them relative to as_of_ts, never to today.
+          vi: Đếm, tổng và độ gần đây trên cửa sổ 7, 30 hoặc 90 ngày thường tốt hơn cột thô. Tính chúng so với as_of_ts, không bao giờ so với hôm nay.
+      - h:
+          en: Encoding
+          vi: Mã hóa
+        p:
+          en: One-hot for low-cardinality categories, target or frequency encoding for high-cardinality ones, with rare values bucketed. Target encoding must be fitted out-of-fold or it leaks the label.
+          vi: One-hot cho biến phân loại ít giá trị, target hoặc frequency encoding cho biến nhiều giá trị, gom các giá trị hiếm. Target encoding phải fit out-of-fold, nếu không sẽ rò rỉ nhãn.
+      - h:
+          en: Leakage
+          vi: Rò rỉ dữ liệu
+        tag: senior
+        p:
+          en: "Classic leaks: a status column updated after the outcome, a refund table joined without a time filter, a scaler fitted on the full dataset. Split by time, then build features."
+          vi: "Rò rỉ kinh điển: cột trạng thái được cập nhật sau khi có kết quả, bảng hoàn tiền join không lọc thời gian, scaler fit trên toàn bộ dữ liệu. Chia theo thời gian trước, rồi mới tạo đặc trưng."
+      - h:
+          en: Feature stores and train/serve skew
+          vi: Feature store và lệch train/serve
+        tag: senior
+        p:
+          en: If training uses this SQL but serving recomputes features in application code, the two drift apart. A feature store (Feast, Databricks, Tecton) defines a feature once, backfills it point-in-time for training and serves the latest value online.
+          vi: Nếu huấn luyện dùng SQL này còn phục vụ lại tính đặc trưng trong code ứng dụng, hai bên sẽ lệch nhau. Feature store (Feast, Databricks, Tecton) định nghĩa đặc trưng một lần, backfill point-in-time cho huấn luyện và phục vụ giá trị mới nhất online.
+    n:
+      en: "The strict less-than on order_ts is the whole lesson: the feature row must look exactly like what the model would have seen at prediction time. The SQL uses Snowflake-style datediff; adapt for your engine."
+      vi: "Dấu nhỏ hơn chặt trên order_ts là toàn bộ bài học: dòng đặc trưng phải giống hệt những gì model thấy tại thời điểm dự đoán. SQL dùng datediff kiểu Snowflake; hãy điều chỉnh theo engine của bạn."
+  - id: mlops-the-model-lifecycle-in-production
+    k: table
+    t:
+      en: "MLOps: the model lifecycle in production"
+      vi: "MLOps: vòng đời model trên production"
+    lead:
+      en: MLOps applies DevOps habits to machine learning. The twist is that behaviour depends on code, data and a trained artifact, so all three must be versioned, tested and monitored.
+      vi: MLOps áp dụng thói quen DevOps cho machine learning. Điểm khác là hành vi phụ thuộc vào code, dữ liệu và một artifact đã huấn luyện, nên cả ba phải được version, kiểm thử và giám sát.
+    head:
+      - en: Stage
+        vi: Giai đoạn
+      - en: What happens
+        vi: Việc diễn ra
+      - en: Data engineering touchpoint
+        vi: Điểm chạm data engineering
+      - en: Typical tools
+        vi: Công cụ thường gặp
+    rows:
+      - - en: Data and features
+          vi: Dữ liệu và đặc trưng
+        - en: Build labelled, point-in-time training sets
+          vi: Tạo tập huấn luyện có nhãn, đúng point-in-time
+        - en: Snapshot tables (Delta or Iceberg time travel) so a run can be reproduced
+          vi: Snapshot bảng (time travel của Delta hoặc Iceberg) để tái lập được một lần chạy
+        - dbt, Spark, Feast
+      - - en: Training pipeline
+          vi: Pipeline huấn luyện
+        - en: Scheduled, parameterized training instead of a notebook
+          vi: Huấn luyện theo lịch, có tham số thay vì notebook
+        - en: Orchestrate after upstream data tests pass
+          vi: Điều phối sau khi các test dữ liệu upstream đã qua
+        - Airflow, Dagster, Kubeflow, SageMaker Pipelines
+      - - en: Tracking and registry
+          vi: Theo dõi và registry
+        - en: Log params, metrics, data version; promote a model version to staging or production
+          vi: Ghi tham số, chỉ số, phiên bản dữ liệu; nâng một phiên bản model lên staging hoặc production
+        - en: Record which table snapshot trained which model
+          vi: Ghi lại snapshot bảng nào đã huấn luyện model nào
+        - MLflow, Weights & Biases
+      - - en: Validation gate
+          vi: Cổng kiểm định
+        - en: New model must beat the current one on a fixed holdout and fairness checks
+          vi: Model mới phải thắng model hiện tại trên holdout cố định và các kiểm tra công bằng
+        - en: Maintain the frozen evaluation set as a governed table
+          vi: Duy trì tập đánh giá cố định như một bảng được quản trị
+        - en: CI jobs, custom checks
+          vi: Job CI, kiểm tra tự viết
+      - - en: Deployment
+          vi: Triển khai
+        - en: Batch scoring to a table, or an online endpoint; shadow or canary first
+          vi: Chấm điểm batch ra bảng, hoặc endpoint online; chạy shadow hoặc canary trước
+        - en: Write predictions with model_version and scored_at columns
+          vi: Ghi dự đoán kèm cột model_version và scored_at
+        - en: Spark UDFs, BentoML, KServe, managed endpoints
+          vi: Spark UDF, BentoML, KServe, endpoint managed
+      - - en: Monitoring
+          vi: Giám sát
+        - en: Track inputs, predictions, latency and, once labels arrive, accuracy
+          vi: Theo dõi đầu vào, dự đoán, độ trễ và, khi có nhãn, độ chính xác
+        - en: Join prediction logs to delayed outcomes; compute drift metrics
+          vi: Join log dự đoán với kết quả đến trễ; tính chỉ số drift
+        - Evidently, WhyLabs, Lakehouse Monitoring
+      - - en: Retraining
+          vi: Huấn luyện lại
+        - en: Retrain on a schedule or when monitoring triggers it
+          vi: Huấn luyện lại theo lịch hoặc khi giám sát kích hoạt
+        - en: Keep enough history for a fresh window; backfill new features
+          vi: Giữ đủ lịch sử cho cửa sổ mới; backfill đặc trưng mới
+        - en: Orchestrator sensors and triggers
+          vi: Sensor và trigger của orchestrator
+    cap:
+      en: "Minimum viable MLOps: versioned training data, tracked runs, a registry, prediction logs with model_version, and one drift dashboard."
+      vi: "MLOps tối thiểu khả dụng: dữ liệu huấn luyện có version, run được theo dõi, một registry, log dự đoán có model_version, và một dashboard drift."
+    n:
+      en: Most ML failures in production are data failures. Data engineers own the first and last rows of this table, which is why MLOps maturity often tracks data platform maturity.
+      vi: Phần lớn lỗi ML trên production là lỗi dữ liệu. Data engineer sở hữu dòng đầu và dòng cuối của bảng này, đó là lý do độ trưởng thành MLOps thường đi theo độ trưởng thành của nền tảng dữ liệu.
+  - id: model-drift-detect-and-respond
+    k: code
+    t:
+      en: "Model drift: detect it and respond"
+      vi: "Model drift: phát hiện và xử lý"
+    lead:
+      en: Model drift is the gradual loss of quality after deployment because the world no longer looks like the training data. Detect it from inputs and predictions first, since true labels often arrive weeks later.
+      vi: Model drift là sự suy giảm chất lượng dần sau khi triển khai vì thế giới không còn giống dữ liệu huấn luyện. Hãy phát hiện qua đầu vào và dự đoán trước, vì nhãn thật thường đến sau nhiều tuần.
+    blocks:
+      - lang: sql
+        title: psi_amount.sql (Population Stability Index, one feature)
+        code: |-
+          with binned as (
+              select 'expected' as src, width_bucket(amount, 0, 1000, 10) as bucket
+              from ml.training_snapshot_v12
+              union all
+              select 'actual', width_bucket(amount, 0, 1000, 10)
+              from ml.scoring_log
+              where scored_at >= current_date - 7
+          ),
+          dist as (
+              select bucket,
+                     sum(case when src = 'expected' then 1 else 0 end) * 1.0
+                       / sum(sum(case when src = 'expected' then 1 else 0 end)) over () as e,
+                     sum(case when src = 'actual' then 1 else 0 end) * 1.0
+                       / sum(sum(case when src = 'actual' then 1 else 0 end)) over () as a
+              from binned
+              group by bucket
+          )
+          select sum((greatest(a, 0.0001) - greatest(e, 0.0001))
+                     * ln(greatest(a, 0.0001) / greatest(e, 0.0001))) as psi
+          from dist;
+          -- rule of thumb: < 0.1 stable, 0.1 to 0.25 watch, > 0.25 investigate
+    points:
+      - h:
+          en: Data drift
+          vi: Data drift
+        p:
+          en: The input distribution P(X) shifts, for example a new market or a marketing campaign brings different customers. Measured with PSI, KS tests or Jensen-Shannon distance per feature.
+          vi: Phân phối đầu vào P(X) dịch chuyển, ví dụ thị trường mới hoặc chiến dịch marketing mang đến khách hàng khác. Đo bằng PSI, kiểm định KS hoặc khoảng cách Jensen-Shannon cho từng đặc trưng.
+      - h:
+          en: Concept drift
+          vi: Concept drift
+        tag: senior
+        p:
+          en: The relationship P(y | X) changes, for example fraudsters adapt. Inputs can look identical, so only outcome-based metrics reveal it. Retraining on recent labels is the fix.
+          vi: Quan hệ P(y | X) thay đổi, ví dụ kẻ gian lận thay đổi cách làm. Đầu vào có thể trông giống hệt, nên chỉ chỉ số dựa trên kết quả mới lộ ra. Cách sửa là huấn luyện lại trên nhãn gần đây.
+      - h:
+          en: Skew is not drift
+          vi: Lệch không phải drift
+        tag: senior
+        p:
+          en: A sudden jump the day after a deploy is usually a pipeline bug (a renamed column, a unit change, nulls) rather than the world changing. Check data contracts before retraining.
+          vi: Một bước nhảy đột ngột ngay sau ngày deploy thường là lỗi pipeline (đổi tên cột, đổi đơn vị, null) chứ không phải thế giới thay đổi. Kiểm tra data contract trước khi huấn luyện lại.
+      - h:
+          en: Respond proportionally
+          vi: Phản ứng tương xứng
+        p:
+          en: Alert on drift in important features, confirm with delayed labels, then retrain, recalibrate thresholds or roll back. Retraining on corrupted data only bakes the bug in.
+          vi: Cảnh báo khi đặc trưng quan trọng bị drift, xác nhận bằng nhãn đến trễ, rồi huấn luyện lại, hiệu chỉnh ngưỡng hoặc rollback. Huấn luyện lại trên dữ liệu hỏng chỉ khiến lỗi ăn sâu hơn.
+    n:
+      en: PSI is cheap enough to compute in the warehouse for every feature daily. Fix the bin edges from the training data, otherwise the comparison moves with the live data.
+      vi: PSI đủ rẻ để tính trong warehouse cho mọi đặc trưng hằng ngày. Cố định biên bin từ dữ liệu huấn luyện, nếu không phép so sánh sẽ trôi theo dữ liệu live.
+  - id: ml-domains-nlp-vision-speech-and-multimodal
+    k: table
+    t:
+      en: "Application domains: NLP, computer vision, speech and multi-modal AI"
+      vi: "Lĩnh vực ứng dụng: NLP, thị giác máy tính, giọng nói và AI đa phương thức"
+    lead:
+      en: "Each domain is defined by its raw data type. For a data engineer the job is the same each time: land unstructured files cheaply, run models over them in batch, and store the extracted structure as tables."
+      vi: "Mỗi lĩnh vực được xác định bởi kiểu dữ liệu thô. Với data engineer, việc luôn giống nhau: đưa file phi cấu trúc vào kho rẻ, chạy model trên chúng theo batch, và lưu cấu trúc trích được thành bảng."
+    head:
+      - en: Domain
+        vi: Lĩnh vực
+      - en: What it does
+        vi: Làm gì
+      - en: How models work today
+        vi: Model hiện nay hoạt động thế nào
+      - en: Data engineering work
+        vi: Việc của data engineering
+      - en: Pitfalls
+        vi: Cạm bẫy
+    rows:
+      - - en: Natural language processing (NLP)
+          vi: Xử lý ngôn ngữ tự nhiên (NLP)
+        - en: Classify, extract entities, summarize, translate and answer questions over text
+          vi: Phân loại, trích xuất thực thể, tóm tắt, dịch và trả lời câu hỏi trên văn bản
+        - en: Tokenize, then a transformer (BERT-style for understanding, GPT-style for generation); TF-IDF baselines still useful
+          vi: Tách token, rồi dùng transformer (kiểu BERT để hiểu, kiểu GPT để sinh); baseline TF-IDF vẫn hữu ích
+        - en: Clean and deduplicate text, detect language, chunk documents, store sentiment or entities as columns
+          vi: Làm sạch và khử trùng lặp văn bản, nhận diện ngôn ngữ, chia đoạn tài liệu, lưu cảm xúc hoặc thực thể thành cột
+        - en: PII inside free text; models tuned on English underperform on Vietnamese
+          vi: PII nằm trong văn bản tự do; model tối ưu cho tiếng Anh kém hơn trên tiếng Việt
+      - - en: Computer vision
+          vi: Thị giác máy tính
+        - en: Classify images, detect and segment objects, read documents (OCR), inspect products
+          vi: Phân loại ảnh, phát hiện và phân vùng vật thể, đọc tài liệu (OCR), kiểm tra sản phẩm
+        - en: CNNs learn local filters; vision transformers split an image into patches treated as tokens
+          vi: CNN học bộ lọc cục bộ; vision transformer chia ảnh thành các patch xem như token
+        - en: Images in object storage, annotations and labels in tables keyed by file path and hash
+          vi: Ảnh nằm trong object storage, annotation và nhãn ở bảng có khóa là đường dẫn và hash của file
+        - en: Label noise; camera or lighting changes cause drift; storage and egress costs
+          vi: Nhãn nhiễu; thay đổi camera hoặc ánh sáng gây drift; chi phí lưu trữ và egress
+      - - en: Speech-to-text (ASR)
+          vi: Chuyển giọng nói thành văn bản (ASR)
+        - en: Automatic speech recognition turns audio such as support calls into text with timestamps
+          vi: Nhận dạng giọng nói tự động biến âm thanh như cuộc gọi hỗ trợ thành văn bản kèm mốc thời gian
+        - en: Audio becomes a spectrogram; an encoder-decoder transformer such as Whisper emits text tokens. Older systems paired acoustic and language models
+          vi: Âm thanh thành spectrogram; transformer encoder-decoder như Whisper sinh token văn bản. Hệ thống cũ ghép acoustic model và language model
+        - en: Batch-transcribe audio files, add speaker diarization, redact PII, land transcripts for NLP and search
+          vi: Phiên âm file âm thanh theo batch, thêm phân biệt người nói, che PII, lưu bản ghi cho NLP và tìm kiếm
+        - en: Word error rate rises with accents, noise and domain jargon; GPU cost per audio hour
+          vi: Word error rate tăng với giọng địa phương, tiếng ồn và thuật ngữ chuyên ngành; chi phí GPU cho mỗi giờ âm thanh
+      - - en: Multi-modal AI
+          vi: AI đa phương thức
+        - en: One model reads or produces several data types, for example answering a question about a chart image
+          vi: Một model đọc hoặc tạo nhiều kiểu dữ liệu, ví dụ trả lời câu hỏi về ảnh biểu đồ
+        - en: Separate encoders map images, audio and text into a shared embedding space (CLIP style) or into tokens a single LLM attends over
+          vi: Các encoder riêng ánh xạ ảnh, âm thanh và văn bản vào cùng không gian embedding (kiểu CLIP) hoặc thành token để một LLM chú ý chung
+        - en: Keep each asset and its derived text, embeddings and metadata linked by one id; multimodal vector search
+          vi: Giữ mỗi tài sản và văn bản, embedding, metadata suy ra từ nó liên kết bằng một id; vector search đa phương thức
+        - en: Large payloads per request; evaluation is harder; prompt injection can hide inside images
+          vi: Payload lớn mỗi request; đánh giá khó hơn; prompt injection có thể ẩn trong ảnh
+    cap:
+      en: "Pattern for all four: raw files in the lake, a batch inference job, and a structured output table (labels, entities, transcripts, embeddings) that joins back to the source by id."
+      vi: "Pattern chung cho cả bốn: file thô trong lake, một job inference theo batch, và một bảng kết quả có cấu trúc (nhãn, thực thể, bản ghi, embedding) join ngược về nguồn bằng id."
+    n:
+      en: Whisper was released by OpenAI with open weights in 2022 and is a common baseline for ASR. For Vietnamese call-centre audio, measure word error rate on your own sample before committing.
+      vi: Whisper được OpenAI phát hành với trọng số mở năm 2022 và là baseline phổ biến cho ASR. Với âm thanh tổng đài tiếng Việt, hãy đo word error rate trên mẫu của chính bạn trước khi cam kết.
+  - id: adapting-llms-zero-shot-few-shot-fine-tuning-rlhf
+    k: table
+    t:
+      en: "Adapting a model: zero-shot, few-shot, fine-tuning, LoRA and RLHF"
+      vi: "Điều chỉnh model: zero-shot, few-shot, fine-tuning, LoRA và RLHF"
+    lead:
+      en: There is a ladder of ways to make a pretrained model do your task. Climb only as high as evaluations require, because each rung needs more data, compute and pipeline work.
+      vi: Có một nấc thang các cách để model đã huấn luyện sẵn làm tác vụ của bạn. Chỉ leo đến mức mà eval đòi hỏi, vì mỗi nấc cần thêm dữ liệu, tính toán và công sức pipeline.
+    head:
+      - en: Approach
+        vi: Cách tiếp cận
+      - en: How it works
+        vi: Cách hoạt động
+      - en: Data needed
+        vi: Dữ liệu cần
+      - en: Weights change?
+        vi: Trọng số có đổi?
+      - en: Trade-off
+        vi: Đánh đổi
+    rows:
+      - - en: Zero-shot learning
+          vi: Zero-shot learning
+        - en: Describe the task or the candidate labels in plain language; the model relies on what it learned in pretraining. CLIP-style models classify images against label text the same way
+          vi: Mô tả tác vụ hoặc các nhãn ứng viên bằng ngôn ngữ thường; model dựa vào những gì đã học khi tiền huấn luyện. Model kiểu CLIP phân loại ảnh theo văn bản nhãn cũng theo cách này
+        - en: None, only an evaluation set
+          vi: Không có, chỉ cần tập đánh giá
+        - en: "No"
+          vi: Không
+        - en: Fastest to try; weakest on niche labels and strict formats
+          vi: Thử nhanh nhất; yếu với nhãn ngách và định dạng chặt
+      - - en: Few-shot learning
+          vi: Few-shot learning
+        - en: Put a handful of worked examples in the prompt (in-context learning) so the model infers the pattern
+          vi: Đặt vài ví dụ mẫu vào prompt (in-context learning) để model tự suy ra quy luật
+        - en: 3 to 20 curated examples, ideally retrieved per request
+          vi: 3 đến 20 ví dụ chọn lọc, tốt nhất là truy xuất theo từng request
+        - en: "No"
+          vi: Không
+        - en: Big gains cheaply; costs tokens on every call; sensitive to example choice and order
+          vi: Cải thiện lớn với chi phí thấp; tốn token mỗi lần gọi; nhạy với cách chọn và thứ tự ví dụ
+      - - en: Full fine-tuning
+          vi: Fine-tuning toàn phần
+        - en: Continue training every weight on your labelled examples
+          vi: Tiếp tục huấn luyện mọi trọng số trên ví dụ có nhãn của bạn
+        - en: Thousands of clean input and output pairs
+          vi: Hàng nghìn cặp đầu vào và đầu ra sạch
+        - en: Yes, all
+          vi: Có, toàn bộ
+        - en: Best task fit; needs many GPUs and a full model copy per task; can forget general skills
+          vi: Khớp tác vụ tốt nhất; cần nhiều GPU và một bản model đầy đủ cho mỗi tác vụ; có thể quên kỹ năng chung
+      - - en: Low-Rank Adaptation (LoRA)
+          vi: Low-Rank Adaptation (LoRA)
+        - en: Freeze the base weights W and learn a small update B·A of rank r, so the layer computes W·x + (α/r)·B·A·x
+          vi: Đóng băng trọng số gốc W và học một cập nhật nhỏ B·A có hạng r, nên tầng tính W·x + (α/r)·B·A·x
+        - en: Same as fine-tuning, often fewer examples suffice
+          vi: Như fine-tuning, thường cần ít ví dụ hơn
+        - en: Only the adapter, typically well under 1 percent of parameters
+          vi: Chỉ adapter, thường dưới 1 phần trăm số tham số
+        - en: Cheap to train and store; one base model can serve many adapters; slightly below full fine-tuning on hard tasks
+          vi: Huấn luyện và lưu trữ rẻ; một model gốc phục vụ được nhiều adapter; hơi kém fine-tuning toàn phần ở tác vụ khó
+      - - en: Reinforcement learning from human feedback (RLHF)
+          vi: Học tăng cường từ phản hồi con người (RLHF)
+        - en: "Three phases: supervised fine-tuning on demonstrations; a reward model trained on human rankings of answer pairs; reinforcement learning (often PPO) that maximizes reward with a penalty for drifting from the original model"
+          vi: "Ba giai đoạn: fine-tuning có giám sát trên câu trả lời mẫu; reward model huấn luyện từ việc con người xếp hạng cặp câu trả lời; học tăng cường (thường là PPO) tối đa hóa reward kèm phạt khi lệch xa model ban đầu"
+        - en: Tens of thousands of preference comparisons
+          vi: Hàng chục nghìn so sánh ưu tiên
+        - en: "Yes"
+          vi: Có
+        - en: Aligns tone, helpfulness and safety; expensive, and the policy can game a flawed reward model. DPO trains on the preferences directly without a separate reward model
+          vi: Căn chỉnh giọng điệu, độ hữu ích và an toàn; tốn kém, và policy có thể lách một reward model có lỗi. DPO huấn luyện trực tiếp trên dữ liệu ưu tiên mà không cần reward model riêng
+    cap:
+      en: "Order of operations: zero-shot, then few-shot with retrieved examples, then RAG for facts, then LoRA for style or format. Full fine-tuning and RLHF are mostly for model builders."
+      vi: "Thứ tự nên làm: zero-shot, rồi few-shot với ví dụ được truy xuất, rồi RAG cho dữ kiện, rồi LoRA cho văn phong hoặc định dạng. Fine-tuning toàn phần và RLHF chủ yếu dành cho bên xây model."
+    n:
+      en: "LoRA was introduced by Microsoft researchers in 2021. Fine-tuning teaches behaviour and format, not fresh facts: knowledge that changes belongs in retrieval. For data engineers, the deliverables are the eval set, the curated training pairs and the preference logs, each versioned like any other dataset."
+      vi: "LoRA được các nhà nghiên cứu Microsoft giới thiệu năm 2021. Fine-tuning dạy hành vi và định dạng, không dạy dữ kiện mới: kiến thức hay thay đổi thuộc về retrieval. Với data engineer, sản phẩm bàn giao là tập eval, các cặp huấn luyện đã chọn lọc và log ưu tiên, mỗi thứ được version như mọi dataset khác."
+  - id: lora-and-quantization-in-practice
+    k: code
+    t:
+      en: LoRA and quantization in practice
+      vi: LoRA và quantization trong thực tế
+    lead:
+      en: Model quantization stores weights at lower precision (8-bit or 4-bit instead of 16-bit) so a model fits in less memory. Combined with LoRA adapters it lets one GPU fine-tune a 7B model, a recipe known as QLoRA.
+      vi: Model quantization lưu trọng số với độ chính xác thấp hơn (8-bit hoặc 4-bit thay vì 16-bit) để model chiếm ít bộ nhớ hơn. Kết hợp với adapter LoRA, nó cho phép một GPU fine-tune model 7B, công thức này gọi là QLoRA.
+    blocks:
+      - lang: python
+        title: qlora_setup.py (Hugging Face transformers + peft + bitsandbytes)
+        code: |-
+          import torch
+          from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+          from transformers import AutoModelForCausalLM, BitsAndBytesConfig
+
+          base = "mistralai/Mistral-7B-v0.1"
+          quant = BitsAndBytesConfig(
+              load_in_4bit=True,                      # weights stored as 4-bit NF4
+              bnb_4bit_quant_type="nf4",
+              bnb_4bit_compute_dtype=torch.bfloat16,  # math still runs in bf16
+          )
+          model = AutoModelForCausalLM.from_pretrained(base, quantization_config=quant,
+                                                       device_map="auto")
+          model = prepare_model_for_kbit_training(model)
+
+          lora = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05,
+                            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+                            task_type="CAUSAL_LM")
+          model = get_peft_model(model, lora)
+          model.print_trainable_parameters()          # a fraction of a percent is trainable
+
+          # ... train on your versioned instruction dataset, then:
+          model.save_pretrained("adapters/ticket-triage-v3")   # megabytes, not gigabytes
+    points:
+      - h:
+          en: Memory arithmetic
+          vi: Phép tính bộ nhớ
+        p:
+          en: Weights alone need parameters × bytes per weight. A 7B model is about 14 GB in 16-bit, 7 GB in 8-bit and roughly 4 GB in 4-bit, plus room for the KV cache and activations.
+          vi: Riêng trọng số cần số tham số × số byte mỗi trọng số. Model 7B khoảng 14 GB ở 16-bit, 7 GB ở 8-bit và khoảng 4 GB ở 4-bit, cộng thêm chỗ cho KV cache và activation.
+      - h:
+          en: Post-training versus aware
+          vi: Sau huấn luyện và trong huấn luyện
+        p:
+          en: Post-training quantization (GPTQ, AWQ, GGUF files for llama.cpp) converts a finished model. Quantization-aware training simulates low precision while training and loses less accuracy.
+          vi: Quantization sau huấn luyện (GPTQ, AWQ, file GGUF cho llama.cpp) chuyển đổi một model đã xong. Huấn luyện có nhận biết quantization mô phỏng độ chính xác thấp ngay khi huấn luyện và mất ít độ chính xác hơn.
+      - h:
+          en: Measure the loss
+          vi: Đo mức suy giảm
+        tag: senior
+        p:
+          en: 8-bit is usually close to lossless; 4-bit and below can hurt reasoning, math and non-English text. Rerun your eval set on the quantized model, not just the original.
+          vi: 8-bit thường gần như không mất mát; 4-bit trở xuống có thể giảm khả năng suy luận, toán và văn bản không phải tiếng Anh. Chạy lại tập eval trên model đã quantize, không chỉ trên bản gốc.
+      - h:
+          en: Adapters are artifacts
+          vi: Adapter là artifact
+        tag: senior
+        p:
+          en: Store each adapter with its base model id, rank, training data snapshot and eval scores in the registry. An adapter is useless, or silently wrong, on a different base model.
+          vi: Lưu mỗi adapter cùng id model gốc, hạng, snapshot dữ liệu huấn luyện và điểm eval trong registry. Adapter vô dụng, hoặc sai âm thầm, khi gắn vào model gốc khác.
+    n:
+      en: "LoRA's B matrix starts at zero, so training begins exactly at the base model. After training the update can be merged into W, which removes any extra inference latency. Model names here are examples; check licences before use."
+      vi: "Ma trận B của LoRA khởi tạo bằng 0, nên huấn luyện bắt đầu đúng tại model gốc. Sau khi huấn luyện, cập nhật có thể gộp vào W, loại bỏ độ trễ inference phát sinh. Tên model ở đây chỉ là ví dụ; hãy kiểm tra giấy phép trước khi dùng."
+  - id: scaling-llms-attention-moe-and-accelerators
+    k: table
+    t:
+      en: "Scaling large models: attention, mixture of experts and accelerators"
+      vi: "Mở rộng model lớn: attention, mixture of experts và bộ tăng tốc"
+    lead:
+      en: Three ideas explain most of the cost and speed of modern models. Knowing them lets you size hardware and read vendor claims critically.
+      vi: Ba ý tưởng giải thích phần lớn chi phí và tốc độ của model hiện đại. Hiểu chúng giúp bạn ước lượng phần cứng và đọc tuyên bố của nhà cung cấp một cách tỉnh táo.
+    head:
+      - en: Idea
+        vi: Ý tưởng
+      - en: How it works
+        vi: Cách hoạt động
+      - en: Why it matters for cost
+        vi: Vì sao ảnh hưởng chi phí
+      - en: Watch out for
+        vi: Cần lưu ý
+    rows:
+      - - en: Attention mechanism
+          vi: Cơ chế attention
+        - en: Each token scores its relevance to every other token (query against key), turns the scores into weights with softmax and mixes the value vectors. Many heads run in parallel, each learning a different kind of relation
+          vi: Mỗi token chấm điểm mức liên quan với mọi token khác (query so với key), biến điểm thành trọng số bằng softmax rồi trộn các vector value. Nhiều head chạy song song, mỗi head học một kiểu quan hệ khác
+        - en: Work and memory grow with the square of context length; generation keeps a KV cache that grows with every token
+          vi: Khối lượng tính và bộ nhớ tăng theo bình phương độ dài ngữ cảnh; khi sinh, KV cache lớn dần theo từng token
+        - en: Long prompts are slow and expensive; FlashAttention and grouped-query attention reduce, but do not remove, the cost
+          vi: Prompt dài chậm và đắt; FlashAttention và grouped-query attention giảm bớt, nhưng không xóa được chi phí
+      - - en: Mixture of Experts (MoE)
+          vi: Mixture of Experts (MoE)
+        - en: The feed-forward part of each block is split into several expert networks; a learned router sends each token to the top few experts (for example 2 of 8)
+          vi: Phần feed-forward của mỗi khối được chia thành nhiều mạng expert; một router học được gửi mỗi token tới vài expert phù hợp nhất (ví dụ 2 trên 8)
+        - en: Compute per token follows the active parameters, not the total, so quality scales more cheaply. Mixtral 8x7B has about 47B parameters but uses about 13B per token
+          vi: Tính toán mỗi token theo số tham số đang hoạt động, không theo tổng, nên chất lượng tăng với chi phí thấp hơn. Mixtral 8x7B có khoảng 47B tham số nhưng mỗi token chỉ dùng khoảng 13B
+        - en: Every expert must still sit in memory; routers need load-balancing so a few experts are not overloaded
+          vi: Mọi expert vẫn phải nằm trong bộ nhớ; router cần cân bằng tải để vài expert không bị quá tải
+      - - en: Hardware acceleration (GPUs, TPUs)
+          vi: Tăng tốc phần cứng (GPU, TPU)
+        - en: Neural networks are mostly large matrix multiplications. GPUs run thousands of cores and tensor cores in parallel; Google TPUs use systolic arrays built for matrix math
+          vi: Mạng nơ-ron chủ yếu là các phép nhân ma trận lớn. GPU chạy hàng nghìn lõi và tensor core song song; TPU của Google dùng systolic array thiết kế cho toán ma trận
+        - en: Accelerator memory (VRAM or HBM) decides which models fit; memory bandwidth, not raw FLOPs, often limits generation speed
+          vi: Bộ nhớ của bộ tăng tốc (VRAM hoặc HBM) quyết định model nào vừa; băng thông bộ nhớ, chứ không phải FLOPs, thường giới hạn tốc độ sinh
+        - en: Idle GPUs waiting on data; pack training data into large sharded files and keep loaders fast. Reserve or batch work, since idle accelerators are the costliest line item
+          vi: GPU ngồi chờ dữ liệu; đóng gói dữ liệu huấn luyện thành các file lớn chia shard và giữ loader nhanh. Đặt trước hoặc gom việc theo batch, vì bộ tăng tốc nhàn rỗi là khoản chi đắt nhất
+    cap:
+      en: The transformer slide shows the attention formula; this one is about what it costs. Batching requests and quantizing weights are usually the cheapest speed-ups available to a platform team.
+      vi: Slide transformer trình bày công thức attention; slide này nói về cái giá của nó. Gom request theo batch và quantize trọng số thường là cách tăng tốc rẻ nhất mà đội nền tảng có được.
+    n:
+      en: For data engineers the practical link is throughput. A GPU training job reading thousands of tiny files from object storage can spend most of its time waiting, so dataset layout is a performance decision.
+      vi: Với data engineer, mối liên hệ thực tế là thông lượng. Một job huấn luyện GPU đọc hàng nghìn file nhỏ từ object storage có thể dành phần lớn thời gian để chờ, nên bố cục dataset là một quyết định hiệu năng.
+  - id: open-weight-llms-and-hugging-face
+    k: cards
+    t:
+      en: Open-weight LLMs and the Hugging Face ecosystem
+      vi: LLM trọng số mở và hệ sinh thái Hugging Face
+    lead:
+      en: Open-source LLMs such as Meta's Llama and Mistral's models publish their weights, so you can run them on your own infrastructure. Hugging Face is the hub where most of them, and their tooling, live.
+      vi: LLM mã nguồn mở như Llama của Meta và các model của Mistral công bố trọng số, nên bạn có thể chạy chúng trên hạ tầng của mình. Hugging Face là nơi tập trung phần lớn các model đó và công cụ đi kèm.
+    cols: 3
+    cards:
+      - h:
+          en: Open weights, not always open source
+          vi: Trọng số mở, không phải lúc nào cũng mã nguồn mở
+        tag: must
+        p:
+          en: Licences differ. Some, like Apache 2.0, allow almost any use; others add usage policies or limits for very large companies. Training data is rarely published. Legal review comes before production.
+          vi: Giấy phép khác nhau. Một số như Apache 2.0 cho phép gần như mọi cách dùng; số khác thêm chính sách sử dụng hoặc giới hạn cho công ty rất lớn. Dữ liệu huấn luyện hiếm khi được công bố. Cần rà soát pháp lý trước khi lên production.
+      - h:
+          en: Why self-host
+          vi: Vì sao tự host
+        tag: must
+        p:
+          en: Data never leaves your network, cost is predictable at high volume, you can fine-tune freely and pin a version forever. You also own uptime, scaling, patching and safety filters.
+          vi: Dữ liệu không rời mạng của bạn, chi phí dễ dự đoán khi khối lượng lớn, bạn tự do fine-tune và giữ cố định một phiên bản mãi. Đổi lại bạn phải lo uptime, mở rộng, vá lỗi và bộ lọc an toàn.
+      - h:
+          en: Hugging Face Hub
+          vi: Hugging Face Hub
+        tag: must
+        p:
+          en: Git-based repositories of models, datasets and demo apps, each with a model card describing intended use, limits and licence. Pin a commit hash, not a branch, in production code.
+          vi: Kho lưu trữ dựa trên Git cho model, dataset và ứng dụng demo, mỗi model có model card mô tả mục đích dùng, giới hạn và giấy phép. Trong code production hãy ghim commit hash, không ghim branch.
+      - h:
+          en: The libraries
+          vi: Các thư viện
+        tag: nice
+        p:
+          en: "transformers loads and runs models, datasets streams Arrow-backed datasets, tokenizers is fast tokenization, peft adds LoRA, and safetensors is a weight format that cannot execute code when loaded."
+          vi: "transformers nạp và chạy model, datasets stream dữ liệu dựa trên Arrow, tokenizers tách token nhanh, peft thêm LoRA, và safetensors là định dạng trọng số không thể thực thi code khi nạp."
+      - h:
+          en: Serving at scale
+          vi: Phục vụ ở quy mô lớn
+        tag: senior
+        p:
+          en: Use an inference server such as vLLM or Text Generation Inference for continuous batching and paged KV cache; Ollama or llama.cpp for laptops and edge devices.
+          vi: Dùng inference server như vLLM hoặc Text Generation Inference để có continuous batching và KV cache phân trang; Ollama hoặc llama.cpp cho laptop và thiết bị edge.
+      - h:
+          en: Supply-chain hygiene
+          vi: Vệ sinh chuỗi cung ứng
+        tag: senior
+        p:
+          en: Mirror approved models to an internal registry, scan them, prefer safetensors over pickle files, and record which model hash produced which output.
+          vi: Sao chép các model đã duyệt vào registry nội bộ, quét chúng, ưu tiên safetensors thay vì file pickle, và ghi lại hash model nào đã tạo ra kết quả nào.
+    n:
+      en: The decision between a hosted API and an open-weight model is usually about data residency, volume and control, not raw quality. Run the same eval set against both before choosing.
+      vi: Lựa chọn giữa API được host và model trọng số mở thường xoay quanh nơi lưu dữ liệu, khối lượng và quyền kiểm soát, không phải chất lượng thuần túy. Chạy cùng một tập eval trên cả hai trước khi chọn.
+  - id: federated-learning-train-without-moving-data
+    k: cards
+    t:
+      en: "Federated learning: train where the data lives"
+      vi: "Federated learning: huấn luyện tại nơi dữ liệu nằm"
+    lead:
+      en: Federated learning trains one shared model across many phones, hospitals or branches without collecting their raw data. Only model updates travel to a central server.
+      vi: Federated learning huấn luyện một model chung trên nhiều điện thoại, bệnh viện hoặc chi nhánh mà không thu gom dữ liệu thô. Chỉ các cập nhật model được gửi về máy chủ trung tâm.
+    cols: 3
+    cards:
+      - h:
+          en: The loop (FedAvg)
+          vi: Vòng lặp (FedAvg)
+        tag: must
+        p:
+          en: The server sends the current model to a sample of clients, each trains a few steps on local data, and the server averages the returned weights, weighted by each client's sample count. Repeat for many rounds.
+          vi: Máy chủ gửi model hiện tại tới một nhóm client, mỗi client huấn luyện vài bước trên dữ liệu cục bộ, rồi máy chủ lấy trung bình trọng số gửi về, có trọng số theo số mẫu của từng client. Lặp lại nhiều vòng.
+      - h:
+          en: Where it fits
+          vi: Khi nào phù hợp
+        tag: must
+        p:
+          en: Mobile keyboards, medical imaging across hospitals, fraud models across banks or countries where regulation forbids pooling raw records.
+          vi: Bàn phím điện thoại, ảnh y tế giữa các bệnh viện, model gian lận giữa ngân hàng hoặc quốc gia nơi quy định cấm gộp bản ghi thô.
+      - h:
+          en: Non-IID data
+          vi: Dữ liệu không đồng nhất
+        tag: senior
+        p:
+          en: Each client sees a skewed slice of the world, so updates pull in different directions and convergence is slower than central training.
+          vi: Mỗi client chỉ thấy một lát lệch của thế giới, nên các cập nhật kéo về nhiều hướng khác nhau và hội tụ chậm hơn huấn luyện tập trung.
+      - h:
+          en: Updates can leak
+          vi: Cập nhật có thể làm lộ dữ liệu
+        tag: senior
+        p:
+          en: Gradients can reveal training examples. Combine secure aggregation (the server sees only the sum) with differential privacy noise when the data is sensitive.
+          vi: Gradient có thể làm lộ ví dụ huấn luyện. Kết hợp secure aggregation (máy chủ chỉ thấy tổng) với nhiễu differential privacy khi dữ liệu nhạy cảm.
+      - h:
+          en: Engineering cost
+          vi: Chi phí kỹ thuật
+        tag: nice
+        p:
+          en: Unreliable clients, bandwidth limits, version skew between devices and no central place to inspect data quality. Frameworks such as Flower and TensorFlow Federated help with orchestration.
+          vi: Client không ổn định, giới hạn băng thông, lệch phiên bản giữa thiết bị và không có nơi tập trung để kiểm tra chất lượng dữ liệu. Framework như Flower và TensorFlow Federated hỗ trợ điều phối.
+      - h:
+          en: Data engineering role
+          vi: Vai trò data engineering
+        tag: nice
+        p:
+          en: Agree a shared feature schema and validation rules with every site, since you cannot clean their data for them. Data contracts matter even more than in a central lake.
+          vi: Thống nhất schema đặc trưng và quy tắc kiểm tra với mọi bên, vì bạn không thể làm sạch dữ liệu thay họ. Data contract càng quan trọng hơn so với một lake tập trung.
+    n:
+      en: Federated learning moves the privacy problem rather than removing it. Ask first whether a simpler option, such as training centrally on anonymized or aggregated data, meets the requirement.
+      vi: Federated learning dời vấn đề quyền riêng tư đi chỗ khác chứ không xóa nó. Hãy hỏi trước liệu một phương án đơn giản hơn, như huấn luyện tập trung trên dữ liệu đã ẩn danh hoặc tổng hợp, có đáp ứng yêu cầu không.
+  - id: ai-ethics-and-bias-measured-in-the-pipeline
+    k: code
+    t:
+      en: "AI ethics and bias: measure it in the pipeline"
+      vi: "Đạo đức AI và thiên lệch: đo ngay trong pipeline"
+    lead:
+      en: Models inherit the patterns in their training data, including unfair ones. AI ethics turns that into practice through fairness metrics, explainability, alignment of model behaviour, red teaming and clear accountability.
+      vi: Model kế thừa các khuôn mẫu trong dữ liệu huấn luyện, kể cả những khuôn mẫu bất công. Đạo đức AI biến điều đó thành thực hành qua chỉ số công bằng, khả năng giải thích, căn chỉnh hành vi model, red teaming và trách nhiệm rõ ràng.
+    blocks:
+      - lang: sql
+        title: fairness_by_segment.sql (selection rate and true positive rate per group)
+        code: |-
+          with s as (
+              select p.applicant_segment                                 as grp,
+                     p.approved                                          as approved,
+                     o.repaid_on_time                                    as good
+              from ml.loan_predictions p
+              join ml.loan_outcomes   o using (application_id)
+              where p.model_version = 'credit-v7'
+          )
+          select grp,
+                 count(*)                                                     as n,
+                 avg(case when approved then 1.0 else 0 end)                  as selection_rate,
+                 avg(case when approved then 1.0 else 0 end)
+                   / max(avg(case when approved then 1.0 else 0 end)) over () as ratio_to_highest,
+                 sum(case when approved and good then 1 else 0 end) * 1.0
+                   / nullif(sum(case when good then 1 else 0 end), 0)         as true_positive_rate
+          from s
+          group by grp
+          order by ratio_to_highest;
+          -- a ratio well below 0.8 is a common signal to investigate (the four-fifths rule)
+    points:
+      - h:
+          en: Where bias enters
+          vi: Thiên lệch đi vào từ đâu
+        p:
+          en: Historical decisions used as labels, under-sampled groups, proxy features such as postcode, and measurement that is worse for some groups. All of these are data pipeline issues.
+          vi: Quyết định trong quá khứ được dùng làm nhãn, nhóm bị lấy mẫu thiếu, đặc trưng thay thế như mã bưu điện, và việc đo lường kém hơn cho một số nhóm. Tất cả đều là vấn đề của pipeline dữ liệu.
+      - h:
+          en: Metrics conflict
+          vi: Các chỉ số mâu thuẫn nhau
+        tag: senior
+        p:
+          en: Equal selection rates and equal true positive rates usually cannot both hold when base rates differ. Choosing which one matters is a policy decision; write it down.
+          vi: Tỷ lệ chọn bằng nhau và tỷ lệ true positive bằng nhau thường không thể cùng đạt khi tỷ lệ nền khác nhau. Chọn chỉ số nào là quyết định chính sách; hãy ghi lại.
+      - h:
+          en: Explain and red-team
+          vi: Giải thích và red team
+        p:
+          en: Use SHAP or similar to see which features drive decisions. For LLMs, red teaming means deliberately probing for harmful, biased or leaking outputs before release.
+          vi: Dùng SHAP hoặc công cụ tương tự để xem đặc trưng nào dẫn dắt quyết định. Với LLM, red teaming là cố ý thăm dò các đầu ra gây hại, thiên lệch hoặc làm lộ dữ liệu trước khi phát hành.
+      - h:
+          en: Document and govern
+          vi: Ghi chép và quản trị
+        tag: senior
+        p:
+          en: Publish model cards and dataset datasheets, keep sensitive attributes in a restricted table used only for auditing, and check obligations under rules such as the EU AI Act for high-risk uses like credit and hiring.
+          vi: Công bố model card và datasheet cho dataset, giữ thuộc tính nhạy cảm trong bảng hạn chế chỉ dùng để kiểm toán, và kiểm tra nghĩa vụ theo quy định như EU AI Act với các trường hợp rủi ro cao như tín dụng và tuyển dụng.
+    n:
+      en: Dropping the protected attribute does not remove bias; correlated features carry it anyway, and you lose the ability to measure it. Keep the attribute for auditing under strict access control.
+      vi: Bỏ thuộc tính được bảo vệ không xóa được thiên lệch; các đặc trưng tương quan vẫn mang nó, và bạn mất khả năng đo lường. Giữ thuộc tính đó để kiểm toán dưới kiểm soát truy cập chặt chẽ.
   - id: decision-guide-which-model-for-which-problem
     k: table
     t:

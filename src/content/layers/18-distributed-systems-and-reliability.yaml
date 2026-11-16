@@ -413,6 +413,254 @@ slides:
     n:
       en: Missing a target is a good result if it is measured and explained.
       vi: Không đạt mục tiêu vẫn là kết quả tốt nếu được đo và giải thích.
+  - id: cap-theorem-what-it-actually-says
+    k: cards
+    t:
+      en: "CAP theorem: what it actually says"
+      vi: "Định lý CAP: thực chất nó nói gì"
+    lead:
+      en: "The CAP theorem states that a distributed data store cannot guarantee consistency, availability and partition tolerance all at once. Since networks do partition, the real question is what the system gives up while a partition lasts."
+      vi: "Định lý CAP phát biểu rằng một kho dữ liệu phân tán không thể đồng thời bảo đảm tính nhất quán, tính sẵn sàng và khả năng chịu phân vùng. Vì mạng thực tế có bị chia cắt, câu hỏi thật là hệ thống hy sinh điều gì trong lúc chia cắt kéo dài."
+    cols: 3
+    cards:
+      - h:
+          en: C — consistency
+          vi: C — nhất quán
+        tag: must
+        p:
+          en: Every read returns the latest acknowledged write, as if there were a single copy (linearizability). This is not the C in ACID, which is about constraints.
+          vi: Mọi lần đọc trả về lần ghi đã xác nhận mới nhất, như thể chỉ có một bản sao (linearizability). Đây không phải chữ C trong ACID, vốn nói về ràng buộc dữ liệu.
+      - h:
+          en: A — availability
+          vi: A — sẵn sàng
+        tag: must
+        p:
+          en: Every request that reaches a healthy node gets a non-error answer, with no promise that the answer is the newest value.
+          vi: Mọi yêu cầu đến một node còn sống đều nhận câu trả lời không lỗi, nhưng không hứa đó là giá trị mới nhất.
+      - h:
+          en: P — partition tolerance
+          vi: P — chịu phân vùng
+        tag: must
+        p:
+          en: The system keeps working when messages between nodes are lost or delayed. In real networks this is not optional, so the practical choice is CP or AP during a partition.
+          vi: Hệ thống vẫn hoạt động khi thông điệp giữa các node bị mất hoặc trễ. Với mạng thật đây không phải lựa chọn, nên quyết định thực tế là CP hay AP trong lúc bị chia cắt.
+      - h:
+          en: Why it holds
+          vi: Vì sao định lý đúng
+        tag: senior
+        p:
+          en: "Cut the link between two replicas, write to one and read from the other. The second node must either answer with stale data (losing C) or wait or fail (losing A). There is no third option."
+          vi: "Cắt kết nối giữa hai replica, ghi vào một bên và đọc từ bên kia. Node thứ hai buộc phải trả dữ liệu cũ (mất C) hoặc chờ hay báo lỗi (mất A). Không có lựa chọn thứ ba."
+      - h:
+          en: PACELC, the missing half
+          vi: PACELC, nửa còn thiếu
+        tag: senior
+        p:
+          en: "If Partitioned, choose A or C; Else, choose Latency or Consistency. Even without failures, synchronous cross-region replication adds round trips to every write."
+          vi: "Nếu bị Partition thì chọn A hoặc C; còn lại (Else) thì chọn Latency hoặc Consistency. Kể cả khi không có lỗi, replicate đồng bộ liên vùng vẫn cộng thêm round trip cho mỗi lần ghi."
+      - h:
+          en: Pitfalls
+          vi: Cạm bẫy
+        tag: senior
+        p:
+          en: Labelling a whole product as CP or AP when most are tunable per operation; calling a system "CA", which in practice means a single node; and forgetting that CAP says nothing about latency or durability.
+          vi: Gắn nhãn cả sản phẩm là CP hay AP trong khi phần lớn tinh chỉnh được theo từng thao tác; gọi một hệ thống là "CA", thực tế nghĩa là chỉ có một node; và quên rằng CAP không nói gì về độ trễ hay độ bền.
+    cap:
+      en: For each data set ask one question — during a partition, would we rather return an error or a possibly stale value? The answer picks your settings.
+      vi: Với mỗi tập dữ liệu hãy hỏi một câu — khi mạng bị chia cắt, ta thà trả lỗi hay trả giá trị có thể đã cũ? Câu trả lời quyết định cấu hình.
+    n:
+      en: Brewer stated CAP as a conjecture in 2000; Gilbert and Lynch proved it in 2002. Use the two-replica thought experiment on a whiteboard; it makes the theorem obvious in a minute. The earlier table shows where common data systems sit.
+      vi: Brewer nêu CAP như một giả thuyết năm 2000; Gilbert và Lynch chứng minh năm 2002. Hãy vẽ thí nghiệm hai replica lên bảng; nó làm định lý trở nên hiển nhiên trong một phút. Bảng trước cho thấy các hệ thống dữ liệu phổ biến nằm ở đâu.
+  - id: consensus-paxos-versus-raft
+    k: table
+    t:
+      en: "Consensus: Paxos versus Raft"
+      vi: "Đồng thuận: Paxos so với Raft"
+    lead:
+      en: Consensus lets a group of nodes agree on one ordered log of decisions even when some crash. It is what makes leader election and metadata stores safe.
+      vi: Đồng thuận cho phép một nhóm node thống nhất một log quyết định có thứ tự, kể cả khi vài node bị sập. Đây là thứ làm cho bầu leader và kho metadata trở nên an toàn.
+    head:
+      - en: Aspect
+        vi: Khía cạnh
+      - Paxos (Multi-Paxos)
+      - Raft
+    rows:
+      - - en: Origin
+          vi: Nguồn gốc
+        - en: Leslie Lamport; written in the late 1980s, published in 1998
+          vi: Leslie Lamport; viết cuối thập niên 1980, công bố năm 1998
+        - en: Ongaro and Ousterhout, 2014, designed to be understandable
+          vi: Ongaro và Ousterhout, 2014, thiết kế để dễ hiểu
+      - - en: Core mechanism
+          vi: Cơ chế cốt lõi
+        - en: Proposers, acceptors and learners; a value is chosen once a majority accepts the same numbered proposal
+          vi: Proposer, acceptor và learner; một giá trị được chọn khi đa số chấp nhận cùng một đề xuất có đánh số
+        - en: A leader elected per term appends entries; an entry commits once a majority has stored it
+          vi: Một leader được bầu theo từng term ghi thêm entry; entry được commit khi đa số đã lưu nó
+      - - en: Leader
+          vi: Leader
+        - en: Optional in basic Paxos; Multi-Paxos adds a stable leader for speed
+          vi: Không bắt buộc ở Paxos cơ bản; Multi-Paxos thêm leader ổn định để nhanh hơn
+        - en: Required; all writes go through the leader
+          vi: Bắt buộc; mọi lần ghi đi qua leader
+      - - en: Fault tolerance
+          vi: Chịu lỗi
+        - en: 2f + 1 nodes survive f crash failures
+          vi: 2f + 1 node chịu được f node sập
+        - en: 2f + 1 nodes survive f crash failures
+          vi: 2f + 1 node chịu được f node sập
+      - - en: Ease of implementation
+          vi: Độ dễ triển khai
+        - en: Famously hard; many details (log gaps, membership) are left to the implementer
+          vi: Nổi tiếng khó; nhiều chi tiết (lỗ hổng log, thay đổi thành viên) để người triển khai tự lo
+        - en: Fully specified, including log repair and membership changes
+          vi: Đặc tả đầy đủ, gồm cả sửa log và thay đổi thành viên
+      - - en: Where you meet it
+          vi: Gặp ở đâu
+        - en: Google Chubby and Spanner, Cassandra lightweight transactions
+          vi: Google Chubby và Spanner, lightweight transaction của Cassandra
+        - en: etcd, Consul, CockroachDB, TiKV, and Kafka KRaft (a Raft-based variant)
+          vi: etcd, Consul, CockroachDB, TiKV và Kafka KRaft (biến thể dựa trên Raft)
+    cap:
+      en: ZooKeeper uses a third protocol, ZAB, with the same majority idea. Neither Paxos nor Raft handles malicious nodes; that needs Byzantine fault-tolerant protocols.
+      vi: ZooKeeper dùng giao thức thứ ba là ZAB, cùng ý tưởng đa số. Cả Paxos lẫn Raft đều không xử lý node gian lận; việc đó cần giao thức chịu lỗi Byzantine.
+    n:
+      en: Data engineers rarely implement consensus, but they size and operate it. The practical lessons are odd cluster sizes, keeping the quorum within low-latency links, and knowing that losing a majority makes the system read-only or unavailable by design.
+      vi: Data engineer hiếm khi tự cài đặt đồng thuận, nhưng họ định cỡ và vận hành nó. Bài học thực tế là cluster cỡ lẻ, giữ quorum trong vùng mạng độ trễ thấp, và hiểu rằng mất đa số khiến hệ thống chỉ đọc hoặc ngừng phục vụ, theo đúng thiết kế.
+  - id: distributed-computing-how-work-is-split
+    k: cards
+    t:
+      en: "Distributed computing: how one job runs on many machines"
+      vi: "Tính toán phân tán: một job chạy trên nhiều máy thế nào"
+    lead:
+      en: Distributed computing splits one workload across networked machines that share no memory and no clock, and coordinate only by messages. Spark, Flink, Trino and every MPP warehouse work this way.
+      vi: Tính toán phân tán chia một workload cho nhiều máy nối mạng, không chung bộ nhớ, không chung đồng hồ, và chỉ phối hợp qua thông điệp. Spark, Flink, Trino và mọi warehouse MPP đều hoạt động như vậy.
+    cols: 3
+    cards:
+      - h:
+          en: Coordinator and workers
+          vi: Coordinator và worker
+        tag: must
+        p:
+          en: One process plans the job and assigns tasks; workers execute them. Spark has a driver and executors, Flink a JobManager and TaskManagers, Trino a coordinator and workers.
+          vi: Một process lập kế hoạch cho job và giao task; worker thực thi. Spark có driver và executor, Flink có JobManager và TaskManager, Trino có coordinator và worker.
+      - h:
+          en: Partitioning and locality
+          vi: Phân mảnh và tính cục bộ
+        tag: must
+        p:
+          en: Data is split into partitions that are processed in parallel. The number of partitions caps parallelism, and moving compute to the data is cheaper than the reverse.
+          vi: Dữ liệu được chia thành partition để xử lý song song. Số partition giới hạn mức song song, và đưa compute đến dữ liệu rẻ hơn chiều ngược lại.
+      - h:
+          en: The shuffle
+          vi: Shuffle
+        tag: must
+        p:
+          en: Joins and group-bys redistribute rows by key across the network. Shuffles cost disk, network and serialization, and are where skew shows up.
+          vi: Join và group by phân phối lại các dòng theo khóa qua mạng. Shuffle tốn đĩa, mạng và serialization, và là nơi lộ ra data skew.
+      - h:
+          en: Fault tolerance
+          vi: Chịu lỗi
+        tag: senior
+        p:
+          en: Failed tasks are retried; lost partitions are recomputed from lineage (Spark) or restored from checkpoints (Flink). The coordinator itself needs its own HA.
+          vi: Task lỗi được chạy lại; partition bị mất được tính lại từ lineage (Spark) hoặc khôi phục từ checkpoint (Flink). Bản thân coordinator cũng cần HA riêng.
+      - h:
+          en: Limits to speed-up
+          vi: Giới hạn tăng tốc
+        tag: senior
+        p:
+          en: "Amdahl's law: the serial part of a job bounds the gain from more machines. Stragglers, skewed keys and tiny files also stop linear scaling."
+          vi: "Định luật Amdahl: phần tuần tự của job giới hạn lợi ích khi thêm máy. Task chậm, khóa lệch và file quá nhỏ cũng làm việc scale không còn tuyến tính."
+      - h:
+          en: When not to distribute
+          vi: Khi nào không nên phân tán
+        tag: senior
+        p:
+          en: If the data fits on one machine, a single-node engine such as DuckDB or Polars often beats a cluster because it pays no network or coordination cost.
+          vi: Nếu dữ liệu vừa một máy, engine đơn node như DuckDB hay Polars thường thắng cluster vì không tốn chi phí mạng hay điều phối.
+    n:
+      en: Tie this back to the failure modes in this layer. Every reliability pattern exists because a distributed job has partial failures that a single process never has.
+      vi: Liên hệ lại với các kiểu lỗi trong layer này. Mọi mẫu độ tin cậy tồn tại vì job phân tán có lỗi cục bộ mà một process đơn lẻ không bao giờ gặp.
+  - id: consistent-hashing-and-the-hash-ring
+    k: code
+    t:
+      en: Consistent hashing and the hash ring
+      vi: Consistent hashing và vòng băm
+    lead:
+      en: "With hash(key) % N, adding one node remaps most keys. Consistent hashing places keys and nodes on a ring, so a change in membership moves only about 1/N of the keys."
+      vi: "Với hash(key) % N, thêm một node làm phần lớn khóa bị ánh xạ lại. Consistent hashing đặt khóa và node lên một vòng, nên thay đổi thành viên chỉ di chuyển khoảng 1/N số khóa."
+    blocks:
+      - lang: python
+        title: hash_ring.py
+        code: |-
+          import bisect
+          import hashlib
+
+
+          def h(value: str) -> int:
+              return int(hashlib.md5(value.encode()).hexdigest(), 16)
+
+
+          class HashRing:
+              def __init__(self, nodes, vnodes=100):
+                  self.vnodes = vnodes
+                  self.ring = []  # sorted (position, node) pairs
+                  for node in nodes:
+                      self.add(node)
+
+              def add(self, node):
+                  for i in range(self.vnodes):  # virtual nodes spread the load
+                      bisect.insort(self.ring, (h(f"{node}/{i}"), node))
+
+              def remove(self, node):
+                  self.ring = [(p, n) for p, n in self.ring if n != node]
+
+              def node_for(self, key):
+                  i = bisect.bisect(self.ring, (h(key),))  # first point clockwise
+                  return self.ring[i % len(self.ring)][1]
+      - lang: python
+        title: how_many_keys_move.py
+        code: |-
+          ring = HashRing(["a", "b", "c"])
+          keys = [f"user-{i}" for i in range(10_000)]
+          before = {k: ring.node_for(k) for k in keys}
+
+          ring.add("d")
+          moved = sum(before[k] != ring.node_for(k) for k in keys)
+          print(moved / len(keys))  # about 0.25; with hash % N going 3 -> 4 it is about 0.75
+    points:
+      - h:
+          en: The ring
+          vi: Vòng băm
+        tag: must
+        p:
+          en: Hash nodes and keys into the same space; each key belongs to the next node clockwise. A new node takes keys only from its neighbours.
+          vi: Băm node và khóa vào cùng một không gian; mỗi khóa thuộc về node kế tiếp theo chiều kim đồng hồ. Node mới chỉ lấy khóa từ các node lân cận.
+      - h:
+          en: Virtual nodes
+          vi: Node ảo
+        tag: senior
+        p:
+          en: Each physical node owns many points on the ring, which evens out the load and lets bigger machines take more points.
+          vi: Mỗi node vật lý sở hữu nhiều điểm trên vòng, giúp cân tải đều hơn và cho máy mạnh nhận nhiều điểm hơn.
+      - h:
+          en: Where you meet it
+          vi: Gặp ở đâu
+        tag: senior
+        p:
+          en: Cassandra and Dynamo-style stores, distributed caches, and load balancers that pin a client to a backend (ring hash, Maglev).
+          vi: Cassandra và các store kiểu Dynamo, cache phân tán, và load balancer gắn cố định client với một backend (ring hash, Maglev).
+      - h:
+          en: Pitfall
+          vi: Cạm bẫy
+        tag: senior
+        p:
+          en: Kafka's default partitioner uses hash modulo partition count, so adding partitions sends existing keys to new partitions and breaks per-key ordering.
+          vi: Partitioner mặc định của Kafka dùng hash chia lấy dư theo số partition, nên thêm partition sẽ đưa khóa cũ sang partition mới và phá vỡ thứ tự theo khóa.
+    n:
+      en: Run the second snippet live. Seeing 25 percent versus 75 percent of keys move is the whole argument for consistent hashing. Replication on a ring simply stores each key on the next R distinct nodes.
+      vi: Hãy chạy đoạn code thứ hai trực tiếp. Thấy 25 phần trăm so với 75 phần trăm khóa bị di chuyển là toàn bộ lý lẽ cho consistent hashing. Replication trên vòng chỉ đơn giản là lưu mỗi khóa trên R node phân biệt kế tiếp.
   - id: checklist-and-interview-questions
     k: check
     t:

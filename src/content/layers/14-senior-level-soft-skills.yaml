@@ -525,6 +525,418 @@ slides:
     n:
       en: "Summarize the deck here: across every layer the senior pattern is the same. Own outcomes, make trade-offs explicit, write decisions down, and raise the level of the people around you."
       vi: "Tổng kết deck ở đây: ở mọi layer, mô thức của người senior đều giống nhau. Chịu trách nhiệm về kết quả, làm rõ các đánh đổi, ghi lại quyết định, và nâng tầm những người xung quanh."
+  - id: data-roles-cdo-architect-dba-product-manager
+    k: table
+    t:
+      en: "Data roles: CDO, data architect, DBA and data product manager"
+      vi: "Các vai trò dữ liệu: CDO, data architect, DBA và data product manager"
+    lead:
+      en: Senior engineers work with all four roles. Knowing what each one owns, and is measured on, tells you who must agree before a platform decision sticks.
+      vi: Kỹ sư senior làm việc với cả bốn vai trò này. Biết mỗi vai trò sở hữu gì và được đánh giá bằng gì cho bạn biết ai phải đồng ý trước khi một quyết định nền tảng có hiệu lực.
+    head:
+      - en: Role
+        vi: Vai trò
+      - en: Owns
+        vi: Sở hữu
+      - en: Typical decisions
+        vi: Quyết định điển hình
+      - en: Success looks like
+        vi: Thành công trông thế nào
+      - en: Common pitfall
+        vi: Cạm bẫy thường gặp
+    rows:
+      - - en: Chief Data Officer (CDO)
+          vi: Giám đốc dữ liệu (CDO)
+        - en: Enterprise data strategy, governance, privacy and compliance, and increasingly the value created from data
+          vi: Chiến lược dữ liệu toàn doanh nghiệp, quản trị, quyền riêng tư và tuân thủ, và ngày càng cả giá trị tạo ra từ dữ liệu
+        - en: Priorities and budget, governance policy, operating model (central, hub-and-spoke or mesh)
+          vi: Ưu tiên và ngân sách, chính sách quản trị, mô hình vận hành (tập trung, hub-and-spoke hay mesh)
+        - en: Business outcomes traced to data, trusted metrics, clean audits
+          vi: Kết quả kinh doanh truy được về dữ liệu, metric đáng tin, kiểm toán sạch
+        - en: A mandate without budget or authority; the reporting line (CEO, CFO, CIO) often reveals which one is missing
+          vi: Có nhiệm vụ nhưng không có ngân sách hay quyền hạn; tuyến báo cáo (CEO, CFO, CIO) thường cho thấy thiếu cái nào
+      - - en: Data architect
+          vi: Data architect
+        - en: Target architecture, data models, integration patterns and platform standards
+          vi: Kiến trúc mục tiêu, mô hình dữ liệu, mẫu tích hợp và chuẩn nền tảng
+        - en: Storage and table format (for example an open Iceberg lakehouse), modelling conventions, reference designs, ADRs
+          vi: Lưu trữ và table format (ví dụ lakehouse Iceberg mở), quy ước mô hình hóa, thiết kế tham chiếu, ADR
+        - en: Teams ship quickly inside shared guardrails; few one-off designs
+          vi: Các đội phát hành nhanh trong guardrail chung; ít thiết kế lẻ tẻ
+        - en: Diagrams nobody follows because the architect no longer builds anything
+          vi: Sơ đồ không ai làm theo vì architect không còn trực tiếp xây dựng gì
+      - - en: Database administrator (DBA)
+          vi: Quản trị viên cơ sở dữ liệu (DBA)
+        - en: Availability, performance, security and recoverability of databases
+          vi: Tính sẵn sàng, hiệu năng, bảo mật và khả năng khôi phục của database
+        - en: Backups, HA and DR setup, indexing and query tuning, role-based access, upgrades
+          vi: Backup, thiết lập HA và DR, đánh index và tối ưu query, phân quyền theo role, nâng cấp
+        - en: RPO and RTO met in drills; predictable latency; least-privilege access
+          vi: Đạt RPO và RTO trong diễn tập; độ trễ ổn định; quyền truy cập tối thiểu
+        - en: Becoming a ticket queue. In the cloud era managed services handle hardware and patching, so the role shifts to performance, cost and automation
+          vi: Trở thành hàng đợi ticket. Trong thời cloud, dịch vụ managed lo phần cứng và vá lỗi, nên vai trò chuyển sang hiệu năng, chi phí và tự động hóa
+      - - en: Data product manager
+          vi: Data product manager
+        - en: A data product (data set, metric layer, feature store, data API) treated like a software product
+          vi: Một data product (tập dữ liệu, metric layer, feature store, data API) được đối xử như sản phẩm phần mềm
+        - en: Who the users are, what to build or retire, SLAs and SLOs, contracts with consumers
+          vi: Người dùng là ai, xây hay ngừng cái gì, SLA và SLO, hợp đồng với bên tiêu thụ
+        - en: Adoption, user satisfaction, decisions influenced, SLOs met
+          vi: Mức độ sử dụng, sự hài lòng của người dùng, số quyết định bị ảnh hưởng, đạt SLO
+        - en: Counting tables shipped instead of usage and outcomes
+          vi: Đếm số bảng đã giao thay vì mức sử dụng và kết quả
+    cap:
+      en: Titles vary between companies; responsibilities do not. Map the people in your organization to these columns before proposing a platform change.
+      vi: Chức danh khác nhau giữa các công ty; trách nhiệm thì không. Hãy ánh xạ người trong tổ chức của bạn vào các cột này trước khi đề xuất thay đổi nền tảng.
+    n:
+      en: A CDO focused on defence (risk, compliance) and one focused on offence (growth, analytics) will sponsor very different projects. Find out which one you have.
+      vi: Một CDO thiên về phòng thủ (rủi ro, tuân thủ) và một CDO thiên về tấn công (tăng trưởng, phân tích) sẽ bảo trợ những dự án rất khác nhau. Hãy tìm hiểu bạn đang có kiểu nào.
+  - id: data-strategy-and-data-driven-decisions
+    k: cards
+    t:
+      en: Data strategy and data-driven decision making
+      vi: Chiến lược dữ liệu và ra quyết định dựa trên dữ liệu
+    lead:
+      en: A data strategy is the executive-level plan that ties data work to business objectives. Data-driven decision making is the habit that proves the strategy is working.
+      vi: Chiến lược dữ liệu là kế hoạch cấp lãnh đạo gắn công việc dữ liệu với mục tiêu kinh doanh. Ra quyết định dựa trên dữ liệu là thói quen chứng minh chiến lược đang hiệu quả.
+    cols: 3
+    cards:
+      - h:
+          en: What a data strategy contains
+          vi: Chiến lược dữ liệu gồm những gì
+        tag: senior
+        p:
+          en: Business goals and priority use cases, the data and platform needed, governance, people and operating model, a funded roadmap, and the metrics that show progress.
+          vi: Mục tiêu kinh doanh và use case ưu tiên, dữ liệu và nền tảng cần có, quản trị, con người và mô hình vận hành, lộ trình có ngân sách, và các metric cho thấy tiến độ.
+      - h:
+          en: Start from decisions
+          vi: Bắt đầu từ quyết định
+        tag: senior
+        p:
+          en: Work backwards from a few decisions the business must make better, such as pricing or churn. Each use case justifies the data and platform beneath it.
+          vi: Đi ngược từ vài quyết định mà doanh nghiệp cần làm tốt hơn, như định giá hay churn. Mỗi use case biện minh cho dữ liệu và nền tảng bên dưới nó.
+      - h:
+          en: Strategy anti-patterns
+          vi: Phản mẫu chiến lược
+        tag: senior
+        p:
+          en: A tool shopping list presented as strategy, trying to fix all data at once, and a plan with no owner or budget.
+          vi: Một danh sách mua công cụ được gọi là chiến lược, cố sửa toàn bộ dữ liệu cùng lúc, và kế hoạch không có người sở hữu hay ngân sách.
+      - h:
+          en: Data-driven decision making
+          vi: Ra quyết định dựa trên dữ liệu
+        tag: must
+        p:
+          en: Base choices on measured evidence rather than intuition alone. Agree on the decision, the metric and the threshold before looking at the numbers.
+          vi: Dựa lựa chọn vào bằng chứng đo được chứ không chỉ trực giác. Thống nhất quyết định, metric và ngưỡng trước khi nhìn vào số liệu.
+      - h:
+          en: What makes it possible
+          vi: Điều gì làm nó khả thi
+        tag: senior
+        p:
+          en: Certified metrics from a single source of truth, KPI trees that link inputs to outcomes, A/B tests with guardrail metrics, and decision logs.
+          vi: Metric được chứng nhận từ một nguồn sự thật duy nhất, cây KPI nối đầu vào với kết quả, A/B test có metric guardrail, và nhật ký quyết định.
+      - h:
+          en: Pitfalls
+          vi: Cạm bẫy
+        tag: senior
+        p:
+          en: "Vanity metrics, Goodhart's law (a target stops being a good measure), peeking at experiments early, and trusting numbers whose quality nobody checks."
+          vi: "Metric phù phiếm, định luật Goodhart (khi thành chỉ tiêu thì metric không còn đo tốt), xem kết quả thí nghiệm quá sớm, và tin vào số liệu mà không ai kiểm tra chất lượng."
+    n:
+      en: Engineers contribute to strategy by sizing what the platform can deliver and by making metrics trustworthy. "Data-informed" is a fair goal; judgment still decides when the data is thin.
+      vi: Kỹ sư đóng góp vào chiến lược bằng cách ước lượng những gì nền tảng làm được và làm cho metric đáng tin. "Data-informed" là mục tiêu hợp lý; khi dữ liệu mỏng thì phán đoán vẫn là thứ quyết định.
+  - id: centralized-versus-data-mesh-versus-data-fabric
+    k: table
+    t:
+      en: Centralized platform, data mesh and data fabric
+      vi: Nền tảng tập trung, data mesh và data fabric
+    lead:
+      en: Data mesh is mainly an organizational model; data fabric is mainly a technology approach. They answer different questions and can be combined.
+      vi: Data mesh chủ yếu là mô hình tổ chức; data fabric chủ yếu là cách tiếp cận công nghệ. Chúng trả lời các câu hỏi khác nhau và có thể kết hợp.
+    head:
+      - en: Aspect
+        vi: Khía cạnh
+      - en: Centralized data team
+        vi: Đội dữ liệu tập trung
+      - Data mesh
+      - Data fabric
+    rows:
+      - - en: Core idea
+          vi: Ý tưởng cốt lõi
+        - en: One team builds and runs the warehouse and pipelines for everyone
+          vi: Một đội xây và vận hành warehouse và pipeline cho tất cả
+        - en: "Four principles: domain ownership, data as a product, a self-serve platform, federated computational governance"
+          vi: "Bốn nguyên tắc: domain sở hữu dữ liệu, dữ liệu là sản phẩm, nền tảng tự phục vụ, quản trị liên bang bằng tính toán"
+        - en: An integration layer driven by active metadata that connects data across clouds and on-premises systems
+          vi: Một lớp tích hợp vận hành bằng active metadata, kết nối dữ liệu xuyên cloud và hệ thống on-premises
+      - - en: Who owns the data
+          vi: Ai sở hữu dữ liệu
+        - en: The central team
+          vi: Đội trung tâm
+        - en: Domain teams, as data products
+          vi: Các đội domain, dưới dạng data product
+        - en: Unchanged; the fabric connects existing owners
+          vi: Không đổi; fabric kết nối các chủ sở hữu hiện có
+      - - en: How data is integrated
+          vi: Cách tích hợp dữ liệu
+        - en: Copy everything into one store
+          vi: Sao chép mọi thứ vào một kho
+        - en: Published product interfaces on a shared platform
+          vi: Giao diện sản phẩm được công bố trên nền tảng chung
+        - en: Catalogs, knowledge graphs, automated pipelines and virtualization
+          vi: Catalog, knowledge graph, pipeline tự động và ảo hóa dữ liệu
+      - - en: Strengths
+          vi: Điểm mạnh
+        - en: Consistent standards; efficient for small and mid-size organizations
+          vi: Chuẩn nhất quán; hiệu quả với tổ chức vừa và nhỏ
+        - en: Scales with the number of domains; puts knowledge next to the data
+          vi: Scale theo số domain; đặt hiểu biết nghiệp vụ cạnh dữ liệu
+        - en: Fast access across many systems without moving them first
+          vi: Truy cập nhanh xuyên nhiều hệ thống mà không cần di chuyển trước
+      - - en: Risks
+          vi: Rủi ro
+        - en: The central team becomes a bottleneck and lacks domain context
+          vi: Đội trung tâm thành nút thắt và thiếu bối cảnh nghiệp vụ
+        - en: Domains without data skills; duplicated tooling; weak interoperability
+          vi: Domain thiếu kỹ năng dữ liệu; công cụ trùng lặp; khả năng liên thông yếu
+        - en: Heavy reliance on metadata quality and on vendor products
+          vi: Phụ thuộc nặng vào chất lượng metadata và sản phẩm của vendor
+      - - en: Fits when
+          vi: Phù hợp khi
+        - en: Few domains, one main analytics consumer
+          vi: Ít domain, một bên tiêu thụ analytics chính
+        - en: Many autonomous domains and a strong platform team
+          vi: Nhiều domain tự chủ và một đội nền tảng mạnh
+        - en: Data spread across many systems that cannot be consolidated soon
+          vi: Dữ liệu trải trên nhiều hệ thống chưa thể hợp nhất sớm
+    cap:
+      en: Most organizations end up hybrid — a central platform team, domain-owned data products and fabric-style metadata to connect what cannot be moved.
+      vi: Phần lớn tổ chức kết thúc ở dạng lai — một đội nền tảng trung tâm, data product do domain sở hữu và metadata kiểu fabric để kết nối những gì chưa thể di chuyển.
+    n:
+      en: Data mesh was described by Zhamak Dehghani; data fabric is mostly an analyst and vendor term. Ask what problem the label is solving before adopting it.
+      vi: Data mesh do Zhamak Dehghani mô tả; data fabric phần lớn là thuật ngữ của giới phân tích và vendor. Hãy hỏi cái nhãn đó giải quyết vấn đề gì trước khi áp dụng.
+  - id: data-silos-and-data-virtualization
+    k: cards
+    t:
+      en: Data silos and data virtualization
+      vi: Silo dữ liệu và ảo hóa dữ liệu
+    lead:
+      en: A data silo is data locked in one team's system, out of reach of the rest of the business. Data virtualization is one way to query across silos without copying data first.
+      vi: Silo dữ liệu là dữ liệu bị khóa trong hệ thống của một đội, ngoài tầm với của phần còn lại của doanh nghiệp. Ảo hóa dữ liệu là một cách truy vấn xuyên silo mà không cần sao chép trước.
+    cols: 3
+    cards:
+      - h:
+          en: Why silos form
+          vi: Vì sao silo hình thành
+        tag: must
+        p:
+          en: Team-bought SaaS tools, acquisitions, separate budgets, security rules and Conway's law — systems mirror the org chart.
+          vi: Công cụ SaaS do từng đội tự mua, sáp nhập, ngân sách tách biệt, quy định bảo mật và định luật Conway — hệ thống phản chiếu sơ đồ tổ chức.
+      - h:
+          en: What silos cost
+          vi: Silo gây tốn kém gì
+        tag: must
+        p:
+          en: Conflicting numbers in meetings, duplicated pipelines and storage, no single view of a customer, and compliance blind spots.
+          vi: Số liệu mâu thuẫn trong các cuộc họp, pipeline và storage trùng lặp, không có cái nhìn duy nhất về khách hàng, và điểm mù tuân thủ.
+      - h:
+          en: Data virtualization
+          vi: Ảo hóa dữ liệu
+        tag: senior
+        p:
+          en: A virtual layer exposes many sources as one set of tables. Queries are translated and sent to the sources at run time; nothing is copied.
+          vi: Một lớp ảo trình bày nhiều nguồn như một tập bảng. Query được dịch và gửi đến nguồn lúc chạy; không có gì bị sao chép.
+      - h:
+          en: Federation and pushdown
+          vi: Federation và pushdown
+        tag: senior
+        p:
+          en: A federated engine such as Trino, Dremio or Denodo pushes filters and aggregates into each source and joins the reduced results itself.
+          vi: Một engine federation như Trino, Dremio hay Denodo đẩy bộ lọc và phép tổng hợp xuống từng nguồn và tự join các kết quả đã thu gọn.
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        p:
+          en: Fresh data and quick to start, but it loads operational systems, large cross-source joins are slow, and there is no history unless the source keeps it.
+          vi: Dữ liệu mới và khởi động nhanh, nhưng nó tạo tải lên hệ thống vận hành, join lớn giữa các nguồn chậm, và không có lịch sử trừ khi nguồn tự lưu.
+      - h:
+          en: Pairing with a lakehouse
+          vi: Kết hợp với lakehouse
+        tag: senior
+        p:
+          en: Virtualize the long tail and exploration; materialize hot, heavily joined data into Iceberg tables once usage proves the need.
+          vi: Ảo hóa phần đuôi dài và việc khám phá; vật chất hóa dữ liệu nóng, hay được join vào bảng Iceberg khi mức sử dụng chứng minh nhu cầu.
+    n:
+      en: Silos are an organizational problem first. Technology can connect them, but agreeing on shared definitions and ownership is what removes the conflicting numbers.
+      vi: Silo trước hết là vấn đề tổ chức. Công nghệ có thể kết nối chúng, nhưng thống nhất định nghĩa chung và quyền sở hữu mới là thứ xóa bỏ số liệu mâu thuẫn.
+  - id: center-of-excellence-and-change-management
+    k: cards
+    t:
+      en: Center of Excellence and change management
+      vi: Center of Excellence và quản lý thay đổi
+    lead:
+      en: New platforms rarely fail on technology; they fail when people keep using the old spreadsheet. A Center of Excellence and deliberate change management drive adoption.
+      vi: Nền tảng mới hiếm khi thất bại vì công nghệ; chúng thất bại khi mọi người vẫn dùng bảng tính cũ. Một Center of Excellence và quản lý thay đổi có chủ đích thúc đẩy việc áp dụng.
+    cols: 3
+    cards:
+      - h:
+          en: Center of Excellence (CoE)
+          vi: Center of Excellence (CoE)
+        tag: senior
+        p:
+          en: A small central team that sets standards, curates reusable patterns, trains people and supports governance for data work across the company.
+          vi: Một đội trung tâm nhỏ đặt chuẩn, tuyển chọn các mẫu tái sử dụng, đào tạo và hỗ trợ quản trị cho công việc dữ liệu trên toàn công ty.
+      - h:
+          en: CoE in a data mesh
+          vi: CoE trong data mesh
+        tag: senior
+        p:
+          en: It becomes the enabling team behind the self-serve platform and federated governance, coaching domains rather than doing their work. An approval queue defeats the purpose.
+          vi: Nó trở thành đội hỗ trợ đứng sau nền tảng tự phục vụ và quản trị liên bang, huấn luyện các domain thay vì làm thay. Một hàng đợi phê duyệt sẽ phá hỏng mục đích.
+      - h:
+          en: Change management
+          vi: Quản lý thay đổi
+        tag: senior
+        p:
+          en: The structured work of moving people from the old way to the new one, covering why, what changes for each role, and support during the switch.
+          vi: Công việc có cấu trúc nhằm đưa mọi người từ cách cũ sang cách mới, gồm lý do, điều gì thay đổi với từng vai trò, và hỗ trợ trong lúc chuyển đổi.
+      - h:
+          en: Levers that work
+          vi: Các đòn bẩy hiệu quả
+        tag: senior
+        p:
+          en: A visible executive sponsor, data champions inside each team, training by role, a pilot domain before the wide rollout, and a published date to retire the old path.
+          vi: Một nhà bảo trợ cấp cao hiện diện, data champion trong từng đội, đào tạo theo vai trò, một domain thí điểm trước khi triển khai rộng, và ngày công bố ngừng đường cũ.
+      - h:
+          en: Measure adoption
+          vi: Đo mức áp dụng
+        tag: senior
+        p:
+          en: Active users, queries on the new platform versus the legacy one, legacy reports retired, and support tickets over time.
+          vi: Người dùng hoạt động, số query trên nền tảng mới so với hệ thống cũ, số báo cáo cũ đã ngừng, và ticket hỗ trợ theo thời gian.
+      - h:
+          en: Pitfalls
+          vi: Cạm bẫy
+        tag: senior
+        p:
+          en: Announcing a launch and calling it done, running old and new in parallel forever, and training once instead of supporting people in their real work.
+          vi: Thông báo ra mắt rồi coi như xong, chạy song song cũ và mới mãi mãi, và đào tạo một lần thay vì hỗ trợ mọi người trong công việc thật.
+    n:
+      en: A migration is finished when the old system is switched off, not when the new one is switched on. Put the decommission date in the plan from the start.
+      vi: Một cuộc migration chỉ hoàn tất khi hệ thống cũ bị tắt, không phải khi hệ thống mới được bật. Hãy đưa ngày ngừng hệ thống cũ vào kế hoạch ngay từ đầu.
+  - id: data-monetization-internal-and-external
+    k: table
+    t:
+      en: "Data monetization: internal and external strategies"
+      vi: "Kiếm tiền từ dữ liệu: chiến lược nội bộ và bên ngoài"
+    lead:
+      en: Data monetization turns data into measurable financial value. Internal strategies improve the business you already run; external ones create new revenue, with more risk.
+      vi: Kiếm tiền từ dữ liệu là biến dữ liệu thành giá trị tài chính đo được. Chiến lược nội bộ cải thiện mảng kinh doanh hiện có; chiến lược bên ngoài tạo doanh thu mới, kèm rủi ro cao hơn.
+    head:
+      - en: Strategy
+        vi: Chiến lược
+      - en: How value is created
+        vi: Giá trị được tạo ra thế nào
+      - en: Example
+        vi: Ví dụ
+      - en: Main risk
+        vi: Rủi ro chính
+    rows:
+      - - en: Better decisions (internal)
+          vi: Quyết định tốt hơn (nội bộ)
+        - en: More revenue or less loss from smarter choices
+          vi: Tăng doanh thu hoặc giảm tổn thất nhờ lựa chọn thông minh hơn
+        - en: Pricing optimization, churn prevention, targeted marketing
+          vi: Tối ưu giá, ngăn churn, marketing nhắm mục tiêu
+        - en: Value is hard to attribute without experiments
+          vi: Khó quy giá trị nếu không có thí nghiệm
+      - - en: Process efficiency (internal)
+          vi: Hiệu quả quy trình (nội bộ)
+        - en: Lower cost through automation and prediction
+          vi: Giảm chi phí nhờ tự động hóa và dự báo
+        - en: Demand forecasting, fraud detection, predictive maintenance
+          vi: Dự báo nhu cầu, phát hiện gian lận, bảo trì dự đoán
+        - en: Models decay; savings fade without monitoring
+          vi: Mô hình suy giảm; khoản tiết kiệm mất dần nếu không giám sát
+      - - en: Data-enhanced products (external)
+          vi: Sản phẩm tăng cường bằng dữ liệu (bên ngoài)
+        - en: Customers pay more or stay longer for insight built into the product
+          vi: Khách hàng trả nhiều hơn hoặc ở lại lâu hơn nhờ insight tích hợp trong sản phẩm
+        - en: Embedded analytics, peer benchmarks, recommendations
+          vi: Analytics nhúng, benchmark so với đồng ngành, gợi ý
+        - en: Multi-tenant data leaks; latency and SLA obligations
+          vi: Rò rỉ dữ liệu giữa các tenant; nghĩa vụ về độ trễ và SLA
+      - - en: Selling or licensing data (external)
+          vi: Bán hoặc cấp phép dữ liệu (bên ngoài)
+        - en: Direct revenue from data sets, feeds or data APIs
+          vi: Doanh thu trực tiếp từ tập dữ liệu, feed hoặc data API
+        - en: Data marketplaces, secure data sharing, aggregated market indices
+          vi: Data marketplace, chia sẻ dữ liệu an toàn, chỉ số thị trường tổng hợp
+        - en: Privacy law, consent and re-identification; contract terms; reputational damage
+          vi: Luật bảo vệ dữ liệu cá nhân, sự đồng ý và tái định danh; điều khoản hợp đồng; tổn hại uy tín
+    cap:
+      en: Start internal, where the data is already allowed and the value is easier to prove. Go external only with legal review, aggregation and a clear product owner.
+      vi: Hãy bắt đầu từ nội bộ, nơi dữ liệu đã được phép dùng và giá trị dễ chứng minh hơn. Chỉ ra bên ngoài khi có rà soát pháp lý, tổng hợp ẩn danh và người sở hữu sản phẩm rõ ràng.
+    n:
+      en: The engineering prerequisites are the same in every row — quality, lineage, access control and usage tracking. Without usage data you cannot show the value or price it.
+      vi: Điều kiện kỹ thuật tiên quyết giống nhau ở mọi dòng — chất lượng, lineage, kiểm soát truy cập và theo dõi mức sử dụng. Không có dữ liệu sử dụng thì bạn không chứng minh được giá trị hay định giá được.
+  - id: open-source-software-and-the-apache-software-foundation
+    k: cards
+    t:
+      en: Open-source software and the Apache Software Foundation
+      vi: Phần mềm mã nguồn mở và Apache Software Foundation
+    lead:
+      en: Most of the modern data stack is open-source software — code released under a license that lets anyone use, inspect, modify and redistribute it. Licenses and governance decide how safe it is to build on.
+      vi: Phần lớn modern data stack là phần mềm mã nguồn mở — code phát hành theo giấy phép cho phép bất kỳ ai dùng, xem, sửa và phân phối lại. Giấy phép và mô hình quản trị quyết định việc xây dựng trên nó an toàn đến đâu.
+    cols: 3
+    cards:
+      - h:
+          en: License families
+          vi: Các nhóm giấy phép
+        tag: must
+        p:
+          en: Permissive (Apache 2.0, MIT, BSD) allow almost any use; copyleft (GPL, AGPL) requires sharing changes under the same terms. Apache 2.0 also grants patent rights.
+          vi: Giấy phép dễ dãi (Apache 2.0, MIT, BSD) cho phép gần như mọi cách dùng; copyleft (GPL, AGPL) yêu cầu chia sẻ thay đổi theo cùng điều khoản. Apache 2.0 còn cấp quyền về bằng sáng chế.
+      - h:
+          en: Source-available is not open source
+          vi: Source-available không phải mã nguồn mở
+        tag: senior
+        p:
+          en: Licenses such as BSL, SSPL or the Elastic License restrict competing use. Relicensing has triggered community forks such as OpenSearch and OpenTofu.
+          vi: Các giấy phép như BSL, SSPL hay Elastic License hạn chế việc dùng để cạnh tranh. Việc đổi giấy phép đã dẫn đến các bản fork cộng đồng như OpenSearch và OpenTofu.
+      - h:
+          en: Business models
+          vi: Mô hình kinh doanh
+        tag: senior
+        p:
+          en: Open core with paid features, a managed cloud service, or support and services. A single-vendor project can change its license when the business needs it.
+          vi: Open core kèm tính năng trả phí, dịch vụ cloud managed, hoặc hỗ trợ và dịch vụ. Một dự án do một vendor kiểm soát có thể đổi giấy phép khi kinh doanh cần.
+      - h:
+          en: The Apache Software Foundation
+          vi: Apache Software Foundation
+        tag: must
+        p:
+          en: A US nonprofit founded in 1999 that hosts Spark, Kafka, Flink, Airflow, Iceberg, Arrow and Parquet. It owns the trademarks, so no single company controls a project.
+          vi: Một tổ chức phi lợi nhuận tại Mỹ thành lập năm 1999, đang nuôi dưỡng Spark, Kafka, Flink, Airflow, Iceberg, Arrow và Parquet. Nó sở hữu thương hiệu, nên không công ty nào một mình kiểm soát dự án.
+      - h:
+          en: The Apache Way and the Incubator
+          vi: Apache Way và Incubator
+        tag: senior
+        p:
+          en: Community over code, decisions in public on mailing lists, voting by committers and a project management committee. New projects enter the Incubator and graduate to top-level status.
+          vi: Cộng đồng quan trọng hơn code, quyết định công khai trên mailing list, bỏ phiếu bởi committer và ủy ban quản lý dự án (PMC). Dự án mới vào Incubator và tốt nghiệp thành dự án cấp cao nhất.
+      - h:
+          en: Choosing OSS for a platform
+          vi: Chọn OSS cho nền tảng
+        tag: senior
+        p:
+          en: Check the license, foundation versus single-vendor governance, contributor diversity, release cadence and how security issues are handled — not just GitHub stars.
+          vi: Kiểm tra giấy phép, quản trị bởi quỹ hay bởi một vendor, độ đa dạng người đóng góp, nhịp phát hành và cách xử lý lỗ hổng bảo mật — không chỉ số sao GitHub.
+    n:
+      en: "Free to download is not free to run: OSS shifts cost from licenses to people. Foundation governance lowers the risk of a sudden license change, which is why table formats under the ASF are a common lock-in hedge. This is not legal advice; involve legal for license questions."
+      vi: "Tải miễn phí không có nghĩa là vận hành miễn phí: OSS chuyển chi phí từ giấy phép sang con người. Quản trị bởi quỹ giảm rủi ro đổi giấy phép đột ngột, vì vậy các table format thuộc ASF là cách phòng ngừa lock-in phổ biến. Đây không phải tư vấn pháp lý; hãy hỏi bộ phận pháp chế về giấy phép."
   - id: checklist-and-interview-questions
     k: check
     t:

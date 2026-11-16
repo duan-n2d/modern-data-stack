@@ -292,6 +292,438 @@ slides:
     n:
       en: "Tie this to data work: concurrent loads into the same table, a report running during a load, and CDC consumers all depend on these rules. Indexes help point lookups; analytical engines rely on partition pruning and column statistics instead."
       vi: "Gắn với công việc dữ liệu: các lần load đồng thời vào cùng một bảng, báo cáo chạy trong lúc load và consumer CDC đều phụ thuộc các quy tắc này. Index giúp tra cứu điểm; engine phân tích dựa vào partition pruning và thống kê cột."
+  - id: system-architecture-principles-for-a-lakehouse
+    k: table
+    t:
+      en: "System architecture: principles and how they shape a lakehouse"
+      vi: "Kiến trúc hệ thống: các nguyên tắc và cách chúng định hình lakehouse"
+    lead:
+      en: System architecture is the high-level design of a system — its components, what each is responsible for, the interfaces between them, and the quality goals that drove those choices. Every principle is a trade-off, not a free win.
+      vi: Kiến trúc hệ thống là thiết kế ở mức cao của một hệ thống — các thành phần, trách nhiệm của từng phần, giao diện giữa chúng, và các mục tiêu chất lượng dẫn đến những lựa chọn đó. Mỗi nguyên tắc là một sự đánh đổi, không phải lợi ích miễn phí.
+    head:
+      - en: Principle
+        vi: Nguyên tắc
+      - en: What it means
+        vi: Ý nghĩa
+      - en: In a lakehouse
+        vi: Trong lakehouse
+      - en: Trade-off
+        vi: Đánh đổi
+    rows:
+      - - en: Separation of concerns
+          vi: Tách biệt trách nhiệm
+        - en: Each component does one job behind a clear boundary
+          vi: Mỗi thành phần làm một việc sau một ranh giới rõ ràng
+        - en: Ingestion, object storage, table format, catalog, compute engines and the semantic layer are separate layers
+          vi: Ingestion, object storage, table format, catalog, compute engine và semantic layer là các lớp riêng
+        - en: More moving parts to integrate and operate
+          vi: Nhiều thành phần hơn để tích hợp và vận hành
+      - - en: Loose coupling through contracts
+          vi: Kết nối lỏng qua hợp đồng
+        - en: Components depend on stable interfaces, not on each other's internals
+          vi: Thành phần phụ thuộc vào giao diện ổn định, không vào nội bộ của nhau
+        - en: Open table formats (Iceberg, Delta), the Iceberg REST catalog spec and data contracts let engines change independently
+          vi: Open table format (Iceberg, Delta), đặc tả REST catalog của Iceberg và data contract cho phép engine thay đổi độc lập
+        - en: Standards move slower than proprietary features
+          vi: Chuẩn mở tiến chậm hơn tính năng độc quyền
+      - - en: Independent scaling
+          vi: Scale độc lập
+        - en: Scale the part under load, not the whole system
+          vi: Scale phần đang chịu tải, không phải toàn hệ thống
+        - en: Storage grows cheaply; compute clusters scale up and down per workload
+          vi: Storage tăng rẻ; cluster compute scale lên xuống theo từng workload
+        - en: Network reads from object storage are slower than local disk, so caching matters
+          vi: Đọc qua mạng từ object storage chậm hơn đĩa cục bộ, nên cache rất quan trọng
+      - - en: Failure isolation
+          vi: Cô lập lỗi
+        - en: A fault in one part should not take down the rest
+          vi: Lỗi ở một phần không được kéo sập phần còn lại
+        - en: Separate compute per workload; atomic commits keep readers on the last good snapshot
+          vi: Compute riêng cho từng workload; commit nguyên tử giữ người đọc ở snapshot tốt gần nhất
+        - en: Duplicated capacity costs money
+          vi: Năng lực dư thừa tốn tiền
+      - - en: Observability and security by design
+          vi: Quan sát được và bảo mật ngay từ thiết kế
+        - en: Logs, metrics, lineage and access control are built in, not bolted on
+          vi: Log, metric, lineage và kiểm soát truy cập được tích hợp sẵn, không gắn thêm sau
+        - en: Catalog-level permissions, audit logs, table health metrics and lineage
+          vi: Phân quyền ở mức catalog, audit log, metric sức khỏe bảng và lineage
+        - en: Up-front effort before the first dashboard ships
+          vi: Tốn công từ đầu trước khi dashboard đầu tiên ra mắt
+      - - en: Evolvability
+          vi: Khả năng tiến hóa
+        - en: Prefer reversible decisions and record the irreversible ones
+          vi: Ưu tiên quyết định đảo ngược được và ghi lại những quyết định không đảo ngược được
+        - en: Schema and partition evolution without rewrites; ADRs for engine and catalog choices
+          vi: Tiến hóa schema và partition không cần ghi lại dữ liệu; ADR cho lựa chọn engine và catalog
+        - en: Flexibility can become an excuse never to decide
+          vi: Sự linh hoạt có thể thành cái cớ để không bao giờ quyết định
+    cap:
+      en: Start from quality goals (latency, freshness, cost, compliance), then choose components. Architecture chosen from a tool list rarely meets the goals.
+      vi: Bắt đầu từ mục tiêu chất lượng (độ trễ, độ mới, chi phí, tuân thủ), rồi mới chọn thành phần. Kiến trúc chọn từ danh sách công cụ hiếm khi đạt mục tiêu.
+    n:
+      en: Ask the audience to name, for their own platform, which principle they gave up and why. Good architecture is explicit about what it sacrificed.
+      vi: Hãy yêu cầu khán giả nêu, với nền tảng của chính họ, nguyên tắc nào đã bị hy sinh và vì sao. Kiến trúc tốt nói rõ nó đã hy sinh điều gì.
+  - id: monolith-versus-microservices
+    k: table
+    t:
+      en: Monolithic architecture versus microservices
+      vi: Kiến trúc nguyên khối so với microservices
+    lead:
+      en: A monolith builds and deploys the whole application as one unit. Microservices split it into small services that deploy, scale and fail independently, each owning its own data. The choice changes what the data team has to ingest.
+      vi: Monolith build và deploy toàn bộ ứng dụng như một khối. Microservices tách nó thành các dịch vụ nhỏ deploy, scale và hỏng độc lập, mỗi dịch vụ sở hữu dữ liệu riêng. Lựa chọn này thay đổi những gì đội dữ liệu phải ingest.
+    head:
+      - en: Dimension
+        vi: Khía cạnh
+      - Monolith
+      - Microservices
+    rows:
+      - - en: Deployment
+          vi: Triển khai
+        - en: One artifact; every change ships the whole app
+          vi: Một artifact; mọi thay đổi phát hành cả ứng dụng
+        - en: Each service ships on its own schedule
+          vi: Mỗi dịch vụ phát hành theo lịch riêng
+      - - en: Data
+          vi: Dữ liệu
+        - en: One shared database; joins and transactions are easy
+          vi: Một database dùng chung; join và transaction dễ dàng
+        - en: Database per service; cross-service queries need APIs or events
+          vi: Database riêng cho từng dịch vụ; truy vấn liên dịch vụ cần API hoặc sự kiện
+      - - en: Scaling
+          vi: Scale
+        - en: Scale the whole app, even if one module is hot
+          vi: Scale cả ứng dụng, kể cả khi chỉ một module nóng
+        - en: Scale only the busy service
+          vi: Chỉ scale dịch vụ đang bận
+      - - en: Consistency
+          vi: Nhất quán
+        - en: ACID transactions across modules
+          vi: Transaction ACID xuyên các module
+        - en: Eventual consistency, sagas and compensating actions
+          vi: Nhất quán cuối cùng, saga và hành động bù trừ
+      - - en: Operations
+          vi: Vận hành
+        - en: Simple to run, debug and test locally
+          vi: Đơn giản để chạy, debug và test cục bộ
+        - en: Needs service discovery, tracing, gateways and mature CI/CD
+          vi: Cần service discovery, tracing, gateway và CI/CD trưởng thành
+      - - en: Team fit
+          vi: Phù hợp đội nhóm
+        - en: Small teams and early products
+          vi: Đội nhỏ và sản phẩm giai đoạn đầu
+        - en: Many teams that need to move independently
+          vi: Nhiều đội cần làm việc độc lập
+      - - en: Impact on the data platform
+          vi: Ảnh hưởng tới nền tảng dữ liệu
+        - en: One source to replicate; the schema is the whole business
+          vi: Một nguồn để replicate; schema chính là toàn bộ nghiệp vụ
+        - en: Dozens of sources and schemas; the lakehouse becomes the only place where cross-service joins happen
+          vi: Hàng chục nguồn và schema; lakehouse trở thành nơi duy nhất thực hiện join liên dịch vụ
+    cap:
+      en: A modular monolith — one deployable with strict internal boundaries — is often the right middle step. Split a service out when a team or a scaling need demands it.
+      vi: Modular monolith — một khối deploy với ranh giới nội bộ chặt — thường là bước trung gian đúng đắn. Tách dịch vụ khi một đội hoặc nhu cầu scale thật sự đòi hỏi.
+    n:
+      en: "Microservices solve an organizational problem (many teams) at the cost of a distributed-systems problem. For data engineers the main consequence is more sources, more schema drift, and the need for events or CDC per service."
+      vi: "Microservices giải quyết một bài toán tổ chức (nhiều đội) bằng cái giá của bài toán hệ phân tán. Với data engineer, hệ quả chính là nhiều nguồn hơn, schema thay đổi nhiều hơn, và cần sự kiện hoặc CDC cho từng dịch vụ."
+  - id: microservice-data-into-the-lakehouse-cdc-and-outbox
+    k: code
+    t:
+      en: "Microservice data in a lakehouse: CDC, outbox events and Iceberg"
+      vi: "Dữ liệu microservice trong lakehouse: CDC, outbox event và Iceberg"
+    lead:
+      en: Writing to the database and then publishing to Kafka is a dual write; if the second step fails the two disagree. The outbox pattern writes the event in the same transaction, and CDC ships it to Kafka and on to Iceberg.
+      vi: Ghi vào database rồi mới publish lên Kafka là dual write; nếu bước hai lỗi thì hai nơi lệch nhau. Mẫu outbox ghi sự kiện trong cùng transaction, và CDC chuyển nó lên Kafka rồi vào Iceberg.
+    blocks:
+      - lang: sql
+        title: orders_service_outbox.sql (PostgreSQL)
+        code: |-
+          -- One local transaction: the state change and its event commit together
+          begin;
+          update orders set status = 'SHIPPED' where order_id = 42;
+          insert into outbox (id, aggregatetype, aggregateid, type, payload)
+          values (gen_random_uuid(), 'order', '42', 'OrderShipped',
+                  '{"order_id": 42, "status": "SHIPPED"}'::jsonb);
+          commit;
+      - lang: json
+        title: debezium-outbox-connector.json (excerpt)
+        code: |-
+          {
+            "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+            "database.hostname": "orders-db",
+            "database.dbname": "orders",
+            "topic.prefix": "orders",
+            "table.include.list": "public.outbox",
+            "transforms": "outbox",
+            "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter"
+          }
+      - lang: sql
+        title: merge_into_iceberg.sql (Spark SQL)
+        code: |-
+          -- Bronze keeps every event; silver keeps the latest state per order
+          merge into lake.silver.orders t
+          using (
+            select * from (
+              select *, row_number() over (partition by order_id order by event_seq desc) as rn
+              from lake.bronze.order_events
+              where ingest_date = current_date()
+            ) where rn = 1
+          ) s
+          on t.order_id = s.order_id
+          when matched and s.event_seq > t.event_seq then update set *
+          when not matched then insert *;
+    points:
+      - h:
+          en: Raw CDC versus outbox
+          vi: CDC thô so với outbox
+        tag: senior
+        p:
+          en: CDC on business tables exposes each service's internal schema. An outbox publishes a deliberate event contract the service team owns.
+          vi: CDC trên bảng nghiệp vụ phơi bày schema nội bộ của dịch vụ. Outbox công bố một hợp đồng sự kiện có chủ đích do đội dịch vụ sở hữu.
+      - h:
+          en: Ordering
+          vi: Thứ tự
+        tag: senior
+        p:
+          en: Key Kafka messages by aggregate id so all events for one order land in one partition, and keep a sequence number for the merge.
+          vi: Đặt khóa message Kafka theo aggregate id để mọi sự kiện của một đơn nằm chung partition, và giữ số thứ tự cho bước merge.
+      - h:
+          en: Idempotency
+          vi: Idempotency
+        tag: must
+        p:
+          en: CDC is at-least-once. Deduplicate by event id in bronze and guard updates with the sequence check shown above.
+          vi: CDC là at-least-once. Chống trùng theo event id ở bronze và bảo vệ cập nhật bằng điều kiện số thứ tự như trên.
+      - h:
+          en: Housekeeping
+          vi: Dọn dẹp
+        tag: senior
+        p:
+          en: Delete outbox rows after capture, and compact the small files that streaming writes leave in Iceberg.
+          vi: Xóa các dòng outbox sau khi đã capture, và compact các file nhỏ mà ghi streaming để lại trong Iceberg.
+    n:
+      en: The outbox column names shown are the Debezium EventRouter defaults; check the current Debezium documentation for routing options. The Iceberg sink can be Kafka Connect, Flink or Spark Structured Streaming.
+      vi: Tên cột outbox ở đây là mặc định của Debezium EventRouter; hãy xem tài liệu Debezium hiện hành cho các tùy chọn định tuyến. Sink vào Iceberg có thể là Kafka Connect, Flink hoặc Spark Structured Streaming.
+  - id: cqrs-separate-write-and-read-models
+    k: cards
+    t:
+      en: "CQRS: separate the write model from the read models"
+      vi: "CQRS: tách mô hình ghi khỏi các mô hình đọc"
+    lead:
+      en: Command Query Responsibility Segregation (CQRS) uses one model to change data and different models to read it, so each side can be shaped and scaled for its own job.
+      vi: Command Query Responsibility Segregation (CQRS) dùng một mô hình để thay đổi dữ liệu và các mô hình khác để đọc, để mỗi phía được thiết kế và scale cho đúng việc của nó.
+    cols: 3
+    cards:
+      - h:
+          en: How it works
+          vi: Cách hoạt động
+        tag: must
+        p:
+          en: Commands validate and update a normalized write store. Changes flow as events or CDC into one or more read stores shaped for queries.
+          vi: Command kiểm tra và cập nhật một write store đã chuẩn hóa. Thay đổi chảy dưới dạng sự kiện hoặc CDC vào một hay nhiều read store được thiết kế cho truy vấn.
+      - h:
+          en: Event sourcing is separate
+          vi: Event sourcing là chuyện khác
+        tag: senior
+        p:
+          en: Event sourcing stores the event log as the source of truth. It pairs well with CQRS but neither requires the other.
+          vi: Event sourcing lưu log sự kiện làm nguồn sự thật. Nó đi cùng CQRS rất hợp nhưng không cái nào bắt buộc cái kia.
+      - h:
+          en: When it helps
+          vi: Khi nào có ích
+        tag: senior
+        p:
+          en: Reads vastly outnumber writes, or reads need different shapes such as search indexes, aggregates or per-user views.
+          vi: Lượt đọc vượt xa lượt ghi, hoặc phía đọc cần hình dạng khác như chỉ mục tìm kiếm, bảng tổng hợp hoặc view theo từng người dùng.
+      - h:
+          en: The data platform link
+          vi: Liên hệ với nền tảng dữ liệu
+        tag: senior
+        p:
+          en: A warehouse fed by CDC is already a read model. Serving stores such as Elasticsearch, Redis or Pinot built from Kafka are CQRS projections.
+          vi: Warehouse được nạp qua CDC vốn đã là một read model. Các serving store như Elasticsearch, Redis hay Pinot dựng từ Kafka chính là projection kiểu CQRS.
+      - h:
+          en: Eventual consistency
+          vi: Nhất quán cuối cùng
+        tag: senior
+        p:
+          en: Read models lag the write model. Users may not see their own change immediately unless you route that read to the write side.
+          vi: Read model trễ hơn write model. Người dùng có thể không thấy ngay thay đổi của chính họ trừ khi bạn định tuyến lần đọc đó về phía ghi.
+      - h:
+          en: Pitfalls
+          vi: Cạm bẫy
+        tag: senior
+        p:
+          en: Extra moving parts for simple CRUD, projections that drift silently, and no plan to rebuild a read model from scratch.
+          vi: Thêm nhiều thành phần cho CRUD đơn giản, projection lệch âm thầm, và không có kế hoạch dựng lại read model từ đầu.
+    n:
+      en: Monitor projection lag like consumer lag, and keep the ability to replay from the log or a snapshot. A read model you cannot rebuild is a liability.
+      vi: Theo dõi độ trễ của projection như consumer lag, và giữ khả năng replay từ log hoặc snapshot. Một read model không dựng lại được là một gánh nặng.
+  - id: api-gateway-the-front-door
+    k: cards
+    t:
+      en: "API gateway: the single front door to backend services"
+      vi: "API gateway: cửa trước duy nhất vào các dịch vụ backend"
+    lead:
+      en: An API gateway is a reverse proxy that every client calls instead of calling services directly. It applies cross-cutting policy once, then routes each request to the right backend.
+      vi: API gateway là một reverse proxy mà mọi client gọi thay vì gọi trực tiếp dịch vụ. Nó áp dụng chính sách chung một lần, rồi định tuyến từng request đến đúng backend.
+    cols: 3
+    cards:
+      - h:
+          en: What it handles
+          vi: Nó xử lý gì
+        tag: must
+        p:
+          en: Routing, TLS termination, authentication and token checks, rate limits and quotas, request shaping, caching and access logs.
+          vi: Định tuyến, kết thúc TLS, xác thực và kiểm tra token, giới hạn tốc độ và quota, biến đổi request, cache và access log.
+      - h:
+          en: Gateway versus load balancer
+          vi: Gateway so với load balancer
+        tag: must
+        p:
+          en: A load balancer spreads traffic across replicas of one service. A gateway understands APIs and applies policy per route; it usually sits behind a load balancer.
+          vi: Load balancer rải traffic qua các replica của một dịch vụ. Gateway hiểu API và áp chính sách theo từng route; nó thường đứng sau một load balancer.
+      - h:
+          en: Examples
+          vi: Ví dụ
+        tag: nice
+        p:
+          en: Kong, Envoy-based gateways, AWS API Gateway, Azure API Management and Apigee.
+          vi: Kong, các gateway dựa trên Envoy, AWS API Gateway, Azure API Management và Apigee.
+      - h:
+          en: Why data engineers care
+          vi: Vì sao data engineer quan tâm
+        tag: senior
+        p:
+          en: Ingestion from partner APIs hits their gateway, so 429s and quotas shape your extract design. Data products and metric APIs you publish need a gateway too.
+          vi: Ingestion từ API đối tác đi qua gateway của họ, nên lỗi 429 và quota định hình thiết kế extract của bạn. Data product và metric API bạn công bố cũng cần gateway.
+      - h:
+          en: Timeouts
+          vi: Timeout
+        tag: senior
+        p:
+          en: Managed gateways often cap a request at tens of seconds. Long exports should be asynchronous jobs that return a link, not one slow request.
+          vi: Gateway managed thường giới hạn một request ở vài chục giây. Export dài nên là job bất đồng bộ trả về đường dẫn, không phải một request chậm.
+      - h:
+          en: Pitfalls
+          vi: Cạm bẫy
+        tag: senior
+        p:
+          en: A single gateway instance is a single point of failure; business logic creeping into gateway plugins; and an extra network hop on every call.
+          vi: Một instance gateway duy nhất là điểm lỗi đơn; logic nghiệp vụ lén lút đi vào plugin của gateway; và thêm một chặng mạng cho mọi lời gọi.
+    n:
+      en: When debugging a 502 or 504 from an API source, first ask whether the gateway or the backend produced it. Gateway logs and request ids answer that quickly.
+      vi: Khi debug lỗi 502 hoặc 504 từ một nguồn API, trước tiên hãy hỏi gateway hay backend gây ra nó. Log của gateway và request id trả lời điều đó rất nhanh.
+  - id: serverless-computing-for-data
+    k: cards
+    t:
+      en: Serverless computing for data workloads
+      vi: Serverless computing cho workload dữ liệu
+    lead:
+      en: Serverless means the provider runs and scales the servers while you submit code or queries and pay per use. There are still servers; you just do not size, patch or keep them running.
+      vi: Serverless nghĩa là nhà cung cấp vận hành và scale máy chủ còn bạn chỉ gửi code hoặc query và trả tiền theo mức dùng. Vẫn có máy chủ; chỉ là bạn không phải định cỡ, vá lỗi hay giữ chúng chạy.
+    cols: 3
+    cards:
+      - h:
+          en: Flavours
+          vi: Các dạng
+        tag: must
+        p:
+          en: Functions (AWS Lambda, Cloud Functions, Azure Functions), serverless SQL (BigQuery, Athena, serverless warehouses) and serverless Spark (EMR Serverless, Dataproc Serverless).
+          vi: Function (AWS Lambda, Cloud Functions, Azure Functions), SQL serverless (BigQuery, Athena, warehouse serverless) và Spark serverless (EMR Serverless, Dataproc Serverless).
+      - h:
+          en: Billing model
+          vi: Mô hình tính phí
+        tag: must
+        p:
+          en: Per request, per second of compute or per byte scanned. Idle costs nothing, but a careless query costs a lot.
+          vi: Theo request, theo giây compute hoặc theo byte quét. Lúc nhàn rỗi không tốn gì, nhưng một query cẩu thả có thể rất đắt.
+      - h:
+          en: Where it fits
+          vi: Khi nào phù hợp
+        tag: senior
+        p:
+          en: Spiky or event-driven work such as file-arrival triggers, small APIs, ad hoc analysis, and teams too small to run clusters.
+          vi: Việc theo đợt hoặc hướng sự kiện như trigger khi file đến, API nhỏ, phân tích ad hoc, và đội quá nhỏ để vận hành cluster.
+      - h:
+          en: Serverless over open tables
+          vi: Serverless trên bảng mở
+        tag: senior
+        p:
+          en: Engines such as Athena, BigQuery and Snowflake can query Iceberg tables in your own bucket, so the data stays put while the compute is rented per query.
+          vi: Các engine như Athena, BigQuery và Snowflake có thể truy vấn bảng Iceberg trong bucket của bạn, nên dữ liệu nằm yên còn compute được thuê theo từng query.
+      - h:
+          en: Limits
+          vi: Giới hạn
+        tag: senior
+        p:
+          en: Cold starts, maximum run times (Lambda stops at 15 minutes), memory caps and concurrency limits that can flood a downstream database.
+          vi: Cold start, thời gian chạy tối đa (Lambda dừng ở 15 phút), giới hạn bộ nhớ và giới hạn concurrency có thể làm ngập database phía sau.
+      - h:
+          en: Cost crossover
+          vi: Điểm giao chi phí
+        tag: senior
+        p:
+          en: For steady, high-utilization workloads, reserved or provisioned capacity is usually cheaper. Compare cost per unit of work at your real volume.
+          vi: Với workload đều đặn và sử dụng cao, năng lực đặt trước hoặc provisioned thường rẻ hơn. So sánh chi phí trên mỗi đơn vị công việc ở khối lượng thật.
+    n:
+      en: Put budgets and per-query byte limits on serverless SQL from day one; the most common surprise bill is a full scan of an unpartitioned table run on a schedule.
+      vi: Đặt ngân sách và giới hạn byte theo query cho SQL serverless ngay từ ngày đầu; hóa đơn bất ngờ phổ biến nhất là một lần quét toàn bộ bảng không partition chạy theo lịch.
+  - id: multi-cloud-architecture
+    k: cards
+    t:
+      en: Multi-cloud architecture
+      vi: Kiến trúc multi-cloud
+    lead:
+      en: Multi-cloud means running workloads on more than one public cloud provider at the same time. It differs from hybrid cloud, which combines on-premises systems with a cloud.
+      vi: Multi-cloud là chạy workload trên nhiều hơn một nhà cung cấp cloud công cộng cùng lúc. Nó khác hybrid cloud, vốn kết hợp hệ thống on-premises với cloud.
+    cols: 3
+    cards:
+      - h:
+          en: Why organizations do it
+          vi: Vì sao tổ chức làm vậy
+        tag: must
+        p:
+          en: Best-fit services per cloud, data-residency rules, acquisitions that arrive on another cloud, negotiating leverage and resilience.
+          vi: Dịch vụ phù hợp nhất ở từng cloud, quy định lưu trú dữ liệu, các vụ sáp nhập mang theo cloud khác, sức mạnh đàm phán và khả năng chống chịu.
+      - h:
+          en: The costs
+          vi: Cái giá phải trả
+        tag: must
+        p:
+          en: Egress fees between clouds, duplicated IAM, networking and skills, and a drift toward features every cloud supports.
+          vi: Phí egress giữa các cloud, IAM, mạng và kỹ năng bị nhân đôi, và xu hướng chỉ dùng tính năng mà mọi cloud đều hỗ trợ.
+      - h:
+          en: Open tables as the common layer
+          vi: Bảng mở làm lớp chung
+        tag: senior
+        p:
+          en: Iceberg tables in object storage with a shared REST catalog can be read by engines in any cloud, so data is not tied to one vendor's compute.
+          vi: Bảng Iceberg trên object storage với REST catalog dùng chung có thể được engine ở bất kỳ cloud nào đọc, nên dữ liệu không bị gắn với compute của một vendor.
+      - h:
+          en: Federated query
+          vi: Truy vấn liên kết
+        tag: senior
+        p:
+          en: Engines such as Trino or BigQuery Omni query data where it lives. Filters are pushed down, but cross-cloud joins still move bytes.
+          vi: Các engine như Trino hay BigQuery Omni truy vấn dữ liệu tại chỗ. Bộ lọc được đẩy xuống nguồn, nhưng join liên cloud vẫn phải di chuyển byte.
+      - h:
+          en: A pragmatic pattern
+          vi: Một mô hình thực dụng
+        tag: senior
+        p:
+          en: One primary cloud plus portability — open formats, Terraform, containers and a tested export — instead of active-active across clouds.
+          vi: Một cloud chính kèm tính di động — định dạng mở, Terraform, container và đường export đã được test — thay vì active-active trên nhiều cloud.
+      - h:
+          en: Pitfall
+          vi: Cạm bẫy
+        tag: senior
+        p:
+          en: Treating multi-cloud as a DR plan. Failing over to another cloud needs the data, identities and runbooks already there, and rehearsed.
+          vi: Coi multi-cloud là kế hoạch DR. Failover sang cloud khác cần dữ liệu, danh tính và runbook có sẵn ở đó, và đã được diễn tập.
+    n:
+      en: Ask what problem multi-cloud solves for this organization. If the answer is vague, a single cloud with open formats and a credible exit plan is usually cheaper and safer.
+      vi: Hãy hỏi multi-cloud giải quyết vấn đề gì cho tổ chức này. Nếu câu trả lời mơ hồ, một cloud duy nhất với định dạng mở và kế hoạch thoát đáng tin thường rẻ và an toàn hơn.
   - id: checklist-and-interview-questions
     k: check
     t:

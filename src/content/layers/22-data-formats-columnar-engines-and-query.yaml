@@ -433,3 +433,857 @@ slides:
     n:
       en: "Connect back to the decision matrices: “open” reduces lock-in but moves operational responsibility to you."
       vi: "Nối lại với các ma trận quyết định: “mở” giảm khóa chặt nhưng chuyển trách nhiệm vận hành sang bạn."
+  - id: data-serialization-and-columnar-format
+    k: table
+    t:
+      en: Data serialization and the columnar format
+      vi: Data serialization và định dạng cột
+    lead:
+      en: Data serialization turns in-memory objects into bytes for disk or the network, and back again. A columnar format serializes each column’s values together instead of row by row, so a scan reads only the columns it needs and similar values compress well.
+      vi: Data serialization biến đối tượng trong bộ nhớ thành byte để ghi đĩa hoặc gửi qua mạng, rồi đọc ngược lại. Định dạng cột (columnar format) ghi các giá trị của từng cột cạnh nhau thay vì theo từng dòng, nên phép quét chỉ đọc cột cần thiết và các giá trị giống nhau nén rất tốt.
+    head:
+      - en: Format
+        vi: Định dạng
+      - en: Layout and schema
+        vi: Bố cục và schema
+      - en: Choose it for
+        vi: Chọn khi
+      - en: Trade-off
+        vi: Đánh đổi
+    rows:
+      - - JSON
+        - en: Text, row-oriented, self-describing keys, no enforced schema
+          vi: Văn bản, theo dòng, key tự mô tả, không ép schema
+        - en: APIs, logs, config and events where readability matters
+          vi: API, log, cấu hình và sự kiện khi cần dễ đọc
+        - en: Keys repeat in every record; numbers and dates are ambiguous; slow to parse
+          vi: Key lặp lại ở mọi bản ghi; số và ngày tháng mơ hồ; parse chậm
+      - - XML
+        - en: Text, nested tags and attributes, optional XSD schema
+          vi: Văn bản, tag lồng nhau và attribute, schema XSD tùy chọn
+        - en: Legacy enterprise, finance and government exchanges that require XSD validation
+          vi: Trao đổi doanh nghiệp, tài chính và nhà nước kiểu cũ đòi kiểm tra XSD
+        - en: Very verbose; heavier to parse than JSON
+          vi: Rất dài dòng; parse nặng hơn JSON
+      - - CSV
+        - en: Text, rows of delimited fields, header at best
+          vi: Văn bản, các dòng có trường phân tách, may lắm có header
+        - en: Spreadsheet exports and simple hand-offs
+          vi: Xuất từ bảng tính và trao tay đơn giản
+        - en: No types, quoting and encoding bugs, no nesting
+          vi: Không có kiểu, lỗi quoting và encoding, không lồng được
+      - - Protobuf
+        - en: Binary, row-oriented, schema in .proto files compiled to code
+          vi: Nhị phân, theo dòng, schema trong file .proto được sinh thành code
+        - en: Service-to-service RPC (gRPC) and compact event payloads
+          vi: RPC giữa các service (gRPC) và payload sự kiện gọn nhẹ
+        - en: Needs the schema to decode; not built for analytic scans
+          vi: Cần schema mới giải mã được; không dành cho quét phân tích
+      - - Avro
+        - en: Binary, row-oriented, schema stored in the file or a schema registry
+          vi: Nhị phân, theo dòng, schema nằm trong file hoặc schema registry
+        - en: Kafka records and landing zones where schemas evolve
+          vi: Record Kafka và vùng landing khi schema thay đổi
+        - en: Whole-row reads; a column scan still decodes every field
+          vi: Đọc cả dòng; quét một cột vẫn phải giải mã mọi trường
+      - - Parquet / ORC
+        - en: Binary, columnar, typed schema and statistics in the footer
+          vi: Nhị phân, dạng cột, schema có kiểu và thống kê trong footer
+        - en: Lake and lakehouse tables, analytic scans
+          vi: Bảng lake và lakehouse, quét phân tích
+        - en: Immutable files; single-row updates mean rewriting files
+          vi: File bất biến; cập nhật một dòng nghĩa là ghi lại file
+      - - Apache Arrow
+        - en: Columnar in-memory layout, identical in RAM, on disk (IPC) and on the wire (Flight)
+          vi: Bố cục cột trong bộ nhớ, giống hệt nhau trong RAM, trên đĩa (IPC) và trên đường truyền (Flight)
+        - en: Passing data between engines and languages without converting it
+          vi: Chuyển dữ liệu giữa engine và ngôn ngữ mà không phải chuyển đổi
+        - en: Optimized for speed, not long-term compact storage
+          vi: Tối ưu tốc độ, không phải lưu trữ gọn lâu dài
+    cap:
+      en: Row formats suit writing and fetching whole records; columnar formats suit reading a few columns across many rows. Arrow removes the serialize and deserialize step altogether.
+      vi: Định dạng theo dòng hợp với ghi và lấy cả bản ghi; định dạng cột hợp với đọc vài cột trên rất nhiều dòng. Arrow bỏ hẳn bước serialize và deserialize.
+    n:
+      en: Ask the audience how often their pipelines parse JSON just to write Parquet. Serialization cost is often the hidden bottleneck.
+      vi: Hỏi khán giả pipeline của họ parse JSON chỉ để ghi Parquet bao nhiêu lần. Chi phí serialization thường là điểm nghẽn bị che giấu.
+  - id: structured-semi-structured-and-unstructured-data
+    k: code
+    t:
+      en: Structured, semi-structured (JSON, XML) and unstructured data
+      vi: Dữ liệu có cấu trúc, bán cấu trúc (JSON, XML) và phi cấu trúc
+    lead:
+      en: Structured data fits fixed columns. Semi-structured data carries its own tags and nesting. Unstructured data such as text, PDFs, images and audio has no schema at all until something extracts one.
+      vi: Dữ liệu có cấu trúc khớp với các cột cố định. Dữ liệu bán cấu trúc tự mang tag và cấu trúc lồng của nó. Dữ liệu phi cấu trúc như văn bản, PDF, ảnh và âm thanh không có schema nào cho tới khi có thứ trích xuất ra.
+    blocks:
+      - lang: sql
+        title: query_json_and_xml.sql (DuckDB and Snowflake-style)
+        code: |-
+          -- JSON: read nested records and pull fields with paths (DuckDB)
+          SELECT payload->>'$.customer.id'           AS customer_id,
+                 CAST(payload->>'$.total' AS DECIMAL(12, 2)) AS total
+          FROM read_json('landing/orders/*.json', columns = {payload: 'JSON'});
+
+          -- Semi-structured column type; the engine shreds common paths into columns (Snowflake)
+          CREATE TABLE raw_orders (payload VARIANT);
+          SELECT payload:customer.id::string AS customer_id FROM raw_orders;
+
+          -- XML: parse once on ingest, then store flattened columns in Parquet
+          SELECT XMLGET(PARSE_XML(doc), 'InvoiceId'):"$"::string AS invoice_id
+          FROM raw_invoices;
+      - lang: text
+        title: xml_versus_json.txt
+        code: |-
+          XML   <order id="42"><total currency="USD">19.90</total></order>
+          JSON  {"id": 42, "total": {"currency": "USD", "amount": 19.90}}
+          XML has attributes, namespaces and XSD validation; JSON is shorter and maps to code objects.
+    points:
+      - h:
+          en: Semi-structured data
+          vi: Dữ liệu bán cấu trúc
+        tag: must
+        p:
+          en: Land JSON as-is for replay, then flatten stable fields into typed columns. Variant types and Parquet nested columns keep the rest queryable.
+          vi: Hạ cánh JSON nguyên trạng để có thể phát lại, rồi làm phẳng các trường ổn định thành cột có kiểu. Kiểu variant và cột lồng của Parquet giữ phần còn lại vẫn truy vấn được.
+      - h: XML
+        p:
+          en: A tag-based markup language validated by XSD and queried with XPath. Choose it only when a partner or standard demands it; convert at the edge because parsing is slow.
+          vi: Ngôn ngữ đánh dấu dựa trên tag, kiểm tra bằng XSD và truy vấn bằng XPath. Chỉ chọn khi đối tác hoặc chuẩn bắt buộc; chuyển đổi ngay ở rìa vì parse chậm.
+      - h:
+          en: Unstructured data
+          vi: Dữ liệu phi cấu trúc
+        tag: senior
+        p:
+          en: Store the files in object storage, keep a metadata table (path, type, owner, hash), and derive structure with OCR, parsers or embeddings for search and AI.
+          vi: Lưu file trong object storage, giữ một bảng metadata (đường dẫn, loại, chủ sở hữu, hash), và rút ra cấu trúc bằng OCR, parser hoặc embedding cho tìm kiếm và AI.
+      - h:
+          en: Trade-off
+          vi: Đánh đổi
+        p:
+          en: Flexible shapes absorb change, but every reader has to handle missing keys and type drift. Add contracts once fields stabilize.
+          vi: Cấu trúc linh hoạt hấp thụ thay đổi, nhưng mọi reader phải xử lý key thiếu và kiểu bị trôi. Thêm data contract khi các trường đã ổn định.
+    n:
+      en: Function names for JSON and XML differ widely by engine; the pattern (land raw, flatten, type) is what transfers.
+      vi: Tên hàm cho JSON và XML khác nhau nhiều giữa các engine; điều mang theo được là mẫu (hạ cánh thô, làm phẳng, gán kiểu).
+  - id: encodings-dictionary-run-length-and-bloom-filters
+    k: code
+    t:
+      en: "Encodings and skipping: dictionary, run-length and Bloom filters"
+      vi: "Encoding và bỏ qua dữ liệu: dictionary, run-length và Bloom filter"
+    lead:
+      en: Columnar files are small and fast because each column is encoded before it is compressed, and because extra metadata lets a reader skip data it does not need.
+      vi: File dạng cột nhỏ và nhanh vì mỗi cột được encode trước khi nén, và vì metadata bổ sung cho phép reader bỏ qua dữ liệu không cần.
+    blocks:
+      - lang: text
+        title: how_the_encodings_work.txt
+        code: |-
+          column country:    VN VN VN VN SG SG US US US US US
+          dictionary:        0=VN 1=SG 2=US
+          dictionary ids:    0  0  0  0  1  1  2  2  2  2  2      small integers instead of strings
+          run-length (RLE):  (0 x4) (1 x2) (2 x5)                 value + count; best on sorted data
+
+          Bloom filter on user_id for one row group:
+          lookup user_id = 9137  ->  "definitely absent"  => skip the row group
+                                 ->  "maybe present"      => read it (false positives possible)
+      - lang: sql
+        title: iceberg_parquet_tuning.sql (Spark SQL on Iceberg)
+        code: |-
+          ALTER TABLE lake.sales.orders SET TBLPROPERTIES (
+            -- Bloom filter for a high-cardinality equality filter column
+            'write.parquet.bloom-filter-enabled.column.order_id' = 'true',
+            'write.parquet.bloom-filter-max-bytes'               = '1048576',
+            -- Larger dictionary pages keep more columns dictionary-encoded
+            'write.parquet.dict-size-bytes'                      = '4194304'
+          );
+          -- Sort on write so RLE runs are long and min/max statistics are selective
+          ALTER TABLE lake.sales.orders WRITE ORDERED BY country, order_date;
+    points:
+      - h:
+          en: Dictionary encoding
+          vi: Dictionary encoding
+        tag: must
+        p:
+          en: Stores each distinct value once and replaces repeats with small integer ids. Great for low-cardinality strings; writers fall back to plain encoding when the dictionary grows too large.
+          vi: Lưu mỗi giá trị khác nhau một lần và thay các lần lặp bằng id số nguyên nhỏ. Rất tốt cho chuỗi ít giá trị khác nhau; writer quay về plain encoding khi dictionary quá lớn.
+      - h:
+          en: Run-length encoding (RLE)
+          vi: Run-length encoding (RLE)
+        tag: must
+        p:
+          en: Lossless; replaces a run of identical values with one value and a count. It shines on sorted or clustered columns and does little on shuffled data.
+          vi: Không mất dữ liệu; thay một chuỗi giá trị giống nhau bằng một giá trị và số lần lặp. Hiệu quả trên cột đã sắp xếp hoặc gom cụm, gần như vô dụng trên dữ liệu xáo trộn.
+      - h:
+          en: Bloom filters
+          vi: Bloom filter
+        tag: senior
+        p:
+          en: A compact bit array that answers “definitely not here” or “maybe here”. Parquet stores one per column chunk; enable it for high-cardinality equality lookups (ids) where min/max cannot prune. It costs file size and does nothing for range filters.
+          vi: Một mảng bit gọn trả lời “chắc chắn không có” hoặc “có thể có”. Parquet lưu một filter cho mỗi column chunk; bật cho tra cứu bằng phép bằng trên cột nhiều giá trị (id) khi min/max không lọc được. Tốn dung lượng file và vô dụng với lọc theo khoảng.
+      - h:
+          en: Late materialization
+          vi: Late materialization
+        tag: senior
+        p:
+          en: The engine evaluates the filter columns first, keeps a selection of matching row positions, and only then decodes the other columns for those rows. Wins big on selective filters over wide tables.
+          vi: Engine đánh giá các cột lọc trước, giữ danh sách vị trí dòng khớp, rồi mới giải mã các cột khác cho đúng những dòng đó. Lợi rất lớn khi bộ lọc chọn lọc trên bảng nhiều cột.
+    n:
+      en: Property names are Iceberg’s Parquet writer settings; other writers expose the same knobs with different names. Measure file size and scan time before and after.
+      vi: Tên property là cấu hình writer Parquet của Iceberg; các writer khác có cùng nút chỉnh với tên khác. Hãy đo kích thước file và thời gian quét trước và sau.
+  - id: filter-and-predicate-pushdown-layers-of-skipping
+    k: table
+    t:
+      en: "Filter and predicate pushdown: the layers of skipping"
+      vi: "Filter pushdown và predicate pushdown: các tầng bỏ qua dữ liệu"
+    lead:
+      en: Predicate pushdown and filter pushdown name the same idea, moving WHERE conditions down to the scan or the source so less data travels upward. On a lakehouse it works in layers, from whole partitions down to single rows.
+      vi: Predicate pushdown và filter pushdown là cùng một ý tưởng, đẩy điều kiện WHERE xuống phép quét hoặc nguồn để ít dữ liệu đi lên hơn. Trên lakehouse nó hoạt động theo tầng, từ cả partition xuống tới từng dòng.
+    head:
+      - en: Layer
+        vi: Tầng
+      - en: Metadata used
+        vi: Metadata dùng tới
+      - en: What gets skipped
+        vi: Phần được bỏ qua
+      - en: Makes it work / breaks it
+        vi: Giúp nó hiệu quả / làm nó hỏng
+    rows:
+      - - en: Partition pruning
+          vi: Partition pruning
+        - en: Iceberg partition spec and partition values in the manifest list
+          vi: Partition spec của Iceberg và giá trị partition trong manifest list
+        - en: Whole partitions and manifests
+          vi: Cả partition và manifest
+        - en: Filter on the source column of the transform; casting the column breaks it
+          vi: Lọc trên cột gốc của transform; ép kiểu cột làm hỏng nó
+      - - en: File pruning
+          vi: File pruning
+        - en: Per-file column lower and upper bounds in Iceberg manifests
+          vi: Biên dưới và biên trên của cột theo từng file trong manifest Iceberg
+        - en: Data files
+          vi: Các data file
+        - en: Data sorted or clustered on the filter column
+          vi: Dữ liệu được sắp xếp hoặc gom cụm theo cột lọc
+      - - en: Row-group pruning
+          vi: Row-group pruning
+        - en: Parquet footer min/max and null counts
+          vi: Min/max và số null trong footer Parquet
+        - en: Row groups inside a file
+          vi: Các row group trong file
+        - en: Narrow value ranges per row group
+          vi: Khoảng giá trị hẹp trong từng row group
+      - - en: Page and Bloom filter checks
+          vi: Kiểm tra page index và Bloom filter
+        - en: Parquet page index; Bloom filters for equality
+          vi: Page index của Parquet; Bloom filter cho phép bằng
+        - en: Pages, or row groups that cannot hold the value
+          vi: Các page, hoặc row group không thể chứa giá trị
+        - en: Writer must emit them; readers must support them
+          vi: Writer phải ghi ra; reader phải hỗ trợ
+      - - en: Row filtering and late materialization
+          vi: Lọc dòng và late materialization
+        - en: The decoded filter columns
+          vi: Các cột lọc đã giải mã
+        - en: Decoding of other columns for rejected rows
+          vi: Việc giải mã các cột khác cho dòng bị loại
+        - en: Selective predicates; vectorized readers
+          vi: Điều kiện chọn lọc; reader vector hóa
+      - - en: Source pushdown (federation)
+          vi: Pushdown xuống nguồn (federation)
+        - en: Connector capabilities
+          vi: Khả năng của connector
+        - en: Rows the remote database never sends
+          vi: Các dòng database từ xa không bao giờ gửi
+        - en: Functions or UDFs the source does not understand stop the pushdown
+          vi: Hàm hoặc UDF mà nguồn không hiểu sẽ chặn pushdown
+    cap:
+      en: Confirm each layer in EXPLAIN or in the scan metrics (files, row groups and bytes read), not by trusting the SQL.
+      vi: Hãy xác nhận từng tầng trong EXPLAIN hoặc metric của phép quét (số file, row group và byte đã đọc), đừng tin vào câu SQL.
+    n:
+      en: Engines use the two names loosely. “Filter pushdown” is often used for connectors and “predicate pushdown” for file readers, but the mechanism is the same.
+      vi: Các engine dùng hai tên khá lỏng lẻo. “Filter pushdown” thường dùng cho connector còn “predicate pushdown” cho reader file, nhưng cơ chế là một.
+  - id: cost-based-optimizer-and-join-strategies
+    k: code
+    t:
+      en: Cost-based optimizer (CBO) and join strategies
+      vi: Cost-based optimizer (CBO) và chiến lược join
+    lead:
+      en: A cost-based optimizer enumerates candidate plans, estimates row counts from table and column statistics, and picks the plan with the lowest estimated cost. Its choices are only as good as its statistics.
+      vi: Cost-based optimizer liệt kê các plan ứng viên, ước lượng số dòng từ thống kê bảng và cột, rồi chọn plan có chi phí ước tính thấp nhất. Lựa chọn của nó chỉ tốt bằng thống kê của nó.
+    blocks:
+      - lang: sql
+        title: statistics_and_plans.sql (Trino and Spark SQL)
+        code: |-
+          -- Trino: collect and inspect statistics, then read the chosen plan
+          ANALYZE lake.sales.orders;
+          SHOW STATS FOR lake.sales.orders;           -- row count, distinct values, nulls per column
+          EXPLAIN
+          SELECT c.segment, sum(o.amount)
+          FROM lake.sales.orders o JOIN lake.sales.customers c ON o.customer_id = c.id
+          WHERE o.order_date >= DATE '2026-10-01'
+          GROUP BY c.segment;
+          -- Look for: join order, Join[...] distribution (REPLICATED = broadcast, PARTITIONED = shuffle)
+
+          -- Spark SQL: column statistics feed the CBO and join reordering
+          ANALYZE TABLE sales.orders COMPUTE STATISTICS FOR COLUMNS customer_id, order_date;
+          SET spark.sql.cbo.enabled = true;
+          SET spark.sql.cbo.joinReorder.enabled = true;
+      - lang: text
+        title: join_strategies.txt
+        code: |-
+          Broadcast hash join   copy the small side to every worker; no shuffle of the big side
+          Partitioned hash join shuffle both sides by the join key; scales to two large tables
+          Sort-merge join       sort both sides by key and merge; robust when memory is tight
+          Nested loop join      compare every pair; only for tiny inputs or non-equi conditions
+    points:
+      - h:
+          en: Rule-based versus cost-based
+          vi: Rule-based so với cost-based
+        p:
+          en: Rules (push filters down, prune columns) always apply. Cost decisions (join order, broadcast or shuffle) need cardinality estimates.
+          vi: Các rule (đẩy bộ lọc xuống, bỏ cột thừa) luôn áp dụng. Quyết định theo chi phí (thứ tự join, broadcast hay shuffle) cần ước lượng cardinality.
+      - h:
+          en: Where statistics come from
+          vi: Thống kê lấy từ đâu
+        tag: senior
+        p:
+          en: ANALYZE jobs, Iceberg manifest metrics and Puffin files with distinct-value sketches, or the warehouse’s own metadata.
+          vi: Job ANALYZE, metric trong manifest Iceberg và file Puffin chứa sketch số giá trị khác nhau, hoặc metadata riêng của warehouse.
+      - h:
+          en: Failure mode
+          vi: Kiểu thất bại
+        tag: senior
+        p:
+          en: Stale or missing stats make the optimizer broadcast a huge table or shuffle a tiny one. Refresh stats after large loads.
+          vi: Thống kê cũ hoặc thiếu khiến optimizer broadcast một bảng khổng lồ hoặc shuffle một bảng nhỏ xíu. Hãy làm mới thống kê sau các lần nạp lớn.
+      - h:
+          en: Adaptive execution
+          vi: Thực thi thích ứng
+        p:
+          en: Spark AQE and similar features re-plan at runtime from real sizes, a safety net when estimates are wrong.
+          vi: Spark AQE và tính năng tương tự lập lại plan lúc chạy dựa trên kích thước thật, là lưới an toàn khi ước lượng sai.
+    n:
+      en: EXPLAIN output and property names differ by engine and version. Teach people to find the join distribution and the estimated rows in their own engine.
+      vi: Output EXPLAIN và tên property khác nhau theo engine và phiên bản. Hãy dạy mọi người tìm kiểu phân phối join và số dòng ước tính trong engine của họ.
+  - id: indexes-b-tree-versus-lsm-tree
+    k: table
+    t:
+      en: "Index and storage structures: B-tree versus LSM tree"
+      vi: "Cấu trúc chỉ mục và lưu trữ: B-tree so với LSM tree"
+    lead:
+      en: Row stores and key-value engines rely on two classic structures. B-trees favor reads and in-place updates; log-structured merge-trees (LSM) favor heavy write throughput. Columnar lake files mostly skip data with statistics instead.
+      vi: Row store và engine key-value dựa vào hai cấu trúc kinh điển. B-tree ưu tiên đọc và cập nhật tại chỗ; log-structured merge-tree (LSM) ưu tiên throughput ghi lớn. File cột trên lake chủ yếu bỏ qua dữ liệu bằng thống kê.
+    head:
+      - en: Structure
+        vi: Cấu trúc
+      - en: How it works
+        vi: Cách hoạt động
+      - en: Used in
+        vi: Dùng trong
+      - en: Choose when
+        vi: Chọn khi
+      - en: Trade-off
+        vi: Đánh đổi
+    rows:
+      - - en: B-tree / B+ tree
+          vi: B-tree / B+ tree
+        - en: A balanced tree of sorted pages; a lookup walks root to leaf in a few page reads, and B+ tree leaves are linked for range scans
+          vi: Cây cân bằng gồm các page đã sắp xếp; tra cứu đi từ gốc tới lá qua vài lần đọc page, và lá của B+ tree được nối với nhau để quét theo khoảng
+        - PostgreSQL, MySQL InnoDB, SQL Server, Oracle
+        - en: Point lookups and range queries on OLTP tables
+          vi: Tra cứu điểm và truy vấn khoảng trên bảng OLTP
+        - en: Every insert or update touches index pages (write amplification, page splits); each extra index slows writes
+          vi: Mỗi insert hoặc update chạm vào page chỉ mục (khuếch đại ghi, tách page); mỗi chỉ mục thêm làm chậm ghi
+      - - en: LSM tree
+          vi: LSM tree
+        - en: Writes go to a log and an in-memory memtable, flush as sorted immutable files (SSTables), and compaction merges them in the background
+          vi: Ghi vào log và memtable trong bộ nhớ, đẩy ra thành file bất biến đã sắp xếp (SSTable), và compaction gộp chúng ở nền
+        - RocksDB, Cassandra, HBase, ScyllaDB, Kudu-style delta stores
+        - en: Very high ingest rates, time series, key-value workloads
+          vi: Tốc độ nạp rất cao, chuỗi thời gian, workload key-value
+        - en: Reads may check several files (Bloom filters help); compaction costs CPU and I/O and can cause latency spikes
+          vi: Đọc có thể phải xem nhiều file (Bloom filter giúp được); compaction tốn CPU và I/O và có thể gây giật độ trễ
+      - - en: Zone maps / min-max statistics
+          vi: Zone map / thống kê min-max
+        - en: Store min and max per block, row group or file instead of a pointer per row
+          vi: Lưu min và max theo block, row group hoặc file thay vì một con trỏ cho mỗi dòng
+        - Parquet, ORC, Iceberg manifests, Snowflake micro-partitions
+        - en: Analytic scans on large immutable data
+          vi: Quét phân tích trên dữ liệu lớn bất biến
+        - en: Only useful when data is clustered on the filter column
+          vi: Chỉ có ích khi dữ liệu được gom cụm theo cột lọc
+    cap:
+      en: The LSM idea reappears in lakehouses, where small commits are later compacted into larger files.
+      vi: Ý tưởng LSM xuất hiện lại trong lakehouse, nơi các commit nhỏ sau đó được compaction thành file lớn hơn.
+    n:
+      en: Ask why a data warehouse rarely needs a B-tree index. The answer is scan-heavy access and statistics-based pruning.
+      vi: Hỏi vì sao data warehouse hiếm khi cần chỉ mục B-tree. Câu trả lời là truy cập thiên về quét và pruning dựa trên thống kê.
+  - id: distributed-sql-and-olap-engines-compared
+    k: table
+    t:
+      en: Distributed SQL and OLAP engines compared
+      vi: So sánh các distributed SQL engine và OLAP engine
+    lead:
+      en: A distributed SQL engine splits one query into stages and runs them in parallel on many nodes, exchanging data between stages. Some engines only compute over external storage; others also own the storage for lower latency.
+      vi: Distributed SQL engine chia một query thành các stage và chạy song song trên nhiều node, trao đổi dữ liệu giữa các stage. Có engine chỉ tính toán trên lưu trữ bên ngoài; có engine tự quản lưu trữ để có độ trễ thấp hơn.
+    head:
+      - en: Engine
+        vi: Engine
+      - en: Kind
+        vi: Loại
+      - en: Strength
+        vi: Điểm mạnh
+      - en: Lakehouse fit
+        vi: Mức hợp với lakehouse
+      - en: Trade-off
+        vi: Đánh đổi
+    rows:
+      - - Trino / Presto
+        - en: Distributed SQL engine, no storage of its own
+          vi: Distributed SQL engine, không có lưu trữ riêng
+        - en: Interactive SQL and federation across many connectors
+          vi: SQL tương tác và federation qua nhiều connector
+        - en: First-class Iceberg, Delta and Hive connectors
+          vi: Connector Iceberg, Delta và Hive hạng nhất
+        - en: Memory-bound joins; limited fault tolerance for long jobs unless enabled
+          vi: Join bị giới hạn bởi bộ nhớ; chịu lỗi hạn chế cho job dài nếu không bật
+      - - Dremio / Dremio Cloud
+        - en: Lakehouse query engine with semantic layer; Dremio Cloud is the managed SaaS
+          vi: Query engine lakehouse kèm semantic layer; Dremio Cloud là bản SaaS được quản lý
+        - en: Reflections, caching and Arrow Flight for BI speed
+          vi: Reflection, cache và Arrow Flight cho tốc độ BI
+        - en: Built around Iceberg with its own catalog
+          vi: Xây quanh Iceberg với catalog riêng
+        - en: Acceleration features are product-specific
+          vi: Tính năng tăng tốc là riêng của sản phẩm
+      - - Apache Drill
+        - en: Schema-free distributed SQL engine
+          vi: Distributed SQL engine không cần schema trước
+        - en: Queries JSON, CSV and Parquet with schema discovered at read time
+          vi: Truy vấn JSON, CSV và Parquet với schema được phát hiện lúc đọc
+        - en: Files and Hive, no table-format focus
+          vi: File và Hive, không tập trung vào table format
+        - en: Small community today; mostly of historical influence
+          vi: Cộng đồng nhỏ hiện nay; chủ yếu có ảnh hưởng lịch sử
+      - - StarRocks
+        - en: MPP OLAP database, vectorized, with a CBO
+          vi: Database OLAP MPP, vector hóa, có CBO
+        - en: Fast joins and high concurrency; native tables or external catalogs
+          vi: Join nhanh và đồng thời cao; bảng native hoặc external catalog
+        - en: Queries Iceberg, Hudi, Delta and Hive in place
+          vi: Truy vấn Iceberg, Hudi, Delta và Hive tại chỗ
+        - en: Another cluster to run; best speed needs native tables
+          vi: Thêm một cụm phải vận hành; tốc độ tốt nhất cần bảng native
+      - - Apache Doris
+        - en: MPP real-time analytics database (MySQL protocol)
+          vi: Database analytics thời gian thực MPP (giao thức MySQL)
+        - en: High-concurrency dashboards, upserts, async materialized views
+          vi: Dashboard đồng thời cao, upsert, materialized view bất đồng bộ
+        - en: Reads and writes Iceberg via multi-catalog
+          vi: Đọc và ghi Iceberg qua multi-catalog
+        - en: Similar trade-offs to StarRocks
+          vi: Đánh đổi tương tự StarRocks
+      - - ClickHouse
+        - en: Columnar OLAP database (MergeTree)
+          vi: Database OLAP dạng cột (MergeTree)
+        - en: Very fast aggregations on event data
+          vi: Tổng hợp rất nhanh trên dữ liệu sự kiện
+        - en: Can read Iceberg and Parquet, but shines on its own tables
+          vi: Đọc được Iceberg và Parquet, nhưng mạnh nhất trên bảng của chính nó
+        - en: Large joins and frequent updates need care
+          vi: Join lớn và cập nhật thường xuyên cần cẩn thận
+      - - Apache Druid / Apache Pinot
+        - en: Real-time OLAP stores with streaming ingestion
+          vi: Kho OLAP thời gian thực với nạp streaming
+        - en: Sub-second, user-facing analytics on fresh events
+          vi: Analytics hướng người dùng dưới một giây trên sự kiện mới
+        - en: Ingest copies; not a general lakehouse engine
+          vi: Phải nạp bản sao; không phải engine lakehouse đa dụng
+        - en: Limited SQL and join support; pre-modeling required
+          vi: Hỗ trợ SQL và join hạn chế; cần mô hình hóa trước
+      - - DuckDB / MotherDuck
+        - en: In-process engine; MotherDuck adds a managed cloud service
+          vi: Engine chạy trong tiến trình; MotherDuck thêm dịch vụ cloud được quản lý
+        - en: Single-node speed, zero ops, hybrid local and cloud queries
+          vi: Tốc độ một node, không cần vận hành, query kết hợp cục bộ và cloud
+        - en: Reads Parquet and Iceberg directly
+          vi: Đọc trực tiếp Parquet và Iceberg
+        - en: One machine’s resources per query
+          vi: Mỗi query dùng tài nguyên của một máy
+      - - Apache DataFusion
+        - en: Embeddable Rust query engine library
+          vi: Thư viện query engine Rust nhúng được
+        - en: Building custom databases and tools on Arrow
+          vi: Xây database và công cụ tùy biến trên Arrow
+        - en: Through integrations such as iceberg-rust
+          vi: Qua các tích hợp như iceberg-rust
+        - en: A library, not a ready-made service
+          vi: Là thư viện, không phải dịch vụ dùng ngay
+      - - Apache Kudu
+        - en: Columnar storage engine on its own servers, usually queried by Impala or Spark
+          vi: Storage engine dạng cột chạy trên server riêng, thường được truy vấn bởi Impala hoặc Spark
+        - en: Fast inserts, updates and scans by primary key
+          vi: Insert, update và quét nhanh theo primary key
+        - en: Competes with table formats rather than using them
+          vi: Cạnh tranh với table format chứ không dùng chúng
+        - en: Hadoop-era operations; most new designs pick Iceberg with merge-on-read
+          vi: Vận hành kiểu thời Hadoop; phần lớn thiết kế mới chọn Iceberg với merge-on-read
+    cap:
+      en: Shortlist by latency, concurrency and who owns storage, then benchmark on your own data. Features change quickly, so check current docs.
+      vi: Lọc danh sách ngắn theo độ trễ, đồng thời và bên nào sở hữu lưu trữ, rồi benchmark trên dữ liệu của bạn. Tính năng thay đổi nhanh, hãy xem tài liệu hiện tại.
+    n:
+      en: Presto and Trino share a history; Trino is the fork led by Presto’s original creators. Keep the table as a map, not a ranking.
+      vi: Presto và Trino có chung lịch sử; Trino là bản fork do những người tạo ra Presto ban đầu dẫn dắt. Hãy coi bảng là bản đồ, không phải bảng xếp hạng.
+  - id: doris-starrocks-drill-and-kudu-up-close
+    k: cards
+    t:
+      en: Apache Doris, StarRocks, Drill and Kudu up close
+      vi: Nhìn kỹ Apache Doris, StarRocks, Drill và Kudu
+    lead:
+      en: Four engines that come up in architecture reviews, and what each means for an Iceberg-based lakehouse.
+      vi: Bốn engine hay xuất hiện trong review kiến trúc, và ý nghĩa của từng cái với lakehouse dựa trên Iceberg.
+    cols: 2
+    cards:
+      - h: Apache Doris
+        tag: senior
+        p:
+          en: An MPP database with frontend nodes (metadata, planning) and backend nodes (storage, execution), spoken to over the MySQL protocol. Its multi-catalog feature attaches an Iceberg REST, Hive or Glue catalog so you can query, and write back to, Iceberg tables without copying. Choose it for high-concurrency dashboards that also need fast native tables.
+          vi: Database MPP gồm node frontend (metadata, lập plan) và node backend (lưu trữ, thực thi), giao tiếp qua giao thức MySQL. Tính năng multi-catalog gắn catalog Iceberg REST, Hive hoặc Glue để truy vấn, và ghi ngược lại, bảng Iceberg mà không sao chép. Chọn khi cần dashboard đồng thời cao đồng thời có bảng native nhanh.
+      - h:
+          en: Doris versus StarRocks
+          vi: Doris so với StarRocks
+        tag: senior
+        p:
+          en: StarRocks began as a fork of Doris in 2020, so architecture and SQL look alike. Both offer vectorized execution, a CBO, external catalogs and a shared-data mode on object storage. Compare them on your queries, Iceberg write support, materialized-view rewrite and the community or vendor you prefer.
+          vi: StarRocks bắt đầu là một bản fork của Doris năm 2020, nên kiến trúc và SQL khá giống nhau. Cả hai có thực thi vector hóa, CBO, external catalog và chế độ shared-data trên object storage. Hãy so sánh bằng chính query của bạn, khả năng ghi Iceberg, rewrite bằng materialized view và cộng đồng hay nhà cung cấp bạn chọn.
+      - h: Apache Drill
+        p:
+          en: Inspired by Google’s Dremel, Drill runs ANSI SQL over JSON, CSV, Parquet and NoSQL sources and discovers the schema while reading. It proved schema-on-read SQL over files, an idea Trino and Dremio built on. Today it is rarely chosen for new platforms.
+          vi: Lấy cảm hứng từ Dremel của Google, Drill chạy ANSI SQL trên JSON, CSV, Parquet và nguồn NoSQL, phát hiện schema trong lúc đọc. Nó chứng minh SQL schema-on-read trên file, ý tưởng mà Trino và Dremio phát triển tiếp. Ngày nay hiếm khi được chọn cho nền tảng mới.
+      - h: Apache Kudu
+        p:
+          en: A columnar storage engine with primary-key indexes, tablets replicated by Raft, and fast row upserts plus analytic scans. Unlike Iceberg, which is files plus metadata on object storage, Kudu needs its own server cluster. Pick it only for an existing Impala and Hadoop estate needing mutable fast data.
+          vi: Storage engine dạng cột có chỉ mục primary key, các tablet được nhân bản bằng Raft, upsert dòng nhanh cùng quét phân tích. Khác với Iceberg là file cộng metadata trên object storage, Kudu cần cụm server riêng. Chỉ chọn khi đã có hệ Impala và Hadoop cần dữ liệu thay đổi nhanh.
+    n:
+      en: Keep claims about feature parity dated; Doris and StarRocks release quickly and leapfrog each other.
+      vi: Hãy ghi ngày cho các nhận định về tính năng; Doris và StarRocks ra bản rất nhanh và liên tục vượt nhau.
+  - id: dremio-reflections-raw-aggregation-and-autonomous-optimization
+    k: code
+    t:
+      en: "Dremio Reflections: raw, aggregation and autonomous optimization"
+      vi: "Reflection của Dremio: raw, aggregation và tối ưu tự động"
+    lead:
+      en: Reflections (formerly Data Reflections) are precomputed, optimized copies of a dataset stored as Iceberg tables. The planner swaps them into matching queries automatically, so users keep their SQL unchanged.
+      vi: Reflection (trước đây gọi là Data Reflections) là các bản sao được tính trước và tối ưu của một dataset, lưu dưới dạng bảng Iceberg. Planner tự thay chúng vào các query phù hợp, nên người dùng giữ nguyên SQL.
+    blocks:
+      - lang: sql
+        title: reflections.sql (Dremio)
+        code: |-
+          -- Raw Reflection: selected columns, re-partitioned and sorted for fast scans
+          ALTER TABLE lake.sales.orders
+            CREATE RAW REFLECTION orders_raw
+            USING DISPLAY (order_id, customer_id, country, order_date, amount)
+            PARTITION BY (order_date)
+            LOCALSORT BY (customer_id);
+
+          -- Aggregation Reflection: pre-grouped measures that serve BI rollups
+          ALTER TABLE lake.sales.orders
+            CREATE AGGREGATE REFLECTION orders_by_country_day
+            USING DIMENSIONS (country, order_date)
+            MEASURES (amount (SUM, COUNT), customer_id (APPROXIMATE COUNT DISTINCT));
+
+          -- Users still write plain SQL; the plan shows which reflection was used
+          SELECT country, sum(amount) FROM lake.sales.orders GROUP BY country;
+    points:
+      - h:
+          en: Raw Reflections
+          vi: Raw Reflection
+        p:
+          en: A materialized copy of rows and a column subset with its own partitioning and sort. Use it for slow sources (JDBC, JSON, deep views) or a layout that differs from the base table.
+          vi: Bản sao vật lý của các dòng và một tập cột, có partition và thứ tự sắp xếp riêng. Dùng cho nguồn chậm (JDBC, JSON, view nhiều tầng) hoặc khi cần bố cục khác bảng gốc.
+      - h:
+          en: Aggregation Reflections
+          vi: Aggregation Reflection
+        tag: senior
+        p:
+          en: Grouped measures over chosen dimensions. A dashboard query that groups by a subset of those dimensions is answered from the small rollup instead of the fact table.
+          vi: Các measure đã group theo những dimension được chọn. Query dashboard group theo một tập con của các dimension đó được trả lời từ bản rollup nhỏ thay vì bảng fact.
+      - h:
+          en: Dremio Cloud and autonomy
+          vi: Dremio Cloud và tự động hóa
+        tag: senior
+        p:
+          en: Dremio Cloud is the fully managed service with a built-in Iceberg catalog. Autonomous resource optimization means the platform itself suggests or creates reflections, compacts and clusters tables, and scales engines from workload history, much like Snowflake automatic clustering or Databricks predictive optimization.
+          vi: Dremio Cloud là dịch vụ được quản lý hoàn toàn, có sẵn catalog Iceberg. Autonomous resource optimization nghĩa là chính nền tảng gợi ý hoặc tạo reflection, compaction và gom cụm bảng, và co giãn engine dựa trên lịch sử workload, giống automatic clustering của Snowflake hay predictive optimization của Databricks.
+      - h:
+          en: Trade-off
+          vi: Đánh đổi
+        p:
+          en: Every reflection costs storage and refresh compute and can lag the source. Automatic choices reduce toil but make cost and freshness harder to predict, so monitor them.
+          vi: Mỗi reflection tốn lưu trữ và compute để làm mới, và có thể trễ so với nguồn. Lựa chọn tự động giảm việc tay chân nhưng làm chi phí và độ mới khó đoán hơn, nên cần theo dõi.
+    n:
+      en: Syntax follows Dremio’s SQL reference at the time of writing; check the docs for your version. The idea maps to materialized views with automatic query rewrite elsewhere.
+      vi: Cú pháp theo tài liệu SQL của Dremio lúc viết; hãy kiểm tra tài liệu cho phiên bản của bạn. Ý tưởng tương ứng với materialized view có tự động rewrite query ở các hệ khác.
+  - id: caching-materialized-views-and-continuous-aggregates
+    k: stack
+    t:
+      en: Caching, in-memory databases, materialized views and continuous aggregates
+      vi: Cache, in-memory database, materialized view và continuous aggregate
+    lead:
+      en: Every speed-up trades freshness, memory or storage for latency. Know which layer you are paying for.
+      vi: Mọi cách tăng tốc đều đổi độ mới, bộ nhớ hoặc lưu trữ lấy độ trễ. Hãy biết bạn đang trả tiền cho tầng nào.
+    parts:
+      - table:
+          head:
+            - en: Technique
+              vi: Kỹ thuật
+            - en: How it works
+              vi: Cách hoạt động
+            - en: Choose when
+              vi: Chọn khi
+            - en: Trade-off
+              vi: Đánh đổi
+          rows:
+            - - en: In-memory database
+                vi: In-memory database
+              - en: Primary data lives in RAM, with logs or snapshots for durability (Redis, SAP HANA, SingleStore rowstore)
+                vi: Dữ liệu chính nằm trong RAM, có log hoặc snapshot để bền vững (Redis, SAP HANA, SingleStore rowstore)
+              - en: Millisecond lookups or transactions on a working set that fits in memory
+                vi: Tra cứu hoặc giao dịch mili giây trên tập dữ liệu vừa bộ nhớ
+              - en: RAM is expensive; the whole dataset must fit
+                vi: RAM đắt; toàn bộ dữ liệu phải vừa
+            - - en: Lakehouse caching
+                vi: Cache trong lakehouse
+              - en: The engine keeps hot Parquet pages or Arrow buffers on local SSD and memory (Dremio columnar cache, Trino file system cache, warehouse SSD cache)
+                vi: Engine giữ các page Parquet hoặc buffer Arrow nóng trên SSD và bộ nhớ cục bộ (columnar cache của Dremio, file system cache của Trino, SSD cache của warehouse)
+              - en: Repeated scans of object storage by BI users
+                vi: Người dùng BI quét lặp lại object storage
+              - en: Cold queries stay slow; the source of truth remains on object storage
+                vi: Query lạnh vẫn chậm; nguồn sự thật vẫn ở object storage
+            - - en: Result cache
+                vi: Result cache
+              - en: Returns the stored result of an identical query when the data has not changed
+                vi: Trả về kết quả đã lưu của query giống hệt khi dữ liệu chưa thay đổi
+              - en: Dashboards refreshed by many viewers
+                vi: Dashboard được nhiều người xem làm mới
+              - en: Any change to the query text or data misses the cache
+                vi: Mọi thay đổi ở câu query hoặc dữ liệu đều trượt cache
+            - - en: Materialized view
+                vi: Materialized view
+              - en: Stores a query result as a table, refreshed fully or incrementally; some engines rewrite queries to use it
+                vi: Lưu kết quả query thành bảng, làm mới toàn phần hoặc tăng dần; một số engine tự rewrite query để dùng nó
+              - en: Expensive joins and rollups queried often
+                vi: Join và rollup đắt được truy vấn thường xuyên
+              - en: Staleness between refreshes plus storage and refresh cost
+                vi: Dữ liệu cũ giữa các lần làm mới cộng chi phí lưu trữ và làm mới
+            - - en: Continuous aggregates
+                vi: Continuous aggregate
+              - en: A materialized rollup that refreshes incrementally, only for new or changed time buckets (TimescaleDB, ClickHouse materialized views, streaming databases fed by CDC)
+                vi: Rollup vật lý được làm mới tăng dần, chỉ cho các time bucket mới hoặc thay đổi (TimescaleDB, materialized view của ClickHouse, streaming database được nuôi bằng CDC)
+              - en: Time-series dashboards that must stay current
+                vi: Dashboard chuỗi thời gian phải luôn cập nhật
+              - en: Late data needs a refresh window; limited SQL in the view definition
+                vi: Dữ liệu đến trễ cần cửa sổ làm mới; SQL trong định nghĩa view bị hạn chế
+      - code:
+          lang: sql
+          title: continuous_aggregate.sql (TimescaleDB)
+          code: |-
+            CREATE MATERIALIZED VIEW orders_hourly
+            WITH (timescaledb.continuous) AS
+            SELECT time_bucket('1 hour', ordered_at) AS bucket, country,
+                   sum(amount) AS revenue, count(*) AS orders
+            FROM orders
+            GROUP BY bucket, country;
+
+            -- Refresh only recent buckets every 15 minutes; older buckets stay materialized
+            SELECT add_continuous_aggregate_policy('orders_hourly',
+              start_offset      => INTERVAL '3 hours',
+              end_offset        => INTERVAL '1 minute',
+              schedule_interval => INTERVAL '15 minutes');
+    n:
+      en: "In-memory databases and lakehouse caching are often confused: the first keeps the only copy in RAM, the second keeps a disposable copy close to compute."
+      vi: "In-memory database và cache trong lakehouse hay bị nhầm: cái đầu giữ bản dữ liệu duy nhất trong RAM, cái sau giữ một bản sao có thể bỏ đi ở gần compute."
+  - id: arrow-flight-flight-sql-adbc-jdbc-and-odbc
+    k: stack
+    t:
+      en: Arrow Flight, Flight SQL, ADBC, JDBC and ODBC
+      vi: Arrow Flight, Flight SQL, ADBC, JDBC và ODBC
+    lead:
+      en: Arrow Flight is a gRPC-based RPC framework that streams Arrow record batches in parallel without row conversion. Arrow Flight SQL adds SQL commands and metadata calls on top, so it can replace JDBC and ODBC for moving large results.
+      vi: Arrow Flight là framework RPC dựa trên gRPC, truyền các record batch Arrow song song mà không chuyển sang dạng dòng. Arrow Flight SQL thêm lệnh SQL và lời gọi metadata bên trên, nên có thể thay JDBC và ODBC khi chuyển kết quả lớn.
+    parts:
+      - table:
+          head:
+            - en: Interface
+              vi: Giao diện
+            - en: What crosses the wire
+              vi: Thứ đi qua đường truyền
+            - en: Choose it for
+              vi: Chọn khi
+            - en: Trade-off
+              vi: Đánh đổi
+          rows:
+            - - JDBC / ODBC
+              - en: Driver-specific row protocol, converted to rows on the client
+                vi: Giao thức dòng riêng của driver, chuyển thành dòng ở client
+              - en: BI tools and apps that only speak these standards
+                vi: Công cụ BI và ứng dụng chỉ nói được các chuẩn này
+              - en: Row-by-row serialization dominates for large results
+                vi: Serialization từng dòng chiếm phần lớn thời gian với kết quả lớn
+            - - Arrow Flight
+              - en: Arrow record batches over gRPC, optionally from many endpoints in parallel
+                vi: Record batch Arrow qua gRPC, có thể từ nhiều endpoint song song
+              - en: Bulk transfer between services and engines
+                vi: Truyền khối lớn giữa service và engine
+              - en: A transport, not a query language
+                vi: Là lớp truyền tải, không phải ngôn ngữ truy vấn
+            - - Arrow Flight SQL
+              - en: SQL statements, prepared statements and catalog metadata on Flight
+                vi: Câu lệnh SQL, prepared statement và metadata catalog trên Flight
+              - en: Fast SQL clients for Dremio, DuckDB-based servers, InfluxDB and others
+                vi: Client SQL nhanh cho Dremio, server dựa trên DuckDB, InfluxDB và các hệ khác
+              - en: Server support is uneven; check each engine
+                vi: Mức hỗ trợ phía server không đều; kiểm tra từng engine
+            - - ADBC
+              - en: A client API (like JDBC) that returns Arrow; drivers for Flight SQL, PostgreSQL, Snowflake, SQLite, DuckDB
+                vi: API phía client (giống JDBC) trả về Arrow; có driver cho Flight SQL, PostgreSQL, Snowflake, SQLite, DuckDB
+              - en: Python and data science code that wants dataframes
+                vi: Code Python và data science muốn nhận dataframe
+              - en: Newer; fewer tools support it than JDBC
+                vi: Mới hơn; ít công cụ hỗ trợ hơn JDBC
+      - code:
+          lang: python
+          title: flight_sql_client.py (ADBC Flight SQL driver)
+          code: |-
+            import adbc_driver_flightsql.dbapi as flight_sql
+
+            with flight_sql.connect(
+                "grpc+tls://lakehouse.example.com:32010",
+                db_kwargs={"username": "analyst", "password": read_secret("lakehouse")},
+            ) as conn, conn.cursor() as cur:
+                cur.execute("select country, sum(amount) as revenue from sales.orders group by country")
+                table = cur.fetch_arrow_table()        # columnar end to end, no row conversion
+                df = table.to_pandas()
+    n:
+      en: Rule of thumb from published benchmarks is a large speed-up for big results, little difference for tiny ones. Measure with your own result sizes.
+      vi: Quy tắc từ các benchmark đã công bố là tăng tốc lớn với kết quả lớn, gần như không khác với kết quả nhỏ. Hãy đo với kích thước kết quả của bạn.
+  - id: lance-vortex-and-next-generation-columnar-formats
+    k: table
+    t:
+      en: Lance, Vortex and next-generation columnar formats
+      vi: Lance, Vortex và các định dạng cột thế hệ mới
+    lead:
+      en: Parquet was designed for sequential scans on HDFS. New formats target random access on object storage, AI data and modern compression, and both are open source.
+      vi: Parquet được thiết kế cho quét tuần tự trên HDFS. Các định dạng mới nhắm tới truy cập ngẫu nhiên trên object storage, dữ liệu AI và kỹ thuật nén hiện đại, và cả hai đều mã nguồn mở.
+    head:
+      - en: Format
+        vi: Định dạng
+      - en: Design goal
+        vi: Mục tiêu thiết kế
+      - en: How it works
+        vi: Cách hoạt động
+      - en: Choose when
+        vi: Chọn khi
+      - en: Trade-off
+        vi: Đánh đổi
+    rows:
+      - - Parquet
+        - en: Compact files for large analytic scans
+          vi: File gọn cho quét phân tích lớn
+        - en: Row groups, column chunks, pages, footer statistics
+          vi: Row group, column chunk, page, thống kê ở footer
+        - en: The default for lakehouse tables (Iceberg, Delta, Hudi)
+          vi: Mặc định cho bảng lakehouse (Iceberg, Delta, Hudi)
+        - en: Fetching a few random rows means decoding whole pages
+          vi: Lấy vài dòng ngẫu nhiên nghĩa là giải mã cả page
+      - - Lance
+        - en: AI and multimodal data with fast random access
+          vi: Dữ liệu AI và đa phương thức với truy cập ngẫu nhiên nhanh
+        - en: Columnar files plus a versioned dataset layer, built-in vector indexes (IVF-PQ, HNSW) and efficient blobs for images or embeddings
+          vi: File dạng cột cộng một lớp dataset có phiên bản, chỉ mục vector có sẵn (IVF-PQ, HNSW) và lưu blob hiệu quả cho ảnh hoặc embedding
+        - en: Training data loaders, vector search and feature stores (LanceDB)
+          vi: Data loader cho training, tìm kiếm vector và feature store (LanceDB)
+        - en: Smaller engine ecosystem; it manages its own versions rather than sitting under Iceberg today
+          vi: Hệ sinh thái engine nhỏ hơn; hiện tự quản phiên bản thay vì nằm dưới Iceberg
+      - - Vortex
+        - en: Fast scans and random access on object storage with extensible encodings
+          vi: Quét nhanh và truy cập ngẫu nhiên trên object storage với encoding mở rộng được
+        - en: Cascading lightweight encodings (for example FastLanes, FSST, ALP) and compute pushed onto compressed data; Arrow-compatible in memory
+          vi: Chuỗi encoding nhẹ xếp tầng (ví dụ FastLanes, FSST, ALP) và tính toán trực tiếp trên dữ liệu đã nén; tương thích Arrow trong bộ nhớ
+        - en: Experiments where scan speed or point lookups dominate; integrations for DuckDB and DataFusion
+          vi: Thử nghiệm khi tốc độ quét hoặc tra cứu điểm là chính; có tích hợp cho DuckDB và DataFusion
+        - en: Young; table formats and most engines do not read it yet
+          vi: Còn non; table format và đa số engine chưa đọc được
+    cap:
+      en: Keep Parquet as the interchange format for shared tables; adopt Lance or Vortex where a workload clearly benefits and the engines you need support it.
+      vi: Giữ Parquet làm định dạng trao đổi cho bảng dùng chung; dùng Lance hoặc Vortex khi workload rõ ràng có lợi và các engine bạn cần đã hỗ trợ.
+    n:
+      en: Both projects move fast. Verify current engine support and whether Iceberg has added any file-format abstraction before committing.
+      vi: Cả hai dự án thay đổi nhanh. Hãy kiểm tra mức hỗ trợ engine hiện tại và việc Iceberg đã thêm lớp trừu tượng định dạng file hay chưa trước khi quyết định.
+  - id: object-block-and-file-storage
+    k: stack
+    t:
+      en: Object, block and file storage, and the cloud object stores
+      vi: Object, block và file storage, và các object store trên cloud
+    lead:
+      en: Where bytes live shapes cost, scale and which engines can share them. Lakehouses use object storage; databases sit on block storage; shared folders use file storage.
+      vi: Nơi byte nằm quyết định chi phí, khả năng mở rộng và engine nào có thể dùng chung. Lakehouse dùng object storage; database nằm trên block storage; thư mục dùng chung dùng file storage.
+    parts:
+      - table:
+          head:
+            - en: Type
+              vi: Loại
+            - en: How it works
+              vi: Cách hoạt động
+            - en: Choose when
+              vi: Chọn khi
+            - en: Trade-off
+              vi: Đánh đổi
+          rows:
+            - - en: Object storage
+                vi: Object storage
+              - en: Immutable objects with keys and metadata in a flat namespace, accessed over HTTP APIs
+                vi: Object bất biến có key và metadata trong không gian tên phẳng, truy cập qua API HTTP
+              - en: Lakes and lakehouses; nearly unlimited, cheap, shared by many engines
+                vi: Lake và lakehouse; gần như vô hạn, rẻ, nhiều engine dùng chung
+              - en: Higher per-request latency; no in-place edits; listing and renames are slow
+                vi: Độ trễ mỗi request cao hơn; không sửa tại chỗ; list và đổi tên chậm
+            - - en: Block storage
+                vi: Block storage
+              - en: A raw volume of fixed-size blocks attached to one server, which puts its own file system on it (EBS, Azure Managed Disks, Persistent Disk)
+                vi: Một volume thô gồm các block cố định gắn vào một server, server tự đặt file system lên trên (EBS, Azure Managed Disks, Persistent Disk)
+              - en: Databases, OS disks and anything needing low-latency random I/O
+                vi: Database, ổ hệ điều hành và mọi thứ cần I/O ngẫu nhiên độ trễ thấp
+              - en: Tied to one machine; capacity is provisioned and paid for even when idle
+                vi: Gắn với một máy; dung lượng được cấp phát và trả tiền kể cả khi rảnh
+            - - en: File storage
+                vi: File storage
+              - en: A hierarchical file system shared over NFS or SMB (EFS, Azure Files, Filestore, NAS)
+                vi: File system phân cấp được chia sẻ qua NFS hoặc SMB (EFS, Azure Files, Filestore, NAS)
+              - en: Lift-and-shift apps and teams that need shared folders and POSIX semantics
+                vi: Ứng dụng chuyển nguyên trạng và đội cần thư mục chung với ngữ nghĩa POSIX
+              - en: Costs more per GB and struggles with billions of files and massive parallel reads
+                vi: Đắt hơn mỗi GB và gặp khó với hàng tỷ file và đọc song song khổng lồ
+      - table:
+          head:
+            - en: Service
+              vi: Dịch vụ
+            - en: Notes for data engineers
+              vi: Lưu ý cho data engineer
+          rows:
+            - - Amazon S3
+              - en: The de facto object API (s3://); storage classes, lifecycle rules, strong read-after-write consistency
+                vi: API object chuẩn trên thực tế (s3://); storage class, lifecycle rule, nhất quán mạnh đọc-sau-ghi
+            - - Google Cloud Storage (GCS)
+              - en: "gs:// buckets in a region, dual-region or multi-region; Standard, Nearline, Coldline and Archive classes; lifecycle rules; strongly consistent; native to BigQuery and Dataproc"
+                vi: "Bucket gs:// đặt ở region, dual-region hoặc multi-region; các class Standard, Nearline, Coldline và Archive; lifecycle rule; nhất quán mạnh; gắn liền với BigQuery và Dataproc"
+            - - Azure Data Lake Storage (ADLS Gen2)
+              - en: Blob storage with a hierarchical namespace, so directory renames are atomic and ACLs apply per folder (abfss://)
+                vi: Blob storage có hierarchical namespace, nên đổi tên thư mục là nguyên tử và ACL áp dụng theo thư mục (abfss://)
+            - - MinIO
+              - en: S3-compatible object storage you run yourself, on premises or in Kubernetes
+                vi: Object storage tương thích S3 do bạn tự vận hành, on-premises hoặc trong Kubernetes
+            - - HDFS
+              - en: Hadoop’s distributed file system on cluster disks; storage and compute are coupled, and a NameNode limits file counts
+                vi: File system phân tán của Hadoop trên ổ của cụm; lưu trữ và compute gắn chặt, và NameNode giới hạn số lượng file
+    n:
+      en: Table formats exist partly because object storage lacks atomic renames and fast listing. That is the bridge to Iceberg and Delta in layer 3.
+      vi: Table format ra đời một phần vì object storage thiếu đổi tên nguyên tử và list nhanh. Đó là cầu nối sang Iceberg và Delta ở layer 3.

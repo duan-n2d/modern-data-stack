@@ -480,6 +480,141 @@ slides:
     n:
       en: Prices change, so ask learners to record the date and source of the prices they used.
       vi: Giá thay đổi, nên yêu cầu người học ghi lại ngày và nguồn của giá họ dùng.
+  - id: total-cost-of-ownership-for-data-platforms
+    k: table
+    t:
+      en: Total cost of ownership (TCO) for a data platform
+      vi: Tổng chi phí sở hữu (TCO) của một nền tảng dữ liệu
+    lead:
+      en: TCO is the full cost of acquiring, running and eventually retiring a system over its life, people included. The invoice is usually the smaller part.
+      vi: TCO là toàn bộ chi phí để có, vận hành và cuối cùng là ngừng một hệ thống trong suốt vòng đời của nó, kể cả con người. Hóa đơn thường chỉ là phần nhỏ hơn.
+    head:
+      - en: Cost bucket
+        vi: Nhóm chi phí
+      - en: Includes
+        vi: Bao gồm
+      - en: Often forgotten
+        vi: Thường bị quên
+      - en: Effect of a decoupled lakehouse
+        vi: Ảnh hưởng của lakehouse tách rời
+    rows:
+      - - en: Licenses and subscriptions
+          vi: Giấy phép và thuê bao
+        - en: Software, support contracts, SaaS seats
+          vi: Phần mềm, hợp đồng hỗ trợ, số ghế SaaS
+        - en: Price escalators at renewal; minimum commitments
+          vi: Điều khoản tăng giá khi gia hạn; cam kết tối thiểu
+        - en: Open engines lower license cost but not support cost
+          vi: Engine mở giảm chi phí giấy phép nhưng không giảm chi phí hỗ trợ
+      - - en: Compute
+          vi: Compute
+        - en: Clusters, warehouses, serverless queries
+          vi: Cluster, warehouse, query serverless
+        - en: Idle clusters, dev and test environments, retries and backfills
+          vi: Cluster nhàn rỗi, môi trường dev và test, retry và backfill
+        - en: Each engine is sized per workload and can be swapped
+          vi: Mỗi engine được định cỡ theo workload và có thể thay thế
+      - - en: Storage and data transfer
+          vi: Lưu trữ và truyền dữ liệu
+        - en: Object storage, snapshots, backups
+          vi: Object storage, snapshot, backup
+        - en: Egress between regions and clouds; old snapshots never expired
+          vi: Egress giữa vùng và cloud; snapshot cũ không bao giờ được xóa
+        - en: One copy in open format serves many engines instead of a copy per tool
+          vi: Một bản sao định dạng mở phục vụ nhiều engine thay vì mỗi công cụ một bản
+      - - en: People
+          vi: Con người
+        - en: Engineering, operations, on-call, training, hiring
+          vi: Kỹ sư, vận hành, on-call, đào tạo, tuyển dụng
+        - en: Upgrades, tuning and the knowledge lost when an expert leaves
+          vi: Nâng cấp, tinh chỉnh và hiểu biết mất đi khi chuyên gia nghỉ việc
+        - en: Self-managed catalogs and compaction add operational work
+          vi: Catalog và compaction tự vận hành làm tăng việc vận hành
+      - - en: Migration and integration
+          vi: Migration và tích hợp
+        - en: Moving data and code in, connectors, rewriting SQL
+          vi: Đưa dữ liệu và code vào, connector, viết lại SQL
+        - en: Running old and new systems in parallel during the cut-over
+          vi: Chạy song song hệ thống cũ và mới trong lúc chuyển đổi
+        - en: Engines can be adopted gradually on the same tables
+          vi: Có thể áp dụng engine dần dần trên cùng các bảng
+      - - en: Governance and compliance
+          vi: Quản trị và tuân thủ
+        - en: Access control, audit, data-quality tooling, certifications
+          vi: Kiểm soát truy cập, kiểm toán, công cụ chất lượng dữ liệu, chứng nhận
+        - en: Effort to apply one policy across many engines
+          vi: Công sức để áp một chính sách lên nhiều engine
+        - en: A shared catalog centralizes policy; without it, policy drifts
+          vi: Catalog dùng chung tập trung chính sách; thiếu nó, chính sách lệch dần
+      - - en: Exit and retirement
+          vi: Rời bỏ và ngừng hệ thống
+        - en: Exporting data, rewriting pipelines, contract termination
+          vi: Export dữ liệu, viết lại pipeline, chấm dứt hợp đồng
+        - en: Proprietary formats and SQL dialects that must be converted
+          vi: Định dạng và phương ngữ SQL độc quyền phải chuyển đổi
+        - en: Data in open formats needs no export
+          vi: Dữ liệu ở định dạng mở không cần export
+    cap:
+      en: Compare options over three to five years and per unit of work (cost per query, per terabyte, per active user), with people costs included.
+      vi: So sánh các phương án trong ba đến năm năm và theo đơn vị công việc (chi phí mỗi query, mỗi terabyte, mỗi người dùng hoạt động), có tính cả chi phí con người.
+    n:
+      en: A cheaper license that needs two more engineers is not cheaper. Show this table during build-versus-buy discussions so that people costs are not left out.
+      vi: Giấy phép rẻ hơn nhưng cần thêm hai kỹ sư thì không hề rẻ hơn. Hãy đưa bảng này ra trong các cuộc thảo luận build hay buy để chi phí con người không bị bỏ sót.
+  - id: data-gravity-and-vendor-lock-in
+    k: cards
+    t:
+      en: Data gravity and vendor lock-in
+      vi: Lực hấp dẫn dữ liệu và lock-in nhà cung cấp
+    lead:
+      en: Data gravity is the tendency of large data sets to pull applications, services and more data toward them, which makes the data ever harder and costlier to move. Combined with proprietary formats, it becomes vendor lock-in.
+      vi: Data gravity là xu hướng các tập dữ liệu lớn kéo ứng dụng, dịch vụ và thêm dữ liệu về phía chúng, khiến dữ liệu ngày càng khó và tốn kém để di chuyển. Khi đi cùng định dạng độc quyền, nó trở thành lock-in nhà cung cấp.
+    cols: 3
+    cards:
+      - h:
+          en: Why gravity is real
+          vi: Vì sao lực hấp dẫn là có thật
+        tag: must
+        p:
+          en: Compute near the data avoids latency and egress fees, so new workloads land where the data already is, which adds more data there.
+          vi: Compute gần dữ liệu tránh được độ trễ và phí egress, nên workload mới đặt ở nơi đã có dữ liệu, và điều đó lại kéo thêm dữ liệu về đó.
+      - h:
+          en: The physics of moving data
+          vi: Vật lý của việc di chuyển dữ liệu
+        tag: senior
+        p:
+          en: One petabyte over a fully used 10 Gbit/s link takes about nine days, before retries and validation. Large migrations are planned in months.
+          vi: Một petabyte qua đường truyền 10 Gbit/s dùng hết công suất mất khoảng chín ngày, chưa tính retry và kiểm tra. Migration lớn được lập kế hoạch theo tháng.
+      - h:
+          en: Placement decisions
+          vi: Quyết định đặt vị trí
+        tag: senior
+        p:
+          en: Run compute in the same region and cloud as the data, move aggregates rather than raw rows, and price egress before choosing a tool in another cloud.
+          vi: Chạy compute cùng vùng và cùng cloud với dữ liệu, di chuyển dữ liệu tổng hợp thay vì dòng thô, và tính phí egress trước khi chọn công cụ ở cloud khác.
+      - h:
+          en: Vendor lock-in
+          vi: Lock-in nhà cung cấp
+        tag: must
+        p:
+          en: The cost of switching providers — proprietary storage formats, SQL dialects and APIs, contract terms and team skills.
+          vi: Chi phí khi đổi nhà cung cấp — định dạng lưu trữ, phương ngữ SQL và API độc quyền, điều khoản hợp đồng và kỹ năng của đội.
+      - h:
+          en: Lowering exit cost
+          vi: Giảm chi phí rời đi
+        tag: senior
+        p:
+          en: Keep data in Parquet and Iceberg or Delta, transformations in portable SQL or dbt, infrastructure in Terraform, and test an export once a year.
+          vi: Giữ dữ liệu ở Parquet và Iceberg hoặc Delta, phép biến đổi bằng SQL di động hoặc dbt, hạ tầng bằng Terraform, và test export mỗi năm một lần.
+      - h:
+          en: Accept some lock-in
+          vi: Chấp nhận một phần lock-in
+        tag: senior
+        p:
+          en: Managed services buy speed. Aim for a known, affordable exit rather than zero lock-in, and record the accepted lock-in in an ADR.
+          vi: Dịch vụ managed mua được tốc độ. Hãy hướng đến một đường thoát đã biết và chi trả được thay vì không lock-in chút nào, và ghi lại lock-in đã chấp nhận vào ADR.
+    n:
+      en: "Quick arithmetic: 10^15 bytes times 8 bits divided by 10^10 bits per second is 800,000 seconds, a little over nine days. Lock-in is a cost to put in the TCO, not a moral failing."
+      vi: "Tính nhanh: 10^15 byte nhân 8 bit chia cho 10^10 bit mỗi giây là 800.000 giây, hơn chín ngày một chút. Lock-in là một khoản chi phí cần đưa vào TCO, không phải lỗi đạo đức."
   - id: checklist-and-interview-questions
     k: check
     t:

@@ -414,6 +414,325 @@ slides:
     n:
       en: "The code shows one layer of defense: parse, allowlist tables, enforce a limit. It is a sketch. Real systems also enforce permissions in the database, and treat prompts and retrieved context as untrusted input. The safest design avoids free-form SQL where a governed metric query would do."
       vi: "Đoạn code minh họa một lớp phòng thủ: parse, allowlist các bảng, áp giới hạn. Đây chỉ là bản phác thảo. Hệ thống thật còn áp quyền ngay trong database, và coi prompt cùng context được truy xuất là input không đáng tin. Thiết kế an toàn nhất tránh SQL tự do khi một query metric được quản trị là đủ."
+  - id: from-descriptive-to-prescriptive-analytics
+    k: table
+    t:
+      en: "From descriptive to prescriptive analytics"
+      vi: "Từ phân tích mô tả đến phân tích đề xuất"
+    lead:
+      en: Analytics questions climb from what happened to what should we do. Predictive analytics estimates future outcomes from historical data; prescriptive analytics goes one step further and recommends an action by combining those predictions with optimization or simulation.
+      vi: Câu hỏi phân tích leo dần từ điều gì đã xảy ra đến chúng ta nên làm gì. Phân tích dự đoán ước lượng kết quả tương lai từ dữ liệu lịch sử; phân tích đề xuất tiến thêm một bước và đề xuất hành động bằng cách kết hợp dự đoán đó với tối ưu hóa hoặc mô phỏng.
+    head:
+      - en: Level
+        vi: Cấp độ
+      - en: Question
+        vi: Câu hỏi
+      - en: Methods
+        vi: Phương pháp
+      - en: Data engineering needs
+        vi: Nhu cầu data engineering
+      - en: Typical failure
+        vi: Lỗi điển hình
+    rows:
+      - - en: Descriptive
+          vi: Mô tả
+        - en: What happened?
+          vi: Điều gì đã xảy ra?
+        - en: Aggregates, dashboards, KPIs
+          vi: Tổng hợp, dashboard, KPI
+        - en: Clean facts and conformed dimensions
+          vi: Fact sạch và dimension thống nhất
+        - en: Conflicting metric definitions
+          vi: Định nghĩa metric mâu thuẫn
+      - - en: Diagnostic
+          vi: Chẩn đoán
+        - en: Why did it happen?
+          vi: Vì sao nó xảy ra?
+        - en: Drill-down, cohorts, experiments, causal methods
+          vi: Drill-down, cohort, experiment, phương pháp nhân quả
+        - en: Fine grain and history to slice by
+          vi: Độ chi tiết cao và lịch sử để chia nhỏ
+        - en: Reading correlation as cause
+          vi: Hiểu tương quan thành nhân quả
+      - - en: Predictive analytics
+          vi: Phân tích dự đoán
+        - en: What is likely to happen?
+          vi: Điều gì có khả năng xảy ra?
+        - en: Regression, classification, forecasting, survival models
+          vi: Hồi quy, phân loại, dự báo, model sống còn
+        - en: Point-in-time features, labels, prediction tables with model_version
+          vi: Đặc trưng point-in-time, nhãn, bảng dự đoán có model_version
+        - en: Leakage offline, drift after launch
+          vi: Rò rỉ khi offline, drift sau khi ra mắt
+      - - en: Prescriptive analytics
+          vi: Phân tích đề xuất
+        - en: What should we do about it?
+          vi: Chúng ta nên làm gì với nó?
+        - en: Optimization (linear or integer programming), simulation, uplift models, bandits
+          vi: Tối ưu hóa (quy hoạch tuyến tính hoặc nguyên), mô phỏng, uplift model, bandit
+        - en: Costs, capacities and constraints as reliable tables, plus logged decisions and outcomes
+          vi: Chi phí, năng lực và ràng buộc dưới dạng bảng đáng tin, cộng với log quyết định và kết quả
+        - en: Optimizing a wrong cost or a stale constraint at full speed
+          vi: Tối ưu hết tốc lực trên chi phí sai hoặc ràng buộc đã cũ
+    cap:
+      en: Each level depends on the one below. A prescriptive engine fed by an unreliable descriptive layer just automates the wrong answer.
+      vi: Mỗi cấp độ phụ thuộc vào cấp bên dưới. Một engine đề xuất được nuôi bởi lớp mô tả không đáng tin chỉ tự động hóa câu trả lời sai.
+    n:
+      en: Prediction alone rarely changes anything. The value appears when a score is tied to a decision, a budget and a feedback loop that records what was done and what happened next.
+      vi: Chỉ dự đoán thì hiếm khi thay đổi được gì. Giá trị xuất hiện khi điểm số gắn với một quyết định, một ngân sách và một vòng phản hồi ghi lại việc đã làm và điều xảy ra sau đó.
+  - id: deep-dive-from-churn-scores-to-an-action-plan
+    k: code
+    t:
+      en: "Deep dive: from churn scores to an action plan"
+      vi: "Đào sâu: từ điểm churn đến kế hoạch hành động"
+    lead:
+      en: The predictive model supplies churn probability and expected uplift per customer; a small optimization chooses who receives a retention offer under a budget and a call-centre capacity.
+      vi: Model dự đoán cung cấp xác suất churn và uplift kỳ vọng cho từng khách hàng; một bài toán tối ưu nhỏ chọn ai nhận ưu đãi giữ chân trong giới hạn ngân sách và năng lực tổng đài.
+    blocks:
+      - lang: python
+        title: retention_plan.py (PuLP, integer programming)
+        code: |-
+          import pulp
+
+          # rows from ml.churn_scores joined to finance tables, one per customer:
+          # {"id": ..., "p_churn": 0.42, "uplift": 0.30, "value": 1200.0, "cost": 40.0}
+          rows = load_scored_customers(model_version="churn-v5")
+
+          prob = pulp.LpProblem("retention_offers", pulp.LpMaximize)
+          pick = {r["id"]: pulp.LpVariable(f"pick_{i}", cat="Binary") for i, r in enumerate(rows)}
+
+          # expected value saved minus the offer cost
+          prob += pulp.lpSum(pick[r["id"]] * (r["p_churn"] * r["uplift"] * r["value"] - r["cost"])
+                             for r in rows)
+          prob += pulp.lpSum(pick[r["id"]] * r["cost"] for r in rows) <= 50_000   # budget
+          prob += pulp.lpSum(pick.values()) <= 2_000                               # agent capacity
+
+          prob.solve(pulp.PULP_CBC_CMD(msg=False))
+          plan = [r["id"] for r in rows if pick[r["id"]].value() > 0.5]
+          write_plan(plan, model_version="churn-v5", run_date=today())             # log decisions
+    points:
+      - h:
+          en: Predict, then decide
+          vi: Dự đoán, rồi quyết định
+        p:
+          en: Ranking by churn probability alone wastes offers on customers who leave anyway. Multiplying by uplift and value targets the people the action can actually change.
+          vi: Chỉ xếp hạng theo xác suất churn sẽ lãng phí ưu đãi cho khách đằng nào cũng rời đi. Nhân với uplift và giá trị sẽ nhắm vào những người mà hành động thực sự thay đổi được.
+      - h:
+          en: Constraints are data
+          vi: Ràng buộc là dữ liệu
+        tag: senior
+        p:
+          en: Budgets, stock levels and staff capacity must come from governed tables with freshness checks. A stale constraint produces a confident but infeasible plan.
+          vi: Ngân sách, tồn kho và năng lực nhân sự phải lấy từ bảng được quản trị có kiểm tra độ mới. Ràng buộc cũ tạo ra một kế hoạch tự tin nhưng không khả thi.
+      - h:
+          en: Close the loop
+          vi: Khép vòng phản hồi
+        tag: senior
+        p:
+          en: Log every recommendation, whether it was followed and the outcome, and keep a random holdout group. Without it you cannot measure the plan or retrain the uplift model.
+          vi: Ghi log mọi đề xuất, việc nó có được làm theo không và kết quả, đồng thời giữ một nhóm đối chứng ngẫu nhiên. Thiếu điều đó bạn không thể đo kế hoạch hay huấn luyện lại uplift model.
+    n:
+      en: For a few thousand customers a greedy sort by value per cost gets close; the solver earns its place as constraints multiply (regions, channels, fairness caps). load_scored_customers and write_plan stand in for your own I/O.
+      vi: Với vài nghìn khách hàng, sắp xếp tham lam theo giá trị trên chi phí đã gần tối ưu; solver xứng đáng khi ràng buộc tăng lên (vùng, kênh, giới hạn công bằng). load_scored_customers và write_plan đại diện cho phần đọc ghi của bạn.
+  - id: data-science-and-data-mining
+    k: cards
+    t:
+      en: Data science and data mining
+      vi: Khoa học dữ liệu và khai phá dữ liệu
+    lead:
+      en: Data science combines statistics, programming and domain knowledge to answer questions and predict outcomes. Data mining is the part of it that searches large datasets for patterns nobody asked about yet.
+      vi: Khoa học dữ liệu kết hợp thống kê, lập trình và hiểu biết nghiệp vụ để trả lời câu hỏi và dự đoán kết quả. Khai phá dữ liệu là phần tìm kiếm các khuôn mẫu chưa ai hỏi đến trong những tập dữ liệu lớn.
+    cols: 3
+    cards:
+      - h:
+          en: The data science lifecycle
+          vi: Vòng đời khoa học dữ liệu
+        tag: must
+        list:
+          - en: Frame the business question and the decision it informs
+            vi: Định hình câu hỏi nghiệp vụ và quyết định mà nó phục vụ
+          - en: Acquire and explore data, check quality
+            vi: Thu thập và khám phá dữ liệu, kiểm tra chất lượng
+          - en: Model, validate, then communicate or deploy
+            vi: Xây model, kiểm định, rồi truyền đạt hoặc triển khai
+          - en: Monitor and iterate
+            vi: Giám sát và lặp lại
+      - h:
+          en: Why it needs the lakehouse
+          vi: Vì sao cần lakehouse
+        tag: must
+        p:
+          en: Data scientists need raw and modelled data side by side, read directly from Python or Spark without exports. Open table formats give that access with the same governance and time travel used by BI.
+          vi: Nhà khoa học dữ liệu cần dữ liệu thô và đã mô hình hóa đặt cạnh nhau, đọc trực tiếp từ Python hoặc Spark mà không phải export. Định dạng bảng mở cho phép truy cập như vậy với cùng governance và time travel mà BI dùng.
+      - h:
+          en: Data mining techniques
+          vi: Kỹ thuật khai phá dữ liệu
+        tag: must
+        list:
+          - en: Association rules (market basket analysis)
+            vi: Luật kết hợp (phân tích giỏ hàng)
+          - en: Clustering and segmentation
+            vi: Gom cụm và phân khúc
+          - en: Classification and regression
+            vi: Phân loại và hồi quy
+          - en: Anomaly and sequential pattern detection
+            vi: Phát hiện bất thường và mẫu tuần tự
+      - h:
+          en: Mining versus testing
+          vi: Khai phá và kiểm định
+        tag: senior
+        p:
+          en: Mining generates hypotheses; it does not prove them. Search enough patterns and some will be significant by chance, so confirm findings on fresh data or with an experiment.
+          vi: Khai phá tạo ra giả thuyết, không chứng minh chúng. Tìm đủ nhiều mẫu thì sẽ có mẫu có ý nghĩa thống kê do tình cờ, nên hãy xác nhận trên dữ liệu mới hoặc bằng experiment.
+      - h:
+          en: Where engineers help most
+          vi: Kỹ sư giúp nhiều nhất ở đâu
+        tag: senior
+        p:
+          en: Reproducible notebooks backed by versioned tables, shared feature definitions, and a path to move a successful analysis into a scheduled pipeline.
+          vi: Notebook tái lập được dựa trên bảng có version, định nghĩa đặc trưng dùng chung, và một lối đi để chuyển phân tích thành công thành pipeline chạy theo lịch.
+      - h:
+          en: Common trap
+          vi: Bẫy thường gặp
+        tag: nice
+        p:
+          en: Weeks spent cleaning extracts on a laptop. If several data scientists clean the same source, that cleaning belongs in the shared pipeline.
+          vi: Mất hàng tuần làm sạch dữ liệu trích xuất trên laptop. Nếu nhiều nhà khoa học dữ liệu cùng làm sạch một nguồn, việc làm sạch đó nên nằm trong pipeline dùng chung.
+    n:
+      en: The data science role varies widely between companies. For this deck, the useful framing is that data science is a demanding consumer of the platform, with needs for history, grain and reproducibility that BI rarely has.
+      vi: Vai trò khoa học dữ liệu khác nhau nhiều giữa các công ty. Trong bộ slide này, cách nhìn hữu ích là khoa học dữ liệu là một consumer khó tính của nền tảng, cần lịch sử, độ chi tiết và khả năng tái lập mà BI hiếm khi cần.
+  - id: deep-dive-mining-association-rules-in-sql
+    k: code
+    t:
+      en: "Deep dive: mining association rules in SQL"
+      vi: "Đào sâu: khai phá luật kết hợp bằng SQL"
+    lead:
+      en: Market basket analysis finds products bought together. Three numbers describe each rule A → B, and all of them are plain aggregates over order lines.
+      vi: Phân tích giỏ hàng tìm các sản phẩm được mua cùng nhau. Ba con số mô tả mỗi luật A → B, và tất cả chỉ là các phép tổng hợp trên dòng đơn hàng.
+    blocks:
+      - lang: sql
+        title: basket_rules.sql
+        code: |-
+          with baskets as (
+              select distinct order_id, product_id
+              from analytics.fct_order_lines
+              where order_date >= current_date - 90
+          ),
+          totals as (select count(distinct order_id) as n_orders from baskets),
+          item as (select product_id, count(*) as n from baskets group by product_id),
+          pair as (
+              select a.product_id as lhs, b.product_id as rhs, count(*) as n
+              from baskets a
+              join baskets b on a.order_id = b.order_id and a.product_id <> b.product_id
+              group by a.product_id, b.product_id
+              having count(*) >= 50                               -- minimum support count
+          )
+          select p.lhs, p.rhs,
+                 p.n * 1.0 / t.n_orders                            as support,
+                 p.n * 1.0 / i.n                                   as confidence,
+                 (p.n * 1.0 / i.n) / (r.n * 1.0 / t.n_orders)      as lift
+          from pair p
+          join item i on i.product_id = p.lhs
+          join item r on r.product_id = p.rhs
+          cross join totals t
+          order by lift desc
+          limit 100;
+    points:
+      - h: Support
+        p:
+          en: Share of all orders that contain both A and B. Filters out rare coincidences.
+          vi: Tỷ lệ đơn hàng chứa cả A và B trên tổng số đơn. Loại bỏ các trùng hợp hiếm.
+      - h: Confidence
+        p:
+          en: Of the orders with A, the share that also contain B. Directional, so A → B differs from B → A.
+          vi: Trong các đơn có A, tỷ lệ đơn cũng có B. Có hướng, nên A → B khác B → A.
+      - h: Lift
+        tag: senior
+        p:
+          en: Confidence divided by how common B is anyway. Lift near 1 means no real association; popular items get high confidence with no lift.
+          vi: Confidence chia cho mức phổ biến sẵn có của B. Lift gần 1 nghĩa là không có liên kết thật; mặt hàng phổ biến có confidence cao nhưng không có lift.
+      - h:
+          en: Mind the self-join
+          vi: Cẩn thận với self-join
+        tag: senior
+        p:
+          en: Pairs grow with the square of basket size. Cap basket size, filter to active products, or use FP-Growth in Spark MLlib for larger catalogues.
+          vi: Số cặp tăng theo bình phương kích thước giỏ. Giới hạn kích thước giỏ, lọc sản phẩm đang bán, hoặc dùng FP-Growth trong Spark MLlib cho danh mục lớn.
+    n:
+      en: This is data mining at its most practical, and it runs entirely in the warehouse. Validate the top rules with merchandisers before acting; seasonal promotions often explain the strongest pairs.
+      vi: Đây là khai phá dữ liệu ở dạng thực tế nhất, và chạy hoàn toàn trong warehouse. Kiểm chứng các luật hàng đầu với bộ phận kinh doanh trước khi hành động; khuyến mãi theo mùa thường giải thích các cặp mạnh nhất.
+  - id: roi-for-ai-what-it-really-costs-and-returns
+    k: table
+    t:
+      en: "ROI for AI: what it really costs and returns"
+      vi: "ROI cho AI: chi phí và lợi ích thực sự"
+    lead:
+      en: Return on investment for AI compares the measured business value of an ML or generative AI system with its full cost over its life. Most estimates count the model and miss the data work and the running costs.
+      vi: Lợi tức đầu tư cho AI so sánh giá trị nghiệp vụ đo được của một hệ thống ML hoặc AI tạo sinh với toàn bộ chi phí trong suốt vòng đời. Phần lớn ước tính chỉ tính model mà bỏ sót công sức dữ liệu và chi phí vận hành.
+    head:
+      - en: Line item
+        vi: Hạng mục
+      - en: Cost or value
+        vi: Chi phí hay giá trị
+      - en: How to measure
+        vi: Cách đo
+      - en: Often missed
+        vi: Thường bị bỏ sót
+    rows:
+      - - en: Data engineering and labelling
+          vi: Data engineering và gán nhãn
+        - en: Cost
+          vi: Chi phí
+        - en: Engineer time for pipelines, features, eval sets; labelling vendor invoices
+          vi: Thời gian kỹ sư cho pipeline, đặc trưng, tập eval; hóa đơn nhà cung cấp gán nhãn
+        - en: Ongoing maintenance after launch
+          vi: Bảo trì liên tục sau khi ra mắt
+      - - en: Training and experimentation compute
+          vi: Tính toán cho huấn luyện và thử nghiệm
+        - en: Cost
+          vi: Chi phí
+        - en: GPU hours and warehouse credits per run, tagged by project
+          vi: Giờ GPU và credit warehouse cho mỗi lần chạy, gắn tag theo dự án
+        - en: Failed runs and retraining cycles
+          vi: Lần chạy thất bại và các chu kỳ huấn luyện lại
+      - - en: Inference
+          vi: Inference
+        - en: Cost
+          vi: Chi phí
+        - en: Cost per prediction or per 1,000 tokens multiplied by expected volume
+          vi: Chi phí mỗi dự đoán hoặc mỗi 1.000 token nhân với khối lượng dự kiến
+        - en: Usage growth once the feature is popular
+          vi: Lượng dùng tăng khi tính năng được ưa chuộng
+      - - en: People and process
+          vi: Con người và quy trình
+        - en: Cost
+          vi: Chi phí
+        - en: Review, monitoring, incident handling, compliance work
+          vi: Review, giám sát, xử lý sự cố, công việc tuân thủ
+        - en: Human review that never goes away
+          vi: Khâu review của con người không bao giờ mất đi
+      - - en: Revenue or savings
+          vi: Doanh thu hoặc tiết kiệm
+        - en: Value
+          vi: Giá trị
+        - en: Incremental effect against a holdout or A/B test, not before-and-after
+          vi: Hiệu ứng tăng thêm so với nhóm đối chứng hoặc A/B test, không phải so trước và sau
+        - en: Effects that would have happened anyway
+          vi: Hiệu ứng lẽ ra vẫn xảy ra
+      - - en: Risk reduction and speed
+          vi: Giảm rủi ro và tốc độ
+        - en: Value
+          vi: Giá trị
+        - en: Fraud losses avoided, hours saved times loaded cost, faster cycle time
+          vi: Tổn thất gian lận tránh được, số giờ tiết kiệm nhân chi phí đầy đủ, rút ngắn thời gian chu trình
+        - en: Saved hours that are not redeployed to other work
+          vi: Giờ tiết kiệm được nhưng không chuyển sang việc khác
+    cap:
+      en: "ROI = (incremental value − total cost) ÷ total cost, over a stated period. Compare against the simplest non-AI alternative, such as a rule or a better dashboard, not against doing nothing."
+      vi: "ROI = (giá trị tăng thêm − tổng chi phí) ÷ tổng chi phí, trong một khoảng thời gian nêu rõ. So với phương án không dùng AI đơn giản nhất, như một quy tắc hay dashboard tốt hơn, chứ không phải so với việc không làm gì."
+    n:
+      en: Data engineers make ROI measurable by tagging compute to projects, logging predictions with ids that join to outcomes, and maintaining the holdout groups. Without those, ROI is a guess presented as a number.
+      vi: Data engineer làm cho ROI đo được bằng cách gắn tag tính toán theo dự án, ghi log dự đoán kèm id join được với kết quả, và duy trì các nhóm đối chứng. Thiếu những thứ đó, ROI chỉ là một phỏng đoán trình bày dưới dạng con số.
   - id: common-pitfalls-and-anti-patterns
     k: pit
     t:

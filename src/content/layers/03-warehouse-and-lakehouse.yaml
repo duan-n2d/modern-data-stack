@@ -633,3 +633,624 @@ slides:
     n:
       en: "The first question is a good conversation starter: the answer should change with team size, skills and workload, not with brand preference."
       vi: "Câu hỏi đầu tiên là một cách mở đầu cuộc trò chuyện tốt: câu trả lời nên thay đổi theo quy mô team, kỹ năng và workload, không theo sở thích thương hiệu."
+  - id: data-lake-vs-data-warehouse-vs-lakehouse
+    k: table
+    t:
+      en: "Data lake vs data warehouse, and why the lakehouse exists"
+      vi: "Data lake và data warehouse, và vì sao lakehouse ra đời"
+    lead:
+      en: A lake optimizes for keeping everything cheaply; a warehouse optimizes for answering questions reliably. The lakehouse tries to get both from one copy of the data.
+      vi: Lake tối ưu cho việc giữ mọi thứ với chi phí thấp; warehouse tối ưu cho việc trả lời câu hỏi một cách tin cậy. Lakehouse cố gắng có cả hai trên cùng một bản sao dữ liệu.
+    head:
+      - en: Aspect
+        vi: Khía cạnh
+      - Data lake
+      - Data warehouse
+      - Lakehouse
+    rows:
+      - - en: What is stored
+          vi: Lưu gì
+        - en: Raw files of any shape (JSON, CSV, images, logs, Parquet)
+          vi: File thô ở mọi dạng (JSON, CSV, ảnh, log, Parquet)
+        - en: Curated, typed tables loaded into the engine's own storage
+          vi: Bảng đã làm sạch, có kiểu, được nạp vào storage riêng của engine
+        - en: Parquet files on object storage, organized as tables by a table format
+          vi: File Parquet trên object storage, được tổ chức thành bảng nhờ table format
+      - - en: Schema
+          vi: Schema
+        - en: Schema-on-read; each consumer interprets the files
+          vi: Schema-on-read; mỗi consumer tự diễn giải file
+        - en: Schema-on-write; bad rows are rejected at load
+          vi: Schema-on-write; dòng lỗi bị từ chối khi load
+        - en: Schema enforced and evolved through table metadata
+          vi: Schema được áp dụng và tiến hóa qua metadata của bảng
+      - - en: Transactions
+          vi: Transaction
+        - en: None; readers can see half-written folders
+          vi: Không có; reader có thể thấy thư mục đang ghi dở
+        - en: Full ACID inside the engine
+          vi: ACID đầy đủ bên trong engine
+        - en: ACID per table through atomic metadata commits
+          vi: ACID theo từng bảng nhờ commit metadata atomic
+      - - en: Who can read it
+          vi: Ai đọc được
+        - en: Any engine that understands the files
+          vi: Bất kỳ engine nào hiểu được file
+        - en: Mostly the vendor's own engine
+          vi: Chủ yếu là engine của chính vendor
+        - en: Several engines (Spark, Trino, Flink, DuckDB, warehouses) on the same tables
+          vi: Nhiều engine (Spark, Trino, Flink, DuckDB, warehouse) trên cùng các bảng
+      - - en: Typical failure
+          vi: Thất bại điển hình
+        - en: Becomes a “data swamp” with no owners or catalog
+          vi: Biến thành “data swamp” không có chủ sở hữu hay catalog
+        - en: Cost and lock-in grow; ML teams export copies
+          vi: Chi phí và lock-in tăng; team ML phải export bản sao
+        - en: Maintenance (compaction, snapshots, catalog) is left unowned
+          vi: Bảo trì (compaction, snapshot, catalog) không có ai chịu trách nhiệm
+    cap:
+      en: "Many companies run both: a lakehouse as the system of record and a warehouse or OLAP engine reading the same open tables for serving."
+      vi: "Nhiều công ty chạy cả hai: lakehouse làm hệ thống gốc, còn warehouse hoặc OLAP engine đọc chính các open table đó để phục vụ."
+    n:
+      en: "Tell the history briefly: warehouses came first, lakes arrived with Hadoop to store everything cheaply, and the two-tier setup meant copying data from lake to warehouse. Open table formats removed the main reason for that copy by giving lake files transactions and schemas."
+      vi: "Kể ngắn gọn lịch sử: warehouse có trước, lake xuất hiện cùng Hadoop để lưu mọi thứ với giá rẻ, và kiến trúc hai tầng nghĩa là phải copy dữ liệu từ lake sang warehouse. Open table format loại bỏ lý do chính của việc copy đó bằng cách cho file trên lake có transaction và schema."
+  - id: lakehouse-architecture-storage-transactional-and-compute-layers
+    k: table
+    t:
+      en: "Data lakehouse architecture: storage, transactional and compute layers"
+      vi: "Kiến trúc data lakehouse: lớp storage, lớp transaction và lớp compute"
+    lead:
+      en: A lakehouse is not a product but a stack of independent layers. Each layer can be swapped without moving the data.
+      vi: Lakehouse không phải một sản phẩm mà là một chồng các lớp độc lập. Mỗi lớp có thể thay thế mà không phải di chuyển dữ liệu.
+    head:
+      - en: Layer
+        vi: Lớp
+      - en: Job
+        vi: Nhiệm vụ
+      - en: Examples
+        vi: Ví dụ
+      - en: Pitfall
+        vi: Cạm bẫy
+    rows:
+      - - en: Storage layer
+          vi: Lớp storage
+        - en: Holds the physical bytes durably and cheaply; knows nothing about tables
+          vi: Giữ các byte vật lý một cách bền vững và rẻ; không biết gì về bảng
+        - S3, GCS, ADLS, MinIO; Parquet, ORC, Avro files
+        - en: Object stores have no rename or multi-file atomicity, and request costs add up with small files
+          vi: Object store không có rename hay atomic trên nhiều file, và chi phí request tăng nhanh khi có nhiều file nhỏ
+      - - en: Storage abstraction
+          vi: Storage abstraction
+        - en: Hides where and how files are stored behind one interface, so the table refers to file paths and the engine never lists folders
+          vi: Che giấu nơi và cách lưu file sau một interface, nên bảng tham chiếu đường dẫn file và engine không bao giờ phải list thư mục
+        - Iceberg FileIO (S3FileIO, ADLSFileIO), Hadoop FileSystem, credential vending
+        - en: Mixing access paths (s3a vs s3) or moving buckets breaks absolute paths stored in metadata
+          vi: Trộn các đường truy cập (s3a và s3) hay chuyển bucket làm hỏng các đường dẫn tuyệt đối lưu trong metadata
+      - - en: Transactional layer
+          vi: Lớp transaction
+        - en: Turns a pile of files into a table with ACID commits, snapshots, schema and partition evolution
+          vi: Biến một đống file thành bảng với commit ACID, snapshot, schema và partition evolution
+        - Apache Iceberg, Delta Lake, Apache Hudi, Apache Paimon
+        - en: Every commit adds metadata; without compaction and snapshot expiry, planning slows down
+          vi: Mỗi commit thêm metadata; nếu không compaction và expire snapshot, việc lập kế hoạch query sẽ chậm dần
+      - - en: Catalog
+          vi: Catalog
+        - en: Names tables, stores the pointer to current metadata, performs the atomic swap and enforces access
+          vi: Đặt tên bảng, lưu con trỏ tới metadata hiện tại, thực hiện hoán đổi atomic và kiểm soát truy cập
+        - Polaris, Unity Catalog, Glue, Nessie, Gravitino, Hive Metastore
+        - en: Two catalogs pointing at the same table directory cause split-brain commits
+          vi: Hai catalog cùng trỏ vào một thư mục bảng gây ra commit split-brain
+      - - en: Compute layer
+          vi: Lớp compute
+        - en: Plans and runs queries and transformations; stateless and scaled per workload
+          vi: Lập kế hoạch và chạy query, transformation; không giữ trạng thái và scale theo từng workload
+        - Spark, Trino, Flink, Dremio, DuckDB, StarRocks, Snowflake, BigQuery
+        - en: Engines support different format features and versions; test writes from each engine you allow
+          vi: Các engine hỗ trợ tính năng và phiên bản format khác nhau; hãy kiểm thử thao tác ghi từ mỗi engine bạn cho phép
+    cap:
+      en: "Rule of thumb: many engines may read, but keep the set of engines that write to a table small and tested."
+      vi: "Nguyên tắc chung: nhiều engine có thể đọc, nhưng hãy giữ nhóm engine được ghi vào một bảng nhỏ và đã kiểm thử."
+    n:
+      en: "Walk bottom up. The storage layer is dumb and cheap. The storage abstraction is why Iceberg can list exact files from metadata instead of scanning folders, which matters on object stores. The transactional layer is where ACID comes from, the catalog is the one place that must be strongly consistent, and the compute layer becomes replaceable. That replaceability is the whole point of decoupled architecture."
+      vi: "Đi từ dưới lên. Lớp storage đơn giản và rẻ. Storage abstraction là lý do Iceberg có thể liệt kê chính xác file từ metadata thay vì quét thư mục, điều rất quan trọng trên object store. Lớp transaction là nơi tạo ra ACID, catalog là nơi duy nhất phải nhất quán mạnh, và lớp compute trở nên có thể thay thế. Khả năng thay thế đó chính là mục đích của kiến trúc tách rời."
+  - id: optimistic-concurrency-and-snapshot-isolation
+    k: code
+    t:
+      en: "ACID on object storage: optimistic concurrency control and snapshot isolation"
+      vi: "ACID trên object storage: optimistic concurrency control và snapshot isolation"
+    lead:
+      en: Table formats take no locks while writing. Readers pin a snapshot; writers race to swap one pointer and the loser re-checks and retries.
+      vi: Table format không giữ lock khi ghi. Reader cố định một snapshot; writer đua nhau hoán đổi một con trỏ và bên thua kiểm tra lại rồi thử lại.
+    blocks:
+      - lang: sql
+        title: "Spark SQL on Iceberg: see snapshots and tune conflict checks"
+        code: |-
+          -- Each successful commit is one snapshot; readers use exactly one
+          select snapshot_id, parent_id, operation, committed_at
+          from lake.sales.orders.snapshots
+          order by committed_at desc;
+
+          -- Reproducible read: pin a snapshot for the whole query
+          select count(*) from lake.sales.orders version as of 4812239876513;
+
+          -- How strict the commit-time validation is, and how hard to retry
+          alter table lake.sales.orders set tblproperties (
+              'write.merge.isolation-level'  = 'serializable',  -- or 'snapshot'
+              'write.delete.isolation-level' = 'serializable',
+              'commit.retry.num-retries'     = '10',
+              'commit.retry.min-wait-ms'     = '200'
+          );
+    points:
+      - h:
+          en: Optimistic concurrency control (OCC)
+          vi: Optimistic concurrency control (OCC)
+        p:
+          en: "A writer reads the current snapshot, writes new files, then asks the catalog to swap the pointer only if it still points at that snapshot (compare-and-swap). If someone committed first, it checks whether the new commit touched the same files or partitions: no overlap means rebase and retry; overlap means fail."
+          vi: "Writer đọc snapshot hiện tại, ghi file mới, rồi yêu cầu catalog hoán đổi con trỏ chỉ khi nó vẫn trỏ vào snapshot đó (compare-and-swap). Nếu có bên đã commit trước, nó kiểm tra commit mới có chạm vào cùng file hay partition không: không trùng thì rebase và thử lại; trùng thì thất bại."
+      - h:
+          en: Snapshot isolation
+          vi: Snapshot isolation
+        p:
+          en: Every query sees one immutable snapshot from start to end, so long reads never block writers and never see half a commit. Delta Lake gets the same effect from numbered log files written with put-if-absent.
+          vi: Mỗi query thấy một snapshot bất biến từ đầu đến cuối, nên các lần đọc dài không chặn writer và không bao giờ thấy nửa commit. Delta Lake đạt hiệu quả tương tự nhờ các file log đánh số được ghi bằng put-if-absent.
+      - h:
+          en: When OCC hurts
+          vi: Khi OCC gây hại
+        tag: senior
+        p:
+          en: Many writers on the same partitions, such as streaming appends plus compaction plus a backfill, cause retry storms. Partition work so writers rarely overlap, and run compaction on cold partitions.
+          vi: Nhiều writer trên cùng partition, như streaming append cộng compaction cộng backfill, gây bão retry. Hãy chia công việc để writer hiếm khi chồng lấn, và chạy compaction trên partition nguội.
+      - h:
+          en: Snapshot is not serializable
+          vi: Snapshot không phải serializable
+        tag: senior
+        p:
+          en: "`snapshot` isolation allows write skew: two MERGEs that each read old data can both succeed. Use `serializable` when correctness depends on what was read."
+          vi: "Isolation `snapshot` cho phép write skew: hai lệnh MERGE cùng đọc dữ liệu cũ đều có thể thành công. Dùng `serializable` khi tính đúng phụ thuộc vào dữ liệu đã đọc."
+    n:
+      en: "Contrast with databases: OCC is a good bet when conflicts are rare, which is true for most analytic tables. The snapshot ID in the example is a placeholder; take a real one from the snapshots table. Property names are Iceberg table properties; check defaults for your version."
+      vi: "So sánh với database: OCC là lựa chọn tốt khi xung đột hiếm, điều đúng với hầu hết bảng analytics. Snapshot ID trong ví dụ chỉ là placeholder; hãy lấy ID thật từ bảng snapshots. Tên thuộc tính là table property của Iceberg; hãy kiểm tra giá trị mặc định theo phiên bản của bạn."
+  - id: catalog-landscape-hive-glue-nessie-polaris-unity-gravitino
+    k: table
+    t:
+      en: "Catalog landscape: Hive Metastore, Glue, Nessie, Polaris, Unity Catalog, Gravitino"
+      vi: "Bức tranh catalog: Hive Metastore, Glue, Nessie, Polaris, Unity Catalog, Gravitino"
+    lead:
+      en: The catalog is the commit point and the security boundary of a lakehouse. Choosing one is choosing who can write, who can read and how engines find tables.
+      vi: Catalog là điểm commit và ranh giới bảo mật của lakehouse. Chọn catalog là chọn ai được ghi, ai được đọc và cách engine tìm thấy bảng.
+    head:
+      - Catalog
+      - en: What it is
+        vi: Nó là gì
+      - en: Distinctive strength
+        vi: Điểm mạnh riêng
+      - en: Watch out for
+        vi: Cần lưu ý
+    rows:
+      - - Hive Metastore
+        - en: The original Hadoop catalog; a Thrift service over a relational database
+          vi: Catalog gốc của Hadoop; một dịch vụ Thrift trên một database quan hệ
+        - en: Supported by almost every engine; easy bridge for legacy Hive tables
+          vi: Được gần như mọi engine hỗ trợ; cầu nối dễ cho bảng Hive cũ
+        - en: Lock-based commits, weak access control, operational burden; a migration source more than a target
+          vi: Commit dựa trên lock, kiểm soát truy cập yếu, gánh nặng vận hành; là nguồn để migrate hơn là đích
+      - - AWS Glue Data Catalog
+        - en: Managed, Hive-compatible catalog on AWS
+          vi: Catalog managed, tương thích Hive trên AWS
+        - en: Zero servers; integrates with Athena, EMR, Redshift and Lake Formation permissions; also offers an Iceberg REST endpoint
+          vi: Không cần server; tích hợp với Athena, EMR, Redshift và phân quyền Lake Formation; có cả endpoint Iceberg REST
+        - en: AWS-only; API rate limits during heavy planning; multi-table transactions not supported
+          vi: Chỉ trên AWS; giới hạn tần suất API khi lập kế hoạch nặng; không hỗ trợ transaction nhiều bảng
+      - - Project Nessie
+        - en: Open source transactional catalog with Git-like semantics
+          vi: Catalog transaction mã nguồn mở với ngữ nghĩa giống Git
+        - en: Branches, tags and atomic commits across many tables; cheap isolated environments for ETL and testing
+          vi: Branch, tag và commit atomic trên nhiều bảng; môi trường cô lập rẻ cho ETL và kiểm thử
+        - en: Branch hygiene and merge conflicts become your job; smaller community than Polaris
+          vi: Việc dọn branch và xung đột merge trở thành việc của bạn; cộng đồng nhỏ hơn Polaris
+      - - Apache Polaris
+        - en: Iceberg REST catalog server, incubating at Apache (started at Snowflake)
+          vi: Server catalog Iceberg REST, đang ươm tạo ở Apache (khởi đầu từ Snowflake)
+        - en: Standard REST API for any engine; RBAC on catalogs, namespaces and tables; credential vending
+          vi: REST API chuẩn cho mọi engine; RBAC trên catalog, namespace và bảng; cấp phát credential
+        - en: Iceberg-focused; table-level branches only, no cross-table Git workflow like Nessie
+          vi: Tập trung vào Iceberg; chỉ có branch ở mức bảng, không có quy trình kiểu Git xuyên bảng như Nessie
+      - - Unity Catalog OSS
+        - en: Open-sourced version of Databricks' catalog, under the Linux Foundation
+          vi: Phiên bản mã nguồn mở của catalog Databricks, thuộc Linux Foundation
+        - en: Governs tables, files (volumes), functions and ML models in one namespace; Delta-first with Iceberg REST reads
+          vi: Quản trị bảng, file (volume), function và ML model trong một namespace; ưu tiên Delta và đọc được qua Iceberg REST
+        - en: The OSS release trails the managed Databricks product in features
+          vi: Bản OSS đi sau sản phẩm Databricks managed về tính năng
+      - - Apache Gravitino
+        - en: A “metadata lake” that federates many catalogs behind one API
+          vi: Một “metadata lake” hợp nhất nhiều catalog sau một API
+        - en: Manages Hive, Iceberg, JDBC databases, Kafka topics and filesets together; ships an Iceberg REST service; one place for tags and access policies
+          vi: Quản lý Hive, Iceberg, database JDBC, Kafka topic và fileset cùng nhau; có sẵn dịch vụ Iceberg REST; một nơi cho tag và chính sách truy cập
+        - en: Another layer to run; federation does not remove the underlying catalogs or their limits
+          vi: Thêm một lớp phải vận hành; federation không loại bỏ các catalog bên dưới hay giới hạn của chúng
+    cap:
+      en: "The Iceberg REST catalog spec is the common language: prefer catalogs and engines that speak it, so the catalog can change without touching engines."
+      vi: "Đặc tả Iceberg REST catalog là ngôn ngữ chung: hãy ưu tiên catalog và engine nói được ngôn ngữ đó, để có thể đổi catalog mà không phải đụng vào engine."
+    n:
+      en: "Position them, do not rank them. Hive Metastore and Glue are where most companies start. Nessie answers “I want Git for data”. Polaris answers “I want a neutral, standard Iceberg catalog with RBAC”. Unity Catalog answers “I want governance of tables, files and models together”. Gravitino answers “I already have many catalogs and want one metadata view over them”. Feature details move fast; confirm against current releases."
+      vi: "Định vị chúng, đừng xếp hạng. Hive Metastore và Glue là nơi đa số công ty bắt đầu. Nessie trả lời câu “tôi muốn Git cho dữ liệu”. Polaris trả lời “tôi muốn một catalog Iceberg trung lập, chuẩn, có RBAC”. Unity Catalog trả lời “tôi muốn quản trị bảng, file và model cùng nhau”. Gravitino trả lời “tôi đã có nhiều catalog và muốn một góc nhìn metadata thống nhất”. Chi tiết tính năng thay đổi nhanh; hãy xác nhận với các bản phát hành hiện tại."
+  - id: write-audit-publish-with-iceberg-branches-and-nessie
+    k: code
+    t:
+      en: "Write-Audit-Publish (WAP) with Iceberg branches and Nessie"
+      vi: "Write-Audit-Publish (WAP) với branch của Iceberg và Nessie"
+    lead:
+      en: Write new data where consumers cannot see it, run the checks, then publish with a metadata-only operation. Bad data never reaches a dashboard.
+      vi: Ghi dữ liệu mới vào nơi consumer không thấy, chạy kiểm tra, rồi publish bằng một thao tác chỉ đụng metadata. Dữ liệu xấu không bao giờ tới dashboard.
+    blocks:
+      - lang: sql
+        title: "One table: Iceberg branch in Spark SQL"
+        code: |-
+          alter table lake.sales.orders set tblproperties ('write.wap.enabled' = 'true');
+          alter table lake.sales.orders create branch audit_20261117;
+
+          -- WRITE: this session's writes land on the branch, not on main
+          set spark.wap.branch = audit_20261117;
+          insert into lake.sales.orders select * from staging.orders_batch;
+
+          -- AUDIT: query the branch explicitly
+          select count(*) filter (where order_id is null) as null_ids,
+                 count(*) - count(distinct order_id)       as dup_ids
+          from lake.sales.orders.branch_audit_20261117;
+
+          -- PUBLISH: move main to the audited snapshot (no data rewrite)
+          call lake.system.fast_forward('sales.orders', 'main', 'audit_20261117');
+      - lang: sql
+        title: "Many tables at once: Nessie branch"
+        code: |-
+          create branch if not exists etl_20261117 in nessie from main;
+          use reference etl_20261117 in nessie;
+
+          -- ...load orders, order_items and customers, run all checks...
+
+          merge branch etl_20261117 into main in nessie;   -- one atomic publish
+    points:
+      - h:
+          en: How it works
+          vi: Cách hoạt động
+        p:
+          en: A branch is a named pointer to a snapshot. Writes on it create snapshots main does not reference; publishing moves main's pointer, so no files are copied.
+          vi: Branch là một con trỏ có tên tới một snapshot. Ghi trên branch tạo ra snapshot mà main không tham chiếu; publish chỉ dịch con trỏ của main, nên không file nào bị copy.
+      - h:
+          en: Iceberg branch vs Nessie
+          vi: Branch Iceberg so với Nessie
+        p:
+          en: Iceberg branches are per table. Nessie branches cover the whole catalog, so several related tables are published together or not at all.
+          vi: Branch của Iceberg là theo từng bảng. Branch của Nessie bao trùm cả catalog, nên nhiều bảng liên quan được publish cùng lúc hoặc không bảng nào cả.
+      - h:
+          en: Pitfalls
+          vi: Cạm bẫy
+        tag: senior
+        p:
+          en: Fast-forward fails if main moved since the branch was created; rebuild or cherry-pick instead. Delete audited branches, or their snapshots keep files alive and block cleanup.
+          vi: Fast-forward thất bại nếu main đã thay đổi kể từ khi tạo branch; hãy dựng lại hoặc cherry-pick. Xóa các branch đã audit, nếu không snapshot của chúng giữ file lại và chặn việc dọn dẹp.
+      - h:
+          en: When to use
+          vi: Khi nào dùng
+        p:
+          en: Tables with many downstream consumers, where a bad load is expensive. For small internal tables, tests after the write may be enough.
+          vi: Bảng có nhiều consumer phía sau, nơi một lần load xấu rất tốn kém. Với bảng nội bộ nhỏ, test sau khi ghi có thể là đủ.
+    n:
+      en: "WAP is the data version of a pull request: build on a branch, review, merge. Syntax follows the Iceberg Spark extensions and the Nessie Spark SQL extensions and varies by version; branch names here are examples."
+      vi: "WAP là phiên bản dữ liệu của pull request: build trên branch, review, rồi merge. Cú pháp theo Iceberg Spark extension và Nessie Spark SQL extension và thay đổi theo phiên bản; tên branch ở đây chỉ là ví dụ."
+  - id: iceberg-metadata-tables-and-puffin-files
+    k: code
+    t:
+      en: "Inside the metadata tree: manifests, delete files and Puffin files"
+      vi: "Bên trong cây metadata: manifest, delete file và file Puffin"
+    lead:
+      en: "Iceberg keeps small statistics in manifests. Anything too large for a manifest row, such as distinct-count sketches or deletion bitmaps, goes into Puffin files."
+      vi: "Iceberg giữ các thống kê nhỏ trong manifest. Những gì quá lớn cho một dòng manifest, như sketch đếm giá trị phân biệt hay bitmap xóa, được đặt vào file Puffin."
+    blocks:
+      - lang: sql
+        title: "Trino: inspect the tree and write Puffin statistics"
+        code: |-
+          -- Manifests referenced by the current snapshot's manifest list
+          select path, added_data_files_count, existing_data_files_count
+          from iceberg.sales."orders$manifests";
+
+          -- Files by content: 0 = data, 1 = position deletes, 2 = equality deletes
+          select content, file_format, count(*) as files, sum(record_count) as rows
+          from iceberg.sales."orders$files"
+          group by 1, 2;
+
+          -- Collect NDV statistics; stored as Theta sketches in a Puffin file
+          analyze iceberg.sales.orders;
+          show stats for iceberg.sales.orders;
+    points:
+      - h:
+          en: What a Puffin file is
+          vi: File Puffin là gì
+        p:
+          en: A container of binary blobs with a footer describing each blob's type, the snapshot it belongs to and its byte range. Engines read only the footer and the blobs they need.
+          vi: Một container chứa các blob nhị phân với footer mô tả loại của từng blob, snapshot mà nó thuộc về và khoảng byte của nó. Engine chỉ đọc footer và các blob cần dùng.
+      - h:
+          en: Theta sketches
+          vi: Theta sketch
+        p:
+          en: Approximate distinct counts per column, registered in table metadata as statistics files. Cost-based optimizers use them to order joins.
+          vi: Số giá trị phân biệt xấp xỉ theo từng cột, được đăng ký trong metadata của bảng dưới dạng statistics file. Cost-based optimizer dùng chúng để sắp xếp thứ tự join.
+      - h:
+          en: Deletion vectors (format v3)
+          vi: Deletion vector (format v3)
+        tag: senior
+        p:
+          en: In v3, row deletes are bitmaps stored as Puffin blobs, at most one per data file, replacing piles of positional delete files and making merge-on-read much cheaper to read.
+          vi: Trong v3, việc xóa dòng là các bitmap lưu dưới dạng blob Puffin, tối đa một bitmap cho mỗi data file, thay cho hàng loạt positional delete file và giúp việc đọc merge-on-read rẻ hơn nhiều.
+      - h:
+          en: Pitfall
+          vi: Cạm bẫy
+        p:
+          en: Statistics go stale as data changes; recompute them after large loads, and check that every engine reading the table supports v3 before upgrading.
+          vi: Thống kê trở nên cũ khi dữ liệu thay đổi; hãy tính lại sau các lần load lớn, và kiểm tra mọi engine đọc bảng đều hỗ trợ v3 trước khi nâng cấp.
+    n:
+      en: "Recap the tree from the Iceberg deep dive: metadata.json points to a manifest list per snapshot, which points to manifests, which list data and delete files. Puffin sits beside that tree for heavyweight statistics. Metadata table names follow Trino's Iceberg connector; Spark uses lake.sales.orders.manifests and .files."
+      vi: "Nhắc lại cây metadata từ phần đào sâu Iceberg: metadata.json trỏ tới một manifest list cho mỗi snapshot, manifest list trỏ tới các manifest, và manifest liệt kê data file và delete file. Puffin nằm cạnh cây đó cho các thống kê nặng. Tên bảng metadata theo connector Iceberg của Trino; Spark dùng lake.sales.orders.manifests và .files."
+  - id: z-ordering-and-multi-column-clustering
+    k: code
+    t:
+      en: "Z-ordering: clustering on several columns at once"
+      vi: "Z-ordering: clustering trên nhiều cột cùng lúc"
+    lead:
+      en: Sorting by one column helps only filters on that column. Z-ordering interleaves several columns so each file covers a small range of all of them, and min/max statistics can skip more files.
+      vi: Sắp xếp theo một cột chỉ giúp filter trên cột đó. Z-ordering đan xen nhiều cột để mỗi file chỉ bao phủ một khoảng nhỏ của tất cả các cột, và thống kê min/max có thể bỏ qua nhiều file hơn.
+    blocks:
+      - lang: sql
+        title: "Delta Lake: OPTIMIZE with ZORDER"
+        code: |-
+          optimize lake.events
+          where event_date >= current_date() - interval 7 days
+          zorder by (customer_id, device_id);
+      - lang: sql
+        title: "Iceberg (Spark): rewrite files with a z-order sort"
+        code: |-
+          call lake.system.rewrite_data_files(
+              table      => 'web.events',
+              strategy   => 'sort',
+              sort_order => 'zorder(customer_id, device_id)',
+              where      => 'event_date >= date ''2026-11-10'''
+          );
+    points:
+      - h:
+          en: How it works
+          vi: Cách hoạt động
+        p:
+          en: Column values are mapped to bits and the bits are interleaved into one Z-value; rows are sorted by it. Nearby Z-values are near in every column, so ranges stay tight.
+          vi: Giá trị các cột được ánh xạ thành bit và các bit được đan xen thành một Z-value; các dòng được sắp xếp theo giá trị đó. Các Z-value gần nhau thì gần nhau trên mọi cột, nên các khoảng giá trị luôn hẹp.
+      - h:
+          en: When to use
+          vi: Khi nào dùng
+        p:
+          en: Large tables filtered on two to four high-cardinality columns in varying combinations, where partitioning on them would create tiny files.
+          vi: Bảng lớn được filter trên hai đến bốn cột cardinality cao theo các tổ hợp khác nhau, nơi partition theo các cột đó sẽ tạo ra file rất nhỏ.
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        p:
+          en: It is a full rewrite of the targeted files, so it costs compute and creates a snapshot that can conflict with writers. Each extra column weakens the clustering of the others.
+          vi: Đây là thao tác ghi lại toàn bộ các file được chọn, nên tốn compute và tạo snapshot có thể xung đột với writer. Mỗi cột thêm vào làm yếu đi hiệu quả clustering của các cột khác.
+      - h:
+          en: Alternatives
+          vi: Phương án khác
+        p:
+          en: A plain sort when one column dominates filters; Delta liquid clustering or Hilbert curves when you want incremental, more even clustering.
+          vi: Sort thông thường khi một cột chiếm ưu thế trong filter; liquid clustering của Delta hoặc đường cong Hilbert khi muốn clustering tăng dần và đều hơn.
+    n:
+      en: "Measure it: compare files scanned for a typical filter before and after. Z-ordering on a column nobody filters on is pure cost. Restrict rewrites to recent or hot partitions, as in both examples."
+      vi: "Hãy đo lường: so sánh số file phải scan với một filter điển hình trước và sau. Z-ordering trên cột không ai filter là chi phí thuần túy. Giới hạn việc ghi lại ở các partition gần đây hoặc nóng, như trong cả hai ví dụ."
+  - id: apache-paimon-streaming-lakehouse-format
+    k: code
+    t:
+      en: "Apache Paimon: a table format built for streaming updates"
+      vi: "Apache Paimon: table format được xây dựng cho cập nhật streaming"
+    lead:
+      en: Paimon (born as Flink Table Store) organizes each bucket as an LSM tree, so primary-key upserts land in minutes and the table can emit its own changelog.
+      vi: Paimon (khởi đầu là Flink Table Store) tổ chức mỗi bucket thành một cây LSM, nên upsert theo primary key được ghi nhận trong vài phút và bảng có thể phát ra changelog của chính nó.
+    blocks:
+      - lang: sql
+        title: "Flink SQL: CDC into a primary-key table"
+        code: |-
+          create catalog paimon with ('type' = 'paimon', 'warehouse' = 's3://lake/paimon');
+          use catalog paimon;
+
+          create table orders (
+              order_id   bigint,
+              status     string,
+              amount     decimal(12, 2),
+              updated_at timestamp(3),
+              primary key (order_id) not enforced
+          ) with (
+              'bucket'             = '8',
+              'merge-engine'       = 'deduplicate',  -- or partial-update, aggregation
+              'changelog-producer' = 'lookup'        -- downstream gets full before/after rows
+          );
+
+          insert into orders select * from default_catalog.default_database.orders_cdc;
+    points:
+      - h:
+          en: How it works
+          vi: Cách hoạt động
+        p:
+          en: Writes go to sorted runs inside each bucket; background compaction merges runs and resolves keys with the chosen merge engine. Readers see committed snapshots.
+          vi: Dữ liệu ghi vào các sorted run trong mỗi bucket; compaction chạy nền gộp các run và xử lý key theo merge engine đã chọn. Reader thấy các snapshot đã commit.
+      - h:
+          en: When to use
+          vi: Khi nào dùng
+        p:
+          en: Flink-centred stacks that need a lake table updated continuously from CDC, partial updates from several streams, or a streaming read of changes.
+          vi: Stack xoay quanh Flink cần một bảng lake được cập nhật liên tục từ CDC, cập nhật một phần từ nhiều stream, hoặc đọc streaming các thay đổi.
+      - h:
+          en: Trade-offs
+          vi: Đánh đổi
+        tag: senior
+        p:
+          en: Compaction and changelog production cost resources, bucket count is hard to change later, and engine support outside Flink and Spark is narrower than Iceberg's.
+          vi: Compaction và việc tạo changelog tốn tài nguyên, số bucket khó thay đổi về sau, và mức hỗ trợ engine ngoài Flink và Spark hẹp hơn Iceberg.
+    n:
+      en: "Position Paimon next to Hudi: both target frequent upserts. Paimon's LSM design and native changelog make it the natural sink for Flink CDC pipelines. Option names follow Paimon's docs; check them for your version."
+      vi: "Đặt Paimon cạnh Hudi: cả hai nhắm tới upsert thường xuyên. Thiết kế LSM và changelog native của Paimon khiến nó là đích tự nhiên cho pipeline Flink CDC. Tên option theo tài liệu Paimon; hãy kiểm tra theo phiên bản của bạn."
+  - id: table-format-interoperability-xtable-and-uniform
+    k: code
+    t:
+      en: "Table-format interoperability: Apache XTable and Delta UniForm"
+      vi: "Khả năng tương tác giữa table format: Apache XTable và Delta UniForm"
+    lead:
+      en: Iceberg, Delta and Hudi all store Parquet. Translators write a second set of metadata over the same data files so engines that only speak another format can read the table.
+      vi: Iceberg, Delta và Hudi đều lưu Parquet. Các công cụ chuyển đổi ghi thêm một bộ metadata thứ hai trên chính các data file đó để engine chỉ hiểu format khác vẫn đọc được bảng.
+    blocks:
+      - lang: yaml
+        title: "XTable (incubating): sync Delta metadata to Iceberg and Hudi"
+        code: |-
+          # run: java -jar xtable-utilities-bundled.jar --datasetConfig xtable.yaml
+          sourceFormat: DELTA
+          targetFormats:
+            - ICEBERG
+            - HUDI
+          datasets:
+            - tableBasePath: s3://lake/sales/orders
+              tableName: orders
+      - lang: sql
+        title: "Delta UniForm: generate Iceberg metadata on every commit"
+        code: |-
+          alter table sales.orders set tblproperties (
+              'delta.enableIcebergCompatV2'          = 'true',
+              'delta.universalFormat.enabledFormats' = 'iceberg'
+          );
+    points:
+      - h:
+          en: XTable
+          vi: XTable
+        p:
+          en: An Apache incubating project that reads one format's log and writes equivalent metadata for the others, in any direction, run as a job or after each commit. No data is copied.
+          vi: Một dự án đang ươm tạo ở Apache, đọc log của một format và ghi metadata tương đương cho các format khác, theo mọi chiều, chạy như một job hoặc sau mỗi commit. Không dữ liệu nào bị copy.
+      - h:
+          en: UniForm
+          vi: UniForm
+        p:
+          en: Built into Delta Lake; the writer produces Iceberg (or Hudi) metadata itself, so there is no separate sync job, but the source is always Delta.
+          vi: Tích hợp sẵn trong Delta Lake; writer tự tạo metadata Iceberg (hoặc Hudi), nên không cần job đồng bộ riêng, nhưng nguồn luôn là Delta.
+      - h:
+          en: Limits
+          vi: Giới hạn
+        tag: senior
+        p:
+          en: "One format is the writer; the translated copies are read-only. Features without an equivalent (some delete-file and deletion-vector modes, certain partition transforms) block or degrade translation, and the target metadata lags until the sync runs."
+          vi: "Một format là bên ghi; các bản dịch chỉ để đọc. Tính năng không có tương đương (một số chế độ delete file và deletion vector, một số partition transform) chặn hoặc làm giảm chất lượng việc chuyển đổi, và metadata đích bị trễ cho đến khi đồng bộ chạy."
+      - h:
+          en: When to use
+          vi: Khi nào dùng
+        p:
+          en: Bridging during a migration, or exposing a table to an engine that cannot read its native format. Not a substitute for agreeing on one primary format.
+          vi: Làm cầu nối trong thời gian migration, hoặc mở bảng cho một engine không đọc được format gốc. Không thay thế cho việc thống nhất một format chính.
+    n:
+      en: "The key insight is that the expensive part, the Parquet data, is shared; only the cheap metadata is duplicated. The jar name and properties are illustrative; the XTable bundle name includes a version, and UniForm requirements differ across Delta releases."
+      vi: "Điểm then chốt là phần tốn kém, tức dữ liệu Parquet, được dùng chung; chỉ phần metadata rẻ bị nhân đôi. Tên jar và thuộc tính chỉ mang tính minh họa; tên gói XTable có kèm phiên bản, và yêu cầu của UniForm khác nhau giữa các bản Delta."
+  - id: open-data-architecture-and-zero-copy
+    k: cards
+    t:
+      en: "Open data architecture and zero-copy patterns"
+      vi: "Kiến trúc dữ liệu mở và các mẫu zero-copy"
+    lead:
+      en: Keep one copy of the data in open formats and bring engines to it, rather than moving data to each engine.
+      vi: Giữ một bản sao dữ liệu ở định dạng mở và đưa engine tới dữ liệu, thay vì chuyển dữ liệu tới từng engine.
+    cols: 3
+    cards:
+      - h:
+          en: Open data architecture
+          vi: Kiến trúc dữ liệu mở
+        tag: must
+        p:
+          en: Files in open formats (Parquet), tables in an open format (Iceberg, Delta) and an open catalog API. Any compliant engine can read and write, so tools can change without migrating data.
+          vi: File ở định dạng mở (Parquet), bảng ở format mở (Iceberg, Delta) và API catalog mở. Mọi engine tuân thủ đều đọc ghi được, nên có thể đổi công cụ mà không phải migrate dữ liệu.
+      - h:
+          en: Zero-copy architecture
+          vi: Kiến trúc zero-copy
+        tag: must
+        p:
+          en: An umbrella term for using data where it already lives instead of duplicating it. It covers several distinct patterns; ask which one a vendor means.
+          vi: Thuật ngữ bao trùm việc dùng dữ liệu tại nơi nó đang nằm thay vì nhân bản. Nó gồm nhiều mẫu khác nhau; hãy hỏi vendor đang nói đến mẫu nào.
+      - h:
+          en: Query in place
+          vi: Query tại chỗ
+        p:
+          en: Several engines read the same Iceberg tables through the catalog; a warehouse reads lake tables as external or managed Iceberg tables.
+          vi: Nhiều engine đọc cùng các bảng Iceberg qua catalog; warehouse đọc bảng trên lake dưới dạng bảng Iceberg external hoặc managed.
+      - h:
+          en: Zero-copy clones and branches
+          vi: Clone và branch zero-copy
+        p:
+          en: A new table or branch that references existing files; only changes are written. Snowflake clones, Delta shallow clones and Iceberg branches work this way.
+          vi: Một bảng hay branch mới tham chiếu các file có sẵn; chỉ phần thay đổi được ghi. Clone của Snowflake, shallow clone của Delta và branch của Iceberg hoạt động như vậy.
+      - h:
+          en: Zero-copy in memory
+          vi: Zero-copy trong bộ nhớ
+        p:
+          en: Apache Arrow lets processes and engines share columnar buffers without serializing; Arrow Flight and ADBC move them over the network in the same layout.
+          vi: Apache Arrow cho phép các process và engine chia sẻ buffer dạng cột mà không cần serialize; Arrow Flight và ADBC truyền chúng qua mạng với cùng bố cục.
+      - h:
+          en: Pitfalls
+          vi: Cạm bẫy
+        tag: senior
+        p:
+          en: Cross-region or cross-cloud reads still pay egress; clones pin old files and block cleanup; shared tables need shared governance, or “one copy” becomes one ungoverned copy.
+          vi: Đọc xuyên region hay xuyên cloud vẫn tốn phí egress; clone giữ lại file cũ và chặn dọn dẹp; bảng dùng chung cần quản trị chung, nếu không “một bản sao” sẽ thành một bản sao không được quản trị.
+    n:
+      en: "Link this to the open data stack slide in the formats layer: that slide is about choosing composable tools, this one is about the data contract underneath them. Zero-copy is a goal, not a guarantee; count the copies that remain, such as BI extracts and feature stores."
+      vi: "Liên hệ với slide open data stack ở layer về định dạng: slide đó nói về việc chọn công cụ có thể ghép nối, slide này nói về hợp đồng dữ liệu bên dưới chúng. Zero-copy là mục tiêu, không phải cam kết; hãy đếm các bản sao còn lại, như BI extract và feature store."
+  - id: the-future-of-the-data-lakehouse
+    k: cards
+    t:
+      en: "The future of the data lakehouse"
+      vi: "Tương lai của data lakehouse"
+    lead:
+      en: The direction is clear even if the details are not. Treat these as trends to watch, not settled facts.
+      vi: Hướng đi đã rõ dù chi tiết thì chưa. Hãy xem đây là xu hướng cần theo dõi, không phải sự thật đã ngã ngũ.
+    cols: 3
+    cards:
+      - h:
+          en: The catalog becomes the platform
+          vi: Catalog trở thành nền tảng
+        p:
+          en: With the Iceberg REST spec as a common API, governance, credential vending and lineage concentrate in the catalog, and engines become interchangeable.
+          vi: Với đặc tả Iceberg REST là API chung, quản trị, cấp phát credential và lineage tập trung vào catalog, và engine trở nên có thể hoán đổi.
+      - h:
+          en: Richer table formats
+          vi: Table format phong phú hơn
+        p:
+          en: Iceberg v3 adds deletion vectors, row lineage, a variant type for semi-structured data and geospatial types; formats keep converging in features.
+          vi: Iceberg v3 bổ sung deletion vector, row lineage, kiểu variant cho dữ liệu bán cấu trúc và kiểu không gian địa lý; các format tiếp tục hội tụ về tính năng.
+      - h:
+          en: Streaming meets tables
+          vi: Streaming gặp bảng
+        p:
+          en: Kafka-to-table features, Paimon and faster commits shrink the gap between a topic and a queryable table, removing many hand-written ingestion jobs.
+          vi: Các tính năng ghi Kafka thẳng vào bảng, Paimon và commit nhanh hơn thu hẹp khoảng cách giữa topic và bảng có thể query, loại bỏ nhiều job ingestion viết tay.
+      - h:
+          en: Fewer ETL copies
+          vi: Ít bản sao ETL hơn
+        p:
+          en: Warehouses read and write open tables directly, so the lake-to-warehouse copy disappears for many workloads.
+          vi: Warehouse đọc và ghi trực tiếp open table, nên việc copy từ lake sang warehouse biến mất với nhiều workload.
+      - h:
+          en: AI agents as consumers
+          vi: AI agent là consumer
+        p:
+          en: Agents discover tables through catalogs and semantic layers and run SQL on them, which raises the bar for metadata quality, descriptions and fine-grained access control.
+          vi: Agent tìm bảng qua catalog và semantic layer rồi chạy SQL trên đó, điều này nâng yêu cầu về chất lượng metadata, mô tả và kiểm soát truy cập chi tiết.
+      - h:
+          en: Simpler metadata designs
+          vi: Thiết kế metadata đơn giản hơn
+        tag: senior
+        p:
+          en: Projects such as DuckLake keep table metadata in a SQL database instead of files. Expect experiments that trade some openness for faster commits.
+          vi: Các dự án như DuckLake lưu metadata của bảng trong một database SQL thay vì file. Hãy chờ đợi các thử nghiệm đánh đổi một phần tính mở để có commit nhanh hơn.
+    n:
+      en: "Close the topic by tying trends back to fundamentals: whatever changes, the lakehouse is still storage plus a transactional layer plus a catalog plus engines. Ask the audience which of these trends would change a decision they make today."
+      vi: "Kết thúc chủ đề bằng cách nối các xu hướng về nền tảng: dù thay đổi gì, lakehouse vẫn là storage cộng lớp transaction cộng catalog cộng engine. Hãy hỏi người nghe xu hướng nào trong số này sẽ thay đổi một quyết định họ đưa ra hôm nay."
