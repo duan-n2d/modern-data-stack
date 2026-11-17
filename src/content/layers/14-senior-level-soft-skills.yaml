@@ -771,6 +771,68 @@ slides:
     n:
       en: Silos are an organizational problem first. Technology can connect them, but agreeing on shared definitions and ownership is what removes the conflicting numbers.
       vi: Silo trước hết là vấn đề tổ chức. Công nghệ có thể kết nối chúng, nhưng thống nhất định nghĩa chung và quyền sở hữu mới là thứ xóa bỏ số liệu mâu thuẫn.
+  - id: data-virtualization-versus-data-federation
+    k: stack
+    t:
+      en: "Data virtualization vs. data federation: scope and cost"
+      vi: "Ảo hóa dữ liệu và federation: phạm vi và chi phí"
+    lead:
+      en: Virtualization is the broad umbrella; federation is the narrower technique inside it. Confusing the two makes "just virtualize it" sound cheaper than it is.
+      vi: Ảo hóa là chiếc ô rộng; federation là kỹ thuật hẹp hơn bên trong nó. Lẫn lộn hai khái niệm làm "cứ ảo hóa đi" nghe có vẻ rẻ hơn thực tế.
+    parts:
+      - table:
+          head:
+            - en: Aspect
+              vi: Khía cạnh
+            - en: Data virtualization
+              vi: Ảo hóa dữ liệu
+            - en: Data federation
+              vi: Federation dữ liệu
+          rows:
+            - - en: Scope
+                vi: Phạm vi
+              - en: The umbrella concept — a unified view across many sources, with caching, access control and semantic translation layered on top.
+                vi: Khái niệm chiếc ô — một góc nhìn thống nhất qua nhiều nguồn, cộng thêm cache, kiểm soát truy cập và dịch ngữ nghĩa ở trên.
+              - en: One technique inside that umbrella — distributed query execution and routing across live sources, with nothing copied.
+                vi: Một kỹ thuật bên trong chiếc ô đó — thực thi query phân tán và định tuyến qua các nguồn sống, không sao chép gì cả.
+            - - en: Data movement
+                vi: Di chuyển dữ liệu
+              - en: May cache or materialize some results for speed, alongside live access.
+                vi: Có thể cache hoặc vật chất hóa một phần kết quả để tăng tốc, song song với truy cập trực tiếp.
+              - en: Runs live against each source on every single query; nothing is kept afterward.
+                vi: Chạy trực tiếp lên từng nguồn ở mỗi lần query; không giữ lại gì sau đó.
+            - - en: Question it answers
+                vi: Câu hỏi nó trả lời
+              - en: "How do I expose many systems as one consistent model to consumers?"
+                vi: "Làm sao trình bày nhiều hệ thống như một mô hình nhất quán cho người dùng?"
+              - en: "How do I plan and execute one query across several live systems right now?"
+                vi: "Làm sao lập kế hoạch và thực thi một query qua nhiều hệ thống sống ngay lúc này?"
+            - - en: Typical tools
+                vi: Công cụ điển hình
+              - en: Denodo, Dremio, AtScale, or any semantic layer with multiple backends.
+                vi: Denodo, Dremio, AtScale, hoặc bất kỳ semantic layer nào có nhiều backend.
+              - en: Trino, Starburst, PrestoDB, or Dremio's own federation engine underneath its virtualization layer.
+                vi: Trino, Starburst, PrestoDB, hoặc chính engine federation của Dremio bên dưới lớp ảo hóa của nó.
+      - cols: 2
+        cards:
+          - h:
+              en: "A concrete trade-off: Postgres + S3 + Snowflake"
+              vi: "Một đánh đổi cụ thể: Postgres + S3 + Snowflake"
+            p:
+              en: A federated engine such as Dremio, Trino or Starburst can join a live Postgres orders table, Parquet files on S3 and a Snowflake mart in one query with no pipeline to build — but every run re-scans all three sources, so cost and latency scale with source load and data volume on every single query.
+              vi: Một engine federation như Dremio, Trino hay Starburst có thể join bảng orders sống trên Postgres, file Parquet trên S3 và mart trên Snowflake trong một query mà không cần xây pipeline — nhưng mỗi lần chạy đều quét lại cả ba nguồn, nên chi phí và độ trễ tỉ lệ theo tải nguồn và khối lượng dữ liệu ở mỗi lần query.
+          - h:
+              en: Versus materializing
+              vi: So với vật chất hóa
+            p:
+              en: Copying those same three sources into one warehouse table costs a pipeline, storage and staleness between refreshes — but turns a slow, source-dependent live join into a cheap, fast, repeatable scan. This is the classic build-time-versus-query-time trade.
+              vi: Sao chép cùng ba nguồn đó vào một bảng warehouse tốn một pipeline, storage và độ trễ dữ liệu giữa các lần refresh — nhưng biến một join sống chậm, phụ thuộc nguồn thành một lần quét rẻ, nhanh, lặp lại được. Đây là đánh đổi kinh điển giữa chi phí lúc build và lúc query.
+      - note:
+          en: "Open question: once a lakehouse engine piles on enough virtualization features of its own — Dremio Reflections, Arrow-based caching, external catalogs — at what point does it stop being a lakehouse with virtualization features and simply become a virtualization layer?"
+          vi: "Câu hỏi còn mở: khi một engine lakehouse tích lũy đủ tính năng ảo hóa của riêng nó — Dremio Reflections, cache dựa trên Arrow, catalog ngoài — đến lúc nào nó không còn là lakehouse có tính năng ảo hóa mà trở thành một lớp ảo hóa đúng nghĩa?"
+    n:
+      en: Lead with the umbrella-versus-technique distinction, then walk the concrete Postgres/S3/Snowflake example to make the cost trade real before raising the open question about where a lakehouse ends and a virtualization layer begins.
+      vi: Mở đầu bằng phân biệt chiếc ô và kỹ thuật, rồi đi qua ví dụ cụ thể Postgres/S3/Snowflake để đánh đổi chi phí trở nên thật trước khi nêu câu hỏi mở về ranh giới giữa lakehouse và một lớp ảo hóa.
   - id: center-of-excellence-and-change-management
     k: cards
     t:

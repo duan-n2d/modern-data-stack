@@ -43,8 +43,8 @@ slides:
           vi: Biến đổi và điều phối
         - en: "Layers 1, 4, 5, 23 and appendix: SQL/dbt/SQLMesh, Airflow/Dagster/Kestra, software-defined assets, functional and declarative patterns."
           vi: "Layer 1, 4, 5, 23 và phụ lục: SQL/dbt/SQLMesh, Airflow/Dagster/Kestra, software-defined asset, mẫu functional và declarative."
-        - en: Clarify where AI workflow orchestrators overlap with, or differ from, data orchestrators.
-          vi: Cần làm rõ AI workflow orchestrator giao nhau hoặc khác data orchestrator ở đâu.
+        - en: "Addressed: Clarify where AI workflow orchestrators overlap with, or differ from, data orchestrators. See layer 5, slide ai-agent-orchestration-reinvents-data-orchestration."
+          vi: "Đã bổ sung: Cần làm rõ AI workflow orchestrator giao nhau hoặc khác data orchestrator ở đâu. Xem layer 5, slide ai-agent-orchestration-reinvents-data-orchestration."
       - - en: Modeling, architecture and data products
           vi: Mô hình hóa, kiến trúc và data product
         - en: "Layers 9, 12, 21: Kimball, Data Vault, medallion, Data Mesh, contracts, products, SCD and MDM."
@@ -61,8 +61,8 @@ slides:
           vi: Semantic layer, BI và phục vụ dữ liệu
         - en: "Layers 6, 7, 10, 22, 23: metrics, semantic models, Cube, BI, reverse ETL, OLAP alternatives and analytics/personalized APIs."
           vi: "Layer 6, 7, 10, 22, 23: metric, semantic model, Cube, BI, reverse ETL, lựa chọn thay OLAP và API analytics/cá nhân hóa."
-        - en: Data federation and semantic-model versioning/deprecation are thin; add a concrete consumer and API contract example.
-          vi: Data federation và versioning/deprecation của semantic model còn mỏng; nên thêm ví dụ contract cho consumer và API.
+        - en: "Partially addressed: data federation now has a concrete consumer-cost example (layer 14, slide data-virtualization-versus-data-federation). Semantic-model versioning/deprecation and an API contract example are still open."
+          vi: "Đã bổ sung một phần: data federation nay có ví dụ chi phí cụ thể cho consumer (layer 14, slide data-virtualization-versus-data-federation). Versioning/deprecation của semantic model và ví dụ contract cho API vẫn còn mở."
       - - en: Performance and distributed systems
           vi: Hiệu năng và hệ thống phân tán
         - en: "Layers 3, 18, 19, 20, 22 and appendix: ACID, CAP, query plans, push-downs, reliability, FinOps and engine internals."

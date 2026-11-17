@@ -293,6 +293,68 @@ slides:
     n:
       en: "Incremental logic is where most subtle bugs live: the where-clause assumes updated_at is reliable. The snapshot YAML uses the newer YAML-based syntax; older projects define snapshots in SQL blocks. Contracts and Slim CI are what make dbt safe for many contributors."
       vi: "Logic incremental là nơi chứa hầu hết các bug tinh vi: mệnh đề where giả định updated_at đáng tin cậy. YAML của snapshot dùng cú pháp mới dựa trên YAML; các dự án cũ định nghĩa snapshot trong khối SQL. Contract và Slim CI là thứ giúp dbt an toàn cho nhiều contributor."
+  - id: deep-dive-why-sqlmesh-semantic-sql-understanding
+    k: code
+    t:
+      en: "Deep dive: why SQLMesh — semantic SQL understanding"
+      vi: "Đào sâu: vì sao chọn SQLMesh — hiểu SQL theo ngữ nghĩa"
+    lead:
+      en: dbt's Jinja templating treats a model as text to substitute and re-render. SQLMesh parses every model into an AST with SQLGlot, so it actually understands what the query does.
+      vi: Templating Jinja của dbt xem một model như văn bản để thay thế rồi render lại. SQLMesh parse mỗi model thành một AST bằng SQLGlot, nên nó thực sự hiểu truy vấn đang làm gì.
+    blocks:
+      - lang: text
+        title: "sqlmesh plan: a breaking change is caught before anything runs"
+        code: |-
+          $ sqlmesh plan dev
+
+          Models:
+          └── Directly Modified: sqlmesh_example.stg_orders
+              └── Indirectly Modified: sqlmesh_example.fct_orders
+
+          Breaking change detected in 'sqlmesh_example.stg_orders':
+            Column 'customer_id' type changed from BIGINT to VARCHAR
+
+          Apply - Backfill tables [y/n]:
+      - lang: bash
+        title: "Native table diff between two environments"
+        code: |-
+          sqlmesh table_diff prod:dev --model sqlmesh_example.fct_orders
+    points:
+      - h:
+          en: Semantic parsing via SQLGlot
+          vi: Parse theo ngữ nghĩa nhờ SQLGlot
+        p:
+          en: Every model is parsed into an abstract syntax tree, not just rendered text. SQLMesh knows which columns exist, their inferred types, and which other models reference them.
+          vi: Mỗi model được parse thành một cây cú pháp trừu tượng (AST), không chỉ là văn bản được render. SQLMesh biết những cột nào tồn tại, kiểu dữ liệu suy ra của chúng, và những model nào khác tham chiếu tới chúng.
+      - h:
+          en: Breaking-change detection at plan time
+          vi: Phát hiện breaking change ngay khi lập plan
+        tag: must
+        p:
+          en: "Because the column list and types are understood, renaming or changing the type of a column a downstream model depends on is flagged in `sqlmesh plan`, before anything runs. dbt relies on tests catching this after the fact."
+          vi: "Vì danh sách cột và kiểu dữ liệu đã được hiểu, việc đổi tên hay đổi kiểu một cột mà model downstream phụ thuộc vào sẽ bị cảnh báo ngay trong `sqlmesh plan`, trước khi bất cứ thứ gì chạy. dbt phải dựa vào test để bắt lỗi này sau khi đã xảy ra."
+      - h:
+          en: Dialect transpilation
+          vi: Transpile giữa các dialect
+        p:
+          en: The same model can be written once and transpiled to DuckDB, Snowflake, BigQuery or Postgres SQL, because SQLGlot understands the grammar of each dialect instead of just substituting strings.
+          vi: Cùng một model có thể viết một lần rồi transpile sang SQL của DuckDB, Snowflake, BigQuery hay Postgres, vì SQLGlot hiểu ngữ pháp của từng dialect chứ không chỉ thay thế chuỗi văn bản.
+      - h:
+          en: Native table diffing
+          vi: Table diff có sẵn
+        p:
+          en: "`table_diff` compares row counts and column values between two environments directly, without a hand-written reconciliation query."
+          vi: "`table_diff` so sánh số dòng và giá trị cột giữa hai environment trực tiếp, không cần viết tay một query đối soát."
+      - h:
+          en: The real trade-off
+          vi: Đánh đổi thực sự
+        tag: senior
+        p:
+          en: This is the actual reason to evaluate SQLMesh over dbt, not “an alternative framework”, but a different foundation that understands SQL instead of templating it. The cost is a smaller ecosystem and fewer community packages than dbt.
+          vi: Đây mới là lý do thực sự để cân nhắc SQLMesh thay vì dbt, không phải “một framework thay thế”, mà là một nền tảng khác hẳn, hiểu SQL thay vì chỉ templating nó. Cái giá phải trả là hệ sinh thái nhỏ hơn và ít package cộng đồng hơn dbt.
+    n:
+      en: "Tie this back to the tool-landscape table: “virtual environments and state-aware planning” is the visible benefit; semantic parsing via SQLGlot is the underlying reason it is possible. Command names and output follow current SQLMesh releases; check the docs for exact syntax."
+      vi: "Nối lại với bảng tool-landscape: “virtual environment và lập kế hoạch nhận biết state” là lợi ích nhìn thấy được; việc parse theo ngữ nghĩa bằng SQLGlot là lý do nền tảng khiến điều đó khả thi. Tên lệnh và output theo các bản phát hành SQLMesh hiện hành; hãy kiểm tra tài liệu để biết cú pháp chính xác."
   - id: design-patterns-and-best-practices
     k: cards
     t:

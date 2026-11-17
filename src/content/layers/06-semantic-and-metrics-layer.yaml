@@ -238,6 +238,81 @@ slides:
     n:
       en: "Read it as a contract: the semantic model says what the table is; the metrics say what the business means. The filter on revenue is the kind of rule that otherwise gets re-implemented in ten dashboards."
       vi: "Hãy đọc nó như một contract: semantic model nói bảng là gì; các metric nói nghiệp vụ muốn nói gì. Bộ lọc trên revenue là loại quy tắc mà nếu không sẽ bị cài đặt lại trong mười dashboard."
+  - id: metricflow-cumulative-derived-and-conversion-metrics
+    k: code
+    t:
+      en: "MetricFlow: cumulative, derived and conversion metrics"
+      vi: "MetricFlow: metric cumulative, derived và conversion"
+    lead:
+      en: Beyond simple and ratio, three more metric types cover time windows, calculations over other metrics, and funnels.
+      vi: Ngoài simple và ratio, ba loại metric khác bao phủ cửa sổ thời gian, phép tính trên các metric khác và funnel.
+    blocks:
+      - lang: yaml
+        title: "Cumulative: trailing 30-day revenue"
+        code: |-
+          metrics:
+            - name: revenue_t30d
+              label: Trailing 30-day revenue
+              type: cumulative
+              type_params:
+                measure: order_total
+                cumulative_type_params:
+                  window: 30 days
+      - lang: yaml
+        title: "Derived: gross margin from two existing metrics"
+        code: |-
+          metrics:
+            - name: gross_margin
+              label: Gross margin
+              type: derived
+              type_params:
+                expr: revenue - cost
+                metrics:
+                  - name: revenue
+                  - name: cost
+      - lang: yaml
+        title: "Conversion: signup to purchase within 7 days"
+        code: |-
+          metrics:
+            - name: signup_to_purchase_7d
+              label: Signup-to-purchase conversion (7d)
+              type: conversion
+              type_params:
+                conversion_type_params:
+                  entity: user
+                  base_measure: signups
+                  conversion_measure: purchases
+                  window: 7 days
+    points:
+      - h:
+          en: Cumulative
+          vi: Cumulative
+        p:
+          en: Aggregates a measure over a trailing or expanding time window instead of the query's own time grain, which is how “trailing 30-day revenue” stays correct no matter what date range a dashboard asks for.
+          vi: Tổng hợp một measure trên một cửa sổ thời gian trượt hoặc mở rộng thay vì theo time grain của chính query, đó là cách “doanh thu 30 ngày gần nhất” luôn đúng bất kể dashboard hỏi theo khoảng ngày nào.
+      - h:
+          en: Derived
+          vi: Derived
+        p:
+          en: A calculation over other metrics that are already defined, such as revenue minus cost. It never touches the semantic model directly, so the subtraction is defined once and every consumer gets the same gross margin.
+          vi: Một phép tính trên các metric khác đã được định nghĩa sẵn, như doanh thu trừ chi phí. Nó không bao giờ đụng trực tiếp vào semantic model, nên phép trừ chỉ được định nghĩa một lần và mọi consumer đều nhận cùng một gross margin.
+      - h:
+          en: Conversion
+          vi: Conversion
+        tag: must
+        p:
+          en: Ties two events on the same entity within a time window, such as a signup followed by a purchase inside seven days. MetricFlow computes the base count, the converted count and the resulting rate without a hand-written funnel query.
+          vi: Gắn hai event trên cùng một entity trong một cửa sổ thời gian, như đăng ký rồi mua hàng trong vòng bảy ngày. MetricFlow tự tính số lượng base, số lượng đã convert và tỷ lệ kết quả mà không cần viết tay một query funnel.
+      - h:
+          en: Pick the right one
+          vi: Chọn đúng loại
+        tag: senior
+        p:
+          en: Reach for cumulative when the window, not the grain, defines the number; derived when the business logic is arithmetic over existing metrics rather than a new aggregation; conversion only when counting a pair of events on the same entity.
+          vi: Dùng cumulative khi cửa sổ thời gian, chứ không phải grain, quyết định con số; dùng derived khi logic nghiệp vụ là phép tính số học trên các metric đã có, không phải một aggregation mới; chỉ dùng conversion khi đang đếm một cặp event trên cùng một entity.
+    n:
+      en: "These three complete the type list the previous slide only named. Parameter names such as `cumulative_type_params` and `conversion_type_params` have moved between MetricFlow releases; verify against the dbt Semantic Layer docs for your version."
+      vi: "Ba loại này hoàn thiện danh sách mà slide trước chỉ mới nêu tên. Tên tham số như `cumulative_type_params` và `conversion_type_params` đã thay đổi giữa các bản phát hành MetricFlow; hãy kiểm chứng với tài liệu dbt Semantic Layer theo phiên bản của bạn."
   - id: the-same-idea-in-cube-and-lookml
     k: code
     t:

@@ -1152,6 +1152,62 @@ slides:
     n:
       en: "The key insight is that the expensive part, the Parquet data, is shared; only the cheap metadata is duplicated. The jar name and properties are illustrative; the XTable bundle name includes a version, and UniForm requirements differ across Delta releases."
       vi: "Điểm then chốt là phần tốn kém, tức dữ liệu Parquet, được dùng chung; chỉ phần metadata rẻ bị nhân đôi. Tên jar và thuộc tính chỉ mang tính minh họa; tên gói XTable có kèm phiên bản, và yêu cầu của UniForm khác nhau giữa các bản Delta."
+  - id: delta-lake-change-data-feed-cdf
+    k: code
+    t:
+      en: "Delta Lake: Change Data Feed (CDF)"
+      vi: "Delta Lake: Change Data Feed (CDF)"
+    lead:
+      en: Change Data Feed records which rows were inserted, updated or deleted between two table versions, so a downstream job can propagate only what changed.
+      vi: Change Data Feed ghi lại những dòng nào đã được insert, update hay delete giữa hai version của bảng, để job downstream chỉ cần lan truyền đúng phần đã thay đổi.
+    blocks:
+      - lang: sql
+        title: "Enable CDF and read the changes in batch"
+        code: |-
+          alter table sales.orders set tblproperties (delta.enableChangeDataFeed = true);
+
+          -- every row-level change between two versions (or two timestamps)
+          select * from table_changes('sales.orders', 4, 9)
+          order by _commit_version;
+
+          -- _change_type is one of: insert, update_preimage, update_postimage, delete
+      - lang: python
+        title: "Streaming read of the same feed"
+        code: |-
+          changes = (spark.readStream
+              .format("delta")
+              .option("readChangeFeed", "true")
+              .option("startingVersion", 4)
+              .table("sales.orders"))
+    points:
+      - h:
+          en: How it works
+          vi: Cách hoạt động
+        p:
+          en: CDF writes a small extra set of files alongside normal commits, recording the before/after image of each changed row plus its commit version and timestamp. `table_changes()` reads those files directly instead of diffing two full snapshots.
+          vi: CDF ghi thêm một tập file nhỏ bên cạnh các commit bình thường, lưu lại hình ảnh trước/sau của mỗi dòng thay đổi cùng commit version và timestamp của nó. `table_changes()` đọc trực tiếp các file đó thay vì phải so sánh hai snapshot đầy đủ.
+      - h:
+          en: Off by default
+          vi: Mặc định tắt
+        p:
+          en: "`delta.enableChangeDataFeed` must be set explicitly. Turning it on after the table already exists only captures changes from that point forward, not retroactively."
+          vi: "`delta.enableChangeDataFeed` phải được bật tường minh. Bật tính năng này sau khi bảng đã tồn tại chỉ ghi lại thay đổi kể từ thời điểm đó trở đi, không hồi tố."
+      - h:
+          en: Typical use
+          vi: Cách dùng thường gặp
+        p:
+          en: Feed an incremental merge into a downstream silver or gold table, or a streaming sink, without rescanning the whole source table on every run.
+          vi: Nạp một merge incremental vào bảng silver hay gold phía sau, hoặc vào một streaming sink, mà không phải quét lại toàn bộ bảng nguồn mỗi lần chạy.
+      - h:
+          en: Iceberg has no built-in equivalent
+          vi: Iceberg không có tính năng tương đương tích hợp sẵn
+        tag: senior
+        p:
+          en: Iceberg exposes snapshots and metadata tables, but no native row-level before/after changelog. CDC on Iceberg is usually derived by diffing two snapshots or relying on an engine-specific change-log extension.
+          vi: Iceberg cung cấp snapshot và các bảng metadata, nhưng không có changelog trước/sau ở mức dòng được tích hợp sẵn. CDC trên Iceberg thường phải tự suy ra bằng cách so sánh hai snapshot, hoặc dựa vào một phần mở rộng changelog riêng của engine.
+    n:
+      en: "Contrast with the WAP and snapshot slides: those let you inspect a whole version; CDF lets a consumer ask only for what changed since the last version it saw, which is the building block for incremental downstream pipelines. Property and function names are Delta's; check your runtime version for exact support."
+      vi: "So sánh với các slide về WAP và snapshot: những slide đó cho phép xem toàn bộ một version; CDF cho phép consumer chỉ hỏi những gì đã thay đổi kể từ version cuối họ đã thấy, đây chính là viên gạch nền cho các pipeline downstream kiểu incremental. Tên property và function thuộc về Delta; hãy kiểm tra phiên bản runtime của bạn để biết mức hỗ trợ chính xác."
   - id: open-data-architecture-and-zero-copy
     k: cards
     t:

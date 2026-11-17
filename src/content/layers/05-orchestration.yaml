@@ -480,6 +480,61 @@ slides:
     n:
       en: The senior question is not “which tool?” but “what is the recovery story when this fails at 3 a.m. and the on-call engineer is new?”
       vi: Câu hỏi của senior không phải “dùng công cụ nào?” mà là “kịch bản khôi phục là gì khi thứ này lỗi lúc 3 giờ sáng và kỹ sư on-call còn mới?”
+  - id: ai-agent-orchestration-reinvents-data-orchestration
+    k: cards
+    t:
+      en: AI agent orchestration reinvents data orchestration
+      vi: Điều phối AI agent tái phát minh điều phối dữ liệu
+    lead:
+      en: Coordinating multi-step agent workflows, tool calls and sub-agents runs into the same operational needs data orchestrators solved a decade ago, just passing embeddings and context instead of datasets.
+      vi: Điều phối workflow nhiều bước của agent, lệnh gọi tool và sub-agent gặp lại đúng các nhu cầu vận hành mà data orchestrator đã giải quyết cả thập kỷ trước, chỉ khác là thứ truyền giữa các bước là embedding và context thay vì dataset.
+    cols: 3
+    cards:
+      - h:
+          en: Same core needs, new payload
+          vi: Nhu cầu cốt lõi giống nhau, payload mới
+        tag: senior
+        p:
+          en: Scheduling, retries, restartability, error logging and idempotency are just as unavoidable in an agent workflow. What moves between steps is now embeddings or context rather than rows in a dataset.
+          vi: Lập lịch, retry, khả năng chạy lại, log lỗi và idempotency vẫn không thể thiếu trong workflow agent. Thứ di chuyển giữa các bước giờ là embedding hoặc context thay vì dòng trong một dataset.
+      - h:
+          en: Frameworks reinvent retries and checkpoints
+          vi: Framework tái phát minh retry và checkpoint
+        tag: senior
+        p:
+          en: Agent frameworks build their own retry and resume logic (checkpointers, step state) instead of reusing a data orchestrator, because the unit of work is a conversation turn or tool call, not a batch job on a schedule.
+          vi: Framework agent tự xây logic retry và resume riêng (checkpointer, step state) thay vì dùng lại data orchestrator, vì đơn vị công việc là một lượt hội thoại hay lệnh gọi tool, không phải batch job theo lịch.
+      - h:
+          en: tmux and process supervisors as a crude scheduler
+          vi: tmux và process supervisor làm bộ lập lịch thô sơ
+        tag: senior
+        p:
+          en: Long-running coding or research agents are often kept alive under tmux, screen or a process supervisor so a crashed session can be reattached and resumed — an ad hoc version of the restartability Airflow or Dagster give for free.
+          vi: Agent coding hay research chạy dài thường được giữ sống dưới tmux, screen hoặc process supervisor để phiên bị crash có thể gắn lại và chạy tiếp — một phiên bản thủ công của khả năng chạy lại mà Airflow hay Dagster cho sẵn.
+      - h:
+          en: Git worktrees as partition isolation
+          vi: Git worktree làm cách ly theo partition
+        tag: senior
+        p:
+          en: Running several agent instances in separate git worktrees mirrors how a data orchestrator isolates concurrent backfills by partition — each run gets its own clean working copy, so no shared-state races.
+          vi: Chạy nhiều instance agent trong các git worktree riêng giống hệt cách data orchestrator cách ly các backfill đồng thời theo partition — mỗi lần chạy có bản làm việc sạch riêng, không đua tranh trạng thái chung.
+      - h:
+          en: What is still missing
+          vi: Vẫn còn thiếu gì
+        tag: senior
+        p:
+          en: Agent tooling mostly lacks mature cross-run dependency graphs, SLA-style alerting and one shared observability view across a fleet of agents — exactly where data orchestrators matured first.
+          vi: Công cụ agent phần lớn còn thiếu dependency graph trưởng thành giữa các lần chạy, cảnh báo kiểu SLA và một màn quan sát chung cho cả đội agent — đúng chỗ data orchestrator đã trưởng thành trước.
+      - h:
+          en: Expect convergence
+          vi: Hãy chờ hội tụ
+        tag: senior
+        p:
+          en: As agentic workloads scale, expect agent orchestration to borrow DAG scheduling, asset-based lineage and backfill tooling from data orchestrators rather than keep reinventing them ad hoc.
+          vi: Khi workload agentic mở rộng quy mô, hãy chờ điều phối agent mượn lập lịch theo DAG, lineage hướng asset và công cụ backfill từ data orchestrator thay vì cứ tái phát minh một cách tùy tiện.
+    n:
+      en: The transferable lesson for data engineers is that scheduling, retries, idempotency and observability skills carry over directly to agent orchestration, even though the vocabulary (agents, context, tool calls) looks unfamiliar at first.
+      vi: Bài học chuyển giao được cho data engineer là kỹ năng lập lịch, retry, idempotency và observability áp dụng thẳng sang điều phối agent, dù từ vựng (agent, context, tool call) ban đầu trông xa lạ.
   - id: checklist-and-interview-questions
     k: check
     t:

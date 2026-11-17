@@ -197,9 +197,23 @@ slides:
         p:
           en: A stable business or event ID makes duplicates detectable anywhere in the pipeline.
           vi: Một ID nghiệp vụ hoặc sự kiện ổn định giúp phát hiện bản trùng ở bất kỳ đâu trong pipeline.
+      - h:
+          en: "Anti-pattern sign: reading an \"always latest\" source"
+          vi: "Dấu hiệu anti-pattern: đọc từ nguồn \"luôn mới nhất\""
+        tag: senior
+        p:
+          en: A pipeline that reads from an always-latest table or view instead of a dated snapshot gives different results depending on when it happens to run, so a rerun or backfill is not reproducible even though nothing else changed.
+          vi: Một pipeline đọc từ bảng hoặc view luôn phản ánh trạng thái mới nhất thay vì một snapshot theo ngày sẽ cho kết quả khác nhau tùy lúc chạy, nên chạy lại hay backfill không tái lập được dù không gì khác thay đổi.
+      - h:
+          en: "Anti-pattern sign: a one-sided date filter"
+          vi: "Dấu hiệu anti-pattern: bộ lọc ngày chỉ một phía"
+        tag: senior
+        p:
+          en: "A filter such as `where event_date > start_date` with no upper bound silently processes more and more data on every backfill as time passes, inflating cost and runtime unpredictably. The fix is to always bound both ends of a date range filter."
+          vi: "Một bộ lọc như `where event_date > start_date` không có giới hạn trên sẽ âm thầm xử lý ngày càng nhiều dữ liệu ở mỗi lần backfill khi thời gian trôi qua, làm chi phí và thời gian chạy phình lên khó lường. Cách sửa là luôn chặn cả hai đầu của bộ lọc khoảng ngày."
     n:
-      en: "Jitter matters: without it all clients retry at the same instant and overload a recovering service. The SQL upsert is the simplest idempotent sink; Kafka transactions and Flink two-phase commits are the heavy-duty versions."
-      vi: "Jitter quan trọng: không có nó mọi client retry cùng lúc và làm quá tải dịch vụ đang hồi phục. Upsert SQL là sink idempotent đơn giản nhất; transaction của Kafka và two-phase commit của Flink là phiên bản hạng nặng."
+      en: "Jitter matters: without it all clients retry at the same instant and overload a recovering service. The SQL upsert is the simplest idempotent sink; Kafka transactions and Flink two-phase commits are the heavy-duty versions. The always-latest-source and one-sided-filter signs are framings commonly associated with data engineer Zach Wilson's writing on idempotent pipelines."
+      vi: "Jitter quan trọng: không có nó mọi client retry cùng lúc và làm quá tải dịch vụ đang hồi phục. Upsert SQL là sink idempotent đơn giản nhất; transaction của Kafka và two-phase commit của Flink là phiên bản hạng nặng. Hai dấu hiệu nguồn-luôn-mới-nhất và bộ-lọc-một-phía là cách khung hình thường gắn với bài viết của data engineer Zach Wilson về pipeline idempotent."
   - id: resilience-patterns-for-data-pipelines
     k: cards
     t:

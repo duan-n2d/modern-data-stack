@@ -965,6 +965,61 @@ slides:
     n:
       en: Keep claims about feature parity dated; Doris and StarRocks release quickly and leapfrog each other.
       vi: Hãy ghi ngày cho các nhận định về tính năng; Doris và StarRocks ra bản rất nhanh và liên tục vượt nhau.
+  - id: real-time-olap-engines-when-to-use-which
+    k: cards
+    t:
+      en: "Real-time OLAP engines: when to use which"
+      vi: "Engine OLAP thời gian thực: khi nào dùng cái nào"
+    lead:
+      en: The comparison table above lists trade-offs in full; this is the short answer when someone just wants a recommendation by workload size and latency need.
+      vi: Bảng so sánh ở trên liệt kê đầy đủ đánh đổi; đây là câu trả lời ngắn khi ai đó chỉ cần một khuyến nghị theo quy mô workload và yêu cầu độ trễ.
+    cols: 3
+    cards:
+      - h:
+          en: Sub-second dashboards at scale
+          vi: Dashboard dưới một giây ở quy mô lớn
+        tag: senior
+        p:
+          en: Apache Druid or Apache Pinot — built for high-concurrency, user-facing dashboards on continuously streamed events, at the cost of limited SQL/join support and required pre-modeling.
+          vi: Apache Druid hoặc Apache Pinot — xây cho dashboard đồng thời cao, hướng người dùng trên dữ liệu streaming liên tục, đánh đổi lấy hỗ trợ SQL/join hạn chế và cần mô hình hóa trước.
+      - h:
+          en: General-purpose fast analytics
+          vi: Analytics nhanh, đa dụng
+        tag: senior
+        p:
+          en: ClickHouse or StarRocks — the default for internal analytics and event aggregation at moderate-to-large scale, with far more flexible SQL and joins than Druid or Pinot.
+          vi: ClickHouse hoặc StarRocks — lựa chọn mặc định cho analytics nội bộ và tổng hợp sự kiện ở quy mô vừa đến lớn, với SQL và join linh hoạt hơn nhiều so với Druid hay Pinot.
+      - h:
+          en: High concurrency plus native upserts
+          vi: Đồng thời cao cộng upsert native
+        tag: senior
+        p:
+          en: Apache Doris sits in the same tier as StarRocks; choose between them by upsert needs, materialized-view rewrite support and which ecosystem or vendor you prefer.
+          vi: Apache Doris nằm cùng tầng với StarRocks; chọn giữa hai bên theo nhu cầu upsert, hỗ trợ rewrite bằng materialized view và hệ sinh thái hay vendor bạn thích.
+      - h:
+          en: Embedded or small-data, single-node
+          vi: Nhúng hoặc dữ liệu nhỏ, một node
+        tag: senior
+        p:
+          en: "DuckDB — when the data fits comfortably on one machine, a single-node, in-process engine beats standing up a cluster: zero ops, no network cost, instant start."
+          vi: "DuckDB — khi dữ liệu vừa thoải mái trên một máy, engine một node chạy trong tiến trình thắng việc dựng cả cụm: không vận hành, không tốn mạng, khởi động tức thì."
+      - h:
+          en: Rule of thumb by data size
+          vi: Quy tắc kinh nghiệm theo kích thước dữ liệu
+        tag: senior
+        p:
+          en: Comfortably fits on one machine → DuckDB. Needs a cluster with heavy streaming ingestion and many concurrent dashboard users → Druid or Pinot. Needs a cluster but workload is closer to general SQL analytics → ClickHouse, StarRocks or Doris.
+          vi: Vừa thoải mái trên một máy → DuckDB. Cần cả cụm với nạp streaming nặng và nhiều người dùng dashboard đồng thời → Druid hoặc Pinot. Cần cả cụm nhưng workload gần với analytics SQL thông thường → ClickHouse, StarRocks hoặc Doris.
+      - h:
+          en: Rule of thumb by latency need
+          vi: Quy tắc kinh nghiệm theo yêu cầu độ trễ
+        tag: senior
+        p:
+          en: Sub-second, pre-aggregated lookups behind a live product UI → Druid or Pinot. Sub-second ad hoc SQL for internal analysts → ClickHouse or StarRocks. Interactive but not sub-second, on small data → DuckDB is simpler and cheaper.
+          vi: Tra cứu đã tổng hợp trước, dưới một giây, phía sau UI sản phẩm sống → Druid hoặc Pinot. SQL tùy biến dưới một giây cho analyst nội bộ → ClickHouse hoặc StarRocks. Tương tác nhưng không cần dưới một giây, trên dữ liệu nhỏ → DuckDB đơn giản và rẻ hơn.
+    n:
+      en: Push for the workload size and latency numbers before naming a tool. Most teams can shortlist two engines from size and one from latency, then benchmark only those on real queries.
+      vi: Hãy hỏi về con số quy mô workload và độ trễ trước khi gọi tên công cụ. Phần lớn đội có thể rút ngắn còn hai engine theo quy mô và một theo độ trễ, rồi chỉ benchmark những cái đó trên query thật.
   - id: dremio-reflections-raw-aggregation-and-autonomous-optimization
     k: code
     t:

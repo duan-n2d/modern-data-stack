@@ -162,6 +162,33 @@ slides:
     n:
       en: The medallion naming comes from lakehouse platforms, but the same idea appears as staging, intermediate and marts in dbt projects. The value is the shared vocabulary and the rule that consumers only touch the top layer.
       vi: Cách đặt tên medallion đến từ các nền tảng lakehouse, nhưng cùng ý tưởng xuất hiện dưới dạng staging, intermediate và marts trong các dự án dbt. Giá trị nằm ở vốn từ chung và quy tắc rằng consumer chỉ chạm vào lớp trên cùng.
+  - id: medallion-platinum-layer-and-its-limits
+    k: cards
+    t:
+      en: "A fourth layer, and medallion's real limits"
+      vi: "Lớp thứ tư, và giới hạn thực sự của medallion"
+    lead:
+      en: Some teams add a Platinum layer on top of gold. Doing so also exposes what medallion was never meant to answer.
+      vi: Một số team thêm một lớp Platinum lên trên gold. Việc thêm đó cũng cho thấy rõ những gì medallion chưa bao giờ nhằm trả lời.
+    cols: 2
+    cards:
+      - h:
+          en: Platinum layer
+          vi: Lớp Platinum
+        tag: nice
+        p:
+          en: Pre-aggregated, sub-second-latency serving tables built for one specific consumer, such as a dashboard or an API, sitting on top of gold. Add it only when gold is correct but still too slow or too general for that one consumer.
+          vi: Các bảng serving đã tổng hợp trước, độ trễ dưới một giây, được xây cho một consumer cụ thể, như một dashboard hay một API, nằm trên gold. Chỉ nên thêm khi gold đã đúng nhưng vẫn quá chậm hoặc quá chung cho đúng consumer đó.
+      - h:
+          en: It is still just a naming convention
+          vi: Vẫn chỉ là một quy ước đặt tên
+        tag: senior
+        p:
+          en: Bronze, silver, gold and platinum are names for stages of quality, not an architecture. The pattern says nothing about which compute engine runs the jobs, which orchestrator schedules them, or how access and lineage are governed; those are separate decisions medallion does not make for you.
+          vi: Bronze, silver, gold và platinum là tên cho các giai đoạn chất lượng, không phải một kiến trúc. Pattern này không nói gì về việc compute engine nào chạy job, orchestrator nào lên lịch, hay access và lineage được quản trị ra sao; đó là những quyết định riêng mà medallion không đưa ra giúp bạn.
+    n:
+      en: "This extends the medallion slide, not replaces it: platinum is popular in some write-ups as a name for the final serving hop, but calling it “the architecture” repeats the same mistake as calling bronze/silver/gold one. Pair it with a real compute, orchestration and governance stack."
+      vi: "Slide này mở rộng slide medallion, không thay thế nó: platinum khá phổ biến trong một số bài viết như tên cho bước serving cuối cùng, nhưng gọi nó là “kiến trúc” lặp lại đúng sai lầm như khi gọi bronze/silver/gold là vậy. Hãy kết hợp nó với một stack compute, orchestration và governance thực sự."
   - id: slowly-changing-dimensions-and-incremental-strategies
     k: code
     t:
@@ -223,6 +250,56 @@ slides:
     n:
       en: "The two statements are standard Type 2 logic: first expire the old row, then insert the new current one. The same pattern appears inside dbt snapshots. Note the null-safe comparison, which is a common bug source. Syntax varies slightly between warehouses."
       vi: "Hai câu lệnh là logic Type 2 chuẩn: trước tiên expire dòng cũ, sau đó insert dòng current mới. Cùng pattern này xuất hiện bên trong dbt snapshot. Lưu ý phép so sánh null-safe, một nguồn bug phổ biến. Cú pháp khác nhau ??i chút giữa các warehouse."
+  - id: data-vault-1-0-vs-2-0-sequence-vs-hash-keys
+    k: table
+    t:
+      en: "Data Vault 1.0 vs 2.0: sequence keys versus hash keys"
+      vi: "Data Vault 1.0 và 2.0: sequence key so với hash key"
+    lead:
+      en: Both generations solve the same integration problem. The surrogate key choice is what separates them, and it decides how far loads can be parallelized.
+      vi: Cả hai thế hệ giải cùng một bài toán tích hợp. Lựa chọn surrogate key là điều phân biệt chúng, và nó quyết định khả năng song song hóa việc load dữ liệu.
+    head:
+      - en: Aspect
+        vi: Khía cạnh
+      - "Data Vault 1.0"
+      - "Data Vault 2.0"
+    rows:
+      - - en: Surrogate key
+          vi: Surrogate key
+        - en: Sequence-based (an auto-increment integer assigned by the database)
+          vi: Dựa trên sequence (một số nguyên auto-increment do database cấp)
+        - en: Hash of the business key (for example MD5 or SHA of the natural key)
+          vi: Hash của business key (ví dụ MD5 hoặc SHA của natural key)
+      - - en: Loading parallelism
+          vi: Khả năng song song khi load
+        - en: Each new hub row needs the next sequence value, so loads from parallel sources must coordinate or serialize to avoid collisions
+          vi: Mỗi dòng hub mới cần giá trị sequence tiếp theo, nên các lần load từ nhiều nguồn song song phải phối hợp hoặc chạy tuần tự để tránh trùng lặp
+        - en: Hash keys can be computed independently by any process before loading, so hubs, links and satellites load in parallel with no coordination
+          vi: Hash key có thể được tính độc lập bởi bất kỳ process nào trước khi load, nên hub, link và satellite load song song mà không cần phối hợp
+      - - en: Origin
+          vi: Nguồn gốc
+        - en: Introduced by Dan Linstedt as the original Data Vault model
+          vi: Được Dan Linstedt giới thiệu như mô hình Data Vault nguyên bản
+        - en: Dan Linstedt's later revision, built for distributed and parallel loading
+          vi: Bản sửa đổi sau này của Dan Linstedt, xây dựng cho việc load phân tán và song song
+      - - en: Point-in-time and bridge tables
+          vi: Bảng point-in-time và bridge
+        - en: Optional add-ons, used mainly to speed up specific slow queries
+          vi: Thành phần thêm vào tùy chọn, chủ yếu dùng để tăng tốc một số query chậm cụ thể
+        - en: A core part of the pattern, added specifically to keep queries fast despite the extra hashing and join overhead
+          vi: Một phần cốt lõi của pattern, được thêm vào riêng để giữ query nhanh dù có thêm overhead hashing và join
+      - - en: Trade-off
+          vi: Đánh đổi
+        - en: Simpler to reason about for a single-threaded load; becomes a bottleneck as source count and volume grow
+          vi: Dễ suy luận hơn khi load đơn luồng; trở thành nút thắt cổ chai khi số nguồn và khối lượng dữ liệu tăng
+        - en: Removes the sequence bottleneck; hash collisions and the storage cost of wider hash keys are the new things to manage
+          vi: Loại bỏ nút thắt sequence; va chạm hash và chi phí lưu trữ của hash key rộng hơn là những điều mới cần quản lý
+    cap:
+      en: "Hash keys are the detail most descriptions skip: they are what let Data Vault 2.0 load in parallel from many sources with no shared sequence to coordinate."
+      vi: "Hash key là chi tiết mà hầu hết mô tả bỏ qua: chính nó cho phép Data Vault 2.0 được load song song từ nhiều nguồn mà không cần một sequence dùng chung để phối hợp."
+    n:
+      en: "This is the detail worth knowing beyond “Data Vault uses hubs, links and satellites”: 1.0's sequence keys force loads to coordinate on one counter, while 2.0's hash keys let every source compute its own keys independently, in parallel, before the hub or link ever sees them. PIT and bridge tables exist to pay back the extra join cost that hashing, and the resulting wider and less selective joins, introduces."
+      vi: "Đây là chi tiết đáng biết vượt ra ngoài câu “Data Vault dùng hub, link và satellite”: sequence key của 1.0 buộc các lần load phải phối hợp trên một bộ đếm chung, trong khi hash key của 2.0 cho phép mỗi nguồn tự tính key của mình độc lập, song song, trước khi hub hay link kịp thấy chúng. Bảng PIT và bridge tồn tại để bù lại chi phí join tăng thêm mà hashing, cùng các join rộng hơn và kém chọn lọc hơn, gây ra."
   - id: decision-guide-which-approach-when
     k: table
     t:
